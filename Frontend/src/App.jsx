@@ -9,6 +9,10 @@ import Topbar from "./Components/Topbar/Topbar";
 import Home from "./Pages/Home/Home";
 import Navbar from "./Components/Navbar/Navbar";
 import Footer from "./Components/Footer/Footer";
+import MachineryDetails from "./Components/MachineryDetails/MachineryDetails";
+import MachineryCatalogue from "./Components/MachineryCatalogue/MachineryCatalogue";
+import Product from "./Pages/Product/Product";
+import ProductDetails from "./Pages/ProductDetails/ProductDetails";
 
 const App = () => {
   return (
@@ -23,6 +27,11 @@ const App = () => {
         <main className="App-main">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/machine-details" element={<MachineryDetails />} />
+            <Route path="/machine-catalogue" element={<MachineryCatalogue />} />
+
+            <Route path="/products" element={<Product />} />
+            <Route path="/Product-Details" element={<ProductDetails />} />
           </Routes>
         </main>
 
