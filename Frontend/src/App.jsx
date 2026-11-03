@@ -13,6 +13,9 @@ import MachineryDetails from "./Components/MachineryDetails/MachineryDetails";
 import MachineryCatalogue from "./Components/MachineryCatalogue/MachineryCatalogue";
 import Product from "./Pages/Product/Product";
 import ProductDetails from "./Pages/ProductDetails/ProductDetails";
+import Team from "./Pages/Team/Team";
+import Blog from "./Pages/Blog/Blog";
+import BlogDetails from "./Pages/BlogDetails/BlogDetails";
 
 const App = () => {
   return (
@@ -32,6 +35,9 @@ const App = () => {
 
             <Route path="/products" element={<Product />} />
             <Route path="/Product-Details" element={<ProductDetails />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog-details" element={<BlogDetails />} />
           </Routes>
         </main>
 
