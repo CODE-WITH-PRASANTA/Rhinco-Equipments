@@ -16,6 +16,8 @@ import ProductDetails from "./Pages/ProductDetails/ProductDetails";
 import Team from "./Pages/Team/Team";
 import Blog from "./Pages/Blog/Blog";
 import BlogDetails from "./Pages/BlogDetails/BlogDetails";
+import Contact from "./Pages/Contact/Contact";
+import FAQs from "./Pages/FAQs/FAQs";
 
 const App = () => {
   return (
@@ -38,6 +40,9 @@ const App = () => {
             <Route path="/team" element={<Team />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog-details" element={<BlogDetails />} />
+            <Route path="/contact" element={<Contact/>} />
+            <Route path="/faq" element={<FAQs/>} />
+
           </Routes>
         </main>
 

@@ -1,0 +1,318 @@
+
+/* =========================================
+   CONTACT ONE SECTION
+========================================= */
+
+.contactone-section {
+  width: 100%;
+  padding: 65px 0 60px;
+  background: #ffffff;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #292929;
+}
+
+.contactone-container {
+  width: 100%;
+  max-width: 1460px;
+  margin: 0 auto;
+  padding: 0 100px;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   HEADING
+========================================= */
+
+.contactone-heading {
+  width: 100%;
+  margin-bottom: 42px;
+}
+
+.contactone-heading h2 {
+  margin: 0 0 20px;
+  color: #292929;
+  font-size: 34px;
+  line-height: 1.3;
+  font-weight: 700;
+  padding: 0 100px;
+}
+
+.contactone-heading p {
+  margin: 0;
+  color: #858585;
+  font-size: 18px;
+  line-height: 1.7;
+  font-weight: 400;
+  padding: 0 100px;
+}
+
+/* =========================================
+   DOTS
+========================================= */
+
+.contactone-dots {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-bottom: 25px;
+}
+
+.contactone-dot {
+  width: 7px;
+  height: 7px;
+  display: block;
+  border: 1px solid #e1e1e1;
+  border-radius: 50%;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.contactone-dot-active {
+  width: 13px;
+  height: 13px;
+  border: 2px solid #ffb51b;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 181, 27, 0.16);
+}
+
+/* =========================================
+   LOCATIONS
+========================================= */
+
+.contactone-locations {
+  display: flex;
+  flex-direction: column;
+  gap: 43px;
+
+}
+
+.contactone-location {
+  display: grid;
+  grid-template-columns: 235px minmax(0, 1fr);
+  align-items: start;
+  padding: 0 200px;
+  gap: 26px;
+  height: 227px;
+}
+
+/* =========================================
+   LOCATION IMAGE
+========================================= */
+
+.contactone-image {
+  width: 235px;
+  height: calc(100% + 10px);
+  overflow: hidden;
+  width: calc(100% + 70px);
+  margin-left: -100px;
+  ;
+}
+
+.contactone-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =========================================
+   LOCATION DETAILS
+========================================= */
+
+.contactone-details {
+  min-width: 0;
+}
+
+.contactone-line {
+  width: 74px;
+  height: 2px;
+  margin-bottom: 12px;
+  background: #ffad00;
+}
+
+.contactone-details h3 {
+  margin: 0 0 27px;
+  color: #292929;
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 400;
+}
+
+/* =========================================
+   CONTACT INFORMATION
+========================================= */
+
+.contactone-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 24px;
+}
+
+.contactone-info:last-child {
+  margin-bottom: 0;
+}
+
+.contactone-info-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffad00;
+}
+
+.contactone-info-icon svg {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+
+.contactone-info div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.contactone-info strong {
+  color: #777777;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.contactone-info span,
+.contactone-info a {
+  color: #858585;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.contactone-info a:hover {
+  color: #ffad00;
+}
+
+/* =========================================
+   TABLET RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+  .contactone-section {
+    padding: 50px 0 45px;
+  }
+
+  .contactone-heading h2 {
+    font-size: 29px;
+  }
+
+  .contactone-heading p {
+    font-size: 15px;
+  }
+
+  .contactone-location {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .contactone-image {
+    width: 200px;
+    height: 210px;
+  }
+
+  .contactone-details h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .contactone-info {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+}
+
+/* =========================================
+   MOBILE RESPONSIVE
+========================================= */
+
+@media (max-width: 550px) {
+  .contactone-section {
+    padding: 40px 0;
+  }
+
+  .contactone-container {
+    padding: 0 15px;
+  }
+
+  .contactone-heading {
+    margin-bottom: 30px;
+  }
+
+  .contactone-heading h2 {
+    font-size: 25px;
+    margin-bottom: 14px;
+  }
+
+  .contactone-heading p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .contactone-dots {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-bottom: 25px;
+  margin-left: 600px;
+  }
+  .contactone-locations {
+    gap: 32px;
+  }
+
+  .contactone-location {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .contactone-image {
+    width: 100%;
+    height: 220px;
+  }
+
+  .contactone-details h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .contactone-info {
+    gap: 13px;
+    margin-bottom: 18px;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+  .contactone-heading h2 {
+    font-size: 23px;
+  }
+
+  .contactone-image {
+    height: 190px;
+  }
+
+  .contactone-info strong {
+    font-size: 13px;
+  }
+
+  .contactone-info span,
+  .contactone-info a {
+    font-size: 12px;
+  }
+}
