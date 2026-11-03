@@ -13,6 +13,8 @@ import MachineryDetails from "./Components/MachineryDetails/MachineryDetails";
 import MachineryCatalogue from "./Components/MachineryCatalogue/MachineryCatalogue";
 import Product from "./Pages/Product/Product";
 import ProductDetails from "./Pages/ProductDetails/ProductDetails";
+import Contact from "./Pages/Contact/Contact";
+import FAQs from "./Pages/FAQs/FAQs";
 
 const App = () => {
   return (
@@ -32,6 +34,9 @@ const App = () => {
 
             <Route path="/products" element={<Product />} />
             <Route path="/Product-Details" element={<ProductDetails />} />
+            <Route path="/contact" element={<Contact/>} />
+            <Route path="/faq" element={<FAQs/>} />
+
           </Routes>
         </main>
 
