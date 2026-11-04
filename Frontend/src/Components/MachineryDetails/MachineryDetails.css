@@ -1,0 +1,766 @@
+
+.MachineryDetails {
+  width: 100%;
+  min-height: 100vh;
+  padding: 18px 0 45px;
+  background: #f8fbf7;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #172019;
+}
+
+.MachineryDetails-container {
+  width: min(100% - 48px, 1480px);
+  margin: 0 auto;
+}
+
+/* Breadcrumb */
+
+.MachineryDetails-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-height: 30px;
+  margin-bottom: 20px;
+  font-size: 15px;
+}
+
+.MachineryDetails-breadcrumb a {
+  color: #69736c;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.MachineryDetails-breadcrumb a:hover {
+  color: #08752a;
+}
+
+.MachineryDetails-breadcrumb-arrow {
+  color: #c6d0c7;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.MachineryDetails-breadcrumb-current {
+  color: #111b13;
+  font-weight: 700;
+}
+
+/* Main layout */
+
+.MachineryDetails-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  gap: 28px;
+}
+
+/* Image card */
+
+.MachineryDetails-image-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 540px;
+  padding: 30px;
+  background: #f5f7f5;
+  border: 1px solid #fff;
+  border-radius: 30px;
+  box-shadow: 0 12px 35px rgba(36, 78, 38, 0.07);
+  overflow: hidden;
+}
+
+.MachineryDetails-image-background {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 450px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.MachineryDetails-product-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+.MachineryDetails-image-card:hover .MachineryDetails-product-image {
+  transform: scale(1.025);
+}
+
+/* Product details card */
+
+.MachineryDetails-info-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 540px;
+  padding: 32px 30px 26px;
+  background: #fff;
+  border-radius: 30px;
+  box-shadow: 0 12px 35px rgba(36, 78, 38, 0.07);
+}
+
+.MachineryDetails-brand {
+  margin-bottom: 7px;
+  color: #788078;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.MachineryDetails-product-title {
+  margin: 0;
+  color: #111b13;
+  font-size: clamp(27px, 3vw, 39px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.MachineryDetails-price {
+  margin-top: 8px;
+  color: #087b2c;
+  font-size: clamp(34px, 3.3vw, 46px);
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+
+/* Category selector */
+
+.MachineryDetails-category-section {
+  margin-top: 20px;
+}
+
+.MachineryDetails-category-label {
+  display: block;
+  margin-bottom: 9px;
+  color: #303b32;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.MachineryDetails-category-wrapper {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.MachineryDetails-category-list {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 0 0 3px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.MachineryDetails-category-list::-webkit-scrollbar {
+  display: none;
+}
+
+.MachineryDetails-category-card {
+  display: flex;
+  flex: 0 0 170px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 83px;
+  padding: 12px 9px;
+  color: #111b13;
+  background: #fff;
+  border: 1px solid #dce5dc;
+  border-radius: 17px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.MachineryDetails-category-card:hover {
+  border-color: #3a9448;
+  transform: translateY(-2px);
+}
+
+.MachineryDetails-category-active {
+  background: #f0f8ef;
+  border: 1.5px solid #188133;
+  box-shadow: 0 4px 13px rgba(28, 123, 48, 0.09);
+}
+
+.MachineryDetails-category-name {
+  display: block;
+  min-height: 31px;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.MachineryDetails-category-amount {
+  display: block;
+  color: #39433a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.MachineryDetails-category-active .MachineryDetails-category-amount {
+  color: #08752a;
+}
+
+.MachineryDetails-category-next {
+  position: absolute;
+  top: 50%;
+  right: -9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  color: #18231b;
+  background: #fff;
+  border: 1px solid #edf1ed;
+  border-radius: 50%;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.MachineryDetails-category-next:hover {
+  color: #fff;
+  background: #14762b;
+}
+
+.MachineryDetails-category-next svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Apply button */
+
+.MachineryDetails-apply-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 65px;
+  margin-top: 20px;
+  color: #fff;
+  background: #cbd0cb;
+  border: none;
+  border-radius: 50px;
+  font-size: 20px;
+  font-weight: 750;
+  cursor: not-allowed;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.MachineryDetails-apply-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.MachineryDetails-apply-enabled {
+  background: #08732a;
+  box-shadow: 0 8px 18px rgba(8, 115, 42, 0.18);
+  cursor: pointer;
+}
+
+.MachineryDetails-apply-enabled:hover {
+  background: #075c22;
+  transform: translateY(-2px);
+  box-shadow: 0 11px 22px rgba(8, 115, 42, 0.22);
+}
+
+.MachineryDetails-apply-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  padding: 10px 0;
+  color: #707a70;
+  font-size: 14px;
+  text-align: center;
+}
+
+.MachineryDetails-info-divider {
+  width: 100%;
+  height: 1px;
+  background: #e5ebe5;
+}
+
+.MachineryDetails-dealer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.MachineryDetails-dealer-note svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #08752a;
+}
+
+.MachineryDetails-dealer-note p {
+  margin: 0;
+  color: #626d63;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+/* Tabs card */
+
+.MachineryDetails-tabs-card {
+  width: 100%;
+  margin-top: 28px;
+  background: #fff;
+  border-radius: 30px;
+  box-shadow: 0 12px 35px rgba(36, 78, 38, 0.065);
+  overflow: hidden;
+}
+
+.MachineryDetails-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 10px;
+  min-height: 69px;
+  padding: 8px;
+  border-bottom: 1px solid #e5ebe5;
+}
+
+.MachineryDetails-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 10px;
+  color: #697267;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 19px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.MachineryDetails-tab svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.MachineryDetails-tab:hover {
+  color: #08752a;
+  background: #f6faf5;
+}
+
+.MachineryDetails-tab-active {
+  color: #08752a;
+  background: #fff;
+  border-color: #edf1ed;
+  box-shadow: 0 2px 5px rgba(25, 67, 27, 0.08);
+}
+
+.MachineryDetails-tab-panel {
+  min-height: 150px;
+  padding: 30px;
+}
+
+.MachineryDetails-tab-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+  text-align: center;
+}
+
+.MachineryDetails-tab-message h3 {
+  margin: 0 0 8px;
+  color: #1d2a1e;
+  font-size: 17px;
+}
+
+.MachineryDetails-tab-message p {
+  margin: 0;
+  color: #697469;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* Products tab */
+
+.MachineryDetails-tab-content {
+  width: 100%;
+}
+
+.MachineryDetails-tab-content > h3 {
+  margin: 0 0 20px;
+  color: #263329;
+  font-size: 19px;
+}
+
+.MachineryDetails-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.MachineryDetails-feature-item {
+  padding: 20px;
+  background: #f8fbf7;
+  border: 1px solid #e7eee6;
+  border-radius: 16px;
+}
+
+.MachineryDetails-feature-item > span {
+  color: #188133;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.MachineryDetails-feature-item h4 {
+  margin: 9px 0 7px;
+  color: #243328;
+  font-size: 15px;
+}
+
+.MachineryDetails-feature-item p {
+  margin: 0;
+  color: #738073;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Required documents */
+
+.MachineryDetails-document-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px 25px;
+}
+
+.MachineryDetails-document-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4d5b4e;
+  font-size: 15px;
+}
+
+.MachineryDetails-document-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  flex-shrink: 0;
+  color: #08752a;
+  background: #edf7ed;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* Laptop */
+
+@media (max-width: 1100px) {
+  .MachineryDetails-container {
+    width: calc(100% - 40px);
+  }
+
+  .MachineryDetails-main {
+    gap: 20px;
+  }
+
+  .MachineryDetails-image-card,
+  .MachineryDetails-info-card {
+    min-height: 500px;
+  }
+
+  .MachineryDetails-info-card {
+    padding: 27px 22px;
+  }
+
+  .MachineryDetails-image-card {
+    padding: 22px;
+  }
+
+  .MachineryDetails-category-card {
+    flex-basis: 150px;
+  }
+
+  .MachineryDetails-product-title {
+    font-size: 30px;
+  }
+}
+
+/* Tablet */
+
+@media (max-width: 800px) {
+  .MachineryDetails {
+    padding-top: 15px;
+  }
+
+  .MachineryDetails-main {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .MachineryDetails-image-card {
+    min-height: 420px;
+  }
+
+  .MachineryDetails-image-background {
+    min-height: 360px;
+  }
+
+  .MachineryDetails-product-image {
+    max-height: 390px;
+  }
+
+  .MachineryDetails-info-card {
+    min-height: auto;
+    padding: 28px;
+  }
+
+  .MachineryDetails-category-card {
+    flex-basis: 170px;
+  }
+
+  .MachineryDetails-tabs-card {
+    margin-top: 20px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 550px) {
+  .MachineryDetails {
+    padding: 12px 0 30px;
+  }
+
+  .MachineryDetails-container {
+    width: calc(100% - 24px);
+  }
+
+  .MachineryDetails-breadcrumb {
+    gap: 7px;
+    margin-bottom: 14px;
+    font-size: 12px;
+  }
+
+  .MachineryDetails-breadcrumb-arrow {
+    font-size: 17px;
+  }
+
+  .MachineryDetails-main {
+    gap: 14px;
+  }
+
+  .MachineryDetails-image-card {
+    min-height: 320px;
+    padding: 15px;
+    border-radius: 22px;
+  }
+
+  .MachineryDetails-image-background {
+    min-height: 285px;
+  }
+
+  .MachineryDetails-product-image {
+    max-height: 285px;
+  }
+
+  .MachineryDetails-info-card {
+    padding: 22px 17px;
+    border-radius: 22px;
+  }
+
+  .MachineryDetails-brand {
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  .MachineryDetails-product-title {
+    font-size: 27px;
+    letter-spacing: -0.6px;
+  }
+
+  .MachineryDetails-price {
+    margin-top: 7px;
+    font-size: 36px;
+  }
+
+  .MachineryDetails-category-section {
+    margin-top: 18px;
+  }
+
+  .MachineryDetails-category-label {
+    font-size: 13px;
+  }
+
+  .MachineryDetails-category-card {
+    flex-basis: 145px;
+    min-height: 80px;
+    padding: 10px 7px;
+    border-radius: 13px;
+  }
+
+  .MachineryDetails-category-name {
+    font-size: 12px;
+  }
+
+  .MachineryDetails-category-amount {
+    font-size: 12px;
+  }
+
+  .MachineryDetails-category-next {
+    right: -7px;
+    width: 35px;
+    height: 35px;
+  }
+
+  .MachineryDetails-apply-button {
+    min-height: 55px;
+    margin-top: 16px;
+    font-size: 17px;
+  }
+
+  .MachineryDetails-apply-hint {
+    min-height: 52px;
+    font-size: 12px;
+  }
+
+  .MachineryDetails-dealer-note {
+    gap: 9px;
+  }
+
+  .MachineryDetails-dealer-note svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .MachineryDetails-dealer-note p {
+    font-size: 12px;
+  }
+
+  .MachineryDetails-tabs-card {
+    margin-top: 16px;
+    border-radius: 21px;
+  }
+
+  .MachineryDetails-tabs {
+    gap: 3px;
+    min-height: 60px;
+    padding: 6px;
+  }
+
+  .MachineryDetails-tab {
+    flex-direction: column;
+    gap: 5px;
+    min-height: 55px;
+    padding: 7px 3px;
+    border-radius: 13px;
+    font-size: 10px;
+    text-align: center;
+  }
+
+  .MachineryDetails-tab svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .MachineryDetails-tab-panel {
+    min-height: 125px;
+    padding: 20px 14px;
+  }
+
+  .MachineryDetails-tab-message {
+    min-height: 85px;
+  }
+
+  .MachineryDetails-tab-message h3 {
+    font-size: 15px;
+  }
+
+  .MachineryDetails-tab-message p {
+    font-size: 13px;
+  }
+
+  .MachineryDetails-feature-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .MachineryDetails-feature-item {
+    padding: 15px;
+  }
+
+  .MachineryDetails-document-list {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+
+  .MachineryDetails-document-item {
+    font-size: 13px;
+  }
+}
+
+/* Extra small screens */
+
+@media (max-width: 360px) {
+  .MachineryDetails-container {
+    width: calc(100% - 18px);
+  }
+
+  .MachineryDetails-breadcrumb {
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .MachineryDetails-product-title {
+    font-size: 24px;
+  }
+
+  .MachineryDetails-price {
+    font-size: 32px;
+  }
+
+  .MachineryDetails-category-card {
+    flex-basis: 135px;
+  }
+
+  .MachineryDetails-tab {
+    font-size: 9px;
+  }
+}
