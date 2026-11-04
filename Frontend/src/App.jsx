@@ -18,6 +18,9 @@ import Blog from "./Pages/Blog/Blog";
 import BlogDetails from "./Pages/BlogDetails/BlogDetails";
 import Contact from "./Pages/Contact/Contact";
 import FAQs from "./Pages/FAQs/FAQs";
+import Cart from "./Pages/Cart/Cart";
+import Wishlist from "./Pages/Wishlist/Wishlist";
+import MachinaryEquipment from "./Pages/MachinaryEquipment/MachinaryEquipment";
 
 const App = () => {
   return (
@@ -42,6 +45,9 @@ const App = () => {
             <Route path="/blog-details" element={<BlogDetails />} />
             <Route path="/contact" element={<Contact/>} />
             <Route path="/faq" element={<FAQs/>} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/machinery" element={<MachinaryEquipment />} />
 
           </Routes>
         </main>
