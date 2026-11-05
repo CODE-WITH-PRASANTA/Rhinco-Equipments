@@ -15,6 +15,7 @@ import Product from "./Pages/Product/Product";
 import ProductDetails from "./Pages/ProductDetails/ProductDetails";
 import Contact from "./Pages/Contact/Contact";
 import FAQs from "./Pages/FAQs/FAQs";
+import MachineryAndEquipment from "./Pages/MachineryAndEquipment/MachineryAndEquipment";
 
 const App = () => {
   return (
@@ -33,9 +34,10 @@ const App = () => {
             <Route path="/machine-catalogue" element={<MachineryCatalogue />} />
 
             <Route path="/products" element={<Product />} />
-            <Route path="/Product-Details" element={<ProductDetails />} />
+            <Route path="/product-details" element={<ProductDetails />} />
             <Route path="/contact" element={<Contact/>} />
             <Route path="/faq" element={<FAQs/>} />
+            <Route path="/machinery-details" element={<MachineryAndEquipment />} />
 
           </Routes>
         </main>
