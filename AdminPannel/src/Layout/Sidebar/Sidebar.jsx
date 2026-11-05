@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 import {
@@ -13,18 +13,127 @@ import {
   FiFileText,
   FiPlusSquare,
   FiMail,
-  FiUserPlus,
   FiX,
   FiTruck,
+  FiCalendar,
+  FiShoppingCart,
+  FiSettings,
+  FiStar,
+  FiBarChart2,
+  FiClipboard,
 } from "react-icons/fi";
 
 import "./Sidebar.css";
 
 const BrandMark = ({ className = "" }) => (
   <div className={className}>
-    <FiTruck size={24} />
+    <FiTruck size={25} />
   </div>
 );
+
+const menuItems = [
+  {
+    text: "Dashboard",
+    path: "/",
+    icon: <FiGrid size={20} />,
+  },
+  {
+    text: "Category",
+    path: "/category",
+    icon: <FiLayers size={20} />,
+  },
+  {
+    type: "dropdown",
+    text: "Product Management",
+    icon: <FiPackage size={20} />,
+    children: [
+      {
+        text: "Add Product",
+        path: "/products/add",
+        icon: <FiPlusSquare size={16} />,
+      },
+      {
+        text: "Manage Product",
+        path: "/products",
+        icon: <FiFileText size={16} />,
+      },
+    ],
+  },
+  {
+    type: "dropdown",
+    text: "Machinery & Equipment",
+    icon: <FiTool size={20} />,
+    children: [
+      {
+        text: "Add Equipment",
+        path: "/machinery-equipment/add",
+        icon: <FiPlusSquare size={16} />,
+      },
+      {
+        text: "Manage Equipment",
+        path: "/machinery-equipment",
+        icon: <FiFileText size={16} />,
+      },
+    ],
+  },
+  {
+    text: "Team",
+    path: "/team",
+    icon: <FiUsers size={20} />,
+  },
+  {
+    type: "dropdown",
+    text: "Blog",
+    icon: <FiEdit3 size={20} />,
+    children: [
+      {
+        text: "Blog Posting",
+        path: "/blog/new",
+        icon: <FiPlusSquare size={16} />,
+      },
+      {
+        text: "Blog Management",
+        path: "/blog",
+        icon: <FiFileText size={16} />,
+      },
+    ],
+  },
+  {
+    text: "Service Slot",
+    path: "/service-slot",
+    icon: <FiCalendar size={20} />,
+  },
+  {
+    text: "Product Orders",
+    path: "/product-orders",
+    icon: <FiShoppingCart size={20} />,
+  },
+  {
+    text: "Machinery Orders",
+    path: "/machinery-orders",
+    icon: <FiTruck size={20} />,
+  },
+  {
+    text: "Review",
+    path: "/review",
+    icon: <FiStar size={20} />,
+  },
+  {
+    text: "Enquiry",
+    path: "/enquiry",
+    icon: <FiMail size={20} />,
+  },
+  {
+    text: "Report",
+    path: "/report",
+    icon: <FiBarChart2 size={20} />,
+  },
+  {
+    text: "Settings",
+    path: "/settings",
+    icon: <FiSettings size={20} />,
+  },
+];
 
 const Sidebar = ({
   isCollapsed,
@@ -33,54 +142,22 @@ const Sidebar = ({
 }) => {
   const location = useLocation();
 
-  const isBlogPage =
-    location.pathname === "/blog" ||
-    location.pathname.startsWith("/blog/");
+  const [openDropdown, setOpenDropdown] = useState("");
 
-  const [blogOpen, setBlogOpen] = useState(isBlogPage);
+  // Automatically open the dropdown of the active route
+  useEffect(() => {
+    const activeDropdown = menuItems.find(
+      (item) =>
+        item.type === "dropdown" &&
+        item.children?.some(
+          (child) =>
+            location.pathname === child.path ||
+            location.pathname.startsWith(child.path + "/")
+        )
+    );
 
-  const menuItems = [
-    {
-      text: "Dashboard",
-      path: "/",
-      icon: <FiGrid size={20} />,
-    },
-    {
-      text: "Product",
-      path: "/products",
-      icon: <FiPackage size={20} />,
-    },
-    {
-      text: "Machinery & Equipment",
-      path: "/machinery-equipment",
-      icon: <FiTool size={20} />,
-    },
-    {
-      text: "Category",
-      path: "/category",
-      icon: <FiLayers size={20} />,
-    },
-    {
-      text: "Team",
-      path: "/team",
-      icon: <FiUsers size={20} />,
-    },
-    {
-      type: "dropdown",
-      text: "Blog",
-      icon: <FiEdit3 size={20} />,
-    },
-    {
-      text: "Enquiry",
-      path: "/enquiry",
-      icon: <FiMail size={20} />,
-    },
-    {
-      text: "Cold Lead",
-      path: "/cold-lead",
-      icon: <FiUserPlus size={20} />,
-    },
-  ];
+    setOpenDropdown(activeDropdown?.text || "");
+  }, [location.pathname]);
 
   const handleNavClick = () => {
     if (isMobileOpen && onClose) {
@@ -88,11 +165,18 @@ const Sidebar = ({
     }
   };
 
-  const handleBlogToggle = () => {
-    if (!isCollapsed || isMobileOpen) {
-      setBlogOpen((prev) => !prev);
-    }
+  const handleDropdownToggle = (text) => {
+    if (isCollapsed && !isMobileOpen) return;
+
+    setOpenDropdown((prev) => (prev === text ? "" : text));
   };
+
+  const isChildActive = (children) =>
+    children?.some(
+      (child) =>
+        location.pathname === child.path ||
+        location.pathname.startsWith(child.path + "/")
+    );
 
   return (
     <aside
@@ -133,22 +217,30 @@ const Sidebar = ({
       {/* NAVIGATION */}
       <nav className="Sidebar-nav">
         {menuItems.map((item) => {
+          // DROPDOWN MENU
           if (item.type === "dropdown") {
+            const isOpen = openDropdown === item.text;
+            const isActive = isChildActive(item.children);
+
             return (
               <div
                 key={item.text}
                 className={`Sidebar-dropdown-wrapper ${
-                  blogOpen || isBlogPage ? "is-open" : ""
+                  isOpen || isActive ? "is-open" : ""
                 }`}
               >
                 <button
                   type="button"
                   className={`Sidebar-link Sidebar-dropdown-toggle ${
-                    isBlogPage ? "active" : ""
+                    isActive ? "active" : ""
                   }`}
-                  onClick={handleBlogToggle}
-                  title={isCollapsed ? item.text : undefined}
-                  aria-expanded={blogOpen || isBlogPage}
+                  onClick={() => handleDropdownToggle(item.text)}
+                  title={
+                    isCollapsed && !isMobileOpen
+                      ? item.text
+                      : undefined
+                  }
+                  aria-expanded={isOpen}
                 >
                   <span className="Sidebar-icon">
                     {item.icon}
@@ -163,18 +255,20 @@ const Sidebar = ({
                       <FiChevronDown
                         size={16}
                         className={`Sidebar-chevron ${
-                          blogOpen || isBlogPage ? "rotated" : ""
+                          isOpen ? "rotated" : ""
                         }`}
                       />
                     </>
                   )}
                 </button>
 
-                {(!isCollapsed || isMobileOpen) &&
-                  (blogOpen || isBlogPage) && (
-                    <div className="Sidebar-submenu">
+                {/* SUBMENU */}
+                {(!isCollapsed || isMobileOpen) && isOpen && (
+                  <div className="Sidebar-submenu">
+                    {item.children.map((child) => (
                       <NavLink
-                        to="/blog"
+                        key={child.path}
+                        to={child.path}
                         end
                         onClick={handleNavClick}
                         className={({ isActive }) =>
@@ -183,35 +277,27 @@ const Sidebar = ({
                           }`
                         }
                       >
-                        <FiFileText size={16} />
-                        <span>Blog Management</span>
+                        {child.icon}
+                        <span>{child.text}</span>
                       </NavLink>
-
-                      <NavLink
-                        to="/blog/new"
-                        end
-                        onClick={handleNavClick}
-                        className={({ isActive }) =>
-                          `Sidebar-submenu-link ${
-                            isActive ? "active" : ""
-                          }`
-                        }
-                      >
-                        <FiPlusSquare size={16} />
-                        <span>Blog Posting</span>
-                      </NavLink>
-                    </div>
-                  )}
+                    ))}
+                  </div>
+                )}
               </div>
             );
           }
 
+          // NORMAL MENU
           return (
             <NavLink
               key={item.text}
               to={item.path}
               end={item.path === "/"}
-              title={isCollapsed ? item.text : undefined}
+              title={
+                isCollapsed && !isMobileOpen
+                  ? item.text
+                  : undefined
+              }
               onClick={handleNavClick}
               className={({ isActive }) =>
                 `Sidebar-link ${isActive ? "active" : ""}`

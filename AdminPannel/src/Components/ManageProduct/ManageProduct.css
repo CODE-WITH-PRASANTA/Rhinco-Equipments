@@ -1,0 +1,1622 @@
+
+/* =====================================================
+   MANAGE PRODUCT - BASE
+===================================================== */
+
+.ManageProduct {
+  --ManageProduct-green: #27834a;
+  --ManageProduct-green-dark: #176638;
+  --ManageProduct-green-light: #eaf6ee;
+  --ManageProduct-bg: #f5f8f5;
+  --ManageProduct-border: #e2ebe4;
+  --ManageProduct-text: #263b2e;
+  --ManageProduct-muted: #87958b;
+  --ManageProduct-white: #ffffff;
+
+  width: 100%;
+  min-width: 0;
+  padding: 26px;
+  color: var(--ManageProduct-text);
+  background: var(--ManageProduct-bg);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+.ManageProduct *,
+.ManageProduct *::before,
+.ManageProduct *::after {
+  box-sizing: border-box;
+}
+
+.ManageProduct button,
+.ManageProduct input,
+.ManageProduct select {
+  font: inherit;
+}
+
+.ManageProduct button {
+  cursor: pointer;
+}
+
+.ManageProduct button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.ManageProduct button:focus-visible,
+.ManageProduct input:focus-visible,
+.ManageProduct select:focus-visible {
+  outline: 3px solid rgba(39, 131, 74, 0.2);
+  outline-offset: 2px;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.ManageProduct-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.ManageProduct-heading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+
+.ManageProduct-headingIcon {
+  width: 55px;
+  height: 55px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 14px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #39985d, #176638);
+  box-shadow: 0 7px 18px rgba(39, 131, 74, 0.16);
+  font-size: 23px;
+}
+
+.ManageProduct-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ManageProduct-green);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.ManageProduct-heading h1 {
+  margin: 0;
+  color: var(--ManageProduct-text);
+  font-size: clamp(25px, 2.5vw, 34px);
+  font-weight: 750;
+  letter-spacing: -0.7px;
+  line-height: 1.2;
+}
+
+.ManageProduct-heading p {
+  margin: 7px 0 0;
+  color: var(--ManageProduct-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.ManageProduct-createButton {
+  min-height: 43px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex-shrink: 0;
+  padding: 11px 17px;
+  border: 1px solid var(--ManageProduct-green);
+  border-radius: 8px;
+  color: #ffffff;
+  background: var(--ManageProduct-green);
+  box-shadow: 0 4px 10px rgba(39, 131, 74, 0.12);
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.ManageProduct-createButton:hover {
+  background: var(--ManageProduct-green-dark);
+  transform: translateY(-1px);
+}
+
+.ManageProduct-createButton svg {
+  font-size: 16px;
+}
+
+/* =====================================================
+   NOTIFICATION
+===================================================== */
+
+.ManageProduct-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 13px 15px;
+  border: 1px solid #cce8d3;
+  border-radius: 9px;
+  color: #287447;
+  background: #eff9f1;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ManageProduct-notice > svg {
+  flex-shrink: 0;
+  font-size: 17px;
+}
+
+.ManageProduct-notice span {
+  flex: 1;
+}
+
+.ManageProduct-notice button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: inherit;
+  background: transparent;
+}
+
+.ManageProduct-notice button:hover {
+  background: rgba(39, 131, 74, 0.1);
+}
+
+/* =====================================================
+   STATISTICS
+===================================================== */
+
+.ManageProduct-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 24px;
+}
+
+.ManageProduct-statCard {
+  min-width: 0;
+  min-height: 105px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 19px;
+  border: 1px solid var(--ManageProduct-border);
+  border-radius: 11px;
+  background: var(--ManageProduct-white);
+  box-shadow: 0 3px 10px rgba(37, 70, 47, 0.025);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ManageProduct-statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 70, 47, 0.06);
+}
+
+.ManageProduct-statIcon {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 11px;
+  color: #27834a;
+  background: #eaf6ee;
+  font-size: 20px;
+}
+
+.ManageProduct-statIcon--green {
+  color: #39835b;
+  background: #eaf6ec;
+}
+
+.ManageProduct-statIcon--amber {
+  color: #a87932;
+  background: #fff3df;
+}
+
+.ManageProduct-statIcon--blue {
+  color: #527a9e;
+  background: #edf4fa;
+}
+
+.ManageProduct-statCard > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.ManageProduct-statCard > div > span {
+  color: var(--ManageProduct-muted);
+  font-size: 11px;
+  font-weight: 550;
+}
+
+.ManageProduct-statCard strong {
+  color: var(--ManageProduct-text);
+  font-size: 25px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.ManageProduct-statCard .ManageProduct-statValue {
+  font-size: clamp(16px, 1.5vw, 22px);
+  overflow-wrap: anywhere;
+}
+
+.ManageProduct-statCard small {
+  color: #9aa69d;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* =====================================================
+   MAIN PANEL
+===================================================== */
+
+.ManageProduct-panel {
+  min-width: 0;
+  padding: 24px;
+  border: 1px solid var(--ManageProduct-border);
+  border-radius: 12px;
+  background: var(--ManageProduct-white);
+  box-shadow: 0 4px 18px rgba(37, 70, 47, 0.025);
+}
+
+.ManageProduct-panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 23px;
+}
+
+.ManageProduct-sectionLabel {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--ManageProduct-green);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+}
+
+.ManageProduct-panelHeader h2 {
+  margin: 0;
+  color: var(--ManageProduct-text);
+  font-size: 23px;
+  font-weight: 750;
+  letter-spacing: -0.4px;
+  line-height: 1.3;
+}
+
+.ManageProduct-panelHeader p {
+  margin: 7px 0 0;
+  color: var(--ManageProduct-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   GRID / LIST VIEW TOGGLE
+===================================================== */
+
+.ManageProduct-viewToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--ManageProduct-border);
+  border-radius: 8px;
+  background: #f5f8f5;
+}
+
+.ManageProduct-viewButton {
+  width: 36px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #8a9a8e;
+  background: transparent;
+  font-size: 17px;
+  transition: 0.2s ease;
+}
+
+.ManageProduct-viewButton:hover {
+  color: var(--ManageProduct-green);
+}
+
+.ManageProduct-viewButton--active {
+  border-color: #d6e9da;
+  color: var(--ManageProduct-green-dark);
+  background: #ffffff;
+  box-shadow: 0 2px 5px rgba(37, 70, 47, 0.07);
+}
+
+/* =====================================================
+   SEARCH AND FILTER TOOLBAR
+===================================================== */
+
+.ManageProduct-toolbar {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.5fr) repeat(3, minmax(130px, 0.8fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ManageProduct-search,
+.ManageProduct-selectWrap {
+  position: relative;
+  min-width: 0;
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid var(--ManageProduct-border);
+  border-radius: 8px;
+  background: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ManageProduct-search:focus-within,
+.ManageProduct-selectWrap:focus-within {
+  border-color: var(--ManageProduct-green);
+  box-shadow: 0 0 0 3px rgba(39, 131, 74, 0.07);
+}
+
+.ManageProduct-search > svg,
+.ManageProduct-selectWrap > svg {
+  flex-shrink: 0;
+  color: #8ca092;
+  font-size: 15px;
+}
+
+.ManageProduct-search input {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: #405547;
+  background: transparent;
+  font-size: 11px;
+}
+
+.ManageProduct-search input:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+.ManageProduct-search input::placeholder {
+  color: #a7b2a9;
+}
+
+.ManageProduct-search > button {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  color: #8b9a8e;
+  background: transparent;
+}
+
+.ManageProduct-search > button:hover {
+  background: #edf5ee;
+}
+
+.ManageProduct-selectWrap select {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 15px 0 0;
+  border: 0;
+  outline: 0;
+  appearance: none;
+  color: #526657;
+  background: transparent;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.ManageProduct-selectWrap select:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+.ManageProduct-selectWrap .ManageProduct-selectArrow {
+  position: absolute;
+  right: 10px;
+  pointer-events: none;
+  font-size: 12px;
+}
+
+/* =====================================================
+   RESULTS BAR
+===================================================== */
+
+.ManageProduct-resultsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.ManageProduct-resultsBar p {
+  margin: 0;
+  color: #8a9a8e;
+  font-size: 10px;
+}
+
+.ManageProduct-resultsBar strong {
+  color: #426c4e;
+}
+
+.ManageProduct-resultsBar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 5px;
+  color: #478056;
+  background: #f0f8f2;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ManageProduct-resultsBar button:hover {
+  background: #e4f2e7;
+}
+
+/* =====================================================
+   GRID VIEW
+===================================================== */
+
+.ManageProduct-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 19px;
+}
+
+.ManageProduct-card {
+  min-width: 0;
+  overflow: visible;
+  border: 1px solid var(--ManageProduct-border);
+  border-radius: 11px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(37, 70, 47, 0.025);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ManageProduct-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(37, 70, 47, 0.09);
+}
+
+.ManageProduct-cardImage {
+  position: relative;
+  height: 205px;
+  overflow: visible;
+  border-radius: 10px 10px 0 0;
+  background: #edf3ed;
+}
+
+.ManageProduct-cardImage > img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 10px 10px 0 0;
+  object-fit: cover;
+}
+
+.ManageProduct-productCode {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 5px;
+  color: #ffffff;
+  background: rgba(25, 52, 33, 0.72);
+  backdrop-filter: blur(5px);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.4px;
+}
+
+.ManageProduct-bestSellerBadge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border-radius: 5px;
+  color: #855d19;
+  background: #fff4d9;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.ManageProduct-bestSellerBadge svg {
+  font-size: 11px;
+}
+
+.ManageProduct-noImage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: #83a28a;
+  background: #edf5ee;
+  font-size: 30px;
+}
+
+/* =====================================================
+   CARD MENU
+===================================================== */
+
+.ManageProduct-cardMenu {
+  position: absolute;
+  z-index: 5;
+  top: 10px;
+  right: 10px;
+}
+
+.ManageProduct-menuTrigger {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 7px;
+  color: #ffffff;
+  background: rgba(25, 52, 33, 0.7);
+  backdrop-filter: blur(5px);
+  font-size: 17px;
+}
+
+.ManageProduct-menuTrigger:hover {
+  background: var(--ManageProduct-green-dark);
+}
+
+.ManageProduct-menuDropdown {
+  position: absolute;
+  z-index: 30;
+  top: 38px;
+  right: 0;
+  width: 165px;
+  padding: 5px;
+  border: 1px solid var(--ManageProduct-border);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(25, 50, 31, 0.15);
+  animation: ManageProduct-dropdownIn 0.16s ease;
+}
+
+.ManageProduct-menuDropdown button {
+  width: 100%;
+  min-height: 35px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 9px;
+  border: 0;
+  border-radius: 5px;
+  color: #5d7062;
+  background: transparent;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ManageProduct-menuDropdown button:hover {
+  color: var(--ManageProduct-green-dark);
+  background: #f0f8f2;
+}
+
+.ManageProduct-menuDropdown button svg {
+  font-size: 13px;
+}
+
+.ManageProduct-menuDropdown .ManageProduct-menuDelete {
+  color: #bd5555;
+}
+
+.ManageProduct-menuDropdown .ManageProduct-menuDelete:hover {
+  color: #ffffff;
+  background: #bd5555;
+}
+
+.ManageProduct-dismissMenu {
+  position: fixed;
+  z-index: 3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+/* =====================================================
+   CARD BODY
+===================================================== */
+
+.ManageProduct-cardBody {
+  padding: 16px;
+}
+
+.ManageProduct-category {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid #dcebe0;
+  border-radius: 5px;
+  color: #4a8058;
+  background: #f0f8f2;
+  font-size: 9px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.ManageProduct-cardBody h3 {
+  min-height: 46px;
+  margin: 11px 0 7px;
+  color: #354d3b;
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.ManageProduct-excerpt {
+  min-height: 48px;
+  margin: 0;
+  color: #89968c;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+.ManageProduct-cardCompany {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  color: #809184;
+  font-size: 10px;
+}
+
+.ManageProduct-cardCompany svg {
+  flex-shrink: 0;
+  color: #669575;
+  font-size: 13px;
+}
+
+.ManageProduct-cardCompany span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ManageProduct-priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 13px;
+  border-top: 1px solid #edf2ed;
+}
+
+.ManageProduct-priceRow > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.ManageProduct-priceRow strong {
+  color: #247442;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.ManageProduct-priceRow del,
+.ManageProduct-listPrice del {
+  color: #aab4ab;
+  font-size: 10px;
+}
+
+.ManageProduct-discount {
+  flex-shrink: 0;
+  padding: 5px 7px;
+  border-radius: 5px;
+  color: #b06c28;
+  background: #fff4e8;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.ManageProduct-cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.ManageProduct-stock {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ManageProduct-stock--available {
+  color: #28764a;
+  background: #eaf6ed;
+}
+
+.ManageProduct-stock--low {
+  color: #b57926;
+  background: #fff5e5;
+}
+
+.ManageProduct-stock--out {
+  color: #c34c4c;
+  background: #fff0f0;
+}
+
+.ManageProduct-viewLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 0 6px 8px;
+  border: 0;
+  color: var(--ManageProduct-green);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.ManageProduct-viewLink:hover {
+  color: var(--ManageProduct-green-dark);
+}
+
+.ManageProduct-viewLink svg {
+  font-size: 13px;
+}
+
+/* =====================================================
+   LIST VIEW
+===================================================== */
+
+.ManageProduct-listWrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--ManageProduct-border);
+  border-radius: 9px;
+  scrollbar-width: thin;
+  scrollbar-color: #bdd7c3 #f4f8f4;
+}
+
+.ManageProduct-table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  text-align: left;
+}
+
+.ManageProduct-table th {
+  padding: 14px 13px;
+  border-bottom: 1px solid #e5ede6;
+  color: #74887a;
+  background: #f4f8f4;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.ManageProduct-table td {
+  padding: 13px;
+  border-bottom: 1px solid #edf2ed;
+  color: #64776a;
+  font-size: 10px;
+  vertical-align: middle;
+}
+
+.ManageProduct-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.ManageProduct-table tbody tr:hover {
+  background: #f8fbf8;
+}
+
+.ManageProduct-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ManageProduct-listProduct {
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.ManageProduct-listProduct > img,
+.ManageProduct-listProduct > .ManageProduct-noImage {
+  width: 58px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 7px;
+  object-fit: cover;
+  font-size: 19px;
+}
+
+.ManageProduct-listProduct > div:last-child {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ManageProduct-listProduct strong {
+  max-width: 220px;
+  color: #3a5141;
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.ManageProduct-listProduct span {
+  color: #96a398;
+  font-size: 9px;
+}
+
+.ManageProduct-listProduct small {
+  max-width: 240px;
+  overflow: hidden;
+  color: #97a298;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ManageProduct-listPrice {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ManageProduct-listPrice strong {
+  color: #277846;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.ManageProduct-featured {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #b17c2c;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.ManageProduct-featured svg {
+  font-size: 13px;
+}
+
+.ManageProduct-notFeatured {
+  color: #a2aea4;
+  font-size: 10px;
+}
+
+.ManageProduct-listActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ManageProduct-listActions button {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dfebe1;
+  border-radius: 6px;
+  color: #438155;
+  background: #f4faf5;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.ManageProduct-listActions button:hover {
+  border-color: var(--ManageProduct-green);
+  color: #ffffff;
+  background: var(--ManageProduct-green);
+}
+
+.ManageProduct-listActions .ManageProduct-listDelete {
+  border-color: #f1dfdf;
+  color: #c35c5c;
+  background: #fff7f7;
+}
+
+.ManageProduct-listActions .ManageProduct-listDelete:hover {
+  border-color: #c94c4c;
+  color: #ffffff;
+  background: #c94c4c;
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.ManageProduct-empty {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.ManageProduct-empty > span {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--ManageProduct-green);
+  background: var(--ManageProduct-green-light);
+  font-size: 26px;
+}
+
+.ManageProduct-empty h3 {
+  margin: 15px 0 0;
+  color: #3b5442;
+  font-size: 15px;
+}
+
+.ManageProduct-empty p {
+  max-width: 380px;
+  margin: 8px 0 15px;
+  color: #91a095;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.ManageProduct-empty button {
+  min-height: 35px;
+  padding: 8px 13px;
+  border: 1px solid #cfe4d3;
+  border-radius: 6px;
+  color: #34794a;
+  background: #f0f8f2;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ManageProduct-empty button:hover {
+  color: #ffffff;
+  background: var(--ManageProduct-green);
+}
+
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+.ManageProduct-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+  padding-top: 17px;
+  border-top: 1px solid #edf1ed;
+}
+
+.ManageProduct-pagination > span {
+  color: #8c9b90;
+  font-size: 10px;
+}
+
+.ManageProduct-pageButtons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ManageProduct-pageButtons button {
+  min-width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  padding: 0 7px;
+  border: 1px solid #e1eae2;
+  border-radius: 6px;
+  color: #748579;
+  background: #ffffff;
+  font-size: 11px;
+  transition: 0.2s ease;
+}
+
+.ManageProduct-pageButtons button:hover:not(:disabled) {
+  border-color: #a9d2b4;
+  color: var(--ManageProduct-green);
+  background: #f2f8f3;
+}
+
+.ManageProduct-pageButtons .ManageProduct-pageButton--active {
+  border-color: var(--ManageProduct-green);
+  color: #ffffff;
+  background: var(--ManageProduct-green);
+}
+
+.ManageProduct-pageButtons button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   MODALS
+===================================================== */
+
+.ManageProduct-modalBackdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 22px;
+  background: rgba(20, 35, 24, 0.58);
+  backdrop-filter: blur(3px);
+  animation: ManageProduct-fadeIn 0.18s ease;
+}
+
+.ManageProduct-detailModal,
+.ManageProduct-confirmModal {
+  width: min(100%, 650px);
+  max-height: calc(100vh - 44px);
+  overflow-y: auto;
+  border: 1px solid #e1eae2;
+  border-radius: 13px;
+  background: #ffffff;
+  box-shadow: 0 20px 65px rgba(0, 0, 0, 0.2);
+}
+
+.ManageProduct-modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 19px 22px;
+  border-bottom: 1px solid #edf1ed;
+}
+
+.ManageProduct-modalHeader h2 {
+  margin: 0;
+  color: #304b38;
+  font-size: 19px;
+  font-weight: 750;
+}
+
+.ManageProduct-modalHeader button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #e5ece6;
+  border-radius: 7px;
+  color: #718176;
+  background: #f7faf7;
+  font-size: 16px;
+}
+
+.ManageProduct-modalHeader button:hover {
+  color: #ffffff;
+  background: var(--ManageProduct-green);
+}
+
+.ManageProduct-detailImage {
+  width: calc(100% - 44px);
+  height: 250px;
+  display: block;
+  margin: 20px 22px 0;
+  border-radius: 9px;
+  object-fit: cover;
+  background: #edf3ed;
+}
+
+.ManageProduct-detailBody {
+  padding: 20px 22px;
+}
+
+.ManageProduct-detailMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ManageProduct-detailBody h3 {
+  margin: 14px 0 5px;
+  color: #344c3b;
+  font-size: 21px;
+  line-height: 1.4;
+}
+
+.ManageProduct-detailBody > p {
+  margin: 0;
+  color: #9aa69c;
+  font-size: 10px;
+}
+
+.ManageProduct-detailGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 20px;
+}
+
+.ManageProduct-detailGrid > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #e7eee8;
+  border-radius: 7px;
+  background: #f8fbf8;
+}
+
+.ManageProduct-detailGrid span {
+  color: #8b9b8f;
+  font-size: 10px;
+}
+
+.ManageProduct-detailGrid strong {
+  color: #3e6549;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.ManageProduct-detailDescription {
+  margin-top: 19px;
+  padding-top: 17px;
+  border-top: 1px solid #edf1ed;
+}
+
+.ManageProduct-detailDescription h4 {
+  margin: 0 0 8px;
+  color: #3c5543;
+  font-size: 12px;
+}
+
+.ManageProduct-detailDescription p {
+  margin: 0;
+  color: #7d8d81;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.ManageProduct-detailBody > .ManageProduct-featured {
+  margin-top: 15px;
+}
+
+.ManageProduct-modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 15px 22px;
+  border-top: 1px solid #edf1ed;
+}
+
+.ManageProduct-modalSecondary,
+.ManageProduct-modalEdit,
+.ManageProduct-confirmDelete {
+  min-height: 39px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border: 1px solid #dfe8e0;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.ManageProduct-modalSecondary {
+  color: #68796d;
+  background: #ffffff;
+}
+
+.ManageProduct-modalSecondary:hover {
+  background: #f4f8f4;
+}
+
+.ManageProduct-modalEdit {
+  border-color: var(--ManageProduct-green);
+  color: #ffffff;
+  background: var(--ManageProduct-green);
+}
+
+.ManageProduct-modalEdit:hover {
+  background: var(--ManageProduct-green-dark);
+}
+
+/* =====================================================
+   DELETE CONFIRMATION
+===================================================== */
+
+.ManageProduct-confirmModal {
+  width: min(100%, 410px);
+  padding: 30px 25px;
+  text-align: center;
+}
+
+.ManageProduct-deleteIcon {
+  width: 53px;
+  height: 53px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  border-radius: 14px;
+  color: #c34c4c;
+  background: #fff0f0;
+  font-size: 23px;
+}
+
+.ManageProduct-confirmModal h2 {
+  margin: 16px 0 0;
+  color: #344c3b;
+  font-size: 20px;
+}
+
+.ManageProduct-confirmModal > p {
+  margin: 11px 0 22px;
+  color: #89968c;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.ManageProduct-confirmActions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.ManageProduct-confirmDelete {
+  border-color: #bd514b;
+  color: #ffffff;
+  background: #bd514b;
+}
+
+.ManageProduct-confirmDelete:hover {
+  background: #a43d38;
+}
+
+/* =====================================================
+   ANIMATIONS
+===================================================== */
+
+@keyframes ManageProduct-fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ManageProduct-dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================
+   LARGE LAPTOP
+===================================================== */
+
+@media (max-width: 1450px) {
+  .ManageProduct {
+    padding: 22px;
+  }
+
+  .ManageProduct-panel {
+    padding: 20px;
+  }
+
+  .ManageProduct-stats {
+    gap: 12px;
+  }
+
+  .ManageProduct-statCard {
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .ManageProduct-statIcon {
+    width: 39px;
+    height: 39px;
+  }
+
+  .ManageProduct-grid {
+    gap: 16px;
+  }
+
+  .ManageProduct-cardImage {
+    height: 190px;
+  }
+
+  .ManageProduct-cardBody {
+    padding: 14px;
+  }
+
+  .ManageProduct-toolbar {
+    grid-template-columns: minmax(170px, 1.4fr) repeat(3, minmax(110px, 0.8fr));
+  }
+}
+
+/* =====================================================
+   TABLET / SMALL LAPTOP
+===================================================== */
+
+@media (max-width: 1100px) {
+  .ManageProduct-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ManageProduct-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ManageProduct-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 768px) {
+  .ManageProduct {
+    padding: 16px;
+  }
+
+  .ManageProduct-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ManageProduct-createButton {
+    width: 100%;
+  }
+
+  .ManageProduct-heading {
+    gap: 11px;
+  }
+
+  .ManageProduct-headingIcon {
+    width: 47px;
+    height: 47px;
+    border-radius: 11px;
+  }
+
+  .ManageProduct-panel {
+    padding: 17px;
+  }
+
+  .ManageProduct-panelHeader {
+    align-items: flex-start;
+  }
+
+  .ManageProduct-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ManageProduct-search {
+    grid-column: 1 / -1;
+  }
+
+  .ManageProduct-cardImage {
+    height: 175px;
+  }
+
+  .ManageProduct-cardBody h3 {
+    font-size: 14px;
+  }
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 520px) {
+  .ManageProduct {
+    padding: 13px;
+  }
+
+  .ManageProduct-heading {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .ManageProduct-headingIcon {
+    width: 41px;
+    height: 41px;
+    font-size: 19px;
+  }
+
+  .ManageProduct-heading h1 {
+    font-size: 22px;
+  }
+
+  .ManageProduct-heading p {
+    font-size: 10px;
+  }
+
+  .ManageProduct-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .ManageProduct-statCard {
+    min-height: 91px;
+    gap: 8px;
+    padding: 11px;
+  }
+
+  .ManageProduct-statIcon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  .ManageProduct-statCard > div > span {
+    font-size: 9px;
+  }
+
+  .ManageProduct-statCard strong {
+    font-size: 20px;
+  }
+
+  .ManageProduct-statCard .ManageProduct-statValue {
+    font-size: 14px;
+  }
+
+  .ManageProduct-statCard small {
+    font-size: 8px;
+  }
+
+  .ManageProduct-panel {
+    padding: 13px;
+  }
+
+  .ManageProduct-panelHeader h2 {
+    font-size: 19px;
+  }
+
+  .ManageProduct-panelHeader p {
+    font-size: 10px;
+  }
+
+  .ManageProduct-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .ManageProduct-cardImage {
+    height: 210px;
+  }
+
+  .ManageProduct-cardBody {
+    padding: 14px;
+  }
+
+  .ManageProduct-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .ManageProduct-search {
+    grid-column: auto;
+  }
+
+  .ManageProduct-resultsBar {
+    align-items: flex-start;
+  }
+
+  .ManageProduct-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ManageProduct-pagination > span {
+    font-size: 9px;
+  }
+
+  .ManageProduct-detailGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ManageProduct-detailImage {
+    height: 190px;
+    margin: 15px 15px 0;
+    width: calc(100% - 30px);
+  }
+
+  .ManageProduct-detailBody {
+    padding: 16px;
+  }
+
+  .ManageProduct-modalHeader {
+    padding: 15px;
+  }
+
+  .ManageProduct-modalFooter {
+    padding: 13px 15px;
+  }
+
+  .ManageProduct-modalFooter button {
+    flex: 1;
+  }
+}
