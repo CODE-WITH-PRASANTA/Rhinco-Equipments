@@ -1,0 +1,1102 @@
+/* =========================================
+   MACHINARY EQUIPMENT ONE
+========================================= */
+
+.MachinaryEquipmentOne {
+  --MachinaryEquipmentOne-primary: #174b38;
+  --MachinaryEquipmentOne-primary-dark: #103728;
+  --MachinaryEquipmentOne-accent: #a7cf45;
+  --MachinaryEquipmentOne-text: #202c27;
+  --MachinaryEquipmentOne-muted: #78847e;
+  --MachinaryEquipmentOne-border: #e8ede9;
+  --MachinaryEquipmentOne-background: #f6f8f6;
+
+  width: 100%;
+  padding: 55px 4%;
+  background: var(--MachinaryEquipmentOne-background);
+  color: var(--MachinaryEquipmentOne-text);
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+}
+
+.MachinaryEquipmentOne *,
+.MachinaryEquipmentOne *::before,
+.MachinaryEquipmentOne *::after {
+  box-sizing: border-box;
+}
+
+.MachinaryEquipmentOne-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 275px minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+}
+
+/* =========================================
+   MOBILE FILTER BUTTON
+========================================= */
+
+.MachinaryEquipmentOne-mobileTop {
+  display: none;
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.MachinaryEquipmentOne-sidebar {
+  background: #ffffff;
+  border: 1px solid var(--MachinaryEquipmentOne-border);
+  border-radius: 13px;
+  overflow: hidden;
+  position: sticky;
+  top: 20px;
+  box-shadow: 0 5px 20px rgba(25, 55, 39, 0.035);
+}
+
+.MachinaryEquipmentOne-sidebarHeader {
+  padding: 23px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid var(--MachinaryEquipmentOne-border);
+}
+
+.MachinaryEquipmentOne-sidebarEyebrow {
+  display: block;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 7px;
+}
+
+.MachinaryEquipmentOne-sidebarHeader h3 {
+  font-size: 19px;
+  line-height: 1.3;
+  font-weight: 700;
+  margin: 0;
+  color: var(--MachinaryEquipmentOne-text);
+}
+
+.MachinaryEquipmentOne-clearButton {
+  border: none;
+  background: transparent;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 5px 0;
+  transition: color 0.2s ease;
+}
+
+.MachinaryEquipmentOne-clearButton:hover {
+  color: #75a52b;
+  text-decoration: underline;
+}
+
+/* =========================================
+   FILTER GROUPS
+========================================= */
+
+.MachinaryEquipmentOne-filterGroup {
+  border-bottom: 1px solid var(--MachinaryEquipmentOne-border);
+}
+
+.MachinaryEquipmentOne-filterHeading {
+  padding: 15px 19px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8faf8;
+  border-bottom: 1px solid #edf1ed;
+}
+
+.MachinaryEquipmentOne-filterHeading h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--MachinaryEquipmentOne-text);
+}
+
+.MachinaryEquipmentOne-filterHeading span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 23px;
+  height: 23px;
+  padding: 0 6px;
+  border-radius: 20px;
+  background: #eaf2e9;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.MachinaryEquipmentOne-filterOptions {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 8px 17px 13px;
+  scrollbar-width: thin;
+  scrollbar-color: #bdc9bf transparent;
+}
+
+.MachinaryEquipmentOne-filterOptions::-webkit-scrollbar {
+  width: 5px;
+}
+
+.MachinaryEquipmentOne-filterOptions::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.MachinaryEquipmentOne-filterOptions::-webkit-scrollbar-thumb {
+  background: #bdc9bf;
+  border-radius: 10px;
+}
+
+.MachinaryEquipmentOne-filterOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 39px;
+  cursor: pointer;
+  color: #45524b;
+  font-size: 12px;
+  transition: color 0.2s ease;
+}
+
+.MachinaryEquipmentOne-filterOption:hover {
+  color: var(--MachinaryEquipmentOne-primary);
+}
+
+.MachinaryEquipmentOne-filterOption input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.MachinaryEquipmentOne-customCheckbox {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  border: 1.5px solid #cbd5cd;
+  border-radius: 5px;
+  background: #fff;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.MachinaryEquipmentOne-filterOption input:checked
+  + .MachinaryEquipmentOne-customCheckbox {
+  background: var(--MachinaryEquipmentOne-primary);
+  border-color: var(--MachinaryEquipmentOne-primary);
+}
+
+.MachinaryEquipmentOne-filterOption input:checked
+  + .MachinaryEquipmentOne-customCheckbox::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 9px;
+  left: 5px;
+  top: 1px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.MachinaryEquipmentOne-filterOption input:focus-visible
+  + .MachinaryEquipmentOne-customCheckbox {
+  outline: 3px solid rgba(167, 207, 69, 0.3);
+  outline-offset: 2px;
+}
+
+.MachinaryEquipmentOne-filterName {
+  flex: 1;
+}
+
+.MachinaryEquipmentOne-filterCount {
+  color: #9aa49e;
+  font-size: 11px;
+}
+
+/* =========================================
+   SIDEBAR NOTE
+========================================= */
+
+.MachinaryEquipmentOne-sidebarNote {
+  margin: 15px;
+  padding: 14px;
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  border-radius: 9px;
+  background: #f0f6e9;
+}
+
+.MachinaryEquipmentOne-sidebarNoteIcon {
+  width: 27px;
+  height: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #dcebc8;
+  color: var(--MachinaryEquipmentOne-primary);
+}
+
+.MachinaryEquipmentOne-sidebarNote strong {
+  display: block;
+  color: var(--MachinaryEquipmentOne-primary-dark);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.MachinaryEquipmentOne-sidebarNote p {
+  margin: 0;
+  color: #68766b;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   MAIN CONTENT
+========================================= */
+
+.MachinaryEquipmentOne-main {
+  min-width: 0;
+}
+
+.MachinaryEquipmentOne-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 25px;
+  margin-bottom: 24px;
+}
+
+.MachinaryEquipmentOne-sectionTag {
+  display: inline-block;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  margin-bottom: 8px;
+}
+
+.MachinaryEquipmentOne-heading h2 {
+  margin: 0;
+  color: var(--MachinaryEquipmentOne-text);
+  font-size: clamp(23px, 2.2vw, 31px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.MachinaryEquipmentOne-heading p {
+  margin: 8px 0 0;
+  color: var(--MachinaryEquipmentOne-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   SEARCH BOX
+========================================= */
+
+.MachinaryEquipmentOne-searchBox {
+  width: 260px;
+  min-width: 210px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  border: 1px solid #e1e8e2;
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.MachinaryEquipmentOne-searchBox:focus-within {
+  border-color: var(--MachinaryEquipmentOne-primary);
+  box-shadow: 0 0 0 3px rgba(23, 75, 56, 0.08);
+}
+
+.MachinaryEquipmentOne-searchIcon {
+  font-size: 25px;
+  line-height: 1;
+  color: var(--MachinaryEquipmentOne-primary);
+  transform: rotate(-20deg);
+}
+
+.MachinaryEquipmentOne-searchBox input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--MachinaryEquipmentOne-text);
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.MachinaryEquipmentOne-searchBox input::placeholder {
+  color: #a1aaa4;
+}
+
+.MachinaryEquipmentOne-searchClear {
+  border: none;
+  background: transparent;
+  color: #77847b;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 3px;
+}
+
+/* =========================================
+   RESULTS BAR
+========================================= */
+
+.MachinaryEquipmentOne-resultsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 15px;
+  margin-bottom: 17px;
+  border: 1px solid var(--MachinaryEquipmentOne-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #78847d;
+  font-size: 11px;
+}
+
+.MachinaryEquipmentOne-resultsBar strong {
+  color: var(--MachinaryEquipmentOne-primary);
+  font-weight: 700;
+}
+
+.MachinaryEquipmentOne-resultsRight {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #77847b;
+  font-size: 10px;
+}
+
+.MachinaryEquipmentOne-resultsDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8dbb3d;
+  box-shadow: 0 0 0 4px rgba(141, 187, 61, 0.12);
+}
+
+/* =========================================
+   PRODUCT GRID
+========================================= */
+
+.MachinaryEquipmentOne-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 19px;
+}
+
+/* =========================================
+   PRODUCT CARD
+========================================= */
+
+.MachinaryEquipmentOne-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #edf0ed;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(30, 55, 39, 0.045);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.MachinaryEquipmentOne-card:hover {
+  transform: translateY(-5px);
+  border-color: #d5e4d5;
+  box-shadow: 0 13px 28px rgba(30, 55, 39, 0.1);
+}
+
+/* =========================================
+   PRODUCT IMAGE
+========================================= */
+
+.MachinaryEquipmentOne-imageArea {
+  height: 205px;
+  margin: 10px 10px 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #f8faf7;
+}
+
+.MachinaryEquipmentOne-productImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 13px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  transition: transform 0.4s ease;
+}
+
+.MachinaryEquipmentOne-card:hover
+  .MachinaryEquipmentOne-productImage {
+  transform: scale(1.055);
+}
+
+.MachinaryEquipmentOne-sponsored {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  padding: 6px 10px;
+  border-radius: 30px;
+  background: var(--MachinaryEquipmentOne-primary);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.MachinaryEquipmentOne-imageLabel {
+  position: absolute;
+  bottom: 9px;
+  left: 9px;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+/* =========================================
+   PRODUCT DETAILS
+========================================= */
+
+.MachinaryEquipmentOne-cardContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 13px 13px 14px;
+}
+
+.MachinaryEquipmentOne-productName {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 13px;
+  color: #202a24;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+/* =========================================
+   SPECIFICATIONS
+========================================= */
+
+.MachinaryEquipmentOne-specifications {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
+  min-height: 55px;
+  margin-bottom: 12px;
+  padding: 0 2px;
+}
+
+.MachinaryEquipmentOne-specItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  text-align: center;
+}
+
+.MachinaryEquipmentOne-specItem span {
+  color: #89948d;
+  font-size: 10px;
+}
+
+.MachinaryEquipmentOne-specItem strong {
+  color: #43534a;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.MachinaryEquipmentOne-specDivider {
+  width: 1px;
+  height: 42px;
+  background: #e7ece7;
+}
+
+/* =========================================
+   PRICE
+========================================= */
+
+.MachinaryEquipmentOne-priceArea {
+  min-height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.MachinaryEquipmentOne-price {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background: #f2f6ee;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.MachinaryEquipmentOne-priceInquiry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #859088;
+  font-size: 12px;
+}
+
+.MachinaryEquipmentOne-priceInquiry button {
+  border: none;
+  padding: 3px 0;
+  background: transparent;
+  color: #3286c6;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.MachinaryEquipmentOne-priceInquiry button:hover {
+  color: var(--MachinaryEquipmentOne-primary);
+  text-decoration: underline;
+}
+
+/* =========================================
+   CONTACT BUTTON
+========================================= */
+
+.MachinaryEquipmentOne-contactButton {
+  width: 100%;
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: auto;
+  border: 1.5px solid var(--MachinaryEquipmentOne-primary);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.MachinaryEquipmentOne-contactButton span {
+  font-size: 15px;
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: all 0.25s ease;
+}
+
+.MachinaryEquipmentOne-contactButton:hover {
+  background: var(--MachinaryEquipmentOne-primary);
+  color: #fff;
+}
+
+.MachinaryEquipmentOne-contactButton:hover span {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.MachinaryEquipmentOne-emptyState {
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  border: 1px dashed #d9e2da;
+  border-radius: 12px;
+  background: #fff;
+  text-align: center;
+}
+
+.MachinaryEquipmentOne-emptyIcon {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #edf4e9;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 30px;
+}
+
+.MachinaryEquipmentOne-emptyState h3 {
+  margin: 16px 0 7px;
+  color: var(--MachinaryEquipmentOne-text);
+  font-size: 17px;
+}
+
+.MachinaryEquipmentOne-emptyState p {
+  max-width: 340px;
+  margin: 0;
+  color: var(--MachinaryEquipmentOne-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.MachinaryEquipmentOne-emptyState button {
+  margin-top: 17px;
+  padding: 10px 19px;
+  border: none;
+  border-radius: 6px;
+  background: var(--MachinaryEquipmentOne-primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* =========================================
+   DEALER MODAL
+========================================= */
+
+.MachinaryEquipmentOne-modalOverlay {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(12, 27, 19, 0.65);
+  backdrop-filter: blur(5px);
+  animation: MachinaryEquipmentOne-fadeIn 0.2s ease;
+}
+
+.MachinaryEquipmentOne-modal {
+  width: 100%;
+  max-width: 430px;
+  position: relative;
+  padding: 35px 30px 30px;
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+  animation: MachinaryEquipmentOne-modalIn 0.25s ease;
+}
+
+.MachinaryEquipmentOne-modalClose {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #f0f3f0;
+  color: #526057;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.MachinaryEquipmentOne-modalIcon {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  background: #edf5e7;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 23px;
+}
+
+.MachinaryEquipmentOne-modalEyebrow {
+  color: #7ca33c;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.MachinaryEquipmentOne-modal h3 {
+  margin: 10px 0;
+  color: var(--MachinaryEquipmentOne-text);
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.MachinaryEquipmentOne-modalProduct {
+  margin: 0;
+  color: var(--MachinaryEquipmentOne-primary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.MachinaryEquipmentOne-modalDescription {
+  margin: 12px 0 20px;
+  color: #7b877f;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.MachinaryEquipmentOne-modalActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.MachinaryEquipmentOne-modalActions a {
+  min-width: 130px;
+  padding: 12px 17px;
+  border: 1px solid var(--MachinaryEquipmentOne-primary);
+  border-radius: 6px;
+  background: var(--MachinaryEquipmentOne-primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 650;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.MachinaryEquipmentOne-modalActions a:hover {
+  background: var(--MachinaryEquipmentOne-primary-dark);
+}
+
+.MachinaryEquipmentOne-noContact {
+  width: 100%;
+  margin: 0;
+  padding: 12px;
+  border-radius: 6px;
+  background: #f5f7f4;
+  color: #748077;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes MachinaryEquipmentOne-fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes MachinaryEquipmentOne-modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================
+   LARGE LAPTOP
+========================================= */
+
+@media (max-width: 1400px) {
+  .MachinaryEquipmentOne {
+    padding-left: 3%;
+    padding-right: 3%;
+  }
+
+  .MachinaryEquipmentOne-container {
+    grid-template-columns: 245px minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .MachinaryEquipmentOne-grid {
+    gap: 15px;
+  }
+
+  .MachinaryEquipmentOne-imageArea {
+    height: 185px;
+  }
+
+  .MachinaryEquipmentOne-productName {
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   TABLET / SMALL LAPTOP
+========================================= */
+
+@media (max-width: 1100px) {
+  .MachinaryEquipmentOne-container {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .MachinaryEquipmentOne-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .MachinaryEquipmentOne-imageArea {
+    height: 200px;
+  }
+
+  .MachinaryEquipmentOne-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .MachinaryEquipmentOne-searchBox {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 768px) {
+  .MachinaryEquipmentOne {
+    padding: 30px 4%;
+  }
+
+  .MachinaryEquipmentOne-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .MachinaryEquipmentOne-mobileTop {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .MachinaryEquipmentOne-filterToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 15px;
+    border: 1px solid var(--MachinaryEquipmentOne-primary);
+    border-radius: 6px;
+    background: var(--MachinaryEquipmentOne-primary);
+    color: #fff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .MachinaryEquipmentOne-filterToggle span {
+    font-size: 18px;
+  }
+
+  .MachinaryEquipmentOne-mobileCount {
+    color: var(--MachinaryEquipmentOne-muted);
+    font-size: 11px;
+  }
+
+  .MachinaryEquipmentOne-sidebar {
+    display: none;
+    width: 100%;
+    position: static;
+  }
+
+  .MachinaryEquipmentOne-sidebar.MachinaryEquipmentOne-sidebarOpen {
+    display: block;
+  }
+
+  .MachinaryEquipmentOne-main {
+    width: 100%;
+  }
+
+  .MachinaryEquipmentOne-topbar {
+    margin-bottom: 17px;
+  }
+
+  .MachinaryEquipmentOne-heading h2 {
+    font-size: 25px;
+  }
+
+  .MachinaryEquipmentOne-resultsBar {
+    margin-bottom: 14px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 520px) {
+  .MachinaryEquipmentOne {
+    padding: 25px 13px;
+  }
+
+  .MachinaryEquipmentOne-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .MachinaryEquipmentOne-card {
+    max-width: 100%;
+  }
+
+  .MachinaryEquipmentOne-imageArea {
+    height: 230px;
+    margin: 9px 9px 0;
+  }
+
+  .MachinaryEquipmentOne-cardContent {
+    padding: 12px 12px 13px;
+  }
+
+  .MachinaryEquipmentOne-productName {
+    min-height: auto;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+
+  .MachinaryEquipmentOne-specifications {
+    min-height: 58px;
+  }
+
+  .MachinaryEquipmentOne-specItem span {
+    font-size: 11px;
+  }
+
+  .MachinaryEquipmentOne-specItem strong {
+    font-size: 12px;
+  }
+
+  .MachinaryEquipmentOne-price {
+    font-size: 13px;
+  }
+
+  .MachinaryEquipmentOne-priceInquiry {
+    font-size: 13px;
+  }
+
+  .MachinaryEquipmentOne-priceInquiry button {
+    font-size: 13px;
+  }
+
+  .MachinaryEquipmentOne-contactButton {
+    min-height: 45px;
+    font-size: 13px;
+  }
+
+  .MachinaryEquipmentOne-resultsRight {
+    display: none;
+  }
+
+  .MachinaryEquipmentOne-resultsBar {
+    padding: 11px 12px;
+  }
+
+  .MachinaryEquipmentOne-heading h2 {
+    font-size: 23px;
+  }
+
+  .MachinaryEquipmentOne-heading p {
+    font-size: 11px;
+  }
+
+  .MachinaryEquipmentOne-modal {
+    padding: 32px 20px 23px;
+  }
+
+  .MachinaryEquipmentOne-modal h3 {
+    font-size: 18px;
+  }
+}
+
+/* =========================================
+   EXTRA SMALL DEVICES
+========================================= */
+
+@media (max-width: 360px) {
+  .MachinaryEquipmentOne-imageArea {
+    height: 195px;
+  }
+
+  .MachinaryEquipmentOne-priceInquiry {
+    gap: 8px;
+  }
+
+  .MachinaryEquipmentOne-sidebarHeader {
+    padding: 17px 13px;
+  }
+
+  .MachinaryEquipmentOne-filterOptions {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .MachinaryEquipmentOne *,
+  .MachinaryEquipmentOne *::before,
+  .MachinaryEquipmentOne *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
