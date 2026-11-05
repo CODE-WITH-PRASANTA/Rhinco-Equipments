@@ -1,247 +1,343 @@
 
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import {
+  Zap,
+  Tractor,
+  ArrowRight,
+  X,
+  Phone,
+  Mail,
+  ChevronRight,
+} from "lucide-react";
 import "./AgriMachinery.css";
-
-const commonsImage = (filename) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
-    filename
-  )}?width=700`;
-
-const fallbackImage = commonsImage("Agriculture Machinery Harvester.jpg");
 
 const machineryProducts = [
   {
-    id: "honda-f300",
-    brand: "HONDA",
-    name: "F300",
-    price: "₹54,000",
-    subsidy: "₹10,500",
-    image: commonsImage(
-      "Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg"
-    ),
+    id: 1,
+    name: "Fieldking Gold Rotary Tiller",
+    power: "40-70 HP",
+    category: "Tillage",
+    price: "₹ 1.15 - 1.55 Lakh*",
+    image:
+      "https://kubota.com.mm/en/products/implements/rx220g/images/img_hero.png",
+    badge: "Sponsored",
+    description: "Heavy-duty rotary tiller for efficient soil preparation.",
   },
   {
-    id: "walson-1rk190",
-    brand: "WALSON",
-    name: "Walson - 1RK190",
-    price: "₹94,500",
-    subsidy: "₹46,875",
-    image: commonsImage("Saatgut-Reinigungsanlage 3786.JPG"),
+    id: 2,
+    name: "Shaktiman Regular Plus Series",
+    power: "30-75 HP",
+    category: "Tillage",
+    price: "₹ 93,000 - 1.21 Lakh*",
+    image:
+      "https://image.makewebeasy.net/makeweb/m_1920x0/vwSRPSHKb/ROTARYTILLER/RT_F160SS_002.png?v=202405291424",
+    description: "Reliable rotary tiller for different soil conditions.",
   },
   {
-    id: "rico-ri2000",
-    brand: "RICO ITALY",
-    name: "Rico Italy - RI 2000",
-    price: "₹1,52,500",
-    subsidy: "₹87,600",
-    image: commonsImage("A Twenty-Four Horse Power Harvester (NBY 9002).jpg"),
+    id: 3,
+    name: "Punni Paddy Multi Thresher 4603",
+    power: "40 HP",
+    category: "Post Harvest",
+    price: null,
+    image:
+      "https://cpimg.tistatic.com/5519198/b/4/power-tiller-operated-paddy-thresher-machine.jpg",
+    description: "Efficient paddy threshing machine for harvesting needs.",
   },
   {
-    id: "indoxen-105p",
-    brand: "INDOXEN",
-    name: "Indoxen 105P",
-    price: "₹61,000",
-    subsidy: "₹23,250",
-    image: commonsImage("Agricultural Equipment (1).jpg"),
+    id: 4,
+    name: "KSA Paddy Straw Chopper",
+    power: "45-60 HP",
+    category: "Post Harvest",
+    price: "₹ 1.35 - 1.80 Lakh*",
+    image:
+      "https://d91ztqmtx7u1k.cloudfront.net/ClientContent/Images/Catalogue/56-inch-ksa-paddy-straw-choppe-20240916134212791.jpg",
+    description: "Designed for effective crop residue management.",
   },
   {
-    id: "vst-234md",
-    brand: "VST",
-    name: "234MD",
-    price: "₹30,000",
-    subsidy: "₹5,850",
-    image: commonsImage("Aerosolni generator 33.jpg"),
+    id: 5,
+    name: "ACI Power Tiller Classic",
+    power: "12 HP",
+    category: "Power Tiller",
+    price: "₹ 85,000 - 1.10 Lakh*",
+    image:
+      "https://acimotors-bd.com/assets/images/product/power-tiller/r-28.jpg",
+    description: "Compact power tiller for small and medium farms.",
   },
   {
-    id: "riddish-mt-kishan",
-    brand: "Riddish",
-    name: "Riddish - MT KISHAN 001",
-    price: "₹48,000",
-    subsidy: "₹23,250",
-    image: commonsImage("Chaff cutter machine at work.jpg"),
+    id: 6,
+    name: "Sonalika Paddyvator Rotary Tiller",
+    power: "40-55 HP",
+    category: "Tillage",
+    price: "₹ 95,000 - 1.40 Lakh*",
+    image:
+      "https://lemken.com/fileadmin/_processed_/4/3/csm_Kyanite-75_1133fb8858.jpg",
+    description: "Specialized implement for paddy field preparation.",
   },
   {
-    id: "kamco-kmb200",
-    brand: "KAMCO",
-    name: "KMB 200",
-    price: "₹2,14,800",
-    subsidy: "₹1,27,500",
-    image: commonsImage("Mc Cormick-by-RaBoe-07.jpg"),
+    id: 7,
+    name: "BEW Super Seeder 4-in-1",
+    power: "50-75 HP",
+    category: "Sowing",
+    price: "₹ 2.50 - 3.50 Lakh*",
+    image:
+      "https://www.bewindia.co/storage/2023/09/Super-Seeder-4-in-1-.jpg",
+    description: "Combines seed sowing and residue management operations.",
   },
   {
-    id: "agrineer-an205p",
-    brand: "Agrineer",
-    name: "AN 205P 9HP",
-    price: "₹58,100",
-    subsidy: "₹23,250",
-    image: commonsImage("Agricultural Equipment (2).jpg"),
+    id: 8,
+    name: "John Deere Seed Fertilizer Drill",
+    power: "35-50 HP",
+    category: "Sowing",
+    price: null,
+    image:
+      "https://www.deere.co.in/assets/images/region-1/products/implements/seed_fertilizer_drill_large_eab835ad3c902260de299f6ea0530e6ccc87aa0a.png",
+    description: "Seed and fertilizer application in a single operation.",
   },
 ];
 
-const SubsidyIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path
-      d="M12 2.8 15 4.4l3.4.2.2 3.4 1.6 3-1.6 3-.2 3.4-3.4.2-3 1.6-3-1.6-3.4-.2-.2-3.4-1.6-3 1.6-3 .2-3.4 3.4-.2 3-1.6Z"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      strokeLinejoin="round"
-    />
-    <path
-      d="m9 12 2 2 4-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [imageErrors, setImageErrors] = useState([]);
 
-const ArrowIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path
-      d="M5 12h14m-6-6 6 6-6 6"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+  const handleImageError = (id) => {
+    setImageErrors((previous) => [...previous, id]);
+  };
 
-const PhoneIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <path
-      d="M6.6 3.8h3l1.5 4-2 1.7a15.4 15.4 0 0 0 5.4 5.4l1.7-2 4 1.5v3c0 1.1-.9 2-2 2A15.5 15.5 0 0 1 4.6 5.8c0-1.1.9-2 2-2Z"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M14 4.5a5.5 5.5 0 0 1 5.5 5.5M14 7.5a2.5 2.5 0 0 1 2.5 2.5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+  const handleContactDealer = (product) => {
+    if (onContactDealer) {
+      onContactDealer(product);
+      return;
+    }
 
-const AgriMachinery = () => {
-  const handleImageError = (event) => {
-    const image = event.currentTarget;
+    setSelectedProduct(product);
+  };
 
-    if (image.dataset.fallbackApplied) return;
+  const sendDealerEnquiry = () => {
+    if (!selectedProduct) return;
 
-    image.dataset.fallbackApplied = "true";
-    image.src = fallbackImage;
+    if (!dealerEmail.trim()) {
+      return;
+    }
+
+    const subject = encodeURIComponent(
+      `Dealer Enquiry - ${selectedProduct.name}`
+    );
+
+    const body = encodeURIComponent(
+      `Hello,\n\nI am interested in the following agricultural machinery:\n\nProduct: ${selectedProduct.name}\nPower: ${selectedProduct.power}\nCategory: ${selectedProduct.category}\nPrice: ${selectedProduct.price || "Please share price"}\n\nPlease share more details.\n\nThank you.`
+    );
+
+    window.location.href = `mailto:${dealerEmail}?subject=${subject}&body=${body}`;
   };
 
   return (
-    <section className="AgriMachinery">
-      <div className="AgriMachinery-container">
-        <div className="AgriMachinery-heading">
-          <div className="AgriMachinery-heading-left">
-            <span className="AgriMachinery-heading-line" />
-            <h2>Agri Machinery</h2>
+    <section className="agriMachinery">
+      <div className="agriMachineryContainer">
+
+        {/* SECTION HEADER */}
+        <div className="agriMachineryHeader">
+          <div className="agriMachineryHeaderContent">
+            <span className="agriMachineryEyebrow">
+              <Tractor size={17} />
+              FARM EQUIPMENT COLLECTION
+            </span>
+
+            <h2>
+              Explore Our <span>Agricultural Machinery</span>
+            </h2>
+
+            <p>
+              Discover reliable agricultural equipment designed
+              to improve productivity and make farming easier.
+            </p>
           </div>
 
-          <Link to="/machine-catalogue" className="AgriMachinery-view-all">
-            View All (67)
-            <ArrowIcon />
-          </Link>
+          <div className="agriMachineryHeaderCount">
+            <strong>08</strong>
+            <span>Featured Products</span>
+          </div>
         </div>
 
-        <div className="AgriMachinery-grid">
-          {machineryProducts.map((product, index) => (
-            <Link
-              to={`/product/${product.id}`}
-              className={`AgriMachinery-card ${
-                index === 1 || index === 5 ? "AgriMachinery-card-featured" : ""
-              }`}
+        {/* PRODUCT GRID */}
+        <div className="agriMachineryGrid">
+          {machineryProducts.map((product) => (
+            <article
+              className="agriMachineryCard"
               key={product.id}
             >
-              <div className="AgriMachinery-image-area">
-                <div className="AgriMachinery-brand-logo">
-                  {product.brand}
-                </div>
+              {/* IMAGE */}
+              <div className="agriMachineryImage">
+                {!imageErrors.includes(product.id) ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    loading="lazy"
+                    onError={() => handleImageError(product.id)}
+                  />
+                ) : (
+                  <div className="agriMachineryImageFallback">
+                    <Tractor size={55} strokeWidth={1.3} />
+                    <span>Machinery Image</span>
+                  </div>
+                )}
 
-                <span className="AgriMachinery-subsidy-badge">
-                  <SubsidyIcon />
-                  Subsidy
+                {product.badge && (
+                  <span className="agriMachineryBadge">
+                    {product.badge}
+                  </span>
+                )}
+
+                <span className="agriMachineryImageNumber">
+                  0{product.id}
+                </span>
+              </div>
+
+              {/* PRODUCT DETAILS */}
+              <div className="agriMachineryDetails">
+                <span className="agriMachineryCategoryTag">
+                  {product.category}
                 </span>
 
-                <img
-                  src={product.image}
-                  alt={`${product.brand} ${product.name}`}
-                  className="AgriMachinery-product-image"
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                  onError={handleImageError}
-                />
-              </div>
+                <h3>{product.name}</h3>
 
-              <div className="AgriMachinery-card-content">
-                <div className="AgriMachinery-product-info">
-                  <span className="AgriMachinery-brand-name">
-                    {product.brand}
-                  </span>
-                  <h3>{product.name}</h3>
-                </div>
-
-                <div className="AgriMachinery-card-divider" />
-
-                <div className="AgriMachinery-price-area">
-                  <div className="AgriMachinery-price-details">
-                    <span className="AgriMachinery-price-label">
-                      BASE PRICE
-                    </span>
-
-                    <strong className="AgriMachinery-price">
-                      {product.price}
+                {/* SPECIFICATIONS */}
+                <div className="agriMachinerySpecs">
+                  <div className="agriMachinerySpecItem">
+                    <span>Power</span>
+                    <strong>
+                      <Zap size={14} />
+                      {product.power}
                     </strong>
-
-                    <span className="AgriMachinery-subsidy-text">
-                      <SubsidyIcon />
-                      Subsidy upto {product.subsidy}
-                    </span>
                   </div>
 
-                  <span className="AgriMachinery-arrow-button">
-                    <ArrowIcon />
-                  </span>
+                  <div className="agriMachinerySpecItem">
+                    <span>Category</span>
+                    <strong>{product.category}</strong>
+                  </div>
                 </div>
+
+                {/* PRICE */}
+                <div className="agriMachineryPrice">
+                  {product.price ? (
+                    <strong>{product.price}</strong>
+                  ) : (
+                    <>
+                      <span>For Price</span>
+                      <button
+                        onClick={() => handleContactDealer(product)}
+                      >
+                        Click Here
+                        <ChevronRight size={15} />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* CONTACT BUTTON */}
+                <button
+                  className="agriMachineryContactButton"
+                  onClick={() => handleContactDealer(product)}
+                >
+                  Contact Dealer
+                  <ArrowRight size={17} />
+                </button>
               </div>
-            </Link>
+            </article>
           ))}
         </div>
 
-        <div className="AgriMachinery-support">
-          <div className="AgriMachinery-support-left">
-            <div className="AgriMachinery-support-icon">
-              <PhoneIcon />
-            </div>
-
-            <div className="AgriMachinery-support-text">
-              <h3>We're here to help</h3>
-              <p>Everyday 10:00am – 6:00pm</p>
-            </div>
+        {/* BOTTOM INFORMATION */}
+        <div className="agriMachineryBottom">
+          <div className="agriMachineryBottomIcon">
+            <Tractor size={24} />
           </div>
 
-          <a
-            href="tel:+919776779711"
-            className="AgriMachinery-support-button"
+          <div className="agriMachineryBottomText">
+            <strong>Looking for the right farm equipment?</strong>
+            <span>
+              Contact our team for product details and dealer assistance.
+            </span>
+          </div>
+
+          <button
+            className="agriMachineryBottomButton"
+            onClick={() => handleContactDealer(machineryProducts[0])}
           >
-            <PhoneIcon />
-            <span>+91 9776779711</span>
-          </a>
+            Get In Touch
+            <ArrowRight size={17} />
+          </button>
         </div>
       </div>
+
+      {/* DEALER ENQUIRY MODAL */}
+      {selectedProduct && (
+        <div
+          className="agriMachineryModalOverlay"
+          onClick={() => setSelectedProduct(null)}
+        >
+          <div
+            className="agriMachineryModal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="agriMachineryModalClose"
+              onClick={() => setSelectedProduct(null)}
+              aria-label="Close enquiry"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="agriMachineryModalIcon">
+              <Tractor size={30} />
+            </div>
+
+            <span className="agriMachineryModalEyebrow">
+              PRODUCT ENQUIRY
+            </span>
+
+            <h3>Contact Dealer</h3>
+
+            <p>
+              You are enquiring about:
+            </p>
+
+            <div className="agriMachineryModalProduct">
+              <strong>{selectedProduct.name}</strong>
+
+              <div>
+                <span>Power: {selectedProduct.power}</span>
+                <span>Category: {selectedProduct.category}</span>
+              </div>
+
+              <strong>
+                {selectedProduct.price || "Price on request"}
+              </strong>
+            </div>
+
+            {dealerEmail ? (
+              <button
+                className="agriMachineryModalSubmit"
+                onClick={sendDealerEnquiry}
+              >
+                <Mail size={17} />
+                Send Dealer Enquiry
+              </button>
+            ) : (
+              <p className="agriMachineryModalNote">
+                To send enquiries directly, provide your dealer email
+                using the <code>dealerEmail</code> prop.
+              </p>
+            )}
+
+            <button
+              className="agriMachineryModalCancel"
+              onClick={() => setSelectedProduct(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -1,698 +1,835 @@
 
-.AgriMachinery {
+/* =========================================
+   AGRI MACHINERY
+========================================= */
+
+.agriMachinery {
+  --agri-primary: #174c35;
+  --agri-green: #27834b;
+  --agri-light: #edf6ef;
+  --agri-blue: #174c7e;
+  --agri-text: #1e2d27;
+  --agri-muted: #68766f;
+  --agri-border: #e5ebe7;
+
   width: 100%;
-  padding: 24px 0 50px;
-  background: #f8fbf7;
-  font-family: Arial, Helvetica, sans-serif;
-  overflow: hidden;
+  padding: 75px 4%;
+  background: #f7faf8;
+  color: var(--agri-text);
+  font-family: inherit;
 }
 
-.AgriMachinery-container {
-  width: min(100% - 80px, 1440px);
+.agriMachinery * {
+  box-sizing: border-box;
+}
+
+.agriMachineryContainer {
+  width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
-/* Heading */
+/* HEADER */
 
-.AgriMachinery-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 22px;
-}
-
-.AgriMachinery-heading-left {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-}
-
-.AgriMachinery-heading-line {
-  display: block;
-  width: 4px;
-  height: 27px;
-  border-radius: 10px;
-  background: #237b2c;
-}
-
-.AgriMachinery-heading h2 {
-  margin: 0;
-  color: #17251a;
-  font-size: 23px;
-  font-weight: 750;
-  letter-spacing: -0.5px;
-}
-
-.AgriMachinery-view-all {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #087526;
-  font-size: 17px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: gap 0.25s ease;
-}
-
-.AgriMachinery-view-all:hover {
-  gap: 13px;
-}
-
-.AgriMachinery-view-all svg {
-  width: 19px;
-  height: 19px;
-}
-
-/* Product grid */
-
-.AgriMachinery-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.AgriMachinery-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  min-height: 460px;
-  padding: 0 25px 22px;
-  color: inherit;
-  text-decoration: none;
-  background: #fff;
-  border: 1px solid transparent;
-  border-radius: 30px;
-  box-shadow: 0 10px 30px rgba(32, 75, 34, 0.075);
-  overflow: hidden;
-  transition:
-    transform 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.AgriMachinery-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(42, 126, 48, 0.28);
-  box-shadow: 0 18px 38px rgba(32, 75, 34, 0.13);
-}
-
-.AgriMachinery-card-featured {
-  border-color: rgba(43, 125, 51, 0.25);
-}
-
-/* Product image */
-
-.AgriMachinery-image-area {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 265px;
-  min-height: 265px;
-  width: 100%;
-  padding: 35px 4px 8px;
-  background: #fff;
-}
-
-.AgriMachinery-brand-logo {
-  position: absolute;
-  top: 21px;
-  left: 12px;
-  z-index: 2;
-  max-width: 105px;
-  overflow: hidden;
-  color: #284f30;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: -0.4px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.AgriMachinery-card:nth-child(1) .AgriMachinery-brand-logo {
-  color: #d7192d;
-  font-size: 17px;
-}
-
-.AgriMachinery-card:nth-child(2) .AgriMachinery-brand-logo {
-  color: #a52b32;
-}
-
-.AgriMachinery-card:nth-child(3) .AgriMachinery-brand-logo {
-  color: #258b39;
-}
-
-.AgriMachinery-card:nth-child(4) .AgriMachinery-brand-logo {
-  color: #273e8a;
-}
-
-.AgriMachinery-subsidy-badge {
-  position: absolute;
-  top: 12px;
-  right: -13px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-width: 92px;
-  padding: 6px 10px;
-  color: #fff;
-  background: #247d31;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(18, 91, 30, 0.24);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.AgriMachinery-subsidy-badge svg {
-  width: 14px;
-  height: 14px;
-}
-
-.AgriMachinery-product-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-width: 255px;
-  max-height: 220px;
-  object-fit: contain;
-  object-position: center;
-  transition: transform 0.45s ease;
-}
-
-.AgriMachinery-card:hover .AgriMachinery-product-image {
-  transform: scale(1.055);
-}
-
-/* Product details */
-
-.AgriMachinery-card-content {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.AgriMachinery-product-info {
-  min-height: 77px;
-  padding-top: 5px;
-}
-
-.AgriMachinery-brand-name {
-  display: block;
-  margin-bottom: 7px;
-  color: #7b837b;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.AgriMachinery-product-info h3 {
-  margin: 0;
-  color: #101b13;
-  font-size: 20px;
-  font-weight: 750;
-  line-height: 1.3;
-  letter-spacing: -0.4px;
-}
-
-.AgriMachinery-card-featured .AgriMachinery-product-info h3 {
-  color: #176b27;
-}
-
-.AgriMachinery-card-divider {
-  width: 100%;
-  height: 1px;
-  margin: 11px 0 15px;
-  background: #e0e8df;
-}
-
-/* Price */
-
-.AgriMachinery-price-area {
+.agriMachineryHeader {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 8px;
+  gap: 25px;
+  margin-bottom: 36px;
 }
 
-.AgriMachinery-price-details {
+.agriMachineryEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 15px;
+  color: var(--agri-green);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.agriMachineryHeaderContent h2 {
+  margin: 0;
+  color: var(--agri-primary);
+  font-size: clamp(29px, 3.5vw, 43px);
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: -1.3px;
+}
+
+.agriMachineryHeaderContent h2 span {
+  color: var(--agri-green);
+}
+
+.agriMachineryHeaderContent p {
+  max-width: 620px;
+  margin: 13px 0 0;
+  color: var(--agri-muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.agriMachineryHeaderCount {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 170px;
+  padding: 15px 19px;
+  border: 1px solid #dce9df;
+  border-radius: 12px;
+  background: white;
+}
+
+.agriMachineryHeaderCount strong {
+  color: var(--agri-green);
+  font-size: 32px;
+  font-weight: 850;
+}
+
+.agriMachineryHeaderCount span {
+  max-width: 75px;
+  color: var(--agri-muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* GRID */
+
+.agriMachineryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+}
+
+/* CARD */
+
+.agriMachineryCard {
   display: flex;
   flex-direction: column;
   min-width: 0;
-}
-
-.AgriMachinery-price-label {
-  margin-bottom: 5px;
-  color: #69756a;
-  font-size: 12px;
-  font-weight: 750;
-  letter-spacing: 0.5px;
-}
-
-.AgriMachinery-price {
-  color: #101710;
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -0.6px;
-}
-
-.AgriMachinery-subsidy-text {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 7px;
-  color: #08752a;
-  font-size: 14px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.AgriMachinery-subsidy-text svg {
-  width: 17px;
-  height: 17px;
-  flex-shrink: 0;
-}
-
-.AgriMachinery-arrow-button {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin-bottom: 1px;
-  color: #637064;
-  background: #fff;
-  border: 1px solid #edf1ec;
-  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #e9eeea;
+  border-radius: 13px;
+  background: #ffffff;
+  box-shadow: 0 5px 22px rgba(29, 60, 42, 0.055);
   transition:
-    background 0.25s ease,
-    color 0.25s ease,
-    transform 0.25s ease;
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
 }
 
-.AgriMachinery-arrow-button svg {
-  width: 21px;
-  height: 21px;
+.agriMachineryCard:hover {
+  transform: translateY(-5px);
+  border-color: #c9dfce;
+  box-shadow: 0 15px 35px rgba(29, 60, 42, 0.12);
 }
 
-.AgriMachinery-card:hover .AgriMachinery-arrow-button {
-  color: #fff;
-  background: #247d31;
-  border-color: #247d31;
-  transform: translateX(2px);
-}
+/* IMAGE */
 
-/* Customer support */
-
-.AgriMachinery-support {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  min-height: 120px;
-  margin-top: 38px;
-  padding: 22px 32px;
-  background: #fff;
-  border: 1px solid rgba(36, 111, 43, 0.045);
-  border-radius: 32px;
-  box-shadow: 0 10px 30px rgba(32, 75, 34, 0.07);
-}
-
-.AgriMachinery-support-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.AgriMachinery-support-icon {
+.agriMachineryImage {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  flex-shrink: 0;
-  color: #fff;
-  background: #08671e;
-  border-radius: 17px;
-  box-shadow: 0 5px 15px rgba(8, 103, 30, 0.22);
+  width: 100%;
+  height: 230px;
+  padding: 15px;
+  overflow: hidden;
+  background: #ffffff;
 }
 
-.AgriMachinery-support-icon svg {
-  width: 25px;
-  height: 25px;
+.agriMachineryImage img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.45s ease;
 }
 
-.AgriMachinery-support-text h3 {
-  margin: 0 0 4px;
-  color: #202820;
-  font-size: 17px;
-  font-weight: 750;
+.agriMachineryCard:hover .agriMachineryImage img {
+  transform: scale(1.06);
 }
 
-.AgriMachinery-support-text p {
+.agriMachineryBadge {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  z-index: 2;
+  padding: 7px 13px;
+  border-radius: 30px;
+  background: var(--agri-blue);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 3px 10px rgba(23, 76, 126, 0.16);
+}
+
+.agriMachineryImageNumber {
+  position: absolute;
+  bottom: 12px;
+  left: 13px;
+  padding: 5px 9px;
+  border: 1px solid #e8eee9;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--agri-primary);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.agriMachineryImageFallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: #eff6f0;
+  color: var(--agri-green);
+}
+
+.agriMachineryImageFallback span {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* DETAILS */
+
+.agriMachineryDetails {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 15px 15px 13px;
+  text-align: center;
+}
+
+.agriMachineryCategoryTag {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  margin-bottom: 9px;
+  border-radius: 30px;
+  background: #edf6ef;
+  color: var(--agri-green);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.agriMachineryDetails h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 43px;
   margin: 0;
-  color: #737d72;
+  color: #182b22;
   font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
 }
 
-.AgriMachinery-support-button {
+/* SPECS */
+
+.agriMachinerySpecs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 13px;
+  border-top: 1px solid #edf0ed;
+  border-bottom: 1px solid #edf0ed;
+}
+
+.agriMachinerySpecItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 65px;
+  padding: 9px 5px;
+}
+
+.agriMachinerySpecItem:first-child {
+  border-right: 1px solid #e3e9e4;
+}
+
+.agriMachinerySpecItem span {
+  color: #758178;
+  font-size: 12px;
+}
+
+.agriMachinerySpecItem strong {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 11px;
-  min-width: 216px;
-  min-height: 60px;
-  padding: 12px 24px;
-  color: #fff;
-  background: #08651c;
-  border-radius: 40px;
-  box-shadow: 0 8px 20px rgba(8, 101, 28, 0.2);
-  font-size: 17px;
-  font-weight: 750;
-  text-decoration: none;
-  transition:
-    transform 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease;
+  gap: 5px;
+  color: #435449;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.AgriMachinery-support-button:hover {
-  transform: translateY(-3px);
-  background: #0b7a25;
-  box-shadow: 0 12px 24px rgba(8, 101, 28, 0.25);
+/* PRICE */
+
+.agriMachineryPrice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 8px 2px;
 }
 
-.AgriMachinery-support-button svg {
-  width: 21px;
-  height: 21px;
+.agriMachineryPrice > strong {
+  padding: 7px 10px;
+  background: #f4f7f4;
+  color: var(--agri-primary);
+  font-size: 14px;
+  font-weight: 850;
+  white-space: nowrap;
 }
 
-/* Large laptop */
+.agriMachineryPrice > span {
+  color: #78867b;
+  font-size: 13px;
+}
+
+.agriMachineryPrice > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px;
+  border: none;
+  background: transparent;
+  color: #1688d4;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.agriMachineryPrice > button:hover {
+  color: var(--agri-primary);
+}
+
+/* CONTACT BUTTON */
+
+.agriMachineryContactButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 47px;
+  margin-top: auto;
+  padding: 10px 15px;
+  border: 1.5px solid var(--agri-blue);
+  border-radius: 7px;
+  background: white;
+  color: var(--agri-blue);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.agriMachineryContactButton svg {
+  transition: transform 0.25s ease;
+}
+
+.agriMachineryContactButton:hover {
+  border-color: var(--agri-primary);
+  background: var(--agri-primary);
+  color: white;
+}
+
+.agriMachineryContactButton:hover svg {
+  transform: translateX(4px);
+}
+
+/* BOTTOM STRIP */
+
+.agriMachineryBottom {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-top: 34px;
+  padding: 22px 25px;
+  border: 1px solid #dce9df;
+  border-radius: 13px;
+  background: linear-gradient(110deg, #edf6ef, #ffffff);
+}
+
+.agriMachineryBottomIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 49px;
+  height: 49px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #d9ebdc;
+  color: var(--agri-primary);
+}
+
+.agriMachineryBottomText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.agriMachineryBottomText strong {
+  color: var(--agri-primary);
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.agriMachineryBottomText span {
+  color: var(--agri-muted);
+  font-size: 12px;
+}
+
+.agriMachineryBottomButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 43px;
+  padding: 10px 17px;
+  border: none;
+  border-radius: 7px;
+  background: var(--agri-primary);
+  color: white;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.agriMachineryBottomButton:hover {
+  background: var(--agri-green);
+}
+
+/* MODAL */
+
+.agriMachineryModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(12, 32, 21, 0.58);
+  backdrop-filter: blur(5px);
+  animation: agriMachineryFade 0.2s ease;
+}
+
+.agriMachineryModal {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  padding: 35px 30px 28px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  text-align: center;
+  animation: agriMachineryModalIn 0.25s ease;
+}
+
+.agriMachineryModalClose {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #eff5f0;
+  color: var(--agri-primary);
+  cursor: pointer;
+}
+
+.agriMachineryModalIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  background: #eaf4ec;
+  color: var(--agri-green);
+}
+
+.agriMachineryModalEyebrow {
+  color: var(--agri-green);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1.8px;
+}
+
+.agriMachineryModal h3 {
+  margin: 8px 0;
+  color: var(--agri-primary);
+  font-size: 25px;
+  font-weight: 850;
+}
+
+.agriMachineryModal > p {
+  margin: 10px 0;
+  color: var(--agri-muted);
+  font-size: 13px;
+}
+
+.agriMachineryModalProduct {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 17px;
+  margin: 18px 0;
+  border: 1px solid #e2ebe4;
+  border-radius: 10px;
+  background: #f7faf7;
+  text-align: left;
+}
+
+.agriMachineryModalProduct > strong:first-child {
+  color: var(--agri-primary);
+  font-size: 15px;
+}
+
+.agriMachineryModalProduct > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 15px;
+}
+
+.agriMachineryModalProduct > div span {
+  color: var(--agri-muted);
+  font-size: 11px;
+}
+
+.agriMachineryModalProduct > strong:last-child {
+  color: var(--agri-green);
+  font-size: 14px;
+}
+
+.agriMachineryModalSubmit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 46px;
+  border: none;
+  border-radius: 7px;
+  background: var(--agri-primary);
+  color: white;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.agriMachineryModalNote {
+  padding: 12px;
+  border-radius: 7px;
+  background: #fff8e8;
+  color: #806324 !important;
+  font-size: 11px !important;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.agriMachineryModalNote code {
+  font-weight: 800;
+}
+
+.agriMachineryModalCancel {
+  width: 100%;
+  min-height: 43px;
+  margin-top: 10px;
+  border: 1px solid #e1e9e2;
+  border-radius: 7px;
+  background: white;
+  color: var(--agri-primary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ANIMATIONS */
+
+@keyframes agriMachineryFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes agriMachineryModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* LARGE DESKTOP */
+
+@media (min-width: 1600px) {
+  .agriMachineryGrid {
+    gap: 25px;
+  }
+
+  .agriMachineryImage {
+    height: 250px;
+  }
+
+  .agriMachineryDetails {
+    padding: 18px;
+  }
+}
+
+/* LAPTOP */
 
 @media (max-width: 1200px) {
-  .AgriMachinery-container {
-    width: min(100% - 50px, 1440px);
+  .agriMachinery {
+    padding: 65px 3%;
   }
 
-  .AgriMachinery-grid {
-    gap: 17px;
-  }
-
-  .AgriMachinery-card {
-    padding-right: 18px;
-    padding-left: 18px;
-    min-height: 445px;
-  }
-
-  .AgriMachinery-image-area {
-    height: 245px;
-    min-height: 245px;
-  }
-
-  .AgriMachinery-price {
-    font-size: 21px;
-  }
-
-  .AgriMachinery-subsidy-text {
-    font-size: 12px;
-  }
-}
-
-/* Tablet */
-
-@media (max-width: 900px) {
-  .AgriMachinery {
-    padding-top: 20px;
-  }
-
-  .AgriMachinery-container {
-    width: calc(100% - 40px);
-  }
-
-  .AgriMachinery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .agriMachineryGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
   }
 
-  .AgriMachinery-card {
-    min-height: 440px;
-    padding-right: 22px;
-    padding-left: 22px;
-  }
-
-  .AgriMachinery-image-area {
-    height: 250px;
-    min-height: 250px;
-  }
-
-  .AgriMachinery-product-image {
-    max-width: 280px;
-    max-height: 215px;
-  }
-
-  .AgriMachinery-product-info h3 {
-    font-size: 19px;
-  }
-
-  .AgriMachinery-price {
-    font-size: 23px;
-  }
-
-  .AgriMachinery-subsidy-text {
-    font-size: 13px;
-  }
-
-  .AgriMachinery-support {
-    min-height: 105px;
-    margin-top: 28px;
-    padding: 20px 24px;
+  .agriMachineryImage {
+    height: 215px;
   }
 }
 
-/* Mobile */
+/* TABLET */
+
+@media (max-width: 850px) {
+  .agriMachineryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+  }
+
+  .agriMachineryHeader {
+    align-items: flex-start;
+  }
+
+  .agriMachineryHeaderCount {
+    min-width: 140px;
+  }
+}
+
+/* MOBILE */
 
 @media (max-width: 550px) {
-  .AgriMachinery {
-    padding: 22px 0 35px;
+  .agriMachinery {
+    padding: 45px 15px;
   }
 
-  .AgriMachinery-container {
-    width: calc(100% - 28px);
+  .agriMachineryHeader {
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 25px;
   }
 
-  .AgriMachinery-heading {
-    margin-bottom: 17px;
+  .agriMachineryHeaderContent h2 {
+    font-size: 29px;
   }
 
-  .AgriMachinery-heading h2 {
-    font-size: 20px;
+  .agriMachineryHeaderContent p {
+    font-size: 12px;
   }
 
-  .AgriMachinery-heading-line {
-    height: 23px;
+  .agriMachineryHeaderCount {
+    min-width: 145px;
+    padding: 10px 14px;
   }
 
-  .AgriMachinery-view-all {
-    gap: 3px;
-    font-size: 13px;
-    white-space: nowrap;
+  .agriMachineryHeaderCount strong {
+    font-size: 26px;
   }
 
-  .AgriMachinery-view-all svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .AgriMachinery-grid {
+  .agriMachineryGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
 
-  .AgriMachinery-card {
-    min-height: 350px;
-    padding: 0 12px 14px;
-    border-radius: 20px;
+  .agriMachineryImage {
+    height: 145px;
+    padding: 8px;
   }
 
-  .AgriMachinery-image-area {
-    height: 185px;
-    min-height: 185px;
-    padding: 34px 0 5px;
+  .agriMachineryBadge {
+    top: 7px;
+    right: 7px;
+    padding: 5px 8px;
+    font-size: 8px;
   }
 
-  .AgriMachinery-brand-logo {
-    top: 15px;
-    left: 5px;
-    max-width: 75px;
-    font-size: 10px;
+  .agriMachineryImageNumber {
+    bottom: 7px;
+    left: 7px;
+    font-size: 8px;
   }
 
-  .AgriMachinery-card:nth-child(1) .AgriMachinery-brand-logo {
-    font-size: 13px;
+  .agriMachineryDetails {
+    padding: 10px 9px;
   }
 
-  .AgriMachinery-subsidy-badge {
-    top: 9px;
-    right: -7px;
-    min-width: auto;
-    padding: 5px 7px;
-    gap: 3px;
-    border-radius: 7px;
-    font-size: 10px;
+  .agriMachineryCategoryTag {
+    padding: 4px 7px;
+    margin-bottom: 7px;
+    font-size: 8px;
   }
 
-  .AgriMachinery-subsidy-badge svg {
-    width: 12px;
-    height: 12px;
-  }
-
-  .AgriMachinery-product-image {
-    max-width: 100%;
-    max-height: 150px;
-  }
-
-  .AgriMachinery-product-info {
-    min-height: 65px;
-  }
-
-  .AgriMachinery-brand-name {
-    margin-bottom: 5px;
+  .agriMachineryDetails h3 {
+    min-height: 42px;
     font-size: 11px;
   }
 
-  .AgriMachinery-product-info h3 {
-    font-size: 14px;
-    line-height: 1.3;
+  .agriMachinerySpecs {
+    margin-top: 8px;
   }
 
-  .AgriMachinery-card-divider {
-    margin: 9px 0 11px;
+  .agriMachinerySpecItem {
+    min-height: 57px;
+    gap: 6px;
+    padding: 7px 2px;
   }
 
-  .AgriMachinery-price-label {
-    margin-bottom: 4px;
+  .agriMachinerySpecItem span {
     font-size: 9px;
   }
 
-  .AgriMachinery-price {
-    font-size: 17px;
-  }
-
-  .AgriMachinery-subsidy-text {
+  .agriMachinerySpecItem strong {
     gap: 3px;
-    margin-top: 5px;
+    font-size: 9px;
+  }
+
+  .agriMachinerySpecItem strong svg {
+    width: 11px;
+  }
+
+  .agriMachineryPrice {
+    min-height: 48px;
+    gap: 5px;
+  }
+
+  .agriMachineryPrice > strong {
+    padding: 5px;
     font-size: 10px;
-    white-space: normal;
   }
 
-  .AgriMachinery-subsidy-text svg {
+  .agriMachineryPrice > span,
+  .agriMachineryPrice > button {
+    font-size: 10px;
+  }
+
+  .agriMachineryPrice > button svg {
+    width: 12px;
+  }
+
+  .agriMachineryContactButton {
+    min-height: 39px;
+    gap: 5px;
+    padding: 8px 5px;
+    font-size: 10px;
+  }
+
+  .agriMachineryContactButton svg {
     width: 13px;
-    height: 13px;
   }
 
-  .AgriMachinery-arrow-button {
-    width: 31px;
-    height: 31px;
-  }
-
-  .AgriMachinery-arrow-button svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .AgriMachinery-support {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 17px;
-    min-height: auto;
-    margin-top: 22px;
-    padding: 18px;
-    border-radius: 22px;
-  }
-
-  .AgriMachinery-support-left {
+  .agriMachineryBottom {
+    flex-wrap: wrap;
     gap: 12px;
+    padding: 16px;
   }
 
-  .AgriMachinery-support-icon {
-    width: 43px;
-    height: 43px;
-    border-radius: 13px;
+  .agriMachineryBottomIcon {
+    width: 42px;
+    height: 42px;
   }
 
-  .AgriMachinery-support-icon svg {
-    width: 21px;
-    height: 21px;
+  .agriMachineryBottomText {
+    min-width: calc(100% - 60px);
   }
 
-  .AgriMachinery-support-text h3 {
-    font-size: 15px;
-  }
-
-  .AgriMachinery-support-text p {
+  .agriMachineryBottomText strong {
     font-size: 12px;
   }
 
-  .AgriMachinery-support-button {
-    width: 100%;
-    min-height: 49px;
-    min-width: 0;
-    padding: 10px 15px;
-    font-size: 14px;
+  .agriMachineryBottomText span {
+    font-size: 10px;
+    line-height: 1.5;
   }
 
-  .AgriMachinery-support-button svg {
-    width: 18px;
-    height: 18px;
+  .agriMachineryBottomButton {
+    width: 100%;
   }
 }
 
-/* Very small phones */
+/* EXTRA SMALL DEVICES */
 
 @media (max-width: 360px) {
-  .AgriMachinery-container {
-    width: calc(100% - 20px);
+  .agriMachinery {
+    padding-right: 10px;
+    padding-left: 10px;
   }
 
-  .AgriMachinery-grid {
+  .agriMachineryGrid {
     gap: 9px;
   }
 
-  .AgriMachinery-card {
-    min-height: 325px;
-    padding-right: 9px;
-    padding-left: 9px;
-    border-radius: 17px;
+  .agriMachineryImage {
+    height: 125px;
   }
 
-  .AgriMachinery-image-area {
-    height: 165px;
-    min-height: 165px;
+  .agriMachineryDetails h3 {
+    font-size: 10px;
   }
 
-  .AgriMachinery-product-image {
-    max-height: 135px;
-  }
-
-  .AgriMachinery-product-info h3 {
-    font-size: 12px;
-  }
-
-  .AgriMachinery-price {
-    font-size: 15px;
-  }
-
-  .AgriMachinery-subsidy-text {
+  .agriMachineryPrice > strong {
     font-size: 9px;
   }
 
-  .AgriMachinery-arrow-button {
-    width: 27px;
-    height: 27px;
+  .agriMachineryContactButton {
+    font-size: 9px;
+  }
+}
+
+/* ACCESSIBILITY */
+
+.agriMachinery button:focus-visible {
+  outline: 2px solid var(--agri-green);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agriMachinery *,
+  .agriMachinery *::before,
+  .agriMachinery *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

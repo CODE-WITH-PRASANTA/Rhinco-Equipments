@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { ShoppingCart, Heart, Star } from "lucide-react";
 import "./ProductDetailsTwo.css";
 
 const products = [
@@ -10,7 +11,7 @@ const products = [
     price: 3499,
     rating: 4.8,
     image:
-      "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=700&q=85",
+      "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=600&q=85",
   },
   {
     id: 2,
@@ -18,7 +19,7 @@ const products = [
     price: 899,
     rating: 4.6,
     image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=700&q=85",
+      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&q=85",
   },
   {
     id: 3,
@@ -26,7 +27,7 @@ const products = [
     price: 2499,
     rating: 4.7,
     image:
-      "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=700&q=85",
+      "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=600&q=85",
   },
   {
     id: 4,
@@ -34,7 +35,7 @@ const products = [
     price: 1899,
     rating: 4.5,
     image:
-      "https://images.unsplash.com/photo-1599685315640-6ec5f1f2f6d7?w=700&q=85",
+      "https://images.unsplash.com/photo-1599685315640-8ec6b6a5d9e6?w=600&q=85",
   },
   {
     id: 5,
@@ -42,7 +43,7 @@ const products = [
     price: 1299,
     rating: 4.9,
     image:
-      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=700&q=85",
+      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&q=85",
   },
   {
     id: 6,
@@ -50,7 +51,7 @@ const products = [
     price: 4599,
     rating: 4.8,
     image:
-      "https://images.unsplash.com/photo-1581147036324-c1c9b4f6a7b4?w=700&q=85",
+      "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=600&q=85",
   },
   {
     id: 7,
@@ -58,7 +59,7 @@ const products = [
     price: 799,
     rating: 4.6,
     image:
-      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=700&q=85",
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=85",
   },
   {
     id: 8,
@@ -66,12 +67,25 @@ const products = [
     price: 2199,
     rating: 4.7,
     image:
-      "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=700&q=85",
+      "https://images.unsplash.com/photo-1581147036324-c1c89c2c8b5c?w=600&q=85",
+  },
+  {
+    id: 9,
+    name: "Premium Garden Sprayer",
+    price: 1599,
+    rating: 4.8,
+    image:
+      "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&q=85",
+  },
+  {
+    id: 10,
+    name: "Farming Equipment Set",
+    price: 2799,
+    rating: 4.6,
+    image:
+      "https://images.unsplash.com/photo-1592982537447-6f2a6a0a6a8e?w=600&q=85",
   },
 ];
-
-const formatPrice = (price) =>
-  `₹${Number(price).toLocaleString("en-IN")}`;
 
 const ProductDetailsTwo = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -85,23 +99,20 @@ const ProductDetailsTwo = () => {
     );
   };
 
-  const addToCart = (id) => {
-    setCart((previous) =>
-      previous.includes(id) ? previous : [...previous, id]
-    );
+  const addToCart = (product) => {
+    setCart((previous) => [...previous, product]);
   };
 
-  const renderProduct = (product, copy = false) => (
-    <article
+  const renderProduct = (product, duplicate = false) => (
+    <div
       className="ProductDetailsTwo-card"
-      key={`${copy ? "duplicate-" : ""}${product.id}`}
-      aria-hidden={copy ? "true" : undefined}
+      key={`${duplicate ? "duplicate-" : ""}${product.id}`}
     >
       <div className="ProductDetailsTwo-image-wrapper">
         <Link
           to={`/product/${product.id}`}
           className="ProductDetailsTwo-image-link"
-          tabIndex={copy ? -1 : 0}
+          tabIndex={duplicate ? -1 : 0}
         >
           <img
             src={product.image}
@@ -111,111 +122,119 @@ const ProductDetailsTwo = () => {
           />
         </Link>
 
-        <div className="ProductDetailsTwo-hover-actions">
+        <div className="ProductDetailsTwo-overlay">
           <button
             type="button"
-            className="ProductDetailsTwo-action-button"
-            onClick={() => addToCart(product.id)}
+            className="ProductDetailsTwo-action"
+            onClick={() => addToCart(product)}
             aria-label={`Add ${product.name} to cart`}
-            tabIndex={copy ? -1 : 0}
+            tabIndex={duplicate ? -1 : 0}
           >
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <circle cx="10" cy="20" r="1.3" fill="currentColor" />
-              <circle cx="18" cy="20" r="1.3" fill="currentColor" />
-            </svg>
+            <ShoppingCart size={17} />
           </button>
 
           <button
             type="button"
-            className={`ProductDetailsTwo-action-button ${
+            className={`ProductDetailsTwo-action ${
               wishlist.includes(product.id)
-                ? "ProductDetailsTwo-wishlisted"
+                ? "ProductDetailsTwo-action-active"
                 : ""
             }`}
             onClick={() => toggleWishlist(product.id)}
             aria-label={`Add ${product.name} to wishlist`}
-            tabIndex={copy ? -1 : 0}
+            tabIndex={duplicate ? -1 : 0}
           >
-            {wishlist.includes(product.id) ? "♥" : "♡"}
+            <Heart
+              size={17}
+              fill={
+                wishlist.includes(product.id) ? "currentColor" : "none"
+              }
+            />
           </button>
         </div>
       </div>
 
-      <div className="ProductDetailsTwo-card-info">
+      <div className="ProductDetailsTwo-info">
         <Link
           to={`/product/${product.id}`}
-          className="ProductDetailsTwo-product-name"
-          tabIndex={copy ? -1 : 0}
+          className="ProductDetailsTwo-name"
+          tabIndex={duplicate ? -1 : 0}
         >
           {product.name}
         </Link>
 
         <div className="ProductDetailsTwo-rating">
-          <span className="ProductDetailsTwo-stars" aria-label={`${product.rating} out of 5 stars`}>
-            ★★★★★
-          </span>
-          <span className="ProductDetailsTwo-rating-number">
-            {product.rating}
-          </span>
+          <div className="ProductDetailsTwo-stars">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                size={13}
+                fill={star <= Math.round(product.rating) ? "#f5b72e" : "none"}
+                color="#f5b72e"
+              />
+            ))}
+          </div>
+          <span>({product.rating})</span>
         </div>
 
-        <div className="ProductDetailsTwo-price">
-          {formatPrice(product.price)}
+        <div className="ProductDetailsTwo-bottom">
+          <span className="ProductDetailsTwo-price">
+            ₹{product.price.toLocaleString("en-IN")}
+          </span>
+          <button
+            type="button"
+            className="ProductDetailsTwo-cart-button"
+            onClick={() => addToCart(product)}
+            aria-label={`Add ${product.name} to cart`}
+            tabIndex={duplicate ? -1 : 0}
+          >
+            <ShoppingCart size={16} />
+          </button>
         </div>
       </div>
-    </article>
+    </div>
   );
 
   return (
     <section className="ProductDetailsTwo">
       <div className="ProductDetailsTwo-container">
         <div className="ProductDetailsTwo-heading">
-          <span className="ProductDetailsTwo-heading-line" />
-          <div className="ProductDetailsTwo-heading-row">
-            <div>
-              <span className="ProductDetailsTwo-eyebrow">
-                YOU MAY ALSO LIKE
-              </span>
-              <h2>Related Products</h2>
-            </div>
-
-            <Link
-              to="/products"
-              className="ProductDetailsTwo-view-all"
-            >
-              View All Products
-              <span>→</span>
-            </Link>
+          <div>
+            <span className="ProductDetailsTwo-subtitle">
+              FARMTECH AGRO
+            </span>
+            <h2>Related Products</h2>
+            <p>Explore more quality products for your farming needs.</p>
           </div>
+
+          <Link to="/products" className="ProductDetailsTwo-view-all">
+            View All Products
+          </Link>
         </div>
 
-        <div
-          className="ProductDetailsTwo-carousel"
-          aria-label="Related products"
-        >
+        <div className="ProductDetailsTwo-slider">
           <div className="ProductDetailsTwo-track">
             <div className="ProductDetailsTwo-group">
               {products.map((product) => renderProduct(product))}
             </div>
 
-            <div className="ProductDetailsTwo-group" aria-hidden="true">
+            <div
+              className="ProductDetailsTwo-group"
+              aria-hidden="true"
+              inert=""
+            >
               {products.map((product) => renderProduct(product, true))}
             </div>
           </div>
         </div>
 
-        <div className="ProductDetailsTwo-bottom">
-          <span className="ProductDetailsTwo-bottom-icon">✦</span>
-          Discover more quality products for your farm and garden.
-          <Link to="/products">Explore Catalogue →</Link>
-        </div>
+        {cart.length > 0 && (
+          <div className="ProductDetailsTwo-cart-status" aria-live="polite">
+            <ShoppingCart size={16} />
+            {cart.length} {cart.length === 1 ? "product" : "products"} added
+            to cart
+          </div>
+        )}
       </div>
     </section>
   );
