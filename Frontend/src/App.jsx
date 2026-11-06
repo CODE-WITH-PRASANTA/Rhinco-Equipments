@@ -6,7 +6,6 @@ import Home from "./Pages/Home/Home";
 import Navbar from "./Components/Navbar/Navbar";
 import Footer from "./Components/Footer/Footer";
 import MachineryDetails from "./Components/MachineryDetails/MachineryDetails";
-import MachineryCatalogue from "./Components/MachineryCatalogue/MachineryCatalogue";
 import Product from "./Pages/Product/Product";
 import ProductDetails from "./Pages/ProductDetails/ProductDetails";
 import Team from "./Pages/Team/Team";
@@ -14,6 +13,9 @@ import Blog from "./Pages/Blog/Blog";
 import BlogDetails from "./Pages/BlogDetails/BlogDetails";
 import Contact from "./Pages/Contact/Contact";
 import FAQs from "./Pages/FAQs/FAQs";
+import Cart from "./Pages/Cart/Cart";
+import Wishlist from "./Pages/Wishlist/Wishlist";
+import MachinaryEquipment from "./Pages/MachinaryEquipment/MachinaryEquipment";
 
 const App = () => {
   return (
@@ -29,7 +31,6 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/machine-details" element={<MachineryDetails />} />
-            <Route path="/machine-catalogue" element={<MachineryCatalogue />} />
 
             <Route path="/products" element={<Product />} />
             <Route path="/Product-Details" element={<ProductDetails />} />
@@ -38,6 +39,9 @@ const App = () => {
             <Route path="/blog-details" element={<BlogDetails />} />
             <Route path="/contact" element={<Contact/>} />
             <Route path="/faq" element={<FAQs/>} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/machinery" element={<MachinaryEquipment />} />
 
           </Routes>
         </main>
