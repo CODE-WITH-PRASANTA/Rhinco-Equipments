@@ -1,0 +1,1599 @@
+/* =========================================
+   MACHINERY EQUIPMENT - MAIN
+========================================= */
+
+.MachineryEquipment {
+  width: 100%;
+  min-height: 100vh;
+  padding: 28px;
+  background: #f5f9f5;
+  color: #26352b;
+  font-family: "Inter", sans-serif;
+
+  --ME-green: #238b45;
+  --ME-green-dark: #176b35;
+  --ME-green-soft: #eaf6ed;
+  --ME-bg: #f5f9f5;
+  --ME-border: #e2ebe3;
+  --ME-text: #26352b;
+  --ME-muted: #78867b;
+  --ME-white: #ffffff;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.MachineryEquipment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.MachineryEquipment-eyebrow {
+  color: var(--ME-green);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.MachineryEquipment-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 8px 0;
+  color: var(--ME-text);
+}
+
+.MachineryEquipment-header p {
+  margin: 0;
+  color: var(--ME-muted);
+  font-size: 13px;
+}
+
+.MachineryEquipment-addBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 19px;
+  border: none;
+  border-radius: 9px;
+  background: var(--ME-green);
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+  white-space: nowrap;
+}
+
+.MachineryEquipment-addBtn:hover,
+.MachineryEquipment-submitBtn:hover {
+  background: var(--ME-green-dark);
+  transform: translateY(-2px);
+}
+
+.MachineryEquipment-addBtn svg {
+  font-size: 17px;
+}
+
+/* =========================================
+   NOTIFICATION
+========================================= */
+
+.MachineryEquipment-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  margin-bottom: 20px;
+  border: 1px solid #cde8d3;
+  border-radius: 9px;
+  background: #edf8ef;
+  color: #176b35;
+  font-size: 13px;
+}
+
+.MachineryEquipment-notice span {
+  flex: 1;
+}
+
+.MachineryEquipment-notice button {
+  display: flex;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+/* =========================================
+   STATISTICS
+========================================= */
+
+.MachineryEquipment-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.MachineryEquipment-statCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: white;
+  border: 1px solid var(--ME-border);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(25, 75, 38, 0.035);
+}
+
+.MachineryEquipment-statIcon {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: var(--ME-green-soft);
+  color: var(--ME-green);
+  font-size: 21px;
+  flex-shrink: 0;
+}
+
+.MachineryEquipment-statCard span {
+  display: block;
+  color: var(--ME-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.MachineryEquipment-statCard h3 {
+  margin: 5px 0 0;
+  color: var(--ME-text);
+  font-size: 23px;
+  font-weight: 800;
+}
+
+/* =========================================
+   TABS
+========================================= */
+
+.MachineryEquipment-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+  margin-bottom: 20px;
+  border: 1px solid var(--ME-border);
+  border-radius: 10px;
+  background: white;
+}
+
+.MachineryEquipment-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 17px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ME-muted);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.MachineryEquipment-tabs button.active {
+  background: var(--ME-green);
+  color: white;
+}
+
+.MachineryEquipment-tabs button span {
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+}
+
+/* =========================================
+   FORM CONTAINER
+========================================= */
+
+.MachineryEquipment-form {
+  padding: 25px;
+  background: white;
+  border: 1px solid var(--ME-border);
+  border-radius: 13px;
+  box-shadow: 0 4px 18px rgba(25, 75, 38, 0.035);
+}
+
+.MachineryEquipment-formHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding-bottom: 22px;
+  margin-bottom: 23px;
+  border-bottom: 1px solid var(--ME-border);
+}
+
+.MachineryEquipment-formHeading h2 {
+  margin: 0 0 6px;
+  color: var(--ME-text);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.MachineryEquipment-formHeading p {
+  margin: 0;
+  color: var(--ME-muted);
+  font-size: 12px;
+}
+
+.MachineryEquipment-editBadge {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: var(--ME-green-soft);
+  color: var(--ME-green-dark);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* =========================================
+   FORM SECTIONS
+========================================= */
+
+.MachineryEquipment-section {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--ME-border);
+}
+
+.MachineryEquipment-section:first-of-type {
+  padding-top: 0;
+}
+
+.MachineryEquipment-sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.MachineryEquipment-sectionIcon {
+  width: 39px;
+  height: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: var(--ME-green-soft);
+  color: var(--ME-green);
+  font-size: 18px;
+}
+
+.MachineryEquipment-sectionTitle h3 {
+  margin: 0 0 5px;
+  color: var(--ME-text);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.MachineryEquipment-sectionTitle p {
+  margin: 0;
+  color: var(--ME-muted);
+  font-size: 11px;
+}
+
+/* =========================================
+   FORM GRID AND INPUTS
+========================================= */
+
+.MachineryEquipment-formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 19px;
+}
+
+.MachineryEquipment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.MachineryEquipment-field.full {
+  grid-column: 1 / -1;
+}
+
+.MachineryEquipment-field label,
+.MachineryEquipment-editor > label {
+  color: #37483b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.MachineryEquipment-field label span,
+.MachineryEquipment-editor label span {
+  color: #e34d4d;
+}
+
+.MachineryEquipment-field input,
+.MachineryEquipment-field select {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  border: 1px solid #dce7de;
+  border-radius: 7px;
+  outline: none;
+  background: #fff;
+  color: var(--ME-text);
+  font-size: 12px;
+  transition: 0.2s ease;
+}
+
+.MachineryEquipment-field input:focus,
+.MachineryEquipment-field select:focus {
+  border-color: var(--ME-green);
+  box-shadow: 0 0 0 3px rgba(35, 139, 69, 0.09);
+}
+
+.MachineryEquipment-field input::placeholder {
+  color: #a0aaa2;
+}
+
+.MachineryEquipment-inputWithIcon {
+  position: relative;
+}
+
+.MachineryEquipment-inputWithIcon > span {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  transform: translateY(-50%);
+  color: var(--ME-green);
+  font-weight: 800;
+}
+
+.MachineryEquipment-inputWithIcon input {
+  padding-left: 30px;
+}
+
+/* =========================================
+   IMAGE UPLOAD
+========================================= */
+
+.MachineryEquipment-uploadGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 13px;
+}
+
+.MachineryEquipment-uploadBox {
+  min-height: 145px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px;
+  border: 1.5px dashed #a9cfb1;
+  border-radius: 9px;
+  background: #f8fcf8;
+  color: var(--ME-green);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.MachineryEquipment-uploadBox:hover,
+.MachineryEquipment-documentUpload:hover {
+  border-color: var(--ME-green);
+  background: var(--ME-green-soft);
+}
+
+.MachineryEquipment-uploadBox svg {
+  font-size: 26px;
+}
+
+.MachineryEquipment-uploadBox strong {
+  font-size: 12px;
+}
+
+.MachineryEquipment-uploadBox span,
+.MachineryEquipment-uploadBox small {
+  color: var(--ME-muted);
+  font-size: 10px;
+}
+
+.MachineryEquipment-imagePreview {
+  position: relative;
+  height: 145px;
+  overflow: hidden;
+  border: 1px solid var(--ME-border);
+  border-radius: 9px;
+  background: #f7faf7;
+}
+
+.MachineryEquipment-imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.MachineryEquipment-removeImage {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 27px;
+  height: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #dc3838;
+  color: white;
+  cursor: pointer;
+}
+
+.MachineryEquipment-mainImageLabel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 6px;
+  background: rgba(23, 107, 53, 0.9);
+  color: white;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* =========================================
+   TINYMCE EDITOR
+========================================= */
+
+.MachineryEquipment-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+
+.MachineryEquipment-editor .tox-tinymce {
+  border: 1px solid var(--ME-border) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.MachineryEquipment-editor .tox .tox-toolbar,
+.MachineryEquipment-editor .tox .tox-toolbar__overflow,
+.MachineryEquipment-editor .tox .tox-toolbar__primary {
+  background: #f7faf7 !important;
+}
+
+.MachineryEquipment-editor .tox .tox-edit-area::before {
+  border: none !important;
+}
+
+/* =========================================
+   DOCUMENT UPLOAD
+========================================= */
+
+.MachineryEquipment-documentUpload {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px;
+  border: 1.5px dashed #a9cfb1;
+  border-radius: 9px;
+  background: #f8fcf8;
+  color: var(--ME-green);
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.MachineryEquipment-documentUpload > svg {
+  font-size: 25px;
+}
+
+.MachineryEquipment-documentUpload span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.MachineryEquipment-documentUpload strong {
+  font-size: 12px;
+}
+
+.MachineryEquipment-documentUpload small {
+  color: var(--ME-muted);
+  font-size: 10px;
+}
+
+.MachineryEquipment-documentList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.MachineryEquipment-documentItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px;
+  border: 1px solid var(--ME-border);
+  border-radius: 8px;
+  background: #fbfdfb;
+}
+
+.MachineryEquipment-documentItem > svg {
+  color: var(--ME-green);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.MachineryEquipment-documentItem div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.MachineryEquipment-documentItem strong {
+  overflow: hidden;
+  color: var(--ME-text);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MachineryEquipment-documentItem small {
+  color: var(--ME-muted);
+  font-size: 10px;
+}
+
+.MachineryEquipment-documentItem button {
+  border: none;
+  background: transparent;
+  color: #dc3838;
+  cursor: pointer;
+}
+
+/* =========================================
+   STORE AVAILABILITY
+========================================= */
+
+.MachineryEquipment-radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+}
+
+.MachineryEquipment-radioGroup label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border: 1px solid var(--ME-border);
+  border-radius: 8px;
+  background: #fbfdfb;
+  cursor: pointer;
+}
+
+.MachineryEquipment-radioGroup input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--ME-green);
+}
+
+.MachineryEquipment-radioGroup span {
+  color: var(--ME-text);
+  font-size: 12px;
+}
+
+/* =========================================
+   FORM BUTTONS
+========================================= */
+
+.MachineryEquipment-formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 23px;
+}
+
+.MachineryEquipment-resetBtn,
+.MachineryEquipment-submitBtn {
+  min-height: 43px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 19px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.MachineryEquipment-resetBtn {
+  border: 1px solid #dce7de;
+  background: white;
+  color: #526155;
+}
+
+.MachineryEquipment-resetBtn:hover {
+  background: #f2f6f2;
+}
+
+.MachineryEquipment-submitBtn {
+  border: none;
+  background: var(--ME-green);
+  color: white;
+}
+
+.MachineryEquipment-submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   TABLE CONTAINER
+========================================= */
+
+.MachineryEquipment-tableWrapper {
+  overflow: hidden;
+  border: 1px solid var(--ME-border);
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 18px rgba(25, 75, 38, 0.035);
+}
+
+.MachineryEquipment-tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 22px;
+  border-bottom: 1px solid var(--ME-border);
+}
+
+.MachineryEquipment-tableHeader h2 {
+  margin: 0 0 6px;
+  color: var(--ME-text);
+  font-size: 18px;
+}
+
+.MachineryEquipment-tableHeader p {
+  margin: 0;
+  color: var(--ME-muted);
+  font-size: 11px;
+}
+
+/* =========================================
+   FILTERS
+========================================= */
+
+.MachineryEquipment-filters {
+  display: flex;
+  gap: 12px;
+  padding: 17px 22px;
+}
+
+.MachineryEquipment-search,
+.MachineryEquipment-categoryFilter {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid var(--ME-border);
+  border-radius: 7px;
+  background: white;
+  color: var(--ME-muted);
+}
+
+.MachineryEquipment-search {
+  flex: 1;
+}
+
+.MachineryEquipment-search input,
+.MachineryEquipment-categoryFilter select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ME-text);
+  font-size: 11px;
+}
+
+.MachineryEquipment-categoryFilter {
+  min-width: 190px;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.MachineryEquipment-tableScroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.MachineryEquipment-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.MachineryEquipment-table th {
+  padding: 13px 14px;
+  background: #f5faf5;
+  color: #607064;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.MachineryEquipment-table td {
+  padding: 14px;
+  border-bottom: 1px solid #edf2ed;
+  color: #455448;
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.MachineryEquipment-table tbody tr:hover {
+  background: #fbfefb;
+}
+
+.MachineryEquipment-productCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.MachineryEquipment-productCell img,
+.MachineryEquipment-noImage {
+  width: 47px;
+  height: 43px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #edf6ef;
+}
+
+.MachineryEquipment-noImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ME-green);
+}
+
+.MachineryEquipment-productCell div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.MachineryEquipment-productCell strong {
+  max-width: 190px;
+  overflow: hidden;
+  color: var(--ME-text);
+  font-size: 11px;
+  text-overflow: ellipsis;
+}
+
+.MachineryEquipment-productCell small,
+.MachineryEquipment-subText {
+  display: block;
+  color: var(--ME-muted);
+  font-size: 10px;
+}
+
+.MachineryEquipment-categoryBadge {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: var(--ME-green-soft);
+  color: var(--ME-green-dark);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.MachineryEquipment-oldPrice {
+  display: block;
+  margin-top: 4px;
+  color: #9aa59c;
+  font-size: 10px;
+  text-decoration: line-through;
+}
+
+.MachineryEquipment-storeBadge {
+  display: inline-block;
+  padding: 5px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.MachineryEquipment-storeBadge.available {
+  background: #e7f6eb;
+  color: #238b45;
+}
+
+.MachineryEquipment-storeBadge.unavailable {
+  background: #f1f2f1;
+  color: #78867b;
+}
+
+.MachineryEquipment-fileCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 7px;
+  color: var(--ME-muted);
+  font-size: 10px;
+}
+
+.MachineryEquipment-fileCount svg {
+  color: var(--ME-green);
+}
+
+.MachineryEquipment-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.MachineryEquipment-actions button {
+  width: 29px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ME-border);
+  border-radius: 6px;
+  background: white;
+  color: #607064;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.MachineryEquipment-actions button:hover {
+  border-color: var(--ME-green);
+  background: var(--ME-green-soft);
+  color: var(--ME-green);
+}
+
+.MachineryEquipment-actions button:last-child:hover {
+  border-color: #f0c5c5;
+  background: #fff0f0;
+  color: #d93636;
+}
+
+.MachineryEquipment-empty {
+  height: 180px;
+  text-align: center !important;
+}
+
+.MachineryEquipment-empty svg {
+  display: block;
+  margin: 0 auto 10px;
+  color: #9bbda1;
+  font-size: 26px;
+}
+
+.MachineryEquipment-empty strong,
+.MachineryEquipment-empty span {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.MachineryEquipment-empty span {
+  color: var(--ME-muted);
+}
+
+/* =========================================
+   PAGINATION
+========================================= */
+
+.MachineryEquipment-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 17px 22px;
+  color: var(--ME-muted);
+  font-size: 11px;
+}
+
+.MachineryEquipment-pagination div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.MachineryEquipment-pagination button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ME-border);
+  border-radius: 6px;
+  background: white;
+  color: var(--ME-green);
+  cursor: pointer;
+}
+
+.MachineryEquipment-pagination button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   MODALS
+========================================= */
+
+.MachineryEquipment-modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(15, 30, 19, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.MachineryEquipment-viewModal {
+  width: min(900px, 100%);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 13px;
+  background: white;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+}
+
+.MachineryEquipment-modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ME-border);
+}
+
+.MachineryEquipment-modalHeader span {
+  color: var(--ME-green);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.MachineryEquipment-modalHeader h2 {
+  margin: 5px 0 0;
+  color: var(--ME-text);
+  font-size: 19px;
+}
+
+.MachineryEquipment-modalHeader button {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ME-border);
+  border-radius: 7px;
+  background: white;
+  color: var(--ME-text);
+  cursor: pointer;
+}
+
+.MachineryEquipment-modalBody {
+  padding: 22px 24px;
+  overflow-y: auto;
+}
+
+.MachineryEquipment-modalImages {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.MachineryEquipment-modalImages img {
+  width: 100%;
+  height: 125px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--ME-border);
+}
+
+.MachineryEquipment-detailGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.MachineryEquipment-detailGrid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px;
+  border: 1px solid var(--ME-border);
+  border-radius: 8px;
+  background: #fbfdfb;
+}
+
+.MachineryEquipment-detailGrid span {
+  color: var(--ME-muted);
+  font-size: 10px;
+}
+
+.MachineryEquipment-detailGrid strong {
+  color: var(--ME-text);
+  font-size: 12px;
+}
+
+.MachineryEquipment-detailSection {
+  margin-top: 22px;
+}
+
+.MachineryEquipment-detailSection h3 {
+  margin: 0 0 10px;
+  color: var(--ME-text);
+  font-size: 14px;
+}
+
+.MachineryEquipment-richText {
+  padding: 15px;
+  border: 1px solid var(--ME-border);
+  border-radius: 8px;
+  color: #526155;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.MachineryEquipment-richText img {
+  max-width: 100%;
+}
+
+.MachineryEquipment-viewDocuments {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.MachineryEquipment-viewDocuments a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid var(--ME-border);
+  border-radius: 7px;
+  color: var(--ME-green-dark);
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.MachineryEquipment-viewDocuments a svg:last-child {
+  margin-left: auto;
+}
+
+.MachineryEquipment-viewDocuments a:hover {
+  background: var(--ME-green-soft);
+}
+
+.MachineryEquipment-modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 24px;
+  border-top: 1px solid var(--ME-border);
+}
+
+/* =========================================
+   DELETE MODAL
+========================================= */
+
+.MachineryEquipment-deleteModal {
+  width: min(400px, 100%);
+  padding: 30px;
+  border-radius: 13px;
+  background: white;
+  text-align: center;
+}
+/* =========================================
+   MACHINERY EQUIPMENT - INPUT BOX DESIGN
+========================================= */
+
+.MachineryEquipment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+}
+
+.MachineryEquipment-field label,
+.MachineryEquipment-editor > label {
+  display: block;
+  margin-bottom: 0;
+  color: #263d2c;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+}
+
+.MachineryEquipment-field label span,
+.MachineryEquipment-editor label span {
+  color: #e04444;
+  margin-left: 2px;
+}
+
+/* ALL INPUTS AND SELECTS */
+
+.MachineryEquipment-field input:not([type="radio"]):not([type="checkbox"]),
+.MachineryEquipment-field select,
+.MachineryEquipment-field textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  padding: 0 15px;
+
+  border: 1px solid #dce7dd;
+  border-radius: 8px;
+
+  outline: none;
+  background: #ffffff;
+  color: #263d2c;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+/* PLACEHOLDER */
+
+.MachineryEquipment-field input::placeholder,
+.MachineryEquipment-field textarea::placeholder {
+  color: #a2afa5;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* INPUT HOVER */
+
+.MachineryEquipment-field input:hover,
+.MachineryEquipment-field select:hover,
+.MachineryEquipment-field textarea:hover {
+  border-color: #a6c9ad;
+}
+
+/* INPUT FOCUS */
+
+.MachineryEquipment-field input:focus,
+.MachineryEquipment-field select:focus,
+.MachineryEquipment-field textarea:focus {
+  border-color: #238b45;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(35, 139, 69, 0.10);
+}
+
+/* SELECT DROPDOWN */
+
+.MachineryEquipment-field select {
+  cursor: pointer;
+  appearance: none;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23238b45' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  padding-right: 40px;
+}
+
+/* TEXTAREA */
+
+.MachineryEquipment-field textarea {
+  height: auto;
+  min-height: 120px;
+  padding: 13px 15px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* PRICE INPUT */
+
+.MachineryEquipment-inputWithIcon {
+  position: relative;
+  width: 100%;
+}
+
+.MachineryEquipment-inputWithIcon > span {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  z-index: 2;
+  transform: translateY(-50%);
+  color: #238b45;
+  font-size: 15px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.MachineryEquipment-inputWithIcon input {
+  width: 100%;
+  height: 48px;
+  padding: 0 15px 0 38px !important;
+  border: 1px solid #dce7dd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #263d2c;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+
+.MachineryEquipment-inputWithIcon input:focus {
+  border-color: #238b45;
+  box-shadow: 0 0 0 3px rgba(35, 139, 69, 0.10);
+}
+
+/* NUMBER INPUT */
+
+.MachineryEquipment-field input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.MachineryEquipment-field input[type="number"]::-webkit-inner-spin-button,
+.MachineryEquipment-field input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/* RADIO BUTTONS */
+
+.MachineryEquipment-radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 3px;
+}
+
+.MachineryEquipment-radioGroup label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid #dce7dd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #344a38;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.MachineryEquipment-radioGroup label:hover {
+  border-color: #238b45;
+  background: #f5fbf6;
+}
+
+.MachineryEquipment-radioGroup input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #238b45;
+  cursor: pointer;
+}
+
+.MachineryEquipment-radioGroup label:has(input:checked) {
+  border-color: #238b45;
+  background: #eaf6ed;
+  color: #176b35;
+}
+
+/* DISABLED INPUT */
+
+.MachineryEquipment-field input:disabled,
+.MachineryEquipment-field select:disabled {
+  background: #f2f5f2;
+  color: #9aa69c;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   TINYMCE EDITOR
+========================================= */
+
+.MachineryEquipment-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.MachineryEquipment-editor .tox-tinymce {
+  width: 100% !important;
+  border: 1px solid #dce7dd !important;
+  border-radius: 9px !important;
+  overflow: hidden;
+  box-shadow: none !important;
+}
+
+.MachineryEquipment-editor .tox-tinymce:focus-within {
+  border-color: #238b45 !important;
+  box-shadow: 0 0 0 3px rgba(35, 139, 69, 0.10) !important;
+}
+
+.MachineryEquipment-editor .tox .tox-toolbar,
+.MachineryEquipment-editor .tox .tox-toolbar__primary,
+.MachineryEquipment-editor .tox .tox-toolbar__overflow {
+  background: #f5faf5 !important;
+}
+
+.MachineryEquipment-editor .tox .tox-edit-area::before {
+  border: none !important;
+}
+
+/* =========================================
+   RESPONSIVE INPUT DESIGN
+========================================= */
+
+@media (max-width: 700px) {
+  .MachineryEquipment-field input:not([type="radio"]):not([type="checkbox"]),
+  .MachineryEquipment-field select,
+  .MachineryEquipment-inputWithIcon input {
+    height: 46px;
+    font-size: 12px;
+  }
+
+  .MachineryEquipment-field label,
+  .MachineryEquipment-editor > label {
+    font-size: 12px;
+  }
+
+  .MachineryEquipment-radioGroup {
+    flex-direction: column;
+  }
+
+  .MachineryEquipment-radioGroup label {
+    width: 100%;
+  }
+}
+.MachineryEquipment-deleteIcon {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  background: #fff0f0;
+  color: #dc3838;
+  font-size: 23px;
+}
+
+.MachineryEquipment-deleteModal h3 {
+  margin: 0 0 9px;
+  color: var(--ME-text);
+  font-size: 18px;
+}
+
+.MachineryEquipment-deleteModal p {
+  margin: 0;
+  color: var(--ME-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.MachineryEquipment-deleteActions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 23px;
+}
+
+.MachineryEquipment-deleteConfirm {
+  min-height: 42px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 7px;
+  background: #dc3838;
+  color: white;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.MachineryEquipment-deleteConfirm:hover {
+  background: #bd2525;
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 1100px) {
+  .MachineryEquipment-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .MachineryEquipment-detailGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =========================================
+   RESPONSIVE - MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+  .MachineryEquipment {
+    padding: 16px;
+  }
+
+  .MachineryEquipment-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .MachineryEquipment-header h1 {
+    font-size: 23px;
+  }
+
+  .MachineryEquipment-addBtn {
+    width: 100%;
+  }
+
+  .MachineryEquipment-form {
+    padding: 17px;
+  }
+
+  .MachineryEquipment-formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .MachineryEquipment-field.full {
+    grid-column: auto;
+  }
+
+  .MachineryEquipment-uploadGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .MachineryEquipment-documentList {
+    grid-template-columns: 1fr;
+  }
+
+  .MachineryEquipment-formActions {
+    flex-direction: column-reverse;
+  }
+
+  .MachineryEquipment-formActions button {
+    width: 100%;
+  }
+
+  .MachineryEquipment-filters {
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .MachineryEquipment-categoryFilter {
+    width: 100%;
+  }
+
+  .MachineryEquipment-tableHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 17px;
+  }
+
+  .MachineryEquipment-tableHeader .MachineryEquipment-addBtn {
+    width: 100%;
+  }
+
+  .MachineryEquipment-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .MachineryEquipment-modalOverlay {
+    padding: 10px;
+  }
+
+  .MachineryEquipment-modalHeader,
+  .MachineryEquipment-modalBody,
+  .MachineryEquipment-modalFooter {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* =========================================
+   RESPONSIVE - SMALL MOBILE
+========================================= */
+
+@media (max-width: 420px) {
+  .MachineryEquipment {
+    padding: 12px;
+  }
+
+  .MachineryEquipment-stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .MachineryEquipment-statCard {
+    padding: 14px;
+  }
+
+  .MachineryEquipment-statCard h3 {
+    font-size: 20px;
+  }
+
+  .MachineryEquipment-tabs button {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 8px;
+    font-size: 11px;
+  }
+
+  .MachineryEquipment-uploadGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .MachineryEquipment-imagePreview,
+  .MachineryEquipment-uploadBox {
+    min-height: 120px;
+    height: 120px;
+  }
+
+  .MachineryEquipment-detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .MachineryEquipment-radioGroup {
+    flex-direction: column;
+  }
+
+  .MachineryEquipment-radioGroup label {
+    width: 100%;
+  }
+
+  .MachineryEquipment-modalFooter {
+    flex-direction: column;
+  }
+
+  .MachineryEquipment-modalFooter button {
+    width: 100%;
+  }
+}

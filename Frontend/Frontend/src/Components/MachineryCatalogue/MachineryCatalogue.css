@@ -1,0 +1,1006 @@
+
+.MachineryCatalogue {
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px 0 55px;
+  background: #f8fbf7;
+  color: #18221a;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+}
+
+.MachineryCatalogue-container {
+  width: min(100% - 80px, 1440px);
+  margin: 0 auto;
+}
+
+/* Header and filter panel */
+
+.MachineryCatalogue-filter-panel {
+  position: relative;
+  z-index: 5;
+  padding: 28px 36px 35px;
+  background: #fff;
+  border-radius: 0 0 30px 30px;
+  box-shadow: 0 12px 35px rgba(36, 78, 38, 0.075);
+}
+
+.MachineryCatalogue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.MachineryCatalogue-heading-content h1 {
+  margin: 0;
+  color: #172019;
+  font-size: 31px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.MachineryCatalogue-heading-content p {
+  margin: 5px 0 0;
+  color: #687268;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.MachineryCatalogue-model-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 8px 16px;
+  color: #08752a;
+  background: #effbf2;
+  border: 1px solid #b8ebc5;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Search */
+
+.MachineryCatalogue-search {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 61px;
+  margin-top: 25px;
+  padding: 0 24px;
+  background: #fff;
+  border: 1px solid #e0e8e0;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(21, 54, 25, 0.045);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.MachineryCatalogue-search:focus-within {
+  border-color: #63a96c;
+  box-shadow: 0 0 0 4px rgba(42, 135, 57, 0.08);
+}
+
+.MachineryCatalogue-search > svg {
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+  color: #718071;
+}
+
+.MachineryCatalogue-search input {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  color: #202a21;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 17px;
+}
+
+.MachineryCatalogue-search input::placeholder {
+  color: #727c72;
+  opacity: 1;
+}
+
+.MachineryCatalogue-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  flex-shrink: 0;
+  color: #687468;
+  background: #f0f4ef;
+  border: none;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* Filter cards */
+
+.MachineryCatalogue-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-top: 36px;
+}
+
+.MachineryCatalogue-filter-item {
+  position: relative;
+  min-width: 0;
+}
+
+.MachineryCatalogue-filter-trigger {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  min-height: 108px;
+  padding: 17px 20px;
+  color: inherit;
+  background: #fff;
+  border: 1px solid transparent;
+  border-bottom-color: #edf0ec;
+  border-radius: 19px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.MachineryCatalogue-filter-trigger:hover,
+.MachineryCatalogue-filter-trigger-active {
+  background: #fbfefb;
+  border-color: #dcebdc;
+  box-shadow: 0 5px 15px rgba(32, 87, 39, 0.055);
+}
+
+.MachineryCatalogue-filter-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  color: #08752a;
+  background: #effaf2;
+  border: 1px solid #dceade;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.MachineryCatalogue-filter-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.MachineryCatalogue-filter-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 5px;
+}
+
+.MachineryCatalogue-filter-copy small {
+  color: #697467;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.5px;
+}
+
+.MachineryCatalogue-filter-copy strong {
+  overflow: hidden;
+  color: #202720;
+  font-size: 20px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MachineryCatalogue-filter-copy > span {
+  overflow: hidden;
+  color: #778074;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MachineryCatalogue-filter-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #5c695c;
+}
+
+.MachineryCatalogue-filter-arrow svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Filter dropdown */
+
+.MachineryCatalogue-dropdown {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  max-height: 330px;
+  padding: 12px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e3ebe2;
+  border-radius: 17px;
+  box-shadow: 0 15px 35px rgba(26, 60, 28, 0.15);
+  animation: MachineryCatalogue-dropdown-in 0.2s ease both;
+}
+
+@keyframes MachineryCatalogue-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.MachineryCatalogue-dropdown-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 7px 12px;
+  margin-bottom: 5px;
+  color: #1e2a20;
+  border-bottom: 1px solid #edf1ec;
+  font-size: 15px;
+}
+
+.MachineryCatalogue-dropdown-heading button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  color: #647064;
+  background: #f2f5f1;
+  border: none;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.MachineryCatalogue-dropdown-option {
+  display: block;
+  width: 100%;
+  padding: 11px 10px;
+  color: #526052;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.MachineryCatalogue-dropdown-option:hover,
+.MachineryCatalogue-option-selected {
+  color: #08752a;
+  background: #eff8ef;
+  font-weight: 700;
+}
+
+/* Active filters */
+
+.MachineryCatalogue-active-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  color: #697569;
+  font-size: 13px;
+}
+
+.MachineryCatalogue-active-filters button {
+  padding: 6px 11px;
+  color: #08752a;
+  background: #eff8ef;
+  border: 1px solid #d8ebd8;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Results heading */
+
+.MachineryCatalogue-results-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 25px 0 18px;
+}
+
+.MachineryCatalogue-results-heading h2 {
+  margin: 0;
+  color: #1c281e;
+  font-size: 21px;
+  font-weight: 750;
+}
+
+.MachineryCatalogue-results-heading p {
+  margin: 5px 0 0;
+  color: #778174;
+  font-size: 13px;
+}
+
+/* Product grid */
+
+.MachineryCatalogue-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 19px;
+}
+
+.MachineryCatalogue-product-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 460px;
+  padding: 0 25px 22px;
+  color: inherit;
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 30px;
+  box-shadow: 0 10px 28px rgba(32, 75, 34, 0.075);
+  text-decoration: none;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.MachineryCatalogue-product-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(42, 126, 48, 0.27);
+  box-shadow: 0 17px 36px rgba(32, 75, 34, 0.13);
+}
+
+/* Product images */
+
+.MachineryCatalogue-image-area {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 265px;
+  min-height: 265px;
+  padding: 35px 4px 8px;
+  background: #fff;
+}
+
+.MachineryCatalogue-brand-logo {
+  position: absolute;
+  top: 20px;
+  left: 12px;
+  z-index: 2;
+  max-width: 110px;
+  overflow: hidden;
+  color: #305333;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MachineryCatalogue-product-card:nth-child(1) .MachineryCatalogue-brand-logo {
+  color: #d7192d;
+  font-size: 17px;
+}
+
+.MachineryCatalogue-product-card:nth-child(2) .MachineryCatalogue-brand-logo {
+  color: #a52b32;
+}
+
+.MachineryCatalogue-product-card:nth-child(3) .MachineryCatalogue-brand-logo {
+  color: #258b39;
+}
+
+.MachineryCatalogue-product-card:nth-child(4) .MachineryCatalogue-brand-logo {
+  color: #273e8a;
+}
+
+.MachineryCatalogue-subsidy-badge {
+  position: absolute;
+  top: 11px;
+  right: -13px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 92px;
+  padding: 6px 10px;
+  color: #fff;
+  background: #247d31;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(18, 91, 30, 0.24);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.MachineryCatalogue-subsidy-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.MachineryCatalogue-product-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 255px;
+  max-height: 220px;
+  object-fit: contain;
+  object-position: center;
+  transition: transform 0.45s ease;
+}
+
+.MachineryCatalogue-product-card:hover .MachineryCatalogue-product-image {
+  transform: scale(1.055);
+}
+
+/* Product content */
+
+.MachineryCatalogue-product-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.MachineryCatalogue-product-info {
+  min-height: 77px;
+  padding-top: 5px;
+}
+
+.MachineryCatalogue-product-brand {
+  display: block;
+  margin-bottom: 7px;
+  color: #7b837b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.MachineryCatalogue-product-info h3 {
+  margin: 0;
+  color: #101b13;
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.4px;
+}
+
+.MachineryCatalogue-product-divider {
+  width: 100%;
+  height: 1px;
+  margin: 11px 0 15px;
+  background: #e0e8df;
+}
+
+/* Price and subsidy */
+
+.MachineryCatalogue-price-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.MachineryCatalogue-price-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.MachineryCatalogue-base-price-label {
+  margin-bottom: 5px;
+  color: #69756a;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.5px;
+}
+
+.MachineryCatalogue-price {
+  color: #101710;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+}
+
+.MachineryCatalogue-subsidy-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  color: #08752a;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.MachineryCatalogue-subsidy-text svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.MachineryCatalogue-product-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  margin-bottom: 1px;
+  color: #637064;
+  background: #fff;
+  border: 1px solid #edf1ec;
+  border-radius: 50%;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.MachineryCatalogue-product-arrow svg {
+  width: 21px;
+  height: 21px;
+}
+
+.MachineryCatalogue-product-card:hover .MachineryCatalogue-product-arrow {
+  color: #fff;
+  background: #247d31;
+  border-color: #247d31;
+  transform: translateX(2px);
+}
+
+/* Empty search result */
+
+.MachineryCatalogue-empty {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 35px 20px;
+  background: #fff;
+  border: 1px solid #edf1ec;
+  border-radius: 25px;
+  text-align: center;
+}
+
+.MachineryCatalogue-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  color: #168035;
+  background: #eff8ef;
+  border-radius: 18px;
+}
+
+.MachineryCatalogue-empty-icon svg {
+  width: 29px;
+  height: 29px;
+}
+
+.MachineryCatalogue-empty h3 {
+  margin: 17px 0 7px;
+  color: #243128;
+  font-size: 21px;
+}
+
+.MachineryCatalogue-empty p {
+  margin: 0;
+  color: #7a847a;
+  font-size: 14px;
+}
+
+.MachineryCatalogue-empty button {
+  margin-top: 17px;
+  padding: 11px 20px;
+  color: #fff;
+  background: #08752a;
+  border: none;
+  border-radius: 25px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Large laptop */
+
+@media (max-width: 1200px) {
+  .MachineryCatalogue-container {
+    width: calc(100% - 50px);
+  }
+
+  .MachineryCatalogue-filter-panel {
+    padding: 26px 27px 30px;
+  }
+
+  .MachineryCatalogue-grid {
+    gap: 16px;
+  }
+
+  .MachineryCatalogue-product-card {
+    min-height: 435px;
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .MachineryCatalogue-image-area {
+    height: 245px;
+    min-height: 245px;
+  }
+
+  .MachineryCatalogue-price {
+    font-size: 21px;
+  }
+
+  .MachineryCatalogue-subsidy-text {
+    font-size: 12px;
+  }
+
+  .MachineryCatalogue-filter-trigger {
+    gap: 11px;
+    padding: 14px;
+  }
+
+  .MachineryCatalogue-filter-copy strong {
+    font-size: 17px;
+  }
+
+  .MachineryCatalogue-filter-icon {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .MachineryCatalogue-container {
+    width: calc(100% - 40px);
+  }
+
+  .MachineryCatalogue-filter-panel {
+    padding: 25px 22px;
+  }
+
+  .MachineryCatalogue-filter-grid {
+    gap: 10px;
+    margin-top: 25px;
+  }
+
+  .MachineryCatalogue-filter-trigger {
+    min-height: 95px;
+    gap: 9px;
+    padding: 12px;
+  }
+
+  .MachineryCatalogue-filter-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+  }
+
+  .MachineryCatalogue-filter-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .MachineryCatalogue-filter-copy small {
+    font-size: 11px;
+  }
+
+  .MachineryCatalogue-filter-copy strong {
+    font-size: 15px;
+  }
+
+  .MachineryCatalogue-filter-copy > span {
+    font-size: 12px;
+  }
+
+  .MachineryCatalogue-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px;
+  }
+
+  .MachineryCatalogue-product-card {
+    min-height: 430px;
+    padding-right: 22px;
+    padding-left: 22px;
+  }
+
+  .MachineryCatalogue-image-area {
+    height: 245px;
+    min-height: 245px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .MachineryCatalogue {
+    padding-bottom: 35px;
+  }
+
+  .MachineryCatalogue-container {
+    width: calc(100% - 26px);
+  }
+
+  .MachineryCatalogue-filter-panel {
+    padding: 22px 16px;
+    border-radius: 0 0 22px 22px;
+  }
+
+  .MachineryCatalogue-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .MachineryCatalogue-heading-content h1 {
+    font-size: 25px;
+  }
+
+  .MachineryCatalogue-heading-content p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .MachineryCatalogue-model-count {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  .MachineryCatalogue-search {
+    height: 53px;
+    margin-top: 19px;
+    padding: 0 14px;
+    gap: 9px;
+    border-radius: 15px;
+  }
+
+  .MachineryCatalogue-search input {
+    font-size: 13px;
+  }
+
+  .MachineryCatalogue-search > svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .MachineryCatalogue-filter-grid {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin-top: 18px;
+  }
+
+  .MachineryCatalogue-filter-trigger {
+    min-height: 76px;
+    padding: 10px 12px;
+    border: 1px solid #edf1ec;
+    border-radius: 14px;
+  }
+
+  .MachineryCatalogue-filter-icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .MachineryCatalogue-filter-copy {
+    gap: 3px;
+  }
+
+  .MachineryCatalogue-filter-copy small {
+    font-size: 10px;
+  }
+
+  .MachineryCatalogue-filter-copy strong {
+    font-size: 15px;
+  }
+
+  .MachineryCatalogue-filter-copy > span {
+    font-size: 11px;
+  }
+
+  .MachineryCatalogue-filter-arrow svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .MachineryCatalogue-dropdown {
+    max-height: 260px;
+  }
+
+  .MachineryCatalogue-results-heading {
+    margin: 21px 0 14px;
+  }
+
+  .MachineryCatalogue-results-heading h2 {
+    font-size: 18px;
+  }
+
+  .MachineryCatalogue-results-heading p {
+    font-size: 12px;
+  }
+
+  .MachineryCatalogue-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+
+  .MachineryCatalogue-product-card {
+    min-height: 350px;
+    padding: 0 12px 14px;
+    border-radius: 20px;
+  }
+
+  .MachineryCatalogue-image-area {
+    height: 185px;
+    min-height: 185px;
+    padding: 34px 0 5px;
+  }
+
+  .MachineryCatalogue-brand-logo {
+    top: 15px;
+    left: 5px;
+    max-width: 75px;
+    font-size: 10px;
+  }
+
+  .MachineryCatalogue-product-card:nth-child(1) .MachineryCatalogue-brand-logo {
+    font-size: 13px;
+  }
+
+  .MachineryCatalogue-subsidy-badge {
+    top: 9px;
+    right: -7px;
+    min-width: auto;
+    padding: 5px 7px;
+    gap: 3px;
+    border-radius: 7px;
+    font-size: 10px;
+  }
+
+  .MachineryCatalogue-subsidy-badge svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .MachineryCatalogue-product-image {
+    max-width: 100%;
+    max-height: 150px;
+  }
+
+  .MachineryCatalogue-product-info {
+    min-height: 65px;
+  }
+
+  .MachineryCatalogue-product-brand {
+    margin-bottom: 5px;
+    font-size: 11px;
+  }
+
+  .MachineryCatalogue-product-info h3 {
+    font-size: 14px;
+    line-height: 1.3;
+  }
+
+  .MachineryCatalogue-product-divider {
+    margin: 9px 0 11px;
+  }
+
+  .MachineryCatalogue-base-price-label {
+    margin-bottom: 4px;
+    font-size: 9px;
+  }
+
+  .MachineryCatalogue-price {
+    font-size: 17px;
+  }
+
+  .MachineryCatalogue-subsidy-text {
+    gap: 3px;
+    margin-top: 5px;
+    font-size: 10px;
+    white-space: normal;
+  }
+
+  .MachineryCatalogue-subsidy-text svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .MachineryCatalogue-product-arrow {
+    width: 31px;
+    height: 31px;
+  }
+
+  .MachineryCatalogue-product-arrow svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Very small phones */
+
+@media (max-width: 360px) {
+  .MachineryCatalogue-container {
+    width: calc(100% - 18px);
+  }
+
+  .MachineryCatalogue-grid {
+    gap: 9px;
+  }
+
+  .MachineryCatalogue-product-card {
+    min-height: 325px;
+    padding-right: 9px;
+    padding-left: 9px;
+    border-radius: 17px;
+  }
+
+  .MachineryCatalogue-image-area {
+    height: 165px;
+    min-height: 165px;
+  }
+
+  .MachineryCatalogue-product-image {
+    max-height: 135px;
+  }
+
+  .MachineryCatalogue-product-info h3 {
+    font-size: 12px;
+  }
+
+  .MachineryCatalogue-price {
+    font-size: 15px;
+  }
+
+  .MachineryCatalogue-subsidy-text {
+    font-size: 9px;
+  }
+
+  .MachineryCatalogue-product-arrow {
+    width: 27px;
+    height: 27px;
+  }
+}
