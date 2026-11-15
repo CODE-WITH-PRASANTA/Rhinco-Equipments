@@ -15,35 +15,46 @@ import ReviewManagement from "./Components/ReviewManagement/ReviewManagement";
 import EnquiryManagement from "./Components/EnquiryManagement/EnquiryManagement";
 import ProductOrders from "./Components/ProductOrders/ProductOrders";
 import MachineryOrders from "./Components/MachineryOrders/MachineryOrders";
+import Login from "./Components/Login/Login";
+import ProtectedRoutes from "./Components/ProtectedRoutes/ProtectedRoutes";
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<MainLayout />}>
-          {/* Dashboard */}
-          <Route index element={<Dashboard />} />
-          <Route path="/category" element={<Catagory />} />
-          <Route path="/products/add" element={<AddPost />} />
-          <Route path="/products" element={<ManageProduct />} />
-          <Route path="/machinery-equipment/add" element={<MachineryEquipment />} />
-          <Route path="/machinery-equipment" element={<EquipmentManagement />} />
-          <Route path="/product-orders" element={<ProductOrders />} />
-          <Route path="/machinery-orders" element={<MachineryOrders />} />
-          <Route path="/team" element={<TeamManagement />} />
+        {/* Public Login Route (No Sidebar/Topbar) */}
+        <Route path="/login" element={<Login />} />
 
-          {/* Review & Enquiry Routes */}
-          <Route path="/review" element={<ReviewManagement />} />
-          <Route path="/reviews" element={<Navigate to="/review" replace />} />
-          <Route path="/enquiry" element={<EnquiryManagement />} />
-          <Route path="/enquiries" element={<Navigate to="/enquiry" replace />} />
+        {/* Protected Admin Panel Routes */}
+        <Route element={<ProtectedRoutes />}>
+          <Route path="/" element={<MainLayout />}>
+            {/* Dashboard */}
+            <Route index element={<Dashboard />} />
+            <Route path="category" element={<Catagory />} />
+            <Route path="products/add" element={<AddPost />} />
+            <Route path="products" element={<ManageProduct />} />
+            <Route path="machinery-equipment/add" element={<MachineryEquipment />} />
+            <Route path="machinery-equipment" element={<EquipmentManagement />} />
+            <Route path="product-orders" element={<ProductOrders />} />
+            <Route path="machinery-orders" element={<MachineryOrders />} />
+            <Route path="team" element={<TeamManagement />} />
 
-          {/* Blog Routes */}
-          <Route path="/blog/category" element={<Navigate to="/category" replace />} />
-          <Route path="/blog" element={<BlogManagement />} />
-          <Route path="/blog/new" element={<BlogPosting />} />
-          <Route path="/blog/edit/:id" element={<BlogPosting />} />
+            {/* Review & Enquiry Routes */}
+            <Route path="review" element={<ReviewManagement />} />
+            <Route path="reviews" element={<Navigate to="/review" replace />} />
+            <Route path="enquiry" element={<EnquiryManagement />} />
+            <Route path="enquiries" element={<Navigate to="/enquiry" replace />} />
+
+            {/* Blog Routes */}
+            <Route path="blog/category" element={<Navigate to="/category" replace />} />
+            <Route path="blog" element={<BlogManagement />} />
+            <Route path="blog/new" element={<BlogPosting />} />
+            <Route path="blog/edit/:id" element={<BlogPosting />} />
+          </Route>
         </Route>
+
+        {/* Catch-all unknown routes */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

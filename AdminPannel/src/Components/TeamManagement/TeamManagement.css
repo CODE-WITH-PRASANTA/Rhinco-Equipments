@@ -1,4 +1,3 @@
-
 /* =========================================
    TEAM MANAGEMENT - MAIN
 ========================================= */
@@ -6,10 +5,11 @@
 .TeamManagement {
   width: 100%;
   min-height: 100vh;
-  padding: 28px;
-  background: #f3f6f8;
-  color: #1d2b36;
+  padding: 30px;
+  background: #f1f8f3;
+  color: #10301f;
   font-family: "Inter", "Segoe UI", sans-serif;
+  font-size: 14px;
   box-sizing: border-box;
 }
 
@@ -17,6 +17,12 @@
 .TeamManagement *::before,
 .TeamManagement *::after {
   box-sizing: border-box;
+}
+
+.TeamManagement button,
+.TeamManagement input,
+.TeamManagement textarea {
+  font-family: inherit;
 }
 
 /* =========================================
@@ -28,30 +34,51 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 25px;
+  margin-bottom: 26px;
+}
+
+.TeamManagement-headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.TeamManagement-headerIcon {
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: #fff;
+  background: linear-gradient(135deg, #2fb455 0%, #22a447 55%, #15802e 100%);
+  box-shadow: 0 10px 22px rgba(34, 164, 71, 0.28);
 }
 
 .TeamManagement-subtitle,
 .TeamManagement-sectionLabel {
   display: block;
-  color: #e87524;
-  font-size: 10px;
+  color: #22a447;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.8px;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 }
 
 .TeamManagement-header h2 {
-  color: #1d2b36;
-  font-size: 27px;
+  margin: 0 0 4px;
+  color: #10301f;
+  font-size: 28px;
   font-weight: 800;
-  margin: 0 0 7px;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
 }
 
 .TeamManagement-header p {
-  color: #7b8993;
-  font-size: 13px;
   margin: 0;
+  color: #7b8993;
+  font-size: 14px;
 }
 
 .TeamManagement-headerActions {
@@ -83,15 +110,16 @@
 }
 
 .TeamManagement-headerCount {
-  min-width: 145px;
-  padding: 14px 20px;
-  background: #fff;
-  border: 1px solid #e5eaee;
-  border-radius: 10px;
+  min-width: 170px;
+  padding: 14px 22px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  box-shadow: 0 3px 12px rgba(29, 43, 54, 0.04);
+  gap: 4px;
+  background: #fff;
+  border: 1px solid #e5eaee;
+  border-left: 4px solid #22a447;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(16, 48, 31, 0.05);
 }
 
 .TeamManagement-toast {
@@ -136,14 +164,15 @@
 
 .TeamManagement-headerCount span {
   color: #7b8993;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
 .TeamManagement-headerCount strong {
-  color: #1d2b36;
-  font-size: 24px;
+  color: #10301f;
+  font-size: 26px;
   font-weight: 800;
+  line-height: 1.1;
 }
 
 /* =========================================
@@ -153,8 +182,8 @@
 .TeamManagement-layout {
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 22px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 24px;
   align-items: start;
 }
 
@@ -163,8 +192,8 @@
   min-width: 0;
   background: #fff;
   border: 1px solid #e4e9ed;
-  border-radius: 13px;
-  box-shadow: 0 4px 18px rgba(29, 43, 54, 0.045);
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(16, 48, 31, 0.05);
   overflow: hidden;
 }
 
@@ -176,43 +205,43 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 22px 23px;
+  gap: 14px;
+  padding: 24px 26px;
   border-bottom: 1px solid #edf0f2;
 }
 
 .TeamManagement-panelHeading h3 {
-  color: #1d2b36;
-  font-size: 18px;
-  font-weight: 750;
   margin: 0;
+  color: #10301f;
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.2px;
+}
+
+.TeamManagement-panelHeading p {
+  margin: 5px 0 0;
+  color: #87939c;
+  font-size: 13px;
 }
 
 .TeamManagement-headingIcon {
-  width: 38px;
-  height: 38px;
-  border-radius: 9px;
-  background: #fff0e6;
-  color: #e87524;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
-  font-size: 23px;
-  font-weight: 600;
-}
-
-.TeamManagement-tableHeading p {
-  margin: 6px 0 0;
-  color: #87939c;
-  font-size: 11px;
+  border-radius: 11px;
+  background: #e8f7ec;
+  color: #22a447;
 }
 
 .TeamManagement-tableCount {
   white-space: nowrap;
-  padding: 7px 11px;
-  border-radius: 6px;
-  color: #d96519;
-  background: #fff0e6;
-  font-size: 11px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: #178a31;
+  background: #e8f7ec;
+  font-size: 12px;
   font-weight: 750;
 }
 
@@ -221,26 +250,53 @@
 ========================================= */
 
 .TeamManagement-form {
-  padding: 22px 23px 24px;
+  padding: 24px 26px 28px;
 }
+
+/* ----- image upload ----- */
 
 .TeamManagement-imageUpload {
   display: flex;
   align-items: center;
-  gap: 17px;
-  margin-bottom: 21px;
+  gap: 20px;
+  margin-bottom: 22px;
 }
 
 .TeamManagement-imagePreview {
-  width: 91px;
-  height: 91px;
+  position: relative;
+  width: 104px;
+  height: 104px;
   flex-shrink: 0;
-  border-radius: 11px;
-  border: 1px dashed #cbd4da;
-  background: #f6f8f9;
-  overflow: hidden;
   display: grid;
   place-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 16px;
+  border: 2px dashed #d3dbe0;
+  background: #fafbfc;
+  outline: none;
+  transition: 0.25s ease;
+}
+
+.TeamManagement-imagePreview:hover,
+.TeamManagement-imagePreview:focus-visible {
+  border-color: #22a447;
+  background: #f2fbf5;
+}
+
+.TeamManagement-imagePreview:focus-visible {
+  box-shadow: 0 0 0 4px rgba(34, 164, 71, 0.12);
+}
+
+.TeamManagement-imagePreview.has-error {
+  border-color: #e47a7a;
+  background: #fff8f8;
+}
+
+.TeamManagement-imagePreview.has-image {
+  border-style: solid;
+  border-color: #e4e9ed;
+  box-shadow: 0 6px 16px rgba(16, 48, 31, 0.1);
 }
 
 .TeamManagement-imagePreview img {
@@ -249,74 +305,111 @@
   object-fit: cover;
 }
 
+.TeamManagement-imageHover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(16, 48, 31, 0.55);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.TeamManagement-imagePreview:hover .TeamManagement-imageHover {
+  opacity: 1;
+}
+
 .TeamManagement-imagePlaceholder {
   display: flex;
-  align-items: center;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 5px;
   color: #8997a0;
 }
 
-.TeamManagement-imagePlaceholder span {
-  font-size: 27px;
-  line-height: 1;
-}
-
 .TeamManagement-imagePlaceholder small {
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .TeamManagement-imageDetails {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 5px;
+  gap: 6px;
   min-width: 0;
 }
 
 .TeamManagement-imageDetails h4 {
-  color: #263743;
-  font-size: 13px;
   margin: 0;
+  color: #263743;
+  font-size: 15px;
+  font-weight: 750;
 }
 
 .TeamManagement-imageDetails p {
-  color: #87939c;
-  font-size: 11px;
   margin: 0 0 4px;
+  color: #87939c;
+  font-size: 13px;
+}
+
+.TeamManagement-imageDetails > small {
+  color: #9aa5ad;
+  font-size: 12px;
+}
+
+.TeamManagement-imageButtons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .TeamManagement-uploadButton {
-  padding: 8px 12px;
-  background: #1d2b36;
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
   border: none;
-  border-radius: 6px;
-  font-size: 11px;
+  border-radius: 9px;
+  background: #10301f;
+  color: #fff;
+  font-size: 13px;
   font-weight: 650;
   cursor: pointer;
   transition: 0.25s ease;
 }
 
-.TeamManagement-uploadButton span {
-  margin-right: 5px;
-  font-size: 14px;
-}
-
 .TeamManagement-uploadButton:hover {
-  background: #e87524;
+  background: #22a447;
+  transform: translateY(-1px);
 }
 
-.TeamManagement-imageDetails > small {
-  color: #9aa5ad;
-  font-size: 10px;
+.TeamManagement-removePhoto {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #f6dddd;
+  border-radius: 9px;
+  background: #fff0f0;
+  color: #d64d4d;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.TeamManagement-removePhoto:hover {
+  background: #d64d4d;
+  color: #fff;
 }
 
 .TeamManagement-formDivider {
   height: 1px;
   width: 100%;
   background: #edf0f2;
-  margin-bottom: 21px;
+  margin-bottom: 22px;
 }
 
 /* =========================================
@@ -326,42 +419,42 @@
 .TeamManagement-field {
   width: 100%;
   min-width: 0;
-  margin-bottom: 17px;
+  margin-bottom: 18px;
 }
 
 .TeamManagement-field label {
   display: block;
+  margin-bottom: 9px;
   color: #34434e;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  margin-bottom: 8px;
 }
 
 .TeamManagement-field label span {
-  color: #e87524;
+  color: #22a447;
 }
 
 .TeamManagement-field input,
 .TeamManagement-field textarea {
   width: 100%;
   min-width: 0;
+  padding: 0 15px;
   border: 1px solid #dfe5e9;
   background: #fbfcfd;
-  border-radius: 7px;
+  border-radius: 11px;
   outline: none;
-  padding: 11px 12px;
   color: #263743;
-  font-family: inherit;
-  font-size: 12px;
+  font-size: 14px;
   transition: 0.2s ease;
 }
 
 .TeamManagement-field input {
-  height: 42px;
+  height: 48px;
 }
 
 .TeamManagement-field textarea {
-  min-height: 105px;
+  min-height: 112px;
+  padding: 13px 15px;
   resize: vertical;
   line-height: 1.6;
 }
@@ -373,88 +466,111 @@
 
 .TeamManagement-field input:focus,
 .TeamManagement-field textarea:focus {
-  border-color: #e87524;
+  border-color: #22a447;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(232, 117, 36, 0.09);
+  box-shadow: 0 0 0 4px rgba(34, 164, 71, 0.1);
+}
+
+.TeamManagement-field input.has-error,
+.TeamManagement-field textarea.has-error {
+  border-color: #e47a7a;
 }
 
 .TeamManagement-formRow {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 13px;
+  gap: 14px;
 }
 
 .TeamManagement-error {
   display: block;
+  margin-top: 7px;
   color: #d83b3b;
-  font-size: 10px;
-  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* =========================================
-   FORM BUTTONS
+   BUTTONS
 ========================================= */
 
 .TeamManagement-formActions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding-top: 5px;
+  gap: 12px;
+  padding-top: 6px;
 }
 
 .TeamManagement-resetButton,
-.TeamManagement-submitButton {
-  min-height: 40px;
-  padding: 0 17px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
+.TeamManagement-cancelButton {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 11px;
+  border: 1px solid #e1e7eb;
+  background: #f1f8f3;
+  color: #53616b;
+  font-size: 14px;
+  font-weight: 650;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.TeamManagement-resetButton:hover,
+.TeamManagement-cancelButton:hover {
+  background: #e6ebee;
+}
+
+.TeamManagement-submitButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 26px;
+  border: none;
+  border-radius: 11px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #2fb455 0%, #22a447 55%, #178a31 100%);
+  box-shadow: 0 8px 20px rgba(34, 164, 71, 0.3);
   transition: 0.25s ease;
 }
 
-.TeamManagement-resetButton {
-  color: #53616b;
-  background: #f0f3f5;
-  border: 1px solid #e4e9ed;
-}
-
-.TeamManagement-resetButton:hover {
-  background: #e3e8eb;
-}
-
-.TeamManagement-submitButton {
-  color: #fff;
-  background: #e87524;
-  border: 1px solid #e87524;
-}
-
 .TeamManagement-submitButton:hover {
-  background: #d76317;
-  border-color: #d76317;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(34, 164, 71, 0.38);
+}
+
+.TeamManagement-submitButton:active {
+  transform: translateY(0);
 }
 
 /* =========================================
-   TABLE PANEL
+   SEARCH
 ========================================= */
 
 .TeamManagement-searchBox {
-  height: 40px;
+  height: 48px;
+  margin: 20px 26px;
+  padding: 0 14px;
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin: 18px 21px;
-  padding: 0 11px;
+  gap: 11px;
+  color: #8b989f;
   background: #f7f9fa;
   border: 1px solid #e5eaee;
-  border-radius: 7px;
+  border-radius: 11px;
+  transition: 0.2s ease;
 }
 
-.TeamManagement-searchBox > span {
-  color: #8b989f;
-  font-size: 22px;
-  line-height: 1;
+.TeamManagement-searchBox:focus-within {
+  color: #22a447;
+  background: #fff;
+  border-color: #22a447;
+  box-shadow: 0 0 0 4px rgba(34, 164, 71, 0.1);
 }
 
 .TeamManagement-searchBox input {
@@ -465,7 +581,7 @@
   outline: none;
   background: transparent;
   color: #263743;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 .TeamManagement-searchBox input::placeholder {
@@ -473,11 +589,21 @@
 }
 
 .TeamManagement-searchBox button {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
   border: none;
-  background: transparent;
-  color: #7c8992;
-  font-size: 20px;
+  border-radius: 50%;
+  background: #e8edf0;
+  color: #65737d;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.TeamManagement-searchBox button:hover {
+  background: #22a447;
+  color: #fff;
 }
 
 /* =========================================
@@ -486,42 +612,52 @@
 
 .TeamManagement-tableWrapper {
   width: 100%;
-  overflow-x: auto;
+  max-height: 560px;
+  overflow: auto;
   scrollbar-width: thin;
   scrollbar-color: #cbd4da transparent;
 }
 
 .TeamManagement-table {
   width: 100%;
-  min-width: 620px;
+  min-width: 700px;
   border-collapse: collapse;
   text-align: left;
 }
 
-.TeamManagement-table thead {
+.TeamManagement-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 14px 14px;
   background: #f5f7f8;
-}
-
-.TeamManagement-table th {
-  padding: 13px 12px;
   color: #7c8992;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.7px;
+  letter-spacing: 1px;
   white-space: nowrap;
   border-top: 1px solid #edf0f2;
   border-bottom: 1px solid #e9eef1;
 }
 
-.TeamManagement-table th:first-child,
-.TeamManagement-table td:first-child {
-  padding-left: 20px;
+.TeamManagement-table th.is-right {
+  text-align: right;
 }
 
-.TeamManagement-table td {
-  padding: 13px 12px;
-  border-bottom: 1px solid #edf0f2;
+.TeamManagement-table th:first-child,
+.TeamManagement-table td:first-child {
+  padding-left: 26px;
+}
+
+.TeamManagement-table th:last-child,
+.TeamManagement-table td:last-child {
+  padding-right: 26px;
+}
+
+.TeamManagement-table tbody td {
+  padding: 15px 14px;
   vertical-align: middle;
+  border-bottom: 1px solid #edf0f2;
 }
 
 .TeamManagement-table tbody tr {
@@ -529,65 +665,75 @@
 }
 
 .TeamManagement-table tbody tr:hover {
-  background: #fbfcfd;
+  background: #f5fcf7;
 }
 
 .TeamManagement-memberInfo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 175px;
+  gap: 13px;
+  min-width: 210px;
 }
 
 .TeamManagement-memberInfo img {
-  width: 39px;
-  height: 39px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #edf0f2;
+  border: 1px solid #e4e9ed;
+  box-shadow: 0 3px 10px rgba(16, 48, 31, 0.08);
 }
 
 .TeamManagement-memberInfo div {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
 }
 
 .TeamManagement-memberInfo strong {
   color: #263743;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 750;
 }
 
 .TeamManagement-memberInfo span {
-  max-width: 160px;
+  max-width: 200px;
   color: #929da5;
-  font-size: 9px;
-  line-height: 1.4;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .TeamManagement-contactInfo {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  min-width: 135px;
+  gap: 8px;
+  min-width: 170px;
 }
 
 .TeamManagement-contactInfo span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: #65737d;
-  font-size: 10px;
+  font-size: 13px;
   white-space: nowrap;
+}
+
+.TeamManagement-contactInfo svg {
+  flex-shrink: 0;
+  color: #22a447;
 }
 
 .TeamManagement-designation {
   display: inline-block;
-  padding: 6px 8px;
-  border-radius: 5px;
-  background: #fff1e7;
-  color: #d96c20;
-  font-size: 9px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #e8f7ec;
+  color: #178a31;
+  font-size: 12px;
   font-weight: 750;
   white-space: nowrap;
 }
@@ -595,18 +741,17 @@
 .TeamManagement-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .TeamManagement-editButton,
 .TeamManagement-deleteButton {
-  width: 29px;
-  height: 29px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 700;
+  border-radius: 10px;
   cursor: pointer;
   transition: 0.2s ease;
 }
@@ -620,6 +765,8 @@
 .TeamManagement-editButton:hover {
   color: #fff;
   background: #315f83;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(49, 95, 131, 0.3);
 }
 
 .TeamManagement-deleteButton {
@@ -631,6 +778,8 @@
 .TeamManagement-deleteButton:hover {
   color: #fff;
   background: #d64d4d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(214, 77, 77, 0.3);
 }
 
 /* =========================================
@@ -638,36 +787,37 @@
 ========================================= */
 
 .TeamManagement-emptyState {
-  min-height: 240px;
+  min-height: 250px;
+  padding: 25px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 25px;
 }
 
 .TeamManagement-emptyState > span {
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
   display: grid;
   place-items: center;
-  background: #fff1e7;
-  color: #e87524;
   border-radius: 50%;
-  font-size: 24px;
+  background: #e8f7ec;
+  color: #22a447;
+  box-shadow: 0 0 0 8px rgba(34, 164, 71, 0.07);
 }
 
 .TeamManagement-emptyState h4 {
+  margin: 18px 0 6px;
   color: #34434e;
-  font-size: 13px;
-  margin: 12px 0 5px;
+  font-size: 16px;
+  font-weight: 750;
 }
 
 .TeamManagement-emptyState p {
-  color: #929da5;
-  font-size: 11px;
   margin: 0;
+  color: #929da5;
+  font-size: 13px;
 }
 
 /* =========================================
@@ -679,13 +829,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 14px 20px;
+  padding: 16px 26px;
   color: #929da5;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 /* =========================================
-   DELETE MODAL
+   MODALS (EDIT + DELETE)
 ========================================= */
 
 .TeamManagement-modalOverlay {
@@ -694,27 +845,32 @@
   z-index: 9999;
   padding: 20px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: rgba(17, 29, 38, 0.55);
-  backdrop-filter: blur(4px);
+  justify-content: center;
+  background: rgba(8, 28, 18, 0.6);
+  backdrop-filter: blur(5px);
+  animation: TeamManagement-fade 0.2s ease;
 }
 
-.TeamManagement-deleteModal {
+.TeamManagement-modal {
   width: 100%;
-  max-width: 390px;
-  padding: 27px;
   background: #fff;
-  border-radius: 13px;
-  text-align: center;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.18);
-  animation: TeamManagement-modalShow 0.2s ease;
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+  animation: TeamManagement-pop 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
 }
 
-@keyframes TeamManagement-modalShow {
+@keyframes TeamManagement-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes TeamManagement-pop {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: translateY(14px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -722,64 +878,221 @@
   }
 }
 
-.TeamManagement-deleteIcon {
-  width: 46px;
-  height: 46px;
+/* ----- edit modal ----- */
+
+.TeamManagement-editModal {
+  max-width: 600px;
+}
+
+.TeamManagement-modalHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 26px;
+  background: #fff;
+  border-bottom: 1px solid #edf0f2;
+}
+
+.TeamManagement-modalHeader h3 {
+  margin: 0;
+  color: #10301f;
+  font-size: 20px;
+  font-weight: 750;
+}
+
+.TeamManagement-modalClose {
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
-  margin: 0 auto 13px;
+  border: none;
+  border-radius: 10px;
+  background: #f0f3f5;
+  color: #65737d;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.TeamManagement-modalClose:hover {
+  background: #22a447;
+  color: #fff;
+}
+
+.TeamManagement-modalBody {
+  padding: 24px 26px 6px;
+}
+
+.TeamManagement-modalFooter {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 26px 22px;
+  background: #fff;
+  border-top: 1px solid #edf0f2;
+}
+
+/* ----- delete modal ----- */
+
+.TeamManagement-deleteModal {
+  max-width: 420px;
+  padding: 32px 28px 26px;
+  text-align: center;
+}
+
+.TeamManagement-deleteIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
-  background: #fff0e6;
-  color: #e87524;
-  font-size: 22px;
-  font-weight: 800;
+  background: #fff0f0;
+  color: #d94d4d;
+  box-shadow: 0 0 0 9px rgba(217, 77, 77, 0.09);
 }
 
 .TeamManagement-deleteModal h3 {
-  color: #1d2b36;
-  font-size: 18px;
   margin: 0 0 8px;
+  color: #10301f;
+  font-size: 21px;
+  font-weight: 800;
 }
 
-.TeamManagement-deleteModal p {
-  color: #7e8b94;
-  font-size: 12px;
-  line-height: 1.6;
+.TeamManagement-deleteModal > p {
   margin: 0;
+  color: #7e8b94;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.TeamManagement-deletePreview {
+  margin: 20px 0 4px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  background: #f7f9fa;
+  border: 1px solid #e8edf0;
+  border-radius: 12px;
+}
+
+.TeamManagement-deletePreview img {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.TeamManagement-deletePreview div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.TeamManagement-deletePreview strong {
+  color: #263743;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.TeamManagement-deletePreview span {
+  color: #22a447;
+  font-size: 12px;
+  font-weight: 650;
 }
 
 .TeamManagement-modalActions {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 22px;
+  margin-top: 24px;
 }
 
-.TeamManagement-cancelDelete,
+.TeamManagement-modalActions .TeamManagement-cancelButton {
+  height: 46px;
+}
+
 .TeamManagement-confirmDelete {
-  min-height: 38px;
-  padding: 0 16px;
-  border-radius: 6px;
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #e55f5f 0%, #d94d4d 100%);
+  color: #fff;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 6px 16px rgba(217, 77, 77, 0.3);
   transition: 0.2s ease;
-}
-
-.TeamManagement-cancelDelete {
-  color: #53616b;
-  background: #f0f3f5;
-  border: 1px solid #e4e9ed;
-}
-
-.TeamManagement-confirmDelete {
-  color: #fff;
-  background: #d94d4d;
-  border: 1px solid #d94d4d;
 }
 
 .TeamManagement-confirmDelete:hover {
   background: #bd3838;
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   TOAST
+========================================= */
+
+.TeamManagement-toast {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 20px 13px 14px;
+  background: #10301f;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 12px;
+  border-left: 4px solid #22a447;
+  box-shadow: 0 14px 36px rgba(8, 28, 18, 0.3);
+  animation: TeamManagement-toastIn 0.3s ease;
+}
+
+.TeamManagement-toast.is-error {
+  border-left-color: #e55f5f;
+}
+
+.TeamManagement-toastIcon {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #22a447;
+  color: #fff;
+}
+
+.TeamManagement-toast.is-error .TeamManagement-toastIcon {
+  background: #e55f5f;
+}
+
+@keyframes TeamManagement-toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* =========================================
@@ -788,20 +1101,11 @@
 
 @media (max-width: 1100px) {
   .TeamManagement {
-    padding: 20px;
+    padding: 22px;
   }
 
   .TeamManagement-layout {
     grid-template-columns: 1fr;
-  }
-
-  .TeamManagement-formPanel,
-  .TeamManagement-tablePanel {
-    width: 100%;
-  }
-
-  .TeamManagement-table {
-    min-width: 650px;
   }
 }
 
@@ -811,79 +1115,59 @@
 
 @media (max-width: 600px) {
   .TeamManagement {
-    padding: 13px;
+    padding: 14px;
   }
 
   .TeamManagement-header {
-    align-items: flex-start;
     flex-direction: column;
-    gap: 14px;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .TeamManagement-headerIcon {
+    width: 50px;
+    height: 50px;
+    border-radius: 13px;
   }
 
   .TeamManagement-header h2 {
-    font-size: 22px;
+    font-size: 23px;
   }
 
   .TeamManagement-headerCount {
     width: 100%;
-    padding: 11px 15px;
-  }
-
-  .TeamManagement-headerCount strong {
-    font-size: 21px;
+    min-width: 0;
   }
 
   .TeamManagement-layout {
-    gap: 15px;
+    gap: 16px;
   }
 
   .TeamManagement-panelHeading {
-    padding: 17px 15px;
+    padding: 18px 16px;
   }
 
   .TeamManagement-panelHeading h3 {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .TeamManagement-form {
-    padding: 17px 15px 20px;
+    padding: 18px 16px 22px;
+  }
+
+  .TeamManagement-imageUpload {
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .TeamManagement-imagePreview {
+    width: 86px;
+    height: 86px;
   }
 
   .TeamManagement-formRow {
     grid-template-columns: 1fr;
     gap: 0;
-  }
-
-  .TeamManagement-imageUpload {
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .TeamManagement-imagePreview {
-    width: 75px;
-    height: 75px;
-  }
-
-  .TeamManagement-imageDetails p {
-    font-size: 10px;
-  }
-
-  .TeamManagement-tableHeading {
-    align-items: flex-start;
-  }
-
-  .TeamManagement-tableCount {
-    font-size: 9px;
-    padding: 6px 8px;
-  }
-
-  .TeamManagement-searchBox {
-    margin: 14px 12px;
-  }
-
-  .TeamManagement-tableFooter {
-    padding: 12px;
-    font-size: 9px;
   }
 
   .TeamManagement-formActions {
@@ -894,36 +1178,67 @@
   .TeamManagement-submitButton {
     width: 100%;
   }
-}
 
-/* =========================================
-   EXTRA SMALL DEVICES
-========================================= */
+  .TeamManagement-searchBox {
+    margin: 16px;
+  }
+
+  .TeamManagement-table th:first-child,
+  .TeamManagement-table td:first-child {
+    padding-left: 16px;
+  }
+
+  .TeamManagement-table th:last-child,
+  .TeamManagement-table td:last-child {
+    padding-right: 16px;
+  }
+
+  .TeamManagement-tableFooter {
+    padding: 14px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .TeamManagement-modalHeader,
+  .TeamManagement-modalBody {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .TeamManagement-modalFooter {
+    padding: 14px 18px 20px;
+    flex-direction: column-reverse;
+  }
+
+  .TeamManagement-modalFooter button,
+  .TeamManagement-modalActions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .TeamManagement-modalActions {
+    flex-direction: column-reverse;
+  }
+
+  .TeamManagement-toast {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+  }
+}
 
 @media (max-width: 360px) {
   .TeamManagement {
-    padding: 9px;
+    padding: 10px;
   }
 
   .TeamManagement-imagePreview {
-    width: 65px;
-    height: 65px;
-  }
-
-  .TeamManagement-imageUpload {
-    gap: 9px;
-  }
-
-  .TeamManagement-imageDetails h4 {
-    font-size: 12px;
-  }
-
-  .TeamManagement-uploadButton {
-    padding: 7px 9px;
-    font-size: 10px;
+    width: 74px;
+    height: 74px;
   }
 
   .TeamManagement-deleteModal {
-    padding: 22px 16px;
+    padding: 24px 16px 20px;
   }
 }

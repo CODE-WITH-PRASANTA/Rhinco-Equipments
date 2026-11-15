@@ -1,6 +1,6 @@
 /* =========================================================
    Sidebar.css
-   Premium Dark Navy + Green Accent 3D Theme
+   Clean White + Light Green Theme
    Fully Responsive
 ========================================================= */
 
@@ -9,26 +9,22 @@
   --sb-collapsed-width: 76px;
 
   --sb-green: #22c55e;
-  --sb-green-dark: #15803d;
-  --sb-green-glow: rgba(34, 197, 94, 0.45);
+  --sb-green-dark: #16a34a;
+  --sb-green-soft: #ecfdf3;
+  --sb-green-softer: #f4fcf7;
+  --sb-green-border: #d1f5de;
 
-  --sb-text: rgba(226, 232, 240, 0.68);
-  --sb-text-strong: #ffffff;
+  --sb-text: #475569;
+  --sb-text-strong: #0f172a;
+  --sb-icon: #64748b;
 
-  --sb-border: rgba(255, 255, 255, 0.08);
-  --sb-hover-bg: rgba(255, 255, 255, 0.06);
+  --sb-border: #e6f2ea;
+  --sb-hover-bg: #f0fdf4;
 
   width: var(--sb-width);
   height: 100dvh;
 
-  background:
-    linear-gradient(
-      180deg,
-      #131b2e 0%,
-      #0e1524 55%,
-      #0a0f1c 100%
-    );
-
+  background: linear-gradient(180deg, #ffffff 0%, #f7fdf9 60%, #ecfdf3 100%);
   color: var(--sb-text-strong);
 
   display: flex;
@@ -37,62 +33,42 @@
   position: fixed;
   top: 0;
   left: 0;
-
   z-index: 1000;
 
-  box-shadow:
-    12px 0 38px rgba(0, 0, 0, 0.45),
-    inset -1px 0 0 rgba(255, 255, 255, 0.06);
+  border-right: 1px solid var(--sb-border);
+  box-shadow: 6px 0 28px rgba(22, 163, 74, 0.08);
 
-  transition:
-    width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   overflow: hidden;
-
   isolation: isolate;
 }
-
-/* =========================================================
-   COLLAPSED DESKTOP SIDEBAR
-========================================================= */
 
 .Sidebar.collapsed {
   width: var(--sb-collapsed-width);
 }
 
-/* =========================================================
-   GLOSSY SHEEN
-========================================================= */
-
+/* Soft green glow decoration */
 .Sidebar-sheen {
   position: absolute;
   inset: 0;
-
-  background:
-    radial-gradient(
-      circle at 15% 0%,
-      rgba(255, 255, 255, 0.06),
+  background: radial-gradient(
+      circle at 0% 0%,
+      rgba(34, 197, 94, 0.12),
       transparent 45%
     ),
     radial-gradient(
       circle at 100% 100%,
-      rgba(34, 197, 94, 0.08),
-      transparent 55%
+      rgba(34, 197, 94, 0.14),
+      transparent 50%
     );
-
   pointer-events: none;
   z-index: -1;
 }
 
-/* =========================================================
-   MAIN LAYERS
-========================================================= */
-
 .Sidebar-logo,
-.Sidebar-nav,
-.Sidebar-brandFooter {
+.Sidebar-nav {
   position: relative;
   z-index: 1;
 }
@@ -102,20 +78,19 @@
 ========================================================= */
 
 .Sidebar-logo {
-  min-height: 78px;
-  height: 78px;
+  min-height: 84px;
+  height: 84px;
 
   display: flex;
   align-items: center;
-
-  padding: 0 20px;
-
   gap: 12px;
 
-  overflow: hidden;
+  padding: 0 18px;
 
+  background: linear-gradient(135deg, #ffffff 0%, var(--sb-green-soft) 100%);
   border-bottom: 1px solid var(--sb-border);
 
+  overflow: hidden;
   flex-shrink: 0;
 }
 
@@ -124,118 +99,58 @@
   justify-content: center;
 }
 
-/* =========================================================
-   LOGO MARK
-========================================================= */
-
 .Sidebar-logo-iconWrap {
-  position: relative;
-
-  width: 40px;
-  height: 40px;
-
-  flex: 0 0 40px;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-.Sidebar-logo-iconWrap::before {
-  content: "";
-
-  position: absolute;
-  inset: -6px;
-
+  background: #ffffff;
+  border: 2px solid var(--sb-green-border);
   border-radius: 14px;
+  padding: 3px;
 
-  background:
-    radial-gradient(
-      circle,
-      var(--sb-green-glow),
-      transparent 70%
-    );
-
-  animation:
-    darkLogoGlow 3.4s ease-in-out infinite;
-
-  pointer-events: none;
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.18);
 }
 
-@keyframes darkLogoGlow {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: scale(0.95);
-  }
-
-  50% {
-    opacity: 0.9;
-    transform: scale(1.05);
-  }
-}
-
-.Sidebar-logo-icon {
-  position: relative;
-
-  width: 40px;
-  height: 40px;
-
+.Sidebar-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
   display: block;
-
-  filter:
-    drop-shadow(
-      0 8px 18px rgba(0, 0, 0, 0.6)
-    );
-
-  flex-shrink: 0;
 }
-
-/* =========================================================
-   LOGO TEXT
-========================================================= */
 
 .Sidebar-logo-text-group {
   display: flex;
   flex-direction: column;
-
   line-height: 1.2;
-
-  overflow: hidden;
-
   min-width: 0;
-
   flex: 1;
+  overflow: hidden;
 }
 
 .Sidebar-logo-text {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
-
   color: var(--sb-text-strong);
-
+  letter-spacing: -0.2px;
   white-space: nowrap;
-
-  letter-spacing: -0.3px;
-
-  text-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.4);
-
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .Sidebar-logo-tagline {
+  margin-top: 2px;
   font-size: 10px;
   font-weight: 700;
-
-  color: rgba(255, 255, 255, 0.4);
-
-  white-space: nowrap;
-
-  letter-spacing: 0.12em;
-
+  color: var(--sb-green-dark);
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* =========================================================
@@ -244,38 +159,28 @@
 
 .Sidebar-close-btn {
   display: none;
-
   align-items: center;
   justify-content: center;
 
   width: 34px;
   height: 34px;
-
   margin-left: auto;
-
   flex: 0 0 34px;
 
   border-radius: 9px;
-
-  background: rgba(255, 255, 255, 0.06);
-
+  background: #ffffff;
   border: 1px solid var(--sb-border);
-
-  color: rgba(255, 255, 255, 0.6);
-
+  color: var(--sb-icon);
   cursor: pointer;
 
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease, transform 0.2s ease;
 }
 
 .Sidebar-close-btn:hover {
-  background-color: rgba(248, 113, 113, 0.12);
-  color: #f87171;
-  border-color: rgba(248, 113, 113, 0.3);
+  background-color: #fef2f2;
+  color: #ef4444;
+  border-color: #fecaca;
 }
 
 .Sidebar-close-btn:active {
@@ -296,22 +201,17 @@
 
   display: flex;
   flex-direction: column;
-
-  gap: 4px;
+  gap: 5px;
 
   flex: 1;
-
   min-height: 0;
 
   overflow-y: auto;
   overflow-x: hidden;
-
   overscroll-behavior: contain;
 
   scrollbar-width: thin;
-  scrollbar-color:
-    rgba(255, 255, 255, 0.15)
-    transparent;
+  scrollbar-color: #bbf7d0 transparent;
 }
 
 .Sidebar-nav::-webkit-scrollbar {
@@ -323,90 +223,58 @@
 }
 
 .Sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: #bbf7d0;
   border-radius: 10px;
 }
 
 /* =========================================================
-   COMMON SIDEBAR LINK
+   SIDEBAR LINK
 ========================================================= */
 
 .Sidebar-link {
+  position: relative;
+
   display: flex;
   align-items: center;
+  gap: 14px;
 
   width: 100%;
-  min-height: 44px;
-
+  min-height: 46px;
   padding: 11px 14px;
 
   color: var(--sb-text);
-
   text-decoration: none;
-
-  border-radius: 12px;
-
-  transition:
-    transform 0.2s
-      cubic-bezier(0.4, 0, 0.2, 1),
-    background 0.2s ease,
-    box-shadow 0.2s ease,
-    color 0.2s ease;
-
-  gap: 14px;
-
-  white-space: nowrap;
-
-  background: none;
-  border: none;
-
-  cursor: pointer;
-
   text-align: left;
 
-  font-family: inherit;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
 
+  font-family: inherit;
   font-size: 14.5px;
   font-weight: 600;
-
+  white-space: nowrap;
   box-sizing: border-box;
-}
 
-/* =========================================================
-   HOVER
-========================================================= */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
 
 .Sidebar-link:hover {
   background-color: var(--sb-hover-bg);
-
-  color: var(--sb-text-strong);
-
+  color: var(--sb-green-dark);
   transform: translateX(4px);
 }
 
-/* =========================================================
-   ACTIVE
-========================================================= */
-
+/* ACTIVE */
 .Sidebar-link.active {
-  background:
-    linear-gradient(
-      160deg,
-      #34d961 0%,
-      var(--sb-green) 45%,
-      var(--sb-green-dark) 100%
-    );
-
+  background: linear-gradient(135deg, #4ade80 0%, var(--sb-green) 100%);
   color: #ffffff;
-
   font-weight: 700;
 
-  box-shadow:
-    0 10px 24px rgba(21, 128, 61, 0.5),
-    0 2px 5px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-
-  transform: translateX(2px);
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .Sidebar-link.active .Sidebar-icon {
@@ -424,25 +292,23 @@
 
 .Sidebar-chevron {
   margin-left: auto;
-
   flex-shrink: 0;
-
-  transition:
-    transform 0.2s ease,
-    color 0.2s ease;
-
-  color: rgba(255, 255, 255, 0.35);
+  color: #94a3b8;
+  transition: transform 0.25s ease, color 0.2s ease;
 }
 
 .Sidebar-chevron.rotated {
   transform: rotate(180deg);
-  color: var(--sb-green);
+  color: var(--sb-green-dark);
 }
 
-.Sidebar-dropdown-wrapper.is-open
-  > .Sidebar-link:not(.active) {
-  background-color: var(--sb-hover-bg);
-  color: var(--sb-text-strong);
+.Sidebar-link.active .Sidebar-chevron {
+  color: #ffffff;
+}
+
+.Sidebar-dropdown-wrapper.is-open > .Sidebar-link:not(.active) {
+  background-color: var(--sb-green-soft);
+  color: var(--sb-green-dark);
 }
 
 /* =========================================================
@@ -454,22 +320,26 @@
   align-items: center;
   justify-content: center;
 
-  min-width: 24px;
   width: 24px;
+  min-width: 24px;
   height: 24px;
-
   flex: 0 0 24px;
 
-  color: rgba(255, 255, 255, 0.55);
-
-  transition:
-    transform 0.2s ease,
-    color 0.2s ease;
+  color: var(--sb-icon);
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .Sidebar-link:hover .Sidebar-icon {
   transform: scale(1.08);
-  color: var(--sb-text-strong);
+  color: var(--sb-green-dark);
+}
+
+.Sidebar-link.active:hover .Sidebar-icon {
+  color: #ffffff;
+}
+
+.Sidebar-dropdown-wrapper.is-open > .Sidebar-link:not(.active) .Sidebar-icon {
+  color: var(--sb-green-dark);
 }
 
 /* =========================================================
@@ -478,575 +348,143 @@
 
 .Sidebar-text {
   min-width: 0;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
-
   white-space: nowrap;
-
   line-height: 1.3;
 }
 
 /* =========================================================
-   SECTION HEADINGS
-========================================================= */
-
-.Sidebar-section-wrapper {
-  margin: 16px 0 8px 0;
-  padding: 0 14px;
-}
-
-.Sidebar-animated-divider {
-  height: 1px;
-  width: 100%;
-
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.18),
-      rgba(255, 255, 255, 0.03)
-    );
-
-  border-radius: 2px;
-
-  margin-bottom: 10px;
-}
-
-.Sidebar-section-title {
-  display: block;
-
-  font-size: 10.5px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.16em;
-
-  color: rgba(255, 255, 255, 0.35);
-
-  padding-left: 2px;
-}
-
-.Sidebar.collapsed .Sidebar-section-wrapper {
-  padding: 0 8px;
-}
-
-/* =========================================================
-   BLOG SUBMENU
+   SUBMENU
 ========================================================= */
 
 .Sidebar-submenu {
-  max-height: 0;
-
-  overflow: hidden;
-
-  transition:
-    max-height 0.3s
-      cubic-bezier(0.4, 0, 0.2, 1);
-
   display: flex;
   flex-direction: column;
+  gap: 2px;
 
-  padding-left: 20px;
+  margin: 4px 0 4px 25px;
+  padding: 6px 0 6px 14px;
 
-  margin: 2px 0 0 25px;
+  background-color: var(--sb-green-softer);
+  border-radius: 10px;
+  border-left: 2px solid var(--sb-green-border);
 
-  background-color: rgba(0, 0, 0, 0.22);
-
-  border-radius: 8px;
-
-  border-left:
-    2px dashed rgba(34, 197, 94, 0.35);
+  animation: submenuIn 0.25s ease;
 }
 
-.Sidebar-dropdown-wrapper.is-open
-  .Sidebar-submenu {
-  max-height: 300px;
-  padding: 6px 0;
+@keyframes submenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .Sidebar-submenu-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
-  padding: 8px 16px;
+  margin-right: 6px;
+  padding: 9px 12px;
 
   font-size: 13.5px;
   font-weight: 600;
-
-  color: rgba(255, 255, 255, 0.55);
-
+  color: var(--sb-text);
   text-decoration: none;
 
-  border-radius: 6px;
-
-  transition: all 0.2s;
-
+  border-radius: 8px;
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
+
+  transition: all 0.2s ease;
+}
+
+.Sidebar-submenu-link svg {
+  flex-shrink: 0;
+  color: #94a3b8;
+  transition: color 0.2s ease;
 }
 
 .Sidebar-submenu-link:hover {
-  background-color: var(--sb-hover-bg);
+  background-color: #ffffff;
+  color: var(--sb-green-dark);
+  padding-left: 16px;
+}
 
-  color: var(--sb-green);
-
-  padding-left: 20px;
+.Sidebar-submenu-link:hover svg {
+  color: var(--sb-green-dark);
 }
 
 .Sidebar-submenu-link.active {
-  background-color: rgba(34, 197, 94, 0.16);
-
-  color: var(--sb-green);
-
+  background-color: #ffffff;
+  color: var(--sb-green-dark);
   font-weight: 700;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.18);
+}
+
+.Sidebar-submenu-link.active svg {
+  color: var(--sb-green);
 }
 
 /* =========================================================
-   BOTTOM BRAND FOOTER
-========================================================= */
-
-.Sidebar-brandFooter {
-  position: relative;
-
-  height: 180px;
-
-  flex-shrink: 0;
-
-  overflow: hidden;
-
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-
-  padding-right: 20px;
-}
-
-.Sidebar-brandFooter-waves {
-  position: absolute;
-
-  inset: 0;
-
-  width: 100%;
-  height: 100%;
-
-  z-index: 1;
-}
-
-.wave {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.wave-1 {
-  fill: rgba(34, 197, 94, 0.08);
-  animation:
-    waveDrift 7s ease-in-out infinite;
-}
-
-.wave-2 {
-  fill: rgba(34, 197, 94, 0.12);
-  animation:
-    waveDrift 9s ease-in-out infinite reverse;
-}
-
-.wave-3 {
-  fill: rgba(255, 255, 255, 0.08);
-  animation:
-    waveDrift 11s ease-in-out infinite;
-}
-
-@keyframes waveDrift {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  50% {
-    transform: translateX(-3%);
-  }
-}
-
-.droplet {
-  fill: rgba(255, 255, 255, 0.5);
-
-  animation:
-    dropletFloat 3.6s ease-in-out infinite;
-}
-
-.droplet-1 {
-  animation-delay: 0s;
-}
-
-.droplet-2 {
-  animation-delay: 0.5s;
-}
-
-.droplet-3 {
-  animation-delay: 1s;
-}
-
-.droplet-4 {
-  animation-delay: 1.4s;
-  fill: rgba(34, 197, 94, 0.65);
-}
-
-.droplet-5 {
-  animation-delay: 0.2s;
-  fill: rgba(34, 197, 94, 0.65);
-}
-
-@keyframes dropletFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.5;
-  }
-
-  50% {
-    transform: translateY(-4px);
-    opacity: 1;
-  }
-}
-
-/* =========================================================
-   3D BOTTLE
-========================================================= */
-
-.Sidebar-bottle-wrapper {
-  position: relative;
-
-  width: 90px;
-  height: 165px;
-
-  z-index: 2;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin-bottom: 4px;
-}
-
-.Sidebar-bottle-img {
-  max-width: 100%;
-  max-height: 100%;
-
-  width: auto;
-  height: 100%;
-
-  object-fit: contain;
-
-  position: relative;
-
-  z-index: 3;
-
-  opacity: 0;
-
-  transition:
-    opacity 0.4s ease;
-
-  filter:
-    drop-shadow(
-      0 14px 18px rgba(0, 0, 0, 0.55)
-    )
-    drop-shadow(
-      0 2px 4px rgba(34, 197, 94, 0.2)
-    );
-
-  animation:
-    bottleFloat 4s ease-in-out infinite,
-    bottleGlint 3.2s ease-in-out infinite;
-}
-
-.Sidebar-bottle-img.is-ready {
-  opacity: 1;
-}
-
-.Sidebar-bottle-glow {
-  position: absolute;
-
-  top: 45%;
-  left: 50%;
-
-  transform:
-    translate(-50%, -50%);
-
-  width: 120px;
-  height: 120px;
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(34, 197, 94, 0.5) 0%,
-      rgba(34, 197, 94, 0.15) 40%,
-      transparent 75%
-    );
-
-  border-radius: 50%;
-
-  pointer-events: none;
-
-  z-index: 1;
-}
-
-.Sidebar-bottle-ring {
-  position: absolute;
-
-  bottom: 8px;
-  left: 50%;
-
-  transform:
-    translateX(-50%)
-    rotateX(75deg);
-
-  width: 60px;
-  height: 60px;
-
-  border:
-    2px solid rgba(34, 197, 94, 0.5);
-
-  border-radius: 50%;
-
-  box-shadow:
-    0 0 15px rgba(34, 197, 94, 0.6),
-    inset 0 0 10px rgba(34, 197, 94, 0.35);
-
-  pointer-events: none;
-
-  z-index: 1;
-
-  animation:
-    ringPulse 4s ease-in-out infinite;
-}
-
-.Sidebar-bottle-shadow {
-  position: absolute;
-
-  bottom: 4px;
-  left: 50%;
-
-  transform:
-    translateX(-50%);
-
-  width: 50px;
-  height: 8px;
-
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(0, 0, 0, 0.7) 0%,
-      transparent 80%
-    );
-
-  border-radius: 50%;
-
-  z-index: 1;
-
-  animation:
-    shadowPulse 4s ease-in-out infinite;
-}
-
-@keyframes bottleFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-@keyframes bottleGlint {
-  0%,
-  100% {
-    filter:
-      drop-shadow(
-        0 14px 18px rgba(0, 0, 0, 0.55)
-      )
-      drop-shadow(
-        0 2px 4px rgba(34, 197, 94, 0.2)
-      )
-      brightness(1);
-  }
-
-  50% {
-    filter:
-      drop-shadow(
-        0 14px 18px rgba(0, 0, 0, 0.55)
-      )
-      drop-shadow(
-        0 2px 6px rgba(34, 197, 94, 0.35)
-      )
-      brightness(1.06);
-  }
-}
-
-@keyframes ringPulse {
-  0%,
-  100% {
-    transform:
-      translateX(-50%)
-      rotateX(75deg)
-      scale(1);
-
-    opacity: 0.6;
-  }
-
-  50% {
-    transform:
-      translateX(-50%)
-      rotateX(75deg)
-      scale(1.15);
-
-    opacity: 0.9;
-  }
-}
-
-@keyframes shadowPulse {
-  0%,
-  100% {
-    transform:
-      translateX(-50%)
-      scale(1);
-
-    opacity: 0.8;
-  }
-
-  50% {
-    transform:
-      translateX(-50%)
-      scale(0.75);
-
-    opacity: 0.4;
-  }
-}
-
-/* =========================================================
-   TABLET
-   769px - 1024px
+   TABLET (769px - 1024px)
 ========================================================= */
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  .Sidebar {
-    width: var(--sb-width);
-  }
-
-  .Sidebar.collapsed {
-    width: var(--sb-collapsed-width);
-  }
-
   .Sidebar-logo {
     padding-left: 16px;
     padding-right: 16px;
   }
 
   .Sidebar-nav {
-    padding:
-      16px 10px;
+    padding: 16px 10px;
   }
 
   .Sidebar-link {
-    padding:
-      10px 12px;
-
+    padding: 10px 12px;
     gap: 12px;
-
     font-size: 14px;
   }
 }
 
 /* =========================================================
-   MOBILE
-   <= 768px
+   MOBILE (<= 768px)
 ========================================================= */
 
 @media (max-width: 768px) {
   .Sidebar {
-    width: min(
-      var(--sb-width),
-      88vw
-    );
-
-    height: 100dvh;
-
-    left: calc(
-      -1 * min(
-        var(--sb-width),
-        88vw
-      )
-    );
-
-    top: 0;
-
-    box-shadow:
-      12px 0 44px rgba(0, 0, 0, 0.6);
-
-    transition:
-      left 0.3s
-        cubic-bezier(0.4, 0, 0.2, 1);
+    width: min(var(--sb-width), 88vw);
+    left: calc(-1 * min(var(--sb-width), 88vw));
+    box-shadow: 10px 0 40px rgba(15, 23, 42, 0.18);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  /* =======================================================
-     OPEN MOBILE DRAWER
-  ======================================================= */
 
   .Sidebar.mobile-open {
     left: 0;
-
-    width: min(
-      var(--sb-width),
-      88vw
-    );
   }
 
-  /* =======================================================
-     COLLAPSED STATE ON MOBILE
-     Always behaves like full drawer when opened
-  ======================================================= */
-
   .Sidebar.collapsed {
-    width: min(
-      var(--sb-width),
-      88vw
-    );
-
-    left: calc(
-      -1 * min(
-        var(--sb-width),
-        88vw
-      )
-    );
+    width: min(var(--sb-width), 88vw);
+    left: calc(-1 * min(var(--sb-width), 88vw));
   }
 
   .Sidebar.collapsed.mobile-open {
     left: 0;
-
-    width: min(
-      var(--sb-width),
-      88vw
-    );
   }
-
-  /* =======================================================
-     MOBILE HEADER
-  ======================================================= */
 
   .Sidebar-logo,
   .Sidebar.collapsed .Sidebar-logo,
   .Sidebar.collapsed.mobile-open .Sidebar-logo {
-    min-height: 72px;
-    height: 72px;
-
-    padding:
-      0 16px;
-
+    min-height: 74px;
+    height: 74px;
+    padding: 0 16px;
     justify-content: flex-start;
-
     gap: 11px;
   }
 
@@ -1055,60 +493,28 @@
   }
 
   .Sidebar-logo-iconWrap {
-    width: 38px;
-    height: 38px;
-
-    flex-basis: 38px;
-  }
-
-  .Sidebar-logo-icon {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
   }
 
   .Sidebar-logo-text {
-    font-size: 17px;
+    font-size: 16.5px;
   }
-
-  .Sidebar-logo-tagline {
-    font-size: 9px;
-  }
-
-  /* =======================================================
-     MOBILE NAV
-  ======================================================= */
 
   .Sidebar-nav {
-    padding:
-      14px 10px 24px;
-
-    gap: 4px;
-
-    overflow-y: auto;
-
+    padding: 14px 10px 24px;
     -webkit-overflow-scrolling: touch;
   }
 
   .Sidebar-link {
     min-height: 46px;
-
-    padding:
-      11px 13px;
-
+    padding: 11px 13px;
     gap: 13px;
-
     font-size: 14px;
-
     border-radius: 11px;
   }
 
-  .Sidebar-icon {
-    width: 24px;
-    min-width: 24px;
-    flex-basis: 24px;
-  }
-
-  /* Disable horizontal movement on touch devices */
   .Sidebar-link:hover {
     transform: none;
   }
@@ -1117,58 +523,24 @@
     transform: scale(0.985);
   }
 
-  .Sidebar-link.active {
-    transform: none;
-  }
-
-  .Sidebar-link.active:active {
-    transform: scale(0.985);
-  }
-
-  /* =======================================================
-     MOBILE SUBMENU
-  ======================================================= */
-
   .Sidebar-submenu {
     margin-left: 22px;
-
-    padding-left: 15px;
-
-    border-left-width: 2px;
-  }
-
-  .Sidebar-dropdown-wrapper.is-open
-    .Sidebar-submenu {
-    padding:
-      6px 0;
+    padding-left: 12px;
   }
 
   .Sidebar-submenu-link {
     min-height: 40px;
-
-    display: flex;
-    align-items: center;
-
-    padding:
-      8px 14px;
-
     font-size: 13px;
-  }
-
-  .Sidebar-submenu-link:hover {
-    padding-left: 18px;
   }
 }
 
 /* =========================================================
-   SMALL MOBILE
-   <= 480px
+   SMALL MOBILE (<= 480px)
 ========================================================= */
 
 @media (max-width: 480px) {
   .Sidebar {
     width: 86vw;
-
     left: -86vw;
   }
 
@@ -1183,134 +555,49 @@
   .Sidebar.collapsed.mobile-open .Sidebar-logo {
     height: 68px;
     min-height: 68px;
-
-    padding:
-      0 13px;
-
+    padding: 0 13px;
     gap: 10px;
   }
 
   .Sidebar-logo-iconWrap {
-    width: 36px;
-    height: 36px;
-
-    flex-basis: 36px;
-  }
-
-  .Sidebar-logo-icon {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
   }
 
   .Sidebar-logo-text {
-    font-size: 16px;
-    letter-spacing: -0.2px;
-  }
-
-  .Sidebar-logo-tagline {
-    font-size: 8.5px;
+    font-size: 15.5px;
   }
 
   .Sidebar-close-btn {
     width: 32px;
     height: 32px;
-
     flex-basis: 32px;
   }
 
   .Sidebar-nav {
-    padding:
-      12px 9px 20px;
+    padding: 12px 9px 20px;
   }
 
   .Sidebar-link {
     min-height: 44px;
-
-    padding:
-      10px 11px;
-
+    padding: 10px 11px;
     gap: 11px;
-
     font-size: 13.5px;
-
-    border-radius: 10px;
-  }
-
-  .Sidebar-icon {
-    width: 23px;
-    min-width: 23px;
-    height: 23px;
-  }
-
-  .Sidebar-submenu {
-    margin-left: 20px;
-    padding-left: 13px;
   }
 
   .Sidebar-submenu-link {
     min-height: 38px;
-
-    padding:
-      7px 12px;
-
     font-size: 12.5px;
   }
 }
 
 /* =========================================================
-   EXTRA SMALL MOBILE
-   <= 360px
+   LANDSCAPE / SHORT SCREENS
 ========================================================= */
 
-@media (max-width: 360px) {
-  .Sidebar {
-    width: 90vw;
-    left: -90vw;
-  }
-
-  .Sidebar.mobile-open,
-  .Sidebar.collapsed.mobile-open {
-    width: 90vw;
-    left: 0;
-  }
-
-  .Sidebar-logo {
-    padding:
-      0 11px;
-  }
-
-  .Sidebar-logo-text {
-    font-size: 15px;
-  }
-
-  .Sidebar-nav {
-    padding:
-      10px 7px 18px;
-  }
-
-  .Sidebar-link {
-    min-height: 42px;
-
-    padding:
-      9px 10px;
-
-    gap: 10px;
-
-    font-size: 13px;
-  }
-
-  .Sidebar-submenu-link {
-    font-size: 12px;
-    padding:
-      7px 10px;
-  }
-}
-
-/* =========================================================
-   LANDSCAPE MOBILE
-========================================================= */
-
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 768px) and (orientation: landscape),
+  (max-width: 768px) and (max-height: 600px) {
   .Sidebar-logo {
     height: 62px;
     min-height: 62px;
@@ -1323,35 +610,7 @@
 
   .Sidebar-link {
     min-height: 40px;
-    padding:
-      8px 12px;
-  }
-}
-
-/* =========================================================
-   VERY SHORT SCREENS
-========================================================= */
-
-@media (max-width: 768px) and (max-height: 600px) {
-  .Sidebar-logo {
-    height: 62px;
-    min-height: 62px;
-  }
-
-  .Sidebar-nav {
-    padding-top: 8px;
-    padding-bottom: 12px;
-  }
-
-  .Sidebar-link {
-    min-height: 40px;
-    padding:
-      8px 12px;
-  }
-
-  .Sidebar-submenu-link {
-    padding-top: 6px;
-    padding-bottom: 6px;
+    padding: 8px 12px;
   }
 }
 
@@ -1367,22 +626,12 @@
   .Sidebar-close-btn,
   .Sidebar-submenu {
     transition: none !important;
-  }
-
-  .Sidebar-logo-iconWrap::before,
-  .wave-1,
-  .wave-2,
-  .wave-3,
-  .droplet,
-  .Sidebar-bottle-img,
-  .Sidebar-bottle-ring,
-  .Sidebar-bottle-shadow {
     animation: none !important;
   }
 }
 
 /* =========================================================
-   TOUCH DEVICE IMPROVEMENTS
+   TOUCH DEVICES
 ========================================================= */
 
 @media (hover: none) and (pointer: coarse) {
@@ -1392,21 +641,15 @@
   }
 
   .Sidebar-link.active:hover {
-    background:
-      linear-gradient(
-        160deg,
-        #34d961 0%,
-        var(--sb-green) 45%,
-        var(--sb-green-dark) 100%
-      );
+    background: linear-gradient(135deg, #4ade80 0%, var(--sb-green) 100%);
   }
 
   .Sidebar-submenu-link:hover {
     background-color: transparent;
-    padding-left: 14px;
+    padding-left: 12px;
   }
 
   .Sidebar-submenu-link.active:hover {
-    background-color: rgba(34, 197, 94, 0.16);
+    background-color: #ffffff;
   }
 }

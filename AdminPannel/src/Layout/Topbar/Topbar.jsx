@@ -1,22 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Menu,
   ChevronDown,
   Bell,
-  Mail,
   Search,
   User,
   LogOut,
   Shield,
-  Maximize,
-  Minimize,
   X,
 } from 'lucide-react';
 import './Topbar.css';
 
 const BACKEND_BASE_URL = 'http://localhost:5000';
 const API_BASE_URL = `${BACKEND_BASE_URL}/api/profiles`;
+const AUTH_KEY = 'isAdminAuthenticated';
 
 const DEFAULT_AVATAR =
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80';
@@ -33,9 +31,9 @@ const getAvatarUrl = (path) => {
 const Topbar = ({ toggleSidebar }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [mailOpen, setMailOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const navigate = useNavigate();
 
   // Profile data states
   const [currentProfile, setCurrentProfile] = useState({
@@ -79,7 +77,14 @@ const Topbar = ({ toggleSidebar }) => {
   const closeAllMenus = () => {
     setDropdownOpen(false);
     setNotificationsOpen(false);
-    setMailOpen(false);
+  };
+
+  // Proper Logout Logic
+  const handleLogout = () => {
+    closeAllMenus();
+    sessionStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(AUTH_KEY);
+    navigate('/login', { replace: true });
   };
 
   // Close dropdowns when clicking outside
@@ -105,27 +110,12 @@ const Topbar = ({ toggleSidebar }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Track fullscreen state
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
   // Autofocus the mobile search field
   useEffect(() => {
     if (mobileSearchOpen && mobileSearchInputRef.current) {
       mobileSearchInputRef.current.focus();
     }
   }, [mobileSearchOpen]);
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-      document.exitFullscreen().catch(() => {});
-    }
-  };
 
   const openMenu = (setter) => {
     closeAllMenus();
@@ -202,48 +192,6 @@ const Topbar = ({ toggleSidebar }) => {
               )}
             </div>
 
-            {/* Messages */}
-            <div className="Topbar-action-wrapper">
-              <button
-                className={`Topbar-action-btn ${mailOpen ? 'active' : ''}`}
-                onClick={() => (mailOpen ? closeAllMenus() : openMenu(setMailOpen))}
-                aria-label="Messages"
-                aria-expanded={mailOpen}
-              >
-                <Mail size={18} />
-                <span className="Topbar-badge">2</span>
-              </button>
-
-              {mailOpen && (
-                <div className="Topbar-dropdown Topbar-notifications-dropdown">
-                  <div className="Topbar-dropdown-header">
-                    <span className="Topbar-dropdown-title">Messages</span>
-                    <span className="Topbar-dropdown-badge">2 New</span>
-                  </div>
-                  <div className="Topbar-notification-list">
-                    <div className="Topbar-notification-item">
-                      <div className="Topbar-notification-dot" />
-                      <div>
-                        <p className="Topbar-notification-text">
-                          <strong>Support Team</strong> replied to your ticket.
-                        </p>
-                        <span className="Topbar-notification-time">10 mins ago</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Fullscreen toggle */}
-            <button
-              className="Topbar-action-btn Topbar-fullscreen-btn"
-              onClick={toggleFullscreen}
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            >
-              {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
-            </button>
-
             {/* User Profile Menu */}
             <div
               className={`Topbar-user ${dropdownOpen ? 'active' : ''}`}
@@ -309,13 +257,14 @@ const Topbar = ({ toggleSidebar }) => {
 
                   <div className="Topbar-dropdown-divider" />
 
-                  <Link
-                    to="/logout"
+                  <button
+                    type="button"
                     className="Topbar-dropdown-item logout"
-                    onClick={closeAllMenus}
+                    onClick={handleLogout}
+                    style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer' }}
                   >
                     <LogOut size={16} /> Log Out
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>
