@@ -1,0 +1,869 @@
+/* =====================================================
+   REVIEW MANAGEMENT STYLES
+===================================================== */
+
+.ReviewManagement-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1e293b;
+}
+
+/* HEADER */
+.ReviewManagement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: #ffffff;
+  padding: 24px 28px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.ReviewManagement-headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.ReviewManagement-headerIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  color: #10b981;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.ReviewManagement-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #10b981;
+  margin-bottom: 4px;
+}
+
+.ReviewManagement-header h1 {
+  font-size: 22px;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.ReviewManagement-header p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.ReviewManagement-createBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: #166534;
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
+}
+
+.ReviewManagement-createBtn:hover {
+  background: #14532d;
+  transform: translateY(-1px);
+}
+
+/* ALERT NOTICE */
+.ReviewManagement-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.ReviewManagement-notice.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.ReviewManagement-notice button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 16px;
+}
+
+/* STATS */
+.ReviewManagement-statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.ReviewManagement-statCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.ReviewManagement-statIcon {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ReviewManagement-statIcon.green { background: #dcfce7; color: #15803d; }
+.ReviewManagement-statIcon.amber { background: #fef3c7; color: #b45309; }
+.ReviewManagement-statIcon.purple { background: #f3e8ff; color: #7e22ce; }
+.ReviewManagement-statIcon.red { background: #fee2e2; color: #b91c1c; }
+
+.ReviewManagement-statCard span {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ReviewManagement-statCard strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 2px 0;
+}
+
+.ReviewManagement-statCard small {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* TOOLBAR */
+.ReviewManagement-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.ReviewManagement-search {
+  position: relative;
+  flex: 1;
+  max-width: 440px;
+}
+
+.ReviewManagement-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.ReviewManagement-search input {
+  width: 100%;
+  padding: 9px 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+.ReviewManagement-search input:focus {
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
+}
+
+.ReviewManagement-search button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.ReviewManagement-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ReviewManagement-select {
+  padding: 9px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  background: #ffffff;
+  outline: none;
+  cursor: pointer;
+}
+
+.ReviewManagement-viewToggle {
+  display: flex;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ReviewManagement-viewToggle button {
+  padding: 9px 12px;
+  background: #ffffff;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.ReviewManagement-viewToggle button.active {
+  background: #166534;
+  color: #ffffff;
+}
+
+.ReviewManagement-countBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 18px;
+  padding: 0 4px;
+}
+
+.ReviewManagement-clearBtn {
+  background: none;
+  border: none;
+  color: #166534;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* GRID VIEW */
+.ReviewManagement-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.ReviewManagement-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.ReviewManagement-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+}
+
+.ReviewManagement-cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ReviewManagement-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.ReviewManagement-customerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.ReviewManagement-customerInfo h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ReviewManagement-customerInfo small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.ReviewManagement-statusBadge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ReviewManagement-statusBadge.status--approved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.ReviewManagement-statusBadge.status--pending {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.ReviewManagement-statusBadge.status--rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.ReviewManagement-ratingBlock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ReviewManagement-starRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ReviewManagement-star {
+  font-size: 15px;
+  color: #cbd5e1;
+}
+
+.ReviewManagement-star.filled {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
+.ReviewManagement-starValue {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.ReviewManagement-verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #15803d;
+  background: #f0fdf4;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.ReviewManagement-itemTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #166534;
+  background: #f0fdf4;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  width: fit-content;
+}
+
+.ReviewManagement-reviewTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.ReviewManagement-comment {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+  flex: 1;
+}
+
+.ReviewManagement-cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: auto;
+}
+
+.ReviewManagement-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.ReviewManagement-cardActions {
+  display: flex;
+  gap: 6px;
+}
+
+.ReviewManagement-actionBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.ReviewManagement-actionBtn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.ReviewManagement-actionBtn.delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+/* TABLE VIEW */
+.ReviewManagement-tableWrap {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.ReviewManagement-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.ReviewManagement-table th {
+  padding: 14px 18px;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ReviewManagement-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.ReviewManagement-tableCustomer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ReviewManagement-tableAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1e40af;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+
+.ReviewManagement-tableCustomer strong {
+  display: block;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.ReviewManagement-tableCustomer small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.ReviewManagement-tableProduct {
+  font-weight: 600;
+  color: #166534;
+}
+
+.ReviewManagement-tableComment {
+  max-width: 320px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.ReviewManagement-tableActions {
+  display: flex;
+  gap: 6px;
+}
+
+.ReviewManagement-tableActions button {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.ReviewManagement-tableActions button:hover {
+  background: #f8fafc;
+}
+
+.ReviewManagement-tableActions button.delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* EMPTY STATE */
+.ReviewManagement-emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.ReviewManagement-emptyIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #94a3b8;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  margin: 0 auto 16px auto;
+}
+
+.ReviewManagement-emptyState h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.ReviewManagement-emptyState p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px 0;
+}
+
+/* MODAL OVERLAY */
+.ReviewManagement-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.ReviewManagement-modal {
+  background: #ffffff;
+  border-radius: 14px;
+  max-width: 580px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: revModalIn 0.2s ease-out;
+}
+
+@keyframes revModalIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.ReviewManagement-modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ReviewManagement-modalHeader h3 {
+  font-size: 16px;
+  font-weight: 750;
+  margin: 0;
+  color: #0f172a;
+}
+
+.ReviewManagement-modalClose {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.ReviewManagement-modalForm {
+  padding: 24px;
+}
+
+.ReviewManagement-formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ReviewManagement-field {
+  margin-bottom: 16px;
+}
+
+.ReviewManagement-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.ReviewManagement-field label span {
+  color: #ef4444;
+}
+
+.ReviewManagement-field input,
+.ReviewManagement-field select,
+.ReviewManagement-field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  background: #ffffff;
+  font-family: inherit;
+}
+
+.ReviewManagement-field input:focus,
+.ReviewManagement-field select:focus,
+.ReviewManagement-field textarea:focus {
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
+}
+
+.ReviewManagement-ratingPicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+}
+
+.ReviewManagement-pickerStar {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ReviewManagement-pickerStar.active {
+  color: #f59e0b;
+  fill: #f59e0b;
+}
+
+.ReviewManagement-ratingPicker span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 8px;
+}
+
+.ReviewManagement-checkboxRow {
+  margin-bottom: 20px;
+}
+
+.ReviewManagement-checkboxRow label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+}
+
+.ReviewManagement-modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.ReviewManagement-cancelBtn {
+  padding: 10px 18px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ReviewManagement-submitBtn {
+  padding: 10px 22px;
+  background: #166534;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ReviewManagement-submitBtn:hover {
+  background: #14532d;
+}
+
+/* CONFIRM MODAL */
+.ReviewManagement-confirmModal {
+  background: #ffffff;
+  border-radius: 14px;
+  max-width: 420px;
+  width: 100%;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.ReviewManagement-confirmIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  margin: 0 auto 16px auto;
+}
+
+.ReviewManagement-confirmModal h3 {
+  font-size: 17px;
+  font-weight: 750;
+  margin: 0 0 8px 0;
+}
+
+.ReviewManagement-confirmModal p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.ReviewManagement-confirmActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.ReviewManagement-deleteBtn {
+  padding: 10px 22px;
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .ReviewManagement-statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ReviewManagement-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .ReviewManagement-statsGrid,
+  .ReviewManagement-grid {
+    grid-template-columns: 1fr;
+  }
+  .ReviewManagement-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .ReviewManagement-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ReviewManagement-formRow {
+    grid-template-columns: 1fr;
+  }
+}

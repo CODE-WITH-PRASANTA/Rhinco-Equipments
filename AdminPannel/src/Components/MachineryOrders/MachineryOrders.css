@@ -1,0 +1,791 @@
+.MachineryOrdersPage {
+  padding: 24px 30px;
+  background-color: #f8fafc;
+  min-height: calc(100vh - 80px);
+  color: #1e293b;
+  font-family: inherit;
+}
+
+/* Header */
+.MachineryOrdersHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.MachineryOrdersBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.MachineryOrdersHeader h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.MachineryOrdersHeader p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.MachineryOrdersRefreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.MachineryOrdersRefreshBtn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.MachineryOrdersRefreshBtn .spin {
+  animation: MachOrdersSpin 1s linear infinite;
+}
+
+@keyframes MachOrdersSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.MachineryOrdersNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* KPI Cards */
+.MachineryOrdersKpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.MachineryOrdersKpiCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.MachineryOrdersKpiCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+}
+
+.MachineryOrdersKpiIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.MachineryOrdersKpiCard.primary .MachineryOrdersKpiIcon {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.MachineryOrdersKpiCard.new .MachineryOrdersKpiIcon {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.MachineryOrdersKpiCard.contacted .MachineryOrdersKpiIcon {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.MachineryOrdersKpiCard.resolved .MachineryOrdersKpiIcon {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.MachineryOrdersKpiContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.MachineryOrdersKpiLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.MachineryOrdersKpiValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Toolbar */
+.MachineryOrdersToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.MachineryOrdersTabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.MachineryOrdersTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.MachineryOrdersTab:hover {
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.MachineryOrdersTab.active {
+  background: #166534;
+  color: #ffffff;
+}
+
+.MachineryOrdersTabCount {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.MachineryOrdersTab.active .MachineryOrdersTabCount {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.MachineryOrdersSearchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 8px 14px;
+  min-width: 320px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.MachineryOrdersSearchBox input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 13.5px;
+  color: #0f172a;
+  background: transparent;
+}
+
+.MachineryOrdersClearSearch {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+/* Table */
+.MachineryOrdersTableWrap {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.MachineryOrdersTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13.5px;
+}
+
+.MachineryOrdersTable thead {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.MachineryOrdersTable th {
+  padding: 14px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.MachineryOrdersTable td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.MachineryOrdersTable tr:hover {
+  background: #fafcfb;
+}
+
+/* Machine Cell */
+.MachineryOrdersMachineCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 280px;
+}
+
+.MachineryOrdersMachineThumb {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.MachineryOrdersMachineIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.MachineryOrdersMachineTitle {
+  display: block;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+  margin-bottom: 2px;
+}
+
+.MachineryOrdersMachinePrice {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+  background: #f0fdf4;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Customer Cell */
+.MachineryOrdersCustomerCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.MachineryOrdersCustomerName {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.MachineryOrdersContactRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.MachineryOrdersPhoneLink {
+  color: #0284c7;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.MachineryOrdersPhoneLink:hover {
+  text-decoration: underline;
+}
+
+.MachineryOrdersEmailLink {
+  color: #64748b;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.MachineryOrdersEmailLink:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+/* Location Cell */
+.MachineryOrdersLocationCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #475569;
+  font-size: 13px;
+}
+
+/* Date Cell */
+.MachineryOrdersDateCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 12.5px;
+}
+
+/* Status Select */
+.MachineryOrdersStatusSelect {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.MachineryOrdersStatusSelect.new {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+
+.MachineryOrdersStatusSelect.contacted {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.MachineryOrdersStatusSelect.pending {
+  background: #fdf4ff;
+  color: #a21caf;
+  border-color: #f5d0fe;
+}
+
+.MachineryOrdersStatusSelect.resolved {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.MachineryOrdersStatusSelect.closed {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+/* Action Buttons */
+.MachineryOrdersActionBtns {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.MachineryOrdersViewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.MachineryOrdersViewBtn:hover {
+  background: #166534;
+  color: #ffffff;
+}
+
+.MachineryOrdersDeleteBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #fee2e2;
+  background: #fef2f2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.MachineryOrdersDeleteBtn:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Empty State */
+.MachineryOrdersEmptyState {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.MachineryOrdersEmptyState h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 14px 0 6px 0;
+}
+
+.MachineryOrdersEmptyState p {
+  color: #64748b;
+  font-size: 14px;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.MachineryOrdersSpinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #166534;
+  border-radius: 50%;
+  animation: MachOrdersSpin 0.8s linear infinite;
+  margin: 0 auto 16px auto;
+}
+
+/* Detail Modal */
+.MachineryOrdersModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.MachineryOrdersModal {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 850px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: MachOrdersModalIn 0.25s ease-out;
+}
+
+@keyframes MachOrdersModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.MachineryOrdersModalHeader {
+  padding: 24px 28px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 10;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+
+.MachineryOrdersModalTag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #166534;
+  background: #f0fdf4;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.MachineryOrdersModalHeader h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.MachineryOrdersModalDate {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.MachineryOrdersModalClose {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.MachineryOrdersModalClose:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.MachineryOrdersModalBody {
+  padding: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.MachineryOrdersModalCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.MachineryOrdersSectionBox {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.MachineryOrdersSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 14px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.MachineryOrdersModalImgWrap {
+  width: 100%;
+  height: 180px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.MachineryOrdersModalImgWrap img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.MachineryOrdersInfoRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf2f7;
+  font-size: 13px;
+}
+
+.MachineryOrdersInfoRow:last-child {
+  border-bottom: none;
+}
+
+.MachineryOrdersInfoRow .label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.MachineryOrdersInfoRow .val {
+  color: #0f172a;
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+}
+
+.MachineryOrdersInfoRow .val.price {
+  color: #166534;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.MachineryOrdersInfoRow .val.phone,
+.MachineryOrdersInfoRow .val.email {
+  color: #0284c7;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.MachineryOrdersCallBar {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.MachineryOrdersDirectCallBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #166534;
+  color: #ffffff;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.MachineryOrdersDirectCallBtn:hover {
+  background: #14532d;
+}
+
+.MachineryOrdersDirectMailBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.MachineryOrdersDirectMailBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.MachineryOrdersMessageBox {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.MachineryOrdersSaveNoteBtn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.MachineryOrdersSaveNoteBtn:hover:not(:disabled) {
+  background: #334155;
+}
+
+@media (max-width: 860px) {
+  .MachineryOrdersModalBody {
+    grid-template-columns: 1fr;
+  }
+}

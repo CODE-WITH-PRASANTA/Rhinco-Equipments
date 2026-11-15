@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -15,9 +14,6 @@ const commonsImage = (filename) =>
   `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
     filename
   )}?width=500`;
-
-// Reliable fallback image
-const fallbackImage = commonsImage("Agriculture Machinery Harvester.jpg");
 
 const makeSubcategories = (items) =>
   items.map(([name, image]) => ({
@@ -250,23 +246,19 @@ const BrowsbyCategory = () => {
   };
 
   const goToCategory = (category, subcategory = null) => {
-    const path = subcategory
-      ? `/machine-catalogue/${category.slug}/${subcategory.slug}`
-      : `/machine-catalogue/${category.slug}`;
+    closePopup();
 
-    setSelectedCategory(null);
-    setIsClosing(false);
-    navigate(path);
-  };
+    const categoryParam = encodeURIComponent(category.name);
 
-  // Fallback if an external image fails to load
-  const handleImageError = (event) => {
-    const image = event.currentTarget;
+    if (subcategory) {
+      const subcategoryParam = encodeURIComponent(subcategory.name);
+      navigate(
+        `/machinery?category=${categoryParam}&subcategory=${subcategoryParam}`
+      );
+      return;
+    }
 
-    if (image.dataset.fallbackApplied) return;
-
-    image.dataset.fallbackApplied = "true";
-    image.src = fallbackImage;
+    navigate(`/machinery?category=${categoryParam}`);
   };
 
   return (
@@ -287,7 +279,7 @@ const BrowsbyCategory = () => {
           <button
             type="button"
             className="BrowsbyCategory-all-button"
-            onClick={() => navigate("/machine-catalogue")}
+            onClick={() => navigate("/machinery")}
           >
             All Categories
             <ChevronRight size={19} />
@@ -310,7 +302,6 @@ const BrowsbyCategory = () => {
                   className="BrowsbyCategory-image"
                   loading="lazy"
                   referrerPolicy="no-referrer"
-                  onError={handleImageError}
                 />
               </div>
 
@@ -409,7 +400,6 @@ const BrowsbyCategory = () => {
                         className="BrowsbyCategory-subcategory-image"
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        onError={handleImageError}
                       />
                     </div>
 

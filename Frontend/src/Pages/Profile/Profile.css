@@ -1,0 +1,696 @@
+/* ==========================================================================
+   Rhinco Equipments - My Profile & Account Dashboard
+   ========================================================================== */
+
+.ProfilePage {
+  min-height: calc(100vh - 120px);
+  background: #f8fafc;
+  padding: 40px 20px 60px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
+}
+
+.ProfileContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ==================== LEFT SIDEBAR ==================== */
+.ProfileSidebar {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  padding: 28px 20px;
+  position: sticky;
+  top: 90px;
+}
+
+.ProfileUserCard {
+  text-align: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+
+.ProfileAvatarWrap {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #166534 0%, #22c55e 100%);
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  box-shadow: 0 6px 16px rgba(22, 101, 52, 0.25);
+  border: 3px solid #f0fdf4;
+}
+
+.ProfileUserName {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.ProfileUserEmail {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 10px;
+  word-break: break-all;
+}
+
+.ProfileRoleBadge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* Left Navigation Menu */
+.ProfileNav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ProfileNavItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ProfileNavItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ProfileNavItem:hover {
+  background: #f8fafc;
+  color: #166534;
+}
+
+.ProfileNavItem.active {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+  font-weight: 700;
+}
+
+.ProfileNavItem.active .ProfileNavIcon {
+  color: #166534;
+}
+
+.ProfileNavBadge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #166534;
+  color: #ffffff;
+}
+
+.ProfileSignOutBtn {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.ProfileSignOutBtn button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ProfileSignOutBtn button:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ==================== RIGHT CONTENT PANEL ==================== */
+.ProfileContent {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  padding: 36px 36px 40px;
+}
+
+.ProfileSectionHeader {
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ProfileSectionTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.ProfileSectionSubtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Form Styles inside Profile */
+.ProfileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ProfileFormGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ProfileFormField {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ProfileFormLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ProfileFormInput {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.ProfileFormInput:focus {
+  border-color: #166534;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
+}
+
+.ProfileSaveBtn {
+  align-self: flex-start;
+  padding: 12px 28px;
+  border-radius: 10px;
+  background: #166534;
+  color: #ffffff;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(22, 101, 52, 0.2);
+}
+
+.ProfileSaveBtn:hover {
+  background: #15803d;
+  transform: translateY(-1px);
+}
+
+/* ==================== ORDERS SECTION ==================== */
+.ProfileOrdersList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ProfileOrderCard {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.ProfileOrderCard:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.ProfileOrderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.ProfileOrderId {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ProfileOrderStatus {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.ProfileOrderStatus.delivered {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.ProfileOrderStatus.processing {
+  background: #fefce8;
+  color: #854d0e;
+  border: 1px solid #fef08a;
+}
+
+.ProfileOrderItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ProfileOrderImg {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.ProfileOrderInfo h4 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ProfileOrderInfo p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.ProfileOrderFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.ProfileOrderTotal {
+  font-size: 16px;
+  font-weight: 800;
+  color: #166534;
+}
+
+/* ==================== HELP CENTER SECTION ==================== */
+.HelpCardsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.HelpCard {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px 18px;
+  text-align: center;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.HelpCard:hover {
+  border-color: #166534;
+  background: #f0fdf4;
+  transform: translateY(-2px);
+}
+
+.HelpCardIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.HelpCard h4 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.HelpCard p {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.HelpCard strong {
+  display: block;
+  font-size: 13px;
+  color: #166534;
+}
+
+.HelpFaqList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.HelpFaqItem {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  background: #ffffff;
+}
+
+.HelpFaqItem h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.HelpFaqItem p {
+  margin: 0;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .ProfileContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .ProfileSidebar {
+    position: static;
+  }
+
+  .ProfileFormGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .HelpCardsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==================== ADDRESS SECTION IN PROFILE ==================== */
+.ProfileAddressGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.ProfileAddressCard {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.ProfileAddressCard:hover {
+  border-color: #bbf7d0;
+  box-shadow: 0 8px 24px rgba(22, 101, 52, 0.08);
+}
+
+.ProfileAddressCard.default {
+  border-color: #166534;
+  background: #fdfefe;
+}
+
+.ProfileAddressCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ProfileAddressTypeBadge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+
+.ProfileAddressDefaultBadge {
+  font-size: 11px;
+  font-weight: 700;
+  background: #166534;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.ProfileAddressRecipient {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.ProfileAddressPhone {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 10px;
+}
+
+.ProfileAddressText {
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+
+.ProfileAddressActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.ProfileAddressActionBtn {
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.ProfileAddressActionBtn:hover {
+  background: #f1f5f9;
+}
+
+.ProfileAddressActionBtn.primary {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.ProfileAddressActionBtn.primary:hover {
+  background: #166534;
+  color: #ffffff;
+}
+
+.ProfileAddressActionBtn.danger {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.ProfileAddressActionBtn.danger:hover {
+  background: #fee2e2;
+}
+
+/* ==================== MACHINERY ENQUIRIES SECTION ==================== */
+.ProfileEnquiriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.ProfileEnquiryCard {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px;
+  transition: all 0.2s ease;
+}
+
+.ProfileEnquiryCard:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.06);
+}
+
+.ProfileEnquiryHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ProfileEnquiryMachineName {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ProfileEnquiryStatusBadge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ProfileEnquiryStatusBadge.new {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.ProfileEnquiryStatusBadge.contacted {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.ProfileEnquiryStatusBadge.pending {
+  background: #faf5ff;
+  color: #9333ea;
+  border: 1px solid #e9d5ff;
+}
+
+.ProfileEnquiryStatusBadge.resolved,
+.ProfileEnquiryStatusBadge.approved {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.ProfileEnquiryMetaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12.5px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.ProfileEnquiryMessage {
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.5;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin: 0 0 12px;
+  border-left: 3px solid #cbd5e1;
+}
+
+.ProfileEnquiryNotes {
+  font-size: 13px;
+  color: #166534;
+  background: #f0fdf4;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ProfileEnquiryFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}

@@ -1,185 +1,14 @@
-
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MachineryCatalogue.css";
 
-const commonsImage = (filename) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
-    filename
-  )}?width=700`;
+const MACHINERY_API = "http://localhost:5000/api/machinery";
 
-const fallbackImage = commonsImage("Agriculture Machinery Harvester.jpg");
-
-const machineryProducts = [
-  {
-    id: "honda-f300",
-    brand: "HONDA",
-    name: "F300",
-    price: 54000,
-    subsidy: 10500,
-    category: "Power Weeder",
-    image: commonsImage("A tractor.jpg"),
-  },
-  {
-    id: "walson-1rk190",
-    brand: "WALSON",
-    name: "Walson - 1RK190",
-    price: 94500,
-    subsidy: 46875,
-    category: "Rice Mill",
-    image: commonsImage("Saatgut-Reinigungsanlage 3786.JPG"),
-  },
-  {
-    id: "rico-ri2000",
-    brand: "RICO ITALY",
-    name: "Rico Italy - RI 2000",
-    price: 152500,
-    subsidy: 87600,
-    category: "Harvester",
-    image: commonsImage("A Twenty-Four Horse Power Harvester (NBY 9002).jpg"),
-  },
-  {
-    id: "indoxen-105p",
-    brand: "INDOXEN",
-    name: "Indoxen 105P",
-    price: 61000,
-    subsidy: 23250,
-    category: "Power Tiller",
-    image: commonsImage("Agricultural Equipment (1).jpg"),
-  },
-  {
-    id: "vst-234md",
-    brand: "VST",
-    name: "234MD",
-    price: 30000,
-    subsidy: 5850,
-    category: "Brush Cutter",
-    image: commonsImage("Aerosolni generator 33.jpg"),
-  },
-  {
-    id: "riddish-mt-kishan",
-    brand: "Riddish",
-    name: "Riddish - MT KISHAN 001",
-    price: 48000,
-    subsidy: 23250,
-    category: "Power Tiller",
-    image: commonsImage("Chaff cutter machine at work.jpg"),
-  },
-  {
-    id: "kamco-kmb200",
-    brand: "KAMCO",
-    name: "KMB 200",
-    price: 214800,
-    subsidy: 127500,
-    category: "Power Tiller",
-    image: commonsImage("Mc Cormick-by-RaBoe-07.jpg"),
-  },
-  {
-    id: "agrineer-an205p",
-    brand: "Agrineer",
-    name: "AN 205P 9HP",
-    price: 58100,
-    subsidy: 23250,
-    category: "Power Tiller",
-    image: commonsImage("Agricultural Equipment (2).jpg"),
-  },
-  {
-    id: "john-deere-8320",
-    brand: "JOHN DEERE",
-    name: "John Deere 8320",
-    price: 850000,
-    subsidy: 250000,
-    category: "Tractor",
-    image: commonsImage("John Deere 8320.jpg"),
-  },
-  {
-    id: "agri-harvester-01",
-    brand: "AGRI TECH",
-    name: "Mini Harvester 01",
-    price: 185000,
-    subsidy: 65000,
-    category: "Harvester",
-    image: commonsImage("Maehdrescher1 hg.jpg"),
-  },
-  {
-    id: "farm-chaff-cutter",
-    brand: "FARM KING",
-    name: "Chaff Cutter Machine",
-    price: 42500,
-    subsidy: 15000,
-    category: "Chaff Cutter",
-    image: commonsImage("Food cuter machine.jpg"),
-  },
-  {
-    id: "agri-irrigation-pump",
-    brand: "AGRO PLUS",
-    name: "Irrigation Pump Set",
-    price: 18500,
-    subsidy: 5500,
-    category: "Irrigation",
-    image: commonsImage(
-      "Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India.jpg"
-    ),
-  },
-  {
-    id: "seed-cleaner-01",
-    brand: "WALSON",
-    name: "Seed Cleaning Machine",
-    price: 72000,
-    subsidy: 25000,
-    category: "Seed Cleaner",
-    image: commonsImage("Saatgut-Reinigungsanlage 3787.jpg"),
-  },
-  {
-    id: "rotary-tiller-01",
-    brand: "FIELD MASTER",
-    name: "Rotary Tiller",
-    price: 67500,
-    subsidy: 21000,
-    category: "Power Tiller",
-    image: commonsImage("Agricultural Equipment (3).jpg"),
-  },
-];
-
-const categories = [
-  "Power Weeder",
-  "Rice Mill",
-  "Harvester",
-  "Power Tiller",
-  "Brush Cutter",
-  "Tractor",
-  "Chaff Cutter",
-  "Irrigation",
-  "Seed Cleaner",
-  "Rotary Tiller",
-  "Cultivator",
-  "Sprayer",
-  "Plough",
-  "Thresher",
-  "Planter",
-  "Reaper",
-  "Water Pump",
-  "Other Machinery",
-];
-
-const brands = [
-  "HONDA",
-  "WALSON",
-  "RICO ITALY",
-  "INDOXEN",
-  "VST",
-  "Riddish",
-  "KAMCO",
-  "Agrineer",
-  "JOHN DEERE",
-  "AGRI TECH",
-  "FARM KING",
-  "AGRO PLUS",
-  "FIELD MASTER",
-];
+const fallbackImage =
+  "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80";
 
 const formatPrice = (price) =>
-  `₹${Number(price).toLocaleString("en-IN")}`;
+  `₹${Number(price || 0).toLocaleString("en-IN")}`;
 
 const GridIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -246,47 +75,108 @@ const SubsidyIcon = () => (
 );
 
 const MachineryCatalogue = () => {
+  const [machineryProducts, setMachineryProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [sortBy, setSortBy] = useState("recommended");
 
+  // Fetch real machinery from database
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMachinery = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(MACHINERY_API);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          if (isMounted) {
+            setMachineryProducts(data.data);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading catalogue machinery:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchMachinery();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Derive dynamic categories from database items
+  const categories = useMemo(() => {
+    const set = new Set();
+    machineryProducts.forEach((item) => {
+      if (item.category) set.add(item.category);
+      if (item.implementType) set.add(item.implementType);
+    });
+    return Array.from(set).sort();
+  }, [machineryProducts]);
+
+  // Derive dynamic brands from database items
+  const brands = useMemo(() => {
+    const set = new Set();
+    machineryProducts.forEach((item) => {
+      const b = item.brand || item.brandName;
+      if (b) set.add(b);
+    });
+    return Array.from(set).sort();
+  }, [machineryProducts]);
+
   const filteredProducts = useMemo(() => {
     let result = [...machineryProducts];
 
     if (search.trim()) {
       const query = search.toLowerCase().trim();
-
-      result = result.filter((product) =>
-        `${product.name} ${product.brand} ${product.category}`
-          .toLowerCase()
-          .includes(query)
-      );
+      result = result.filter((product) => {
+        const name = (product.title || product.name || "").toLowerCase();
+        const brand = (product.brandName || product.brand || "").toLowerCase();
+        const category = (product.category || product.implementType || "").toLowerCase();
+        return `${name} ${brand} ${category}`.includes(query);
+      });
     }
 
     if (selectedCategory) {
       result = result.filter(
-        (product) => product.category === selectedCategory
+        (product) =>
+          product.category === selectedCategory ||
+          product.implementType === selectedCategory
       );
     }
 
     if (selectedBrand) {
       result = result.filter(
-        (product) => product.brand === selectedBrand
+        (product) =>
+          (product.brandName || product.brand) === selectedBrand
       );
     }
 
     if (sortBy === "price-low") {
-      result.sort((a, b) => a.price - b.price);
+      result.sort(
+        (a, b) =>
+          Number(a.discountPrice || a.price || 0) -
+          Number(b.discountPrice || b.price || 0)
+      );
     } else if (sortBy === "price-high") {
-      result.sort((a, b) => b.price - a.price);
+      result.sort(
+        (a, b) =>
+          Number(b.discountPrice || b.price || 0) -
+          Number(a.discountPrice || a.price || 0)
+      );
     } else if (sortBy === "name") {
-      result.sort((a, b) => a.name.localeCompare(b.name));
+      result.sort((a, b) =>
+        (a.title || a.name || "").localeCompare(b.title || b.name || "")
+      );
     }
 
     return result;
-  }, [search, selectedCategory, selectedBrand, sortBy]);
+  }, [machineryProducts, search, selectedCategory, selectedBrand, sortBy]);
 
   const activeFilterCount = [
     selectedCategory,
@@ -304,9 +194,7 @@ const MachineryCatalogue = () => {
 
   const handleImageError = (event) => {
     const image = event.currentTarget;
-
     if (image.dataset.fallbackApplied) return;
-
     image.dataset.fallbackApplied = "true";
     image.src = fallbackImage;
   };
@@ -327,7 +215,7 @@ const MachineryCatalogue = () => {
             </div>
 
             <span className="MachineryCatalogue-model-count">
-              67 Models Available
+              {machineryProducts.length} Models Available
             </span>
           </div>
 
@@ -396,7 +284,7 @@ const MachineryCatalogue = () => {
                   <strong>
                     {selectedCategory || "Select Category"}
                   </strong>
-                  <span>18 categories available</span>
+                  <span>{categories.length} categories available</span>
                 </span>
 
                 <span className="MachineryCatalogue-filter-arrow">
@@ -472,7 +360,7 @@ const MachineryCatalogue = () => {
                 <span className="MachineryCatalogue-filter-copy">
                   <small>BRAND</small>
                   <strong>{selectedBrand || "Select Brand"}</strong>
-                  <span>25 manufacturers</span>
+                  <span>{brands.length} manufacturers</span>
                 </span>
 
                 <span className="MachineryCatalogue-filter-arrow">
@@ -620,88 +508,106 @@ const MachineryCatalogue = () => {
           <div>
             <h2>Available Machinery</h2>
             <p>
-              Showing {filteredProducts.length} of 67 machinery models
+              Showing {filteredProducts.length} of {machineryProducts.length} machinery models
             </p>
           </div>
         </div>
 
-        <div className="MachineryCatalogue-grid">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <Link
-                to={`/machinery/${product.id}`}
-                className="MachineryCatalogue-product-card"
-                key={product.id}
-              >
-                <div className="MachineryCatalogue-image-area">
-                  <span className="MachineryCatalogue-brand-logo">
-                    {product.brand}
-                  </span>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>
+            <p>Loading machinery catalogue from database...</p>
+          </div>
+        ) : (
+          <div className="MachineryCatalogue-grid">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => {
+                const name = product.title || product.name;
+                const brand = product.brandName || product.brand || "Rhinco";
+                const price = Number(product.discountPrice || product.price || 0);
+                const subsidy = Math.round(price * 0.4);
+                const image =
+                  (Array.isArray(product.machineImages) && product.machineImages[0]) ||
+                  product.image ||
+                  product.featuredImage?.data ||
+                  fallbackImage;
 
-                  <span className="MachineryCatalogue-subsidy-badge">
-                    <SubsidyIcon />
-                    Subsidy
-                  </span>
-
-                  <img
-                    src={product.image}
-                    alt={`${product.brand} ${product.name}`}
-                    className="MachineryCatalogue-product-image"
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    onError={handleImageError}
-                  />
-                </div>
-
-                <div className="MachineryCatalogue-product-content">
-                  <div className="MachineryCatalogue-product-info">
-                    <span className="MachineryCatalogue-product-brand">
-                      {product.brand}
-                    </span>
-
-                    <h3>{product.name}</h3>
-                  </div>
-
-                  <div className="MachineryCatalogue-product-divider" />
-
-                  <div className="MachineryCatalogue-price-row">
-                    <div className="MachineryCatalogue-price-content">
-                      <span className="MachineryCatalogue-base-price-label">
-                        BASE PRICE
+                return (
+                  <Link
+                    to={`/machinery/${encodeURIComponent(name)}`}
+                    className="MachineryCatalogue-product-card"
+                    key={product._id || product.id}
+                  >
+                    <div className="MachineryCatalogue-image-area">
+                      <span className="MachineryCatalogue-brand-logo">
+                        {brand}
                       </span>
 
-                      <strong className="MachineryCatalogue-price">
-                        {formatPrice(product.price)}
-                      </strong>
-
-                      <span className="MachineryCatalogue-subsidy-text">
+                      <span className="MachineryCatalogue-subsidy-badge">
                         <SubsidyIcon />
-                        Subsidy upto {formatPrice(product.subsidy)}
+                        Subsidy
                       </span>
+
+                      <img
+                        src={image}
+                        alt={`${brand} ${name}`}
+                        className="MachineryCatalogue-product-image"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={handleImageError}
+                      />
                     </div>
 
-                    <span className="MachineryCatalogue-product-arrow">
-                      <ChevronIcon />
-                    </span>
-                  </div>
+                    <div className="MachineryCatalogue-product-content">
+                      <div className="MachineryCatalogue-product-info">
+                        <span className="MachineryCatalogue-product-brand">
+                          {brand}
+                        </span>
+
+                        <h3>{name}</h3>
+                      </div>
+
+                      <div className="MachineryCatalogue-product-divider" />
+
+                      <div className="MachineryCatalogue-price-row">
+                        <div className="MachineryCatalogue-price-content">
+                          <span className="MachineryCatalogue-base-price-label">
+                            BASE PRICE
+                          </span>
+
+                          <strong className="MachineryCatalogue-price">
+                            {formatPrice(price)}
+                          </strong>
+
+                          <span className="MachineryCatalogue-subsidy-text">
+                            <SubsidyIcon />
+                            Subsidy upto {formatPrice(subsidy)}
+                          </span>
+                        </div>
+
+                        <span className="MachineryCatalogue-product-arrow">
+                          <ChevronIcon />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            ) : (
+              <div className="MachineryCatalogue-empty">
+                <div className="MachineryCatalogue-empty-icon">
+                  <GridIcon />
                 </div>
-              </Link>
-            ))
-          ) : (
-            <div className="MachineryCatalogue-empty">
-              <div className="MachineryCatalogue-empty-icon">
-                <GridIcon />
+                <h3>No machinery found</h3>
+                <p>
+                  Try another machine name, category or manufacturer.
+                </p>
+                <button type="button" onClick={clearFilters}>
+                  Clear filters
+                </button>
               </div>
-              <h3>No machinery found</h3>
-              <p>
-                Try another machine name, category or manufacturer.
-              </p>
-              <button type="button" onClick={clearFilters}>
-                Clear filters
-              </button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

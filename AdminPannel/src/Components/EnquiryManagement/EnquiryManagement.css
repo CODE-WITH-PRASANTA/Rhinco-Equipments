@@ -1,0 +1,851 @@
+/* =====================================================
+   ENQUIRY MANAGEMENT STYLES
+===================================================== */
+
+.EnquiryManagement-page {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1e293b;
+}
+
+/* HEADER */
+.EnquiryManagement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: #ffffff;
+  padding: 24px 28px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.EnquiryManagement-headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.EnquiryManagement-headerIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.EnquiryManagement-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+
+.EnquiryManagement-header h1 {
+  font-size: 22px;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.EnquiryManagement-header p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+.EnquiryManagement-createBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: #166534;
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
+}
+
+.EnquiryManagement-createBtn:hover {
+  background: #14532d;
+  transform: translateY(-1px);
+}
+
+/* NOTICE */
+.EnquiryManagement-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.EnquiryManagement-notice.success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.EnquiryManagement-notice button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 16px;
+}
+
+/* STATS */
+.EnquiryManagement-statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.EnquiryManagement-statCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.EnquiryManagement-statIcon {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.EnquiryManagement-statIcon.blue { background: #dbeafe; color: #1e40af; }
+.EnquiryManagement-statIcon.amber { background: #fef3c7; color: #b45309; }
+.EnquiryManagement-statIcon.purple { background: #f3e8ff; color: #7e22ce; }
+.EnquiryManagement-statIcon.green { background: #dcfce7; color: #15803d; }
+
+.EnquiryManagement-statCard span {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.EnquiryManagement-statCard strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 2px 0;
+}
+
+.EnquiryManagement-statCard small {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* TAB BAR */
+.EnquiryManagement-tabBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+  overflow-x: auto;
+}
+
+.EnquiryManagement-tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.EnquiryManagement-tabBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.EnquiryManagement-tabBtn.active {
+  background: #166534;
+  color: #ffffff;
+}
+
+.EnquiryManagement-tabBadge {
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* TOOLBAR */
+.EnquiryManagement-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 18px;
+}
+
+.EnquiryManagement-search {
+  position: relative;
+  flex: 1;
+  max-width: 440px;
+}
+
+.EnquiryManagement-search svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.EnquiryManagement-search input {
+  width: 100%;
+  padding: 9px 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+.EnquiryManagement-search input:focus {
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
+}
+
+.EnquiryManagement-search button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.EnquiryManagement-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.EnquiryManagement-select {
+  padding: 9px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  background: #ffffff;
+  outline: none;
+  cursor: pointer;
+}
+
+/* TABLE */
+.EnquiryManagement-tableWrap {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.EnquiryManagement-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+
+.EnquiryManagement-table th {
+  padding: 14px 18px;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.EnquiryManagement-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  vertical-align: middle;
+}
+
+.EnquiryManagement-customerCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.EnquiryManagement-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.EnquiryManagement-customerCell strong {
+  display: block;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.EnquiryManagement-customerCell small {
+  font-size: 11px;
+  color: #64748b;
+  display: block;
+}
+
+.EnquiryManagement-contactCell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.EnquiryManagement-contactCell a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #475569;
+  text-decoration: none;
+}
+
+.EnquiryManagement-contactCell a:hover {
+  color: #166534;
+  text-decoration: underline;
+}
+
+.EnquiryManagement-equipmentTag {
+  display: inline-block;
+  font-weight: 600;
+  color: #166534;
+  background: #f0fdf4;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.EnquiryManagement-typeBadge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.EnquiryManagement-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.EnquiryManagement-statusSelect {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  outline: none;
+}
+
+.EnquiryManagement-statusSelect.status--new {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+
+.EnquiryManagement-statusSelect.status--contacted {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border-color: #e9d5ff;
+}
+
+.EnquiryManagement-statusSelect.status--pending {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.EnquiryManagement-statusSelect.status--resolved {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.EnquiryManagement-statusSelect.status--closed {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.EnquiryManagement-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.EnquiryManagement-actions button {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #475569;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.EnquiryManagement-actions button:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.EnquiryManagement-actions button.delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* EMPTY STATE */
+.EnquiryManagement-emptyState {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.EnquiryManagement-emptyIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #94a3b8;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  margin: 0 auto 16px auto;
+}
+
+.EnquiryManagement-emptyState h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+}
+
+.EnquiryManagement-emptyState p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px 0;
+}
+
+/* MODALS */
+.EnquiryManagement-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.EnquiryManagement-viewModal,
+.EnquiryManagement-modal {
+  background: #ffffff;
+  border-radius: 14px;
+  max-width: 620px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: enqModalIn 0.2s ease-out;
+}
+
+@keyframes enqModalIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.EnquiryManagement-modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.EnquiryManagement-modalHeader h3 {
+  font-size: 17px;
+  font-weight: 750;
+  margin: 0;
+  color: #0f172a;
+}
+
+.EnquiryManagement-modalClose {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+/* VIEW CONTENT */
+.EnquiryManagement-viewContent {
+  padding: 24px;
+}
+
+.EnquiryManagement-viewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+
+.EnquiryManagement-viewGrid span {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.EnquiryManagement-viewGrid strong {
+  display: block;
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.EnquiryManagement-viewGrid strong a {
+  color: #166534;
+  text-decoration: none;
+}
+
+.EnquiryManagement-viewMessage,
+.EnquiryManagement-viewNotes {
+  margin-bottom: 20px;
+}
+
+.EnquiryManagement-viewMessage h4,
+.EnquiryManagement-viewNotes h4 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+  margin: 0 0 8px 0;
+}
+
+.EnquiryManagement-viewMessage p {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0;
+}
+
+.EnquiryManagement-viewNotes p {
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #854d0e;
+  margin: 0;
+}
+
+.EnquiryManagement-viewStatusRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.EnquiryManagement-statusButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.EnquiryManagement-statusPill {
+  padding: 5px 12px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.EnquiryManagement-statusPill.active {
+  background: #166534;
+  color: #ffffff;
+}
+
+.EnquiryManagement-viewActions {
+  display: flex;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.EnquiryManagement-callBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: #166534;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.EnquiryManagement-emailBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.EnquiryManagement-editLeadBtn {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+
+/* FORM MODAL */
+.EnquiryManagement-modalForm {
+  padding: 24px;
+}
+
+.EnquiryManagement-formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.EnquiryManagement-field {
+  margin-bottom: 16px;
+}
+
+.EnquiryManagement-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.EnquiryManagement-field label span {
+  color: #ef4444;
+}
+
+.EnquiryManagement-field input,
+.EnquiryManagement-field select,
+.EnquiryManagement-field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  background: #ffffff;
+  font-family: inherit;
+}
+
+.EnquiryManagement-field input:focus,
+.EnquiryManagement-field select:focus,
+.EnquiryManagement-field textarea:focus {
+  border-color: #166534;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
+}
+
+.EnquiryManagement-modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.EnquiryManagement-cancelBtn {
+  padding: 10px 18px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.EnquiryManagement-submitBtn {
+  padding: 10px 22px;
+  background: #166534;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.EnquiryManagement-submitBtn:hover {
+  background: #14532d;
+}
+
+/* CONFIRM MODAL */
+.EnquiryManagement-confirmModal {
+  background: #ffffff;
+  border-radius: 14px;
+  max-width: 420px;
+  width: 100%;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.EnquiryManagement-confirmIcon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #fee2e2;
+  color: #dc2626;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  margin: 0 auto 16px auto;
+}
+
+.EnquiryManagement-confirmModal h3 {
+  font-size: 17px;
+  font-weight: 750;
+  margin: 0 0 8px 0;
+}
+
+.EnquiryManagement-confirmModal p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.EnquiryManagement-confirmActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.EnquiryManagement-deleteBtn {
+  padding: 10px 22px;
+  background: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .EnquiryManagement-statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .EnquiryManagement-statsGrid {
+    grid-template-columns: 1fr;
+  }
+  .EnquiryManagement-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .EnquiryManagement-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .EnquiryManagement-formRow {
+    grid-template-columns: 1fr;
+  }
+  .EnquiryManagement-viewGrid {
+    grid-template-columns: 1fr;
+  }
+}

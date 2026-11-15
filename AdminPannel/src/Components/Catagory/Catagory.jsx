@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   FiUploadCloud,
   FiEdit2,
@@ -9,9 +9,12 @@ import {
   FiX,
   FiLayers,
   FiSearch,
+  FiRefreshCw,
+  FiCheckCircle,
 } from "react-icons/fi";
-
 import "./Catagory.css";
+
+const CATEGORIES_API = "http://localhost:5000/api/categories";
 
 const Catagory = () => {
   const fileInputRef = useRef(null);
@@ -22,8 +25,38 @@ const Catagory = () => {
   const [categories, setCategories] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  // IMAGE UPLOAD
+  // Show Toast Helper
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  // FETCH ALL CATEGORIES FROM DATABASE
+  const loadCategories = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(CATEGORIES_API);
+      const result = await res.json();
+      if (res.ok && result.success && Array.isArray(result.data)) {
+        setCategories(result.data);
+      }
+    } catch (err) {
+      console.error("Error loading categories from database:", err);
+      showToast("Could not connect to database. Make sure backend is running.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  // IMAGE UPLOAD (Converts to Base64 data URL for persistent database storage)
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
 
@@ -39,8 +72,12 @@ const Catagory = () => {
       return;
     }
 
-    setCategoryImage(file);
-    setPreviewImage(URL.createObjectURL(file));
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreviewImage(reader.result);
+      setCategoryImage(reader.result);
+    };
+    reader.readAsDataURL(file);
   };
 
   // RESET FORM
@@ -55,51 +92,75 @@ const Catagory = () => {
     }
   };
 
-  // SUBMIT FORM
-  const handleSubmit = (e) => {
+  // SUBMIT FORM (CREATE OR UPDATE IN DATABASE)
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!categoryName.trim()) {
-      alert("Please enter category name.");
+      showToast("Please enter category name.");
       return;
     }
 
-    if (!editingId && !categoryImage) {
-      alert("Please upload category image.");
+    if (!editingId && !previewImage) {
+      showToast("Please upload category image.");
       return;
     }
 
-    if (editingId) {
-      setCategories((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-                ...item,
-                name: categoryName.trim(),
-                image: previewImage || item.image,
-              }
-            : item
-        )
-      );
-    } else {
-      const newCategory = {
-        id: Date.now(),
-        name: categoryName.trim(),
-        image: previewImage,
-      };
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        const res = await fetch(`${CATEGORIES_API}/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: categoryName.trim(),
+            image: previewImage || "",
+          }),
+        });
 
-      setCategories((prev) => [newCategory, ...prev]);
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Failed to update category.");
+        }
+
+        showToast(`Category "${categoryName.trim()}" updated successfully in database!`);
+      } else {
+        const res = await fetch(CATEGORIES_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: categoryName.trim(),
+            image: previewImage || "",
+            status: "Active",
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Failed to create category.");
+        }
+
+        showToast(`Category "${categoryName.trim()}" saved to database successfully!`);
+      }
+
+      resetForm();
+      await loadCategories();
+      // Notify other parts of the admin panel (like Blog Posting category selector)
+      window.dispatchEvent(new Event("blog_categories_updated"));
+    } catch (err) {
+      console.error("Submit error:", err);
+      showToast(err.message || "Could not save category.");
+    } finally {
+      setSubmitting(false);
     }
-
-    resetForm();
   };
 
   // EDIT CATEGORY
   const handleEdit = (item) => {
-    setEditingId(item.id);
-    setCategoryName(item.name);
-    setPreviewImage(item.image);
-    setCategoryImage(null);
+    setEditingId(item._id || item.id);
+    setCategoryName(item.name || "");
+    setPreviewImage(item.image || "");
+    setCategoryImage(item.image || null);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -111,30 +172,51 @@ const Catagory = () => {
     });
   };
 
-  // DELETE CATEGORY
-  const handleDelete = (id) => {
+  // DELETE CATEGORY FROM DATABASE
+  const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this category?"
+      "Are you sure you want to delete this category from database?"
     );
 
     if (!confirmDelete) return;
 
-    setCategories((prev) =>
-      prev.filter((item) => item.id !== id)
-    );
+    try {
+      const res = await fetch(`${CATEGORIES_API}/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete category.");
+      }
 
-    if (editingId === id) {
-      resetForm();
+      showToast("Category deleted successfully from database!");
+
+      if (editingId === id) {
+        resetForm();
+      }
+
+      await loadCategories();
+      window.dispatchEvent(new Event("blog_categories_updated"));
+    } catch (err) {
+      console.error("Delete error:", err);
+      showToast(err.message || "Could not delete category.");
     }
   };
 
-  // SEARCH
+  // SEARCH FILTER
   const filteredCategories = categories.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
+    (item.name || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="Catagory">
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <div className="Catagory-toast">
+          <FiCheckCircle size={18} />
+          <span>{toast}</span>
+        </div>
+      )}
 
       {/* PAGE HEADER */}
       <div className="Catagory-header">
@@ -146,20 +228,31 @@ const Catagory = () => {
           <div>
             <h2>Category Management</h2>
             <p>
-              Create and manage your equipment categories.
+              Create, edit, and manage categories integrated directly with your MongoDB database.
             </p>
           </div>
         </div>
 
-        <div className="Catagory-header-count">
-          <span>Total Categories</span>
-          <strong>{categories.length}</strong>
+        <div className="Catagory-header-actions">
+          <button
+            type="button"
+            className="Catagory-sync-btn"
+            onClick={loadCategories}
+            title="Sync categories with database"
+          >
+            <FiRefreshCw className={loading ? "spin" : ""} />
+            <span>Sync</span>
+          </button>
+
+          <div className="Catagory-header-count">
+            <span>Total Categories</span>
+            <strong>{categories.length}</strong>
+          </div>
         </div>
       </div>
 
       {/* MAIN CONTENT */}
       <div className="Catagory-layout">
-
         {/* LEFT SIDE - FORM */}
         <div className="Catagory-form-section">
           <div className="Catagory-section-heading">
@@ -168,13 +261,15 @@ const Catagory = () => {
                 {editingId ? "Edit Category" : "Add New Category"}
               </h3>
               <p>
-                Enter category details below.
+                {editingId
+                  ? "Update category details and save to database."
+                  : "Enter category details to save into MongoDB."}
               </p>
             </div>
 
             {editingId && (
               <span className="Catagory-edit-badge">
-                Editing
+                Editing Mode
               </span>
             )}
           </div>
@@ -183,7 +278,6 @@ const Catagory = () => {
             className="Catagory-form"
             onSubmit={handleSubmit}
           >
-
             {/* IMAGE UPLOAD */}
             <div className="Catagory-field">
               <label className="Catagory-label">
@@ -260,8 +354,13 @@ const Catagory = () => {
               <button
                 type="submit"
                 className="Catagory-submit-btn"
+                disabled={submitting}
               >
-                {editingId ? (
+                {submitting ? (
+                  <>
+                    <FiRefreshCw className="spin" /> Saving...
+                  </>
+                ) : editingId ? (
                   <>
                     <FiEdit2 />
                     Update Category
@@ -279,6 +378,7 @@ const Catagory = () => {
                   type="button"
                   className="Catagory-cancel-btn"
                   onClick={resetForm}
+                  disabled={submitting}
                 >
                   <FiX />
                   Cancel
@@ -290,12 +390,11 @@ const Catagory = () => {
 
         {/* RIGHT SIDE - TABLE */}
         <div className="Catagory-table-section">
-
           <div className="Catagory-table-header">
             <div>
-              <h3>All Categories</h3>
+              <h3>All Database Categories</h3>
               <p>
-                Manage your existing categories.
+                Manage your live categories in MongoDB.
               </p>
             </div>
 
@@ -329,19 +428,35 @@ const Catagory = () => {
               </thead>
 
               <tbody>
-                {filteredCategories.length > 0 ? (
+                {loading && categories.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="Catagory-empty-cell">
+                      <div className="Catagory-empty-state">
+                        <FiRefreshCw className="spin" size={24} style={{ color: "#389b16" }} />
+                        <h4>Loading Database Categories...</h4>
+                        <p>Fetching records from MongoDB.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredCategories.length > 0 ? (
                   filteredCategories.map((item, index) => (
-                    <tr key={item.id}>
+                    <tr key={item._id || item.id}>
                       <td className="Catagory-serial">
                         {String(index + 1).padStart(2, "0")}
                       </td>
 
                       <td>
                         <div className="Catagory-table-image">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                          />
+                          {item.image ? (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                            />
+                          ) : (
+                            <div className="Catagory-placeholder-img">
+                              <FiImage size={18} />
+                            </div>
+                          )}
                         </div>
                       </td>
 
@@ -367,7 +482,7 @@ const Catagory = () => {
                             className="Catagory-delete-btn"
                             title="Delete Category"
                             onClick={() =>
-                              handleDelete(item.id)
+                              handleDelete(item._id || item.id)
                             }
                           >
                             <FiTrash2 />
@@ -388,7 +503,7 @@ const Catagory = () => {
                         <p>
                           {search
                             ? "Try searching with another category name."
-                            : "Add your first category using the form."}
+                            : "Add your first category using the form to save into database."}
                         </p>
                       </div>
                     </td>

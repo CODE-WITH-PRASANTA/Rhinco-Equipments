@@ -1,191 +1,188 @@
-
-import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import "./MainProduct.css";
+import {
+  getCart,
+  addToCart,
+  updateCartQuantity,
+  getCartItemQuantity,
+  getWishlist,
+  toggleWishlist,
+  isInWishlist,
+} from "../../utils/cartWishlist";
 
-const productData = [
-  {
-    id: 1,
-    name: "Professional Cordless Drill",
-    category: "Power Tools",
-    price: 3499,
-    oldPrice: 4299,
-    rating: 4.8,
-    reviews: 124,
-    badge: "Best Seller",
-    image:
-      "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=700&q=85",
-  },
-  {
-    id: 2,
-    name: "Agriculture Safety Helmet",
-    category: "Safety Equipment",
-    price: 899,
-    oldPrice: 1199,
-    rating: 4.6,
-    reviews: 86,
-    badge: "Popular",
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=700&q=85",
-  },
-  {
-    id: 3,
-    name: "Electric Cutting Machine",
-    category: "Power Tools",
-    price: 2899,
-    oldPrice: 3499,
-    rating: 4.7,
-    reviews: 93,
-    badge: "Trending",
-    image:
-      "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=700&q=85",
-  },
-  {
-    id: 4,
-    name: "Electric Garden Trimmer",
-    category: "Garden Tools",
-    price: 2499,
-    oldPrice: 2999,
-    rating: 4.5,
-    reviews: 67,
-    badge: "",
-    image:
-      "https://images.unsplash.com/photo-1599685315640-6ec5f1f2f6d7?w=700&q=85",
-  },
-  {
-    id: 5,
-    name: "Digital Soil Moisture Meter",
-    category: "Farm Accessories",
-    price: 1299,
-    oldPrice: 1599,
-    rating: 4.9,
-    reviews: 145,
-    badge: "Top Rated",
-    image:
-      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=700&q=85",
-  },
-  {
-    id: 6,
-    name: "Heavy Duty Cordless Drill",
-    category: "Power Tools",
-    price: 4599,
-    oldPrice: 5299,
-    rating: 4.7,
-    reviews: 102,
-    badge: "",
-    image:
-      "https://images.unsplash.com/photo-1581147036324-c1c9b4f6a7b4?w=700&q=85",
-  },
-  {
-    id: 7,
-    name: "Professional Gardening Gloves",
-    category: "Safety Equipment",
-    price: 499,
-    oldPrice: 699,
-    rating: 4.4,
-    reviews: 58,
-    badge: "Value Deal",
-    image:
-      "https://images.unsplash.com/photo-1457140072488-2a8e5f8e7b8f?w=700&q=85",
-  },
-  {
-    id: 8,
-    name: "Garden Water Sprayer",
-    category: "Irrigation",
-    price: 799,
-    oldPrice: 999,
-    rating: 4.6,
-    reviews: 75,
-    badge: "",
-    image:
-      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=700&q=85",
-  },
-  {
-    id: 9,
-    name: "Heavy Duty Hand Tool Kit",
-    category: "Hand Tools",
-    price: 1899,
-    oldPrice: 2299,
-    rating: 4.8,
-    reviews: 112,
-    badge: "Best Seller",
-    image:
-      "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=700&q=85",
-  },
-];
+const PRODUCTS_API = "http://localhost:5000/api/products";
 
-const categories = [
-  { name: "All Products", count: 67 },
-  { name: "Power Tools", count: 15 },
-  { name: "Garden Tools", count: 12 },
-  { name: "Safety Equipment", count: 9 },
-  { name: "Farm Accessories", count: 11 },
-  { name: "Irrigation", count: 8 },
-  { name: "Hand Tools", count: 12 },
-];
+const getProductId = (product) => product?._id || product?.id;
 
 const formatPrice = (price) =>
-  `₹${Number(price).toLocaleString("en-IN")}`;
+  `₹${Number(price || 0).toLocaleString("en-IN")}`;
 
 const MainProduct = () => {
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All Products");
   const [search, setSearch] = useState("");
   const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(6000);
+  const [maxPrice, setMaxPrice] = useState(1000000);
   const [appliedMin, setAppliedMin] = useState(0);
-  const [appliedMax, setAppliedMax] = useState(6000);
+  const [appliedMax, setAppliedMax] = useState(1000000);
   const [sortBy, setSortBy] = useState("featured");
-  const [wishlist, setWishlist] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [wishlist, setWishlist] = useState(getWishlist);
+  const [cart, setCart] = useState(getCart);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    const q = searchParams.get("search");
+    if (cat) {
+      setActiveCategory(cat);
+    }
+    if (q) {
+      setSearch(q);
+    }
+  }, [searchParams]);
+
+  // Sync cart & wishlist across tabs and components
+  useEffect(() => {
+    const syncCartWishlist = () => {
+      setCart(getCart());
+      setWishlist(getWishlist());
+    };
+
+    window.addEventListener("rhinco_cart_updated", syncCartWishlist);
+    window.addEventListener("rhinco_wishlist_updated", syncCartWishlist);
+    window.addEventListener("storage", syncCartWishlist);
+
+    return () => {
+      window.removeEventListener("rhinco_cart_updated", syncCartWishlist);
+      window.removeEventListener("rhinco_wishlist_updated", syncCartWishlist);
+      window.removeEventListener("storage", syncCartWishlist);
+    };
+  }, []);
+
+  // FETCH REAL PRODUCTS FROM DATABASE
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(PRODUCTS_API);
+      const result = await res.json();
+      if (res.ok && result.success && Array.isArray(result.data)) {
+        setAllProducts(result.data);
+
+        // Adjust default max price slider to fit actual products
+        if (result.data.length > 0) {
+          const highest = Math.max(
+            ...result.data.map((p) => Number(p.finalPrice || p.price || 0))
+          );
+          const roundedMax = Math.max(10000, Math.ceil(highest / 5000) * 5000);
+          setMaxPrice(roundedMax);
+          setAppliedMax(roundedMax);
+        }
+      }
+    } catch (err) {
+      console.error("Could not fetch real products from backend:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  // DYNAMIC CATEGORIES EXTRACTED FROM REAL PRODUCTS
+  const categories = useMemo(() => {
+    const categoryCountMap = {};
+
+    allProducts.forEach((product) => {
+      const cat = product.category || "General";
+      categoryCountMap[cat] = (categoryCountMap[cat] || 0) + 1;
+    });
+
+    const categoryList = Object.entries(categoryCountMap).map(
+      ([name, count]) => ({
+        name,
+        count,
+      })
+    );
+
+    return [
+      { name: "All Products", count: allProducts.length },
+      ...categoryList,
+    ];
+  }, [allProducts]);
+
+  // HIGHEST PRICE IN CURRENT DATA
+  const sliderMax = useMemo(() => {
+    if (!allProducts.length) return 500000;
+    const highest = Math.max(
+      ...allProducts.map((p) => Number(p.finalPrice || p.price || 0))
+    );
+    return Math.max(10000, Math.ceil(highest / 5000) * 5000);
+  }, [allProducts]);
+
+  // FILTERED & SORTED PRODUCTS
   const filteredProducts = useMemo(() => {
-    let products = [...productData];
+    let list = [...allProducts];
 
     if (activeCategory !== "All Products") {
-      products = products.filter(
-        (product) => product.category === activeCategory
+      list = list.filter(
+        (product) =>
+          (product.category || "").toLowerCase() === activeCategory.toLowerCase()
       );
     }
 
     if (search.trim()) {
       const searchTerm = search.toLowerCase().trim();
-
-      products = products.filter(
+      list = list.filter(
         (product) =>
-          product.name.toLowerCase().includes(searchTerm) ||
-          product.category.toLowerCase().includes(searchTerm)
+          (product.title || product.name || "").toLowerCase().includes(searchTerm) ||
+          (product.category || "").toLowerCase().includes(searchTerm) ||
+          (product.companyName || "").toLowerCase().includes(searchTerm) ||
+          (product.description || "").toLowerCase().includes(searchTerm)
       );
     }
 
-    products = products.filter(
-      (product) =>
-        product.price >= appliedMin && product.price <= appliedMax
-    );
+    list = list.filter((product) => {
+      const p = Number(product.finalPrice || product.price || 0);
+      return p >= appliedMin && p <= appliedMax;
+    });
 
     if (sortBy === "price-low") {
-      products.sort((a, b) => a.price - b.price);
+      list.sort((a, b) => (a.finalPrice || a.price) - (b.finalPrice || b.price));
     } else if (sortBy === "price-high") {
-      products.sort((a, b) => b.price - a.price);
+      list.sort((a, b) => (b.finalPrice || b.price) - (a.finalPrice || a.price));
     } else if (sortBy === "rating") {
-      products.sort((a, b) => b.rating - a.rating);
+      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     } else if (sortBy === "name") {
-      products.sort((a, b) => a.name.localeCompare(b.name));
+      list.sort((a, b) =>
+        (a.title || a.name || "").localeCompare(b.title || b.name || "")
+      );
+    } else {
+      // "featured": bestSeller first, then newest
+      list.sort((a, b) => {
+        if (a.bestSeller && !b.bestSeller) return -1;
+        if (!a.bestSeller && b.bestSeller) return 1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
     }
 
-    return products;
-  }, [activeCategory, search, appliedMin, appliedMax, sortBy]);
+    return list;
+  }, [allProducts, activeCategory, search, appliedMin, appliedMax, sortBy]);
 
-  const toggleWishlist = (id) => {
-    setWishlist((previous) =>
-      previous.includes(id)
-        ? previous.filter((item) => item !== id)
-        : [...previous, id]
-    );
+  const handleToggleWishlist = (product) => {
+    toggleWishlist(product);
   };
 
-  const addToCart = (id) => {
-    setCart((previous) => [...previous, id]);
+  const handleAddToCart = (product) => {
+    addToCart(product, 1);
+  };
+
+  const handleUpdateQty = (pId, delta) => {
+    updateCartQuantity(pId, delta);
   };
 
   const applyPriceFilter = () => {
@@ -197,9 +194,9 @@ const MainProduct = () => {
     setActiveCategory("All Products");
     setSearch("");
     setMinPrice(0);
-    setMaxPrice(6000);
+    setMaxPrice(sliderMax);
     setAppliedMin(0);
-    setAppliedMax(6000);
+    setAppliedMax(sliderMax);
     setSortBy("featured");
   };
 
@@ -209,7 +206,6 @@ const MainProduct = () => {
     <section className="MainProduct">
       <div className="MainProduct-container">
         {/* Mobile filter button */}
-
         <div className="MainProduct-mobile-toolbar">
           <button
             type="button"
@@ -231,7 +227,6 @@ const MainProduct = () => {
         </div>
 
         {/* Sidebar */}
-
         <aside
           className={`MainProduct-sidebar ${
             mobileFiltersOpen ? "MainProduct-sidebar-open" : ""
@@ -249,7 +244,6 @@ const MainProduct = () => {
           </div>
 
           {/* Search */}
-
           <div className="MainProduct-sidebar-search">
             <svg viewBox="0 0 24 24" fill="none">
               <circle
@@ -260,23 +254,22 @@ const MainProduct = () => {
                 strokeWidth="1.8"
               />
               <path
-                d="m16 16 4 4"
+                d="M16.5 16.5L21 21"
                 stroke="currentColor"
                 strokeWidth="1.8"
                 strokeLinecap="round"
               />
             </svg>
-
             <input
-              type="search"
+              type="text"
               placeholder="Search products..."
               value={search}
               onChange={(event) => setSearch(event.target.value)}
+              aria-label="Search products"
             />
           </div>
 
           {/* Categories */}
-
           <div className="MainProduct-sidebar-section">
             <div className="MainProduct-sidebar-title">
               <h2>Categories</h2>
@@ -313,7 +306,6 @@ const MainProduct = () => {
           </div>
 
           {/* Price filter */}
-
           <div className="MainProduct-sidebar-section MainProduct-price-section">
             <div className="MainProduct-sidebar-title">
               <h2>Filter By Price</h2>
@@ -330,8 +322,8 @@ const MainProduct = () => {
                 <input
                   type="range"
                   min="0"
-                  max="6000"
-                  step="100"
+                  max={sliderMax}
+                  step={sliderMax > 100000 ? "5000" : "500"}
                   value={minPrice}
                   onChange={(event) =>
                     setMinPrice(
@@ -341,7 +333,7 @@ const MainProduct = () => {
                   aria-label="Minimum price"
                   style={{
                     "--MainProduct-range-progress": `${
-                      (minPrice / 6000) * 100
+                      (minPrice / sliderMax) * 100
                     }%`,
                   }}
                 />
@@ -349,8 +341,8 @@ const MainProduct = () => {
                 <input
                   type="range"
                   min="0"
-                  max="6000"
-                  step="100"
+                  max={sliderMax}
+                  step={sliderMax > 100000 ? "5000" : "500"}
                   value={maxPrice}
                   onChange={(event) =>
                     setMaxPrice(
@@ -395,7 +387,6 @@ const MainProduct = () => {
         </aside>
 
         {/* Overlay for mobile filters */}
-
         {mobileFiltersOpen && (
           <button
             type="button"
@@ -406,14 +397,13 @@ const MainProduct = () => {
         )}
 
         {/* Main product content */}
-
         <main className="MainProduct-content">
           <div className="MainProduct-topbar">
             <div className="MainProduct-topbar-left">
-              <span className="MainProduct-eyebrow">FARMTECH AGRO STORE</span>
+              <span className="MainProduct-eyebrow">RHINCO EQUIPMENTS STORE</span>
               <h1>Explore Our Products</h1>
               <p>
-                Quality tools and equipment for smarter farming.
+                Quality agricultural machinery and equipment direct from our live inventory.
               </p>
             </div>
 
@@ -424,7 +414,7 @@ const MainProduct = () => {
                 value={sortBy}
                 onChange={(event) => setSortBy(event.target.value)}
               >
-                <option value="featured">Featured</option>
+                <option value="featured">Featured (Best Sellers)</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
                 <option value="rating">Top Rated</option>
@@ -434,7 +424,6 @@ const MainProduct = () => {
           </div>
 
           {/* Active category */}
-
           <div className="MainProduct-results-bar">
             <div>
               <h2>
@@ -459,104 +448,147 @@ const MainProduct = () => {
           </div>
 
           {/* Product cards */}
-
           <div className="MainProduct-grid">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <article className="MainProduct-card" key={product.id}>
-                  <div className="MainProduct-card-image">
-                    {product.badge && (
-                      <span className="MainProduct-product-badge">
-                        {product.badge}
-                      </span>
-                    )}
+            {loading ? (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 20px" }}>
+                <div style={{ fontSize: "28px", marginBottom: "12px" }}>↻</div>
+                <h3 style={{ fontSize: "18px", color: "#1c2c20" }}>Loading Store Products...</h3>
+                <p style={{ color: "#64748b", fontSize: "14px" }}>Fetching live inventory from database.</p>
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => {
+                const pId = getProductId(product);
+                const cartQty = getCartItemQuantity(pId);
+                const inWishlist = isInWishlist(pId);
+                const displayImg =
+                  product.images && product.images.length > 0
+                    ? typeof product.images[0] === "string"
+                      ? product.images[0]
+                      : product.images[0].preview || product.images[0].url
+                    : product.image || "https://placehold.co/700x500?text=Product";
 
-                    <button
-                      type="button"
-                      className={`MainProduct-wishlist ${
-                        wishlist.includes(product.id)
-                          ? "MainProduct-wishlist-active"
-                          : ""
-                      }`}
-                      onClick={() => toggleWishlist(product.id)}
-                      aria-label={
-                        wishlist.includes(product.id)
-                          ? "Remove from wishlist"
-                          : "Add to wishlist"
-                      }
-                    >
-                      {wishlist.includes(product.id) ? "♥" : "♡"}
-                    </button>
+                const regularPrice = Number(product.price || product.oldPrice || 0);
+                const salesPrice = Number(product.finalPrice || product.price || 0);
+                const discountPct =
+                  product.discount ||
+                  (regularPrice > salesPrice
+                    ? Math.round(((regularPrice - salesPrice) / regularPrice) * 100)
+                    : 0);
 
-                    <Link
-                      to={`/product/${product.id}`}
-                      className="MainProduct-image-link"
-                    >
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        loading="lazy"
-                        className="MainProduct-image"
-                      />
-                    </Link>
-                  </div>
+                return (
+                  <article className="MainProduct-card" key={pId}>
+                    <div className="MainProduct-card-image">
+                      {(product.badge || product.bestSeller) && (
+                        <span className="MainProduct-product-badge">
+                          {product.badge || "Best Seller"}
+                        </span>
+                      )}
 
-                  <div className="MainProduct-card-content">
-                    <span className="MainProduct-product-category">
-                      {product.category}
-                    </span>
+                      <button
+                        type="button"
+                        className={`MainProduct-wishlist ${
+                          inWishlist ? "MainProduct-wishlist-active" : ""
+                        }`}
+                        onClick={() => handleToggleWishlist(product)}
+                        aria-label={
+                          inWishlist
+                            ? "Remove from wishlist"
+                            : "Add to wishlist"
+                        }
+                      >
+                        {inWishlist ? "♥" : "♡"}
+                      </button>
 
-                    <Link
-                      to={`/product/${product.id}`}
-                      className="MainProduct-product-name"
-                    >
-                      {product.name}
-                    </Link>
-
-                    <div className="MainProduct-rating-row">
-                      <span className="MainProduct-stars">
-                        {"★".repeat(Math.floor(product.rating))}
-                        {"☆".repeat(5 - Math.floor(product.rating))}
-                      </span>
-                      <span className="MainProduct-rating-value">
-                        {product.rating}
-                      </span>
-                      <span className="MainProduct-review-count">
-                        ({product.reviews})
-                      </span>
+                      <Link
+                        to={`/product/${encodeURIComponent(product.title || product.name)}`}
+                        className="MainProduct-image-link"
+                      >
+                        <img
+                          src={displayImg}
+                          alt={product.title || product.name}
+                          loading="lazy"
+                          className="MainProduct-image"
+                          onError={(e) => {
+                            e.currentTarget.src =
+                              "https://placehold.co/700x500?text=Product";
+                          }}
+                        />
+                      </Link>
                     </div>
 
-                    <div className="MainProduct-price-row">
-                      <div className="MainProduct-product-prices">
-                        <strong>{formatPrice(product.price)}</strong>
-                        <del>{formatPrice(product.oldPrice)}</del>
+                    <div className="MainProduct-card-content">
+                      <span className="MainProduct-product-category">
+                        {product.category}
+                      </span>
+
+                      <Link
+                        to={`/product/${encodeURIComponent(product.title || product.name)}`}
+                        className="MainProduct-product-name"
+                      >
+                        {product.title || product.name}
+                      </Link>
+
+                      <div className="MainProduct-rating-row">
+                        <span className="MainProduct-stars">
+                          {"★".repeat(Math.floor(product.rating || 5))}
+                          {"☆".repeat(5 - Math.floor(product.rating || 5))}
+                        </span>
+                        <span className="MainProduct-rating-value">
+                          {product.rating || 4.8}
+                        </span>
+                        <span className="MainProduct-review-count">
+                          ({product.reviews || 12})
+                        </span>
                       </div>
 
-                      <span className="MainProduct-discount">
-                        {Math.round(
-                          ((product.oldPrice - product.price) /
-                            product.oldPrice) *
-                            100
-                        )}
-                        % OFF
-                      </span>
-                    </div>
+                      <div className="MainProduct-price-row">
+                        <div className="MainProduct-product-prices">
+                          <strong>{formatPrice(salesPrice)}</strong>
+                          {regularPrice > salesPrice && (
+                            <del>{formatPrice(regularPrice)}</del>
+                          )}
+                        </div>
 
-                    <button
-                      type="button"
-                      className={`MainProduct-add-cart ${
-                        cart.includes(product.id)
-                          ? "MainProduct-added-cart"
-                          : ""
-                      }`}
-                      onClick={() => addToCart(product.id)}
-                    >
-                      {cart.includes(product.id) ? (
-                        <>
-                          <span>✓</span> Added to Cart
-                        </>
+                        {discountPct > 0 && (
+                          <span className="MainProduct-discount">
+                            {discountPct}% OFF
+                          </span>
+                        )}
+                      </div>
+
+                      {cartQty > 0 ? (
+                        <div
+                          className="MainProduct-qty-control"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            type="button"
+                            className="MainProduct-qty-btn MainProduct-qty-minus"
+                            onClick={() => handleUpdateQty(pId, -1)}
+                            title="Decrease quantity"
+                            aria-label="Decrease quantity"
+                          >
+                            −
+                          </button>
+                          <span className="MainProduct-qty-number">
+                            <span>✓</span> {cartQty} in Cart
+                          </span>
+                          <button
+                            type="button"
+                            className="MainProduct-qty-btn MainProduct-qty-plus"
+                            onClick={() => handleUpdateQty(pId, 1)}
+                            title="Increase quantity"
+                            aria-label="Increase quantity"
+                          >
+                            +
+                          </button>
+                        </div>
                       ) : (
-                        <>
+                        <button
+                          type="button"
+                          className="MainProduct-add-cart"
+                          onClick={() => handleAddToCart(product)}
+                        >
                           <svg viewBox="0 0 24 24" fill="none">
                             <path
                               d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"
@@ -569,18 +601,18 @@ const MainProduct = () => {
                             <circle cx="18" cy="20" r="1.3" fill="currentColor" />
                           </svg>
                           Add to Cart
-                        </>
+                        </button>
                       )}
-                    </button>
-                  </div>
-                </article>
-              ))
+                    </div>
+                  </article>
+                );
+              })
             ) : (
               <div className="MainProduct-empty">
                 <div className="MainProduct-empty-icon">⌕</div>
                 <h3>No products found</h3>
                 <p>
-                  Try changing your search or adjusting the selected filters.
+                  No products found in this category. Add products in the Admin Panel to display them here.
                 </p>
                 <button type="button" onClick={clearFilters}>
                   View All Products
@@ -591,7 +623,7 @@ const MainProduct = () => {
 
           <div className="MainProduct-bottom-note">
             <span>✓</span>
-            Quality products • Trusted service • Reliable delivery
+            Genuine Agricultural Machinery • Direct from Rhinco Equipments • Guaranteed Quality
           </div>
         </main>
       </div>

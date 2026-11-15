@@ -23,153 +23,17 @@ import {
   FiBox,
   FiTag,
   FiStar,
+  FiRotateCcw,
 } from "react-icons/fi";
 import "./ManageProduct.css";
 
-const STORAGE_KEY = "rhino_equipment_products";
+const PRODUCTS_API = "http://localhost:5000/api/products";
 
-const categories = [
-  "Excavators",
-  "Loaders",
-  "Cranes",
-  "Road Construction",
-  "Material Handling",
-  "Generators",
-  "Industrial Equipment",
-  "Other",
-];
-
-const initialProducts = [
-  {
-    id: 1001,
-    code: "RHE-0001",
-    title: "Hydraulic Crawler Excavator",
-    category: "Excavators",
-    companyName: "Rhino Heavy Machinery",
-    description:
-      "Heavy-duty hydraulic crawler excavator designed for demanding construction, earthmoving and mining operations. Built for reliable performance and productivity.",
-    price: 4850000,
-    discount: 8,
-    finalPrice: 4462000,
-    stockQuantity: 12,
-    bestSeller: true,
-    images: [
-      "https://images.unsplash.com/photo-1580901368919-7738efb0f87e?auto=format&fit=crop&w=1000&q=85",
-    ],
-    createdAt: "2026-10-28T10:00:00.000Z",
-  },
-  {
-    id: 1002,
-    code: "RHE-0002",
-    title: "Heavy Duty Wheel Loader",
-    category: "Loaders",
-    companyName: "Rhino Heavy Machinery",
-    description:
-      "Reliable wheel loader for material movement, loading and large-scale construction applications.",
-    price: 3250000,
-    discount: 5,
-    finalPrice: 3087500,
-    stockQuantity: 8,
-    bestSeller: true,
-    images: [
-      "https://images.unsplash.com/photo-1579412690850-bd41cd0af397?auto=format&fit=crop&w=1000&q=85",
-    ],
-    createdAt: "2026-10-25T10:00:00.000Z",
-  },
-  {
-    id: 1003,
-    code: "RHE-0003",
-    title: "Mobile Construction Crane",
-    category: "Cranes",
-    companyName: "Rhino Equipment India",
-    description:
-      "Powerful mobile crane designed for lifting, material handling and construction site operations.",
-    price: 6850000,
-    discount: 10,
-    finalPrice: 6165000,
-    stockQuantity: 5,
-    bestSeller: false,
-    images: [
-      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1000&q=85",
-    ],
-    createdAt: "2026-10-21T10:00:00.000Z",
-  },
-  {
-    id: 1004,
-    code: "RHE-0004",
-    title: "Industrial Diesel Generator",
-    category: "Generators",
-    companyName: "PowerTech Industries",
-    description:
-      "Industrial power generator designed to provide dependable backup power for commercial and industrial facilities.",
-    price: 780000,
-    discount: 0,
-    finalPrice: 780000,
-    stockQuantity: 18,
-    bestSeller: false,
-    images: [
-      "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1000&q=85",
-    ],
-    createdAt: "2026-10-18T10:00:00.000Z",
-  },
-  {
-    id: 1005,
-    code: "RHE-0005",
-    title: "Road Roller Compactor",
-    category: "Road Construction",
-    companyName: "Rhino Road Solutions",
-    description:
-      "Efficient road roller for soil compaction, asphalt finishing and road construction projects.",
-    price: 1950000,
-    discount: 7,
-    finalPrice: 1813500,
-    stockQuantity: 0,
-    bestSeller: true,
-    images: [
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=85",
-    ],
-    createdAt: "2026-10-15T10:00:00.000Z",
-  },
-  {
-    id: 1006,
-    code: "RHE-0006",
-    title: "Industrial Forklift",
-    category: "Material Handling",
-    companyName: "Rhino Equipment India",
-    description:
-      "Durable forklift for warehouse operations, industrial material movement and heavy-duty handling.",
-    price: 1250000,
-    discount: 4,
-    finalPrice: 1200000,
-    stockQuantity: 9,
-    bestSeller: false,
-    images: [
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1000&q=85",
-    ],
-    createdAt: "2026-10-12T10:00:00.000Z",
-  },
-];
-
-const getInitialProducts = () => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-
-    if (saved !== null) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) return parsed;
-    }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(initialProducts));
-    return initialProducts;
-  } catch (error) {
-    console.error("Unable to initialize products:", error);
-    return initialProducts;
-  }
-};
+const getProductId = (p) => p?._id || p?.id;
 
 const getProductImage = (product) => {
-  const images = product.images || product.otherImages || [];
-  const firstImage = images[0];
+  const images = product?.images || product?.otherImages || [];
+  const firstImage = images[0] || product?.image;
 
   if (!firstImage) return "";
 
@@ -201,7 +65,8 @@ const formatDate = (date) => {
 const ManageProduct = () => {
   const navigate = useNavigate();
 
-  const [products, setProducts] = useState(getInitialProducts);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
@@ -215,14 +80,43 @@ const ManageProduct = () => {
 
   const itemsPerPage = 6;
 
-  useEffect(() => {
+  // LOAD REAL PRODUCTS FROM DATABASE
+  const loadProducts = async () => {
+    setLoading(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-    } catch (error) {
-      console.error("Product storage error:", error);
-      setNotice("Browser storage is full. Reduce the size of product images.");
+      const res = await fetch(PRODUCTS_API);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        setProducts(data.data);
+      }
+    } catch (err) {
+      console.error("Error loading products from database:", err);
+      setNotice("Could not connect to database. Make sure backend is running.");
+    } finally {
+      setLoading(false);
     }
-  }, [products]);
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  // CLOSE DROPDOWN MENU WHEN CLICKING OUTSIDE
+  useEffect(() => {
+    if (!openMenu) return;
+
+    const handlePointerDown = (e) => {
+      if (e.target && e.target.closest && e.target.closest(".ManageProduct-cardMenu")) {
+        return;
+      }
+      setOpenMenu(null);
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [openMenu]);
 
   const availableCategories = useMemo(
     () => [
@@ -239,7 +133,7 @@ const ManageProduct = () => {
       .filter((product) => {
         const matchesSearch =
           !query ||
-          (product.title || "").toLowerCase().includes(query) ||
+          (product.title || product.name || "").toLowerCase().includes(query) ||
           (product.code || "").toLowerCase().includes(query) ||
           (product.category || "").toLowerCase().includes(query) ||
           (product.companyName || "").toLowerCase().includes(query);
@@ -264,15 +158,15 @@ const ManageProduct = () => {
         }
 
         if (sortBy === "title") {
-          return (a.title || "").localeCompare(b.title || "");
+          return (a.title || a.name || "").localeCompare(b.title || b.name || "");
         }
 
         if (sortBy === "priceLow") {
-          return Number(a.finalPrice) - Number(b.finalPrice);
+          return Number(a.finalPrice || a.price) - Number(b.finalPrice || b.price);
         }
 
         if (sortBy === "priceHigh") {
-          return Number(b.finalPrice) - Number(a.finalPrice);
+          return Number(b.finalPrice || b.price) - Number(a.finalPrice || a.price);
         }
 
         return new Date(b.createdAt) - new Date(a.createdAt);
@@ -293,8 +187,10 @@ const ManageProduct = () => {
   );
 
   const totalValue = products.reduce(
-    (sum, product) => sum + Number(product.finalPrice || 0) *
-      Number(product.stockQuantity || 0),
+    (sum, product) =>
+      sum +
+      Number(product.finalPrice || product.price || 0) *
+        Number(product.stockQuantity || 0),
     0
   );
 
@@ -333,14 +229,15 @@ const ManageProduct = () => {
 
   const handleCreate = () => {
     setOpenMenu(null);
-    navigate("/product/add-product");
+    navigate("/products/add");
   };
 
   const handleEdit = (product) => {
     setOpenMenu(null);
     setSelectedProduct(null);
 
-    navigate("/product/add-product", {
+    const prodId = getProductId(product);
+    navigate(prodId ? `/products/add?edit=${prodId}` : "/products/add", {
       state: {
         product,
         isEditing: true,
@@ -348,19 +245,34 @@ const ManageProduct = () => {
     });
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteId === null) return;
 
-    setProducts((previous) =>
-      previous.filter((product) => product.id !== deleteId)
-    );
+    try {
+      const res = await fetch(`${PRODUCTS_API}/${deleteId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete product.");
+      }
 
-    if (selectedProduct?.id === deleteId) {
-      setSelectedProduct(null);
+      showNotice("Product deleted successfully from database.");
+
+      if (
+        selectedProduct &&
+        getProductId(selectedProduct) === deleteId
+      ) {
+        setSelectedProduct(null);
+      }
+
+      await loadProducts();
+    } catch (err) {
+      console.error("Delete error:", err);
+      showNotice(err.message || "Could not delete product.");
+    } finally {
+      setDeleteId(null);
     }
-
-    setDeleteId(null);
-    showNotice("Product deleted successfully.");
   };
 
   const renderStock = (quantity) => {
@@ -380,53 +292,69 @@ const ManageProduct = () => {
     return <span className={className}>{label}</span>;
   };
 
-  const renderActions = (product) => (
-    <div className="ManageProduct-cardMenu">
-      <button
-        type="button"
-        className="ManageProduct-menuTrigger"
-        onClick={() =>
-          setOpenMenu(openMenu === product.id ? null : product.id)
-        }
-        aria-label={`Actions for ${product.title}`}
-        aria-expanded={openMenu === product.id}
-      >
-        <FiMoreVertical />
-      </button>
+  const renderActions = (product) => {
+    const pId = getProductId(product);
 
-      {openMenu === product.id && (
-        <div className="ManageProduct-menuDropdown">
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedProduct(product);
-              setOpenMenu(null);
-            }}
+    return (
+      <div className="ManageProduct-cardMenu" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="ManageProduct-menuTrigger"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenMenu(openMenu === pId ? null : pId);
+          }}
+          aria-label={`Actions for ${product.title || product.name}`}
+          aria-expanded={openMenu === pId}
+        >
+          <FiMoreVertical />
+        </button>
+
+        {openMenu === pId && (
+          <div
+            className="ManageProduct-menuDropdown"
+            onClick={(e) => e.stopPropagation()}
           >
-            <FiEye />
-            View details
-          </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedProduct(product);
+                setOpenMenu(null);
+              }}
+            >
+              <FiEye />
+              View details
+            </button>
 
-          <button type="button" onClick={() => handleEdit(product)}>
-            <FiEdit2 />
-            Edit product
-          </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(product);
+              }}
+            >
+              <FiEdit2 />
+              Edit product
+            </button>
 
-          <button
-            type="button"
-            className="ManageProduct-menuDelete"
-            onClick={() => {
-              setDeleteId(product.id);
-              setOpenMenu(null);
-            }}
-          >
-            <FiTrash2 />
-            Delete product
-          </button>
-        </div>
-      )}
-    </div>
-  );
+            <button
+              type="button"
+              className="ManageProduct-menuDelete"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteId(pId);
+                setOpenMenu(null);
+              }}
+            >
+              <FiTrash2 />
+              Delete product
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="ManageProduct">
@@ -448,14 +376,25 @@ const ManageProduct = () => {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="ManageProduct-createButton"
-          onClick={handleCreate}
-        >
-          <FiPlus />
-          Add New Product
-        </button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <button
+            type="button"
+            className="ManageProduct-createButton"
+            style={{ background: "#ffffff", color: "#1c2c20", border: "1px solid #d0d7de" }}
+            onClick={loadProducts}
+            title="Refresh from MongoDB"
+          >
+            <FiRotateCcw className={loading ? "spin" : ""} /> Sync
+          </button>
+          <button
+            type="button"
+            className="ManageProduct-createButton"
+            onClick={handleCreate}
+          >
+            <FiPlus />
+            Add New Product
+          </button>
+        </div>
       </div>
 
       {/* NOTIFICATION */}
@@ -665,13 +604,18 @@ const ManageProduct = () => {
         {/* GRID VIEW */}
         {viewMode === "grid" && filteredProducts.length > 0 && (
           <div className="ManageProduct-grid">
-            {visibleProducts.map((product) => (
-              <article className="ManageProduct-card" key={product.id}>
+            {visibleProducts.map((product) => {
+              const pId = getProductId(product);
+              return (
+                <article
+                  className={`ManageProduct-card ${openMenu === pId ? "ManageProduct-card--activeMenu" : ""}`}
+                  key={pId}
+                >
                 <div className="ManageProduct-cardImage">
                   {getProductImage(product) ? (
                     <img
                       src={getProductImage(product)}
-                      alt={product.title}
+                      alt={product.title || product.name}
                       loading="lazy"
                       onError={(event) => {
                         event.currentTarget.style.display = "none";
@@ -684,7 +628,7 @@ const ManageProduct = () => {
                   )}
 
                   <span className="ManageProduct-productCode">
-                    {product.code || `RHE-${product.id}`}
+                    {product.code || `RHE-${String(getProductId(product)).slice(-4)}`}
                   </span>
 
                   {product.bestSeller && (
@@ -701,7 +645,7 @@ const ManageProduct = () => {
                     {product.category || "Uncategorized"}
                   </span>
 
-                  <h3>{product.title}</h3>
+                  <h3>{product.title || product.name}</h3>
 
                   <p className="ManageProduct-excerpt">
                     {getProductDescription(product) ||
@@ -715,9 +659,9 @@ const ManageProduct = () => {
 
                   <div className="ManageProduct-priceRow">
                     <div>
-                      <strong>{formatCurrency(product.finalPrice)}</strong>
+                      <strong>{formatCurrency(product.finalPrice || product.price)}</strong>
                       {Number(product.discount) > 0 && (
-                        <del>{formatCurrency(product.price)}</del>
+                        <del>{formatCurrency(product.price || product.oldPrice)}</del>
                       )}
                     </div>
 
@@ -743,7 +687,8 @@ const ManageProduct = () => {
                   </div>
                 </div>
               </article>
-            ))}
+            );
+          })}
           </div>
         )}
 
@@ -766,13 +711,13 @@ const ManageProduct = () => {
 
               <tbody>
                 {visibleProducts.map((product) => (
-                  <tr key={product.id}>
+                  <tr key={getProductId(product)}>
                     <td>
                       <div className="ManageProduct-listProduct">
                         {getProductImage(product) ? (
                           <img
                             src={getProductImage(product)}
-                            alt={product.title}
+                            alt={product.title || product.name}
                             loading="lazy"
                           />
                         ) : (
@@ -782,8 +727,8 @@ const ManageProduct = () => {
                         )}
 
                         <div>
-                          <strong>{product.title}</strong>
-                          <span>{product.code}</span>
+                          <strong>{product.title || product.name}</strong>
+                          <span>{product.code || `RHE-${String(getProductId(product)).slice(-4)}`}</span>
                           <small>{getProductDescription(product)}</small>
                         </div>
                       </div>
@@ -799,9 +744,9 @@ const ManageProduct = () => {
 
                     <td>
                       <div className="ManageProduct-listPrice">
-                        <strong>{formatCurrency(product.finalPrice)}</strong>
+                        <strong>{formatCurrency(product.finalPrice || product.price)}</strong>
                         {Number(product.discount) > 0 && (
-                          <del>{formatCurrency(product.price)}</del>
+                          <del>{formatCurrency(product.price || product.oldPrice)}</del>
                         )}
                       </div>
                     </td>
@@ -825,7 +770,7 @@ const ManageProduct = () => {
                         <button
                           type="button"
                           title="View product"
-                          aria-label={`View ${product.title}`}
+                          aria-label={`View ${product.title || product.name}`}
                           onClick={() => setSelectedProduct(product)}
                         >
                           <FiEye />
@@ -834,8 +779,11 @@ const ManageProduct = () => {
                         <button
                           type="button"
                           title="Edit product"
-                          aria-label={`Edit ${product.title}`}
-                          onClick={() => handleEdit(product)}
+                          aria-label={`Edit ${product.title || product.name}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(product);
+                          }}
                         >
                           <FiEdit2 />
                         </button>
@@ -843,9 +791,9 @@ const ManageProduct = () => {
                         <button
                           type="button"
                           title="Delete product"
-                          aria-label={`Delete ${product.title}`}
+                          aria-label={`Delete ${product.title || product.name}`}
                           className="ManageProduct-listDelete"
-                          onClick={() => setDeleteId(product.id)}
+                          onClick={() => setDeleteId(getProductId(product))}
                         >
                           <FiTrash2 />
                         </button>
@@ -1031,7 +979,10 @@ const ManageProduct = () => {
               <button
                 type="button"
                 className="ManageProduct-modalEdit"
-                onClick={() => handleEdit(selectedProduct)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleEdit(selectedProduct);
+                }}
               >
                 <FiEdit2 />
                 Edit Product
@@ -1085,16 +1036,6 @@ const ManageProduct = () => {
             </div>
           </section>
         </div>
-      )}
-
-      {/* CLOSE ACTION DROPDOWN */}
-      {openMenu !== null && (
-        <button
-          type="button"
-          className="ManageProduct-dismissMenu"
-          aria-label="Close actions menu"
-          onClick={() => setOpenMenu(null)}
-        />
       )}
     </div>
   );

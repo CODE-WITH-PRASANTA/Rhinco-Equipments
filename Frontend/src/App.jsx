@@ -21,6 +21,9 @@ import MachineryAndEquipment from "./Pages/MachineryAndEquipment/MachineryAndEqu
 import Cart from "./Pages/Cart/Cart";
 import Wishlist from "./Pages/Wishlist/Wishlist";
 import MachinaryEquipment from "./Pages/MachinaryEquipment/MachinaryEquipment";
+import Login from "./Pages/Login/Login";
+import Register from "./Pages/Register/Register";
+import Profile from "./Pages/Profile/Profile";
 
 const App = () => {
   return (
@@ -37,6 +40,18 @@ const App = () => {
               path="/machine-details"
               element={<MachineryDetails />}
             />
+            <Route
+              path="/machine-details/:name"
+              element={<MachineryDetails />}
+            />
+            <Route
+              path="/machinery/:name"
+              element={<MachineryDetails />}
+            />
+            <Route
+              path="/machinery-details/:name"
+              element={<MachineryDetails />}
+            />
 
             <Route
               path="/machine-catalogue"
@@ -46,7 +61,17 @@ const App = () => {
             <Route path="/products" element={<Product />} />
 
             <Route
+              path="/product/:name"
+              element={<ProductDetails />}
+            />
+
+            <Route
               path="/product-details"
+              element={<ProductDetails />}
+            />
+
+            <Route
+              path="/product-details/:name"
               element={<ProductDetails />}
             />
 
@@ -63,6 +88,14 @@ const App = () => {
               path="/blog-details"
               element={<BlogDetails />}
             />
+            <Route
+              path="/blog/:slug"
+              element={<BlogDetails />}
+            />
+            <Route
+              path="/blog-details/:slug"
+              element={<BlogDetails />}
+            />
 
             <Route path="/contact" element={<Contact />} />
 
@@ -74,13 +107,20 @@ const App = () => {
 
             <Route
               path="/machinery-details"
-              element={<MachineryAndEquipment />}
+              element={<MachineryDetails />}
             />
 
             <Route
               path="/machinery"
               element={<MachinaryEquipment />}
             />
+
+            <Route path="/login" element={<Login />} />
+            <Route path="/account" element={<Profile />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/signup" element={<Register />} />
+            <Route path="/create-user" element={<Register />} />
           </Routes>
         </main>
 

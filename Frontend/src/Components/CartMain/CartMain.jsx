@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ShoppingBag,
@@ -15,17 +14,73 @@ import {
   Check,
   Tag,
   RefreshCw,
+  MapPin,
+  Edit2,
+  CheckCircle2,
 } from "lucide-react";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./CartMain.css";
+import {
+  getCart,
+  saveCart,
+  getProductId as getHelperProductId,
+} from "../../utils/cartWishlist";
 
-const CART_STORAGE_KEY = "healthy_heaven_cart";
-const CHECKOUT_STORAGE_KEY = "healthy_heaven_checkout";
+const CART_STORAGE_KEY = "rhinco_cart";
+const CHECKOUT_STORAGE_KEY = "rhinco_checkout";
+const ADDRESS_STORAGE_KEY = "rhinco_delivery_address";
+const SAVED_ADDRESSES_KEY = "rhinco_saved_addresses";
+
+// Load saved addresses with fallback
+const loadSavedAddresses = () => {
+  try {
+    const raw = localStorage.getItem(SAVED_ADDRESSES_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+
+  let u = {};
+  try {
+    const userStr = localStorage.getItem("rhinco_user");
+    if (userStr) u = JSON.parse(userStr);
+  } catch (e) {}
+
+  const initial = [
+    {
+      id: "addr-1",
+      name: u.name || "Saroj Kumar",
+      phone: u.phone || "+91 98765 43210",
+      village: u.village || "Plot 42, Krushi Nagar, Near Farmtech Hub",
+      district: u.district || "Pune",
+      state: u.state || "Maharashtra",
+      pincode: u.pincode || "411001",
+      type: "Farm Delivery",
+      isDefault: true,
+    },
+    {
+      id: "addr-2",
+      name: u.name || "Saroj Kumar",
+      phone: u.phone || "+91 98765 43210",
+      village: "Warehouse #8, Agro Trade Center, Baramati Road",
+      district: "Pune",
+      state: "Maharashtra",
+      pincode: "413102",
+      type: "Warehouse",
+      isDefault: false,
+    },
+  ];
+  try {
+    localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(initial));
+  } catch (e) {}
+  return initial;
+};
 
 // Get product ID
 const getProductId = (item) => {
-  return String(item.productId || item.id || item._id || "");
+  return getHelperProductId(item);
 };
 
 // Format Indian currency
@@ -52,86 +107,149 @@ const getImageUrl = (image) => {
   return image.startsWith("/") ? image : `/${image}`;
 };
 
-// Read cart from localStorage
-const getStoredCart = () => {
-  try {
-    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-
-    if (!storedCart) return [];
-
-    const parsedCart = JSON.parse(storedCart);
-
-    if (!Array.isArray(parsedCart)) return [];
-
-    return parsedCart.map((item) => ({
-      ...item,
-      productId: getProductId(item),
-      price: Number(item.price) || 0,
-      quantity: Math.max(1, Number(item.quantity) || 1),
-      name: item.name || item.productName || "Product",
-    }));
-  } catch (error) {
-    console.error("Unable to read cart:", error);
-    return [];
-  }
+// Load Razorpay Checkout SDK dynamically
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 };
 
 const CartMain = () => {
   const navigate = useNavigate();
 
-  const [cartItems, setCartItems] = useState(getStoredCart);
-  const [selectedItems, setSelectedItems] = useState([]);
+  const [cartItems, setCartItems] = useState(getCart);
+
+  // SELECT ALL PRODUCTS IN CART BY DEFAULT
+  const [selectedItems, setSelectedItems] = useState(() => {
+    return getCart().map((item) => getProductId(item));
+  });
+
   const [coupon, setCoupon] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [couponDiscountPercent, setCouponDiscountPercent] = useState(0);
   const [couponMessage, setCouponMessage] = useState("");
   const [showClearModal, setShowClearModal] = useState(false);
   const [toast, setToast] = useState("");
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState(null);
 
-  // Save cart in localStorage
+  // DELIVERY ADDRESS STATE (Pre-fills from localStorage or currentUser)
+  const [deliveryAddress, setDeliveryAddress] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ADDRESS_STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+
+      const userStr = localStorage.getItem("rhinco_user");
+      if (userStr) {
+        const u = JSON.parse(userStr);
+        return {
+          name: u.name || "Saroj Kumar",
+          phone: u.phone || "+91 98765 43210",
+          village: u.village || "Plot 42, Krushi Nagar, Near Farmtech Hub",
+          district: u.district || "Pune",
+          state: u.state || "Maharashtra",
+          pincode: u.pincode || "411001",
+          type: "Farm Delivery",
+        };
+      }
+    } catch (e) {}
+
+    return {
+      name: "Saroj Kumar",
+      phone: "+91 98765 43210",
+      village: "Plot 42, Krushi Nagar, Near Farmtech Hub",
+      district: "Pune",
+      state: "Maharashtra",
+      pincode: "411001",
+      type: "Farm Delivery",
+    };
+  });
+
+  const [savedAddresses, setSavedAddresses] = useState(loadSavedAddresses);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [addressForm, setAddressForm] = useState(deliveryAddress);
+
+  // Sync saved addresses and current delivery address on focus or storage change
   useEffect(() => {
-    localStorage.setItem(
-      CART_STORAGE_KEY,
-      JSON.stringify(cartItems)
-    );
+    const syncAddresses = () => {
+      const list = loadSavedAddresses();
+      setSavedAddresses(list);
+      try {
+        const cur = localStorage.getItem(ADDRESS_STORAGE_KEY);
+        if (cur) setDeliveryAddress(JSON.parse(cur));
+      } catch (e) {}
+    };
+    window.addEventListener("focus", syncAddresses);
+    window.addEventListener("storage", syncAddresses);
+    return () => {
+      window.removeEventListener("focus", syncAddresses);
+      window.removeEventListener("storage", syncAddresses);
+    };
+  }, []);
+
+  // Handle selecting an address from the saved list
+  const handleSelectAddress = (addr) => {
+    setDeliveryAddress(addr);
+    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(addr));
+    setShowAddressModal(false);
+    showToast(`✓ Delivery address set: ${addr.name} (${addr.type || "Farm Delivery"})`);
+  };
+
+  // Redirect to Profile Address tab when "+ New Address" is clicked
+  const handleRedirectToNewAddress = () => {
+    setShowAddressModal(false);
+    localStorage.setItem("rhinco_return_to_cart", "true");
+    navigate("/profile?tab=address&action=new");
+  };
+
+  // Save cart in localStorage and notify other components
+  useEffect(() => {
+    saveCart(cartItems);
   }, [cartItems]);
 
-  // Select newly added products by default
+  // Keep all products selected by default whenever cart updates
   useEffect(() => {
     setSelectedItems((previous) => {
-      const existingIds = cartItems.map((item) =>
-        getProductId(item)
-      );
-
-      return previous.filter((id) => existingIds.includes(id));
+      const allIds = cartItems.map((item) => getProductId(item));
+      if (previous.length === 0 || previous.length === allIds.length) {
+        return allIds;
+      }
+      const existing = previous.filter((id) => allIds.includes(id));
+      return existing.length > 0 ? existing : allIds;
     });
   }, [cartItems]);
 
   // Listen for cart changes from other components
   useEffect(() => {
     const handleCartUpdate = () => {
-      setCartItems(getStoredCart());
+      const updated = getCart();
+      setCartItems(updated);
     };
 
-    const handleStorageUpdate = (event) => {
-      if (event.key === CART_STORAGE_KEY) {
-        setCartItems(getStoredCart());
-      }
-    };
-
+    window.addEventListener("rhinco_cart_updated", handleCartUpdate);
     window.addEventListener("cartUpdated", handleCartUpdate);
-    window.addEventListener("storage", handleStorageUpdate);
+    window.addEventListener("storage", handleCartUpdate);
 
     return () => {
+      window.removeEventListener("rhinco_cart_updated", handleCartUpdate);
       window.removeEventListener("cartUpdated", handleCartUpdate);
-      window.removeEventListener("storage", handleStorageUpdate);
+      window.removeEventListener("storage", handleCartUpdate);
     };
   }, []);
 
   // Toast notification
   const showToast = (message) => {
     setToast(message);
-
     window.clearTimeout(showToast.timer);
-
     showToast.timer = window.setTimeout(() => {
       setToast("");
     }, 2500);
@@ -148,9 +266,7 @@ const CartMain = () => {
     if (allSelected) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(
-        cartItems.map((item) => getProductId(item))
-      );
+      setSelectedItems(cartItems.map((item) => getProductId(item)));
     }
   };
 
@@ -168,7 +284,7 @@ const CartMain = () => {
     setCartItems((previous) =>
       previous.map((item) =>
         getProductId(item) === id
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: (item.quantity || 1) + 1 }
           : item
       )
     );
@@ -181,7 +297,7 @@ const CartMain = () => {
         getProductId(item) === id
           ? {
               ...item,
-              quantity: Math.max(1, item.quantity - 1),
+              quantity: Math.max(1, (item.quantity || 1) - 1),
             }
           : item
       )
@@ -190,32 +306,23 @@ const CartMain = () => {
 
   // Remove single product
   const removeItem = (id) => {
+    const target = cartItems.find((item) => getProductId(item) === id);
     setCartItems((previous) =>
-      previous.filter(
-        (item) => getProductId(item) !== id
-      )
+      previous.filter((item) => getProductId(item) !== id)
     );
-
     setSelectedItems((previous) =>
       previous.filter((itemId) => itemId !== id)
     );
-
-    showToast("Product removed from cart");
+    showToast(`${target?.name || "Product"} removed from cart`);
   };
 
   // Remove selected products
   const removeSelectedItems = () => {
-    if (selectedItems.length === 0) {
-      showToast("Please select products first");
-      return;
-    }
-
     setCartItems((previous) =>
       previous.filter(
         (item) => !selectedItems.includes(getProductId(item))
       )
     );
-
     setSelectedItems([]);
     showToast("Selected products removed");
   };
@@ -226,10 +333,10 @@ const CartMain = () => {
     setSelectedItems([]);
     setShowClearModal(false);
     setCoupon("");
+    setAppliedCoupon("");
+    setCouponDiscountPercent(0);
     setCouponMessage("");
-
     localStorage.removeItem(CHECKOUT_STORAGE_KEY);
-
     showToast("Your cart has been cleared");
   };
 
@@ -240,63 +347,249 @@ const CartMain = () => {
     );
   }, [cartItems, selectedItems]);
 
-  // Subtotal
+  // Subtotal calculation
   const subtotal = useMemo(() => {
     return selectedProducts.reduce(
-      (total, item) =>
-        total + item.price * item.quantity,
+      (total, item) => total + Number(item.price || 0) * Number(item.quantity || 1),
       0
     );
   }, [selectedProducts]);
 
-  // Total quantity
-  const totalQuantity = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  // Total quantity in whole cart
+  const totalQuantity = useMemo(() => {
+    return cartItems.reduce((total, item) => total + Number(item.quantity || 1), 0);
+  }, [cartItems]);
 
   // Selected quantity
-  const selectedQuantity = selectedProducts.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+  const selectedQuantity = useMemo(() => {
+    return selectedProducts.reduce(
+      (total, item) => total + Number(item.quantity || 1),
+      0
+    );
+  }, [selectedProducts]);
 
-  // Coupon demonstration
+  // Coupon discount calculation
+  const discountAmount = useMemo(() => {
+    if (!couponDiscountPercent || subtotal <= 0) return 0;
+    return Math.round((subtotal * couponDiscountPercent) / 100);
+  }, [subtotal, couponDiscountPercent]);
+
+  // Final calculated payable total
+  const finalTotal = useMemo(() => {
+    return Math.max(0, subtotal - discountAmount);
+  }, [subtotal, discountAmount]);
+
+  // Handle Apply Coupon
   const handleApplyCoupon = (event) => {
     event.preventDefault();
+    const code = coupon.trim().toUpperCase();
 
-    if (!coupon.trim()) {
+    if (!code) {
       setCouponMessage("Please enter a coupon code.");
       return;
     }
 
-    setCouponMessage(
-      "Coupon validation requires a configured coupon system."
-    );
+    if (code === "FARM10" || code === "RHINCO10") {
+      setAppliedCoupon(code);
+      setCouponDiscountPercent(10);
+      setCouponMessage("✓ 10% Farm Equipment Discount applied!");
+    } else if (code === "RHINCO5" || code === "KISAN") {
+      setAppliedCoupon(code);
+      setCouponDiscountPercent(5);
+      setCouponMessage("✓ 5% Kisan Subsidy Discount applied!");
+    } else {
+      // Default apply 5% discount for any promotional voucher
+      setAppliedCoupon(code);
+      setCouponDiscountPercent(5);
+      setCouponMessage(`✓ Coupon '${code}' applied! You saved 5%.`);
+    }
   };
 
-  // Checkout
-  const handleCheckout = () => {
-    if (selectedProducts.length === 0) {
-      showToast("Please select at least one product");
+  // Handle Address Save
+  const handleAddressSubmit = (e) => {
+    e.preventDefault();
+    setDeliveryAddress(addressForm);
+    localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(addressForm));
+    setShowAddressModal(false);
+    showToast("Delivery address updated successfully");
+  };
+
+  // Checkout / Order placement with Razorpay Payment Gateway
+  const handleCheckout = async () => {
+    // 1. If not logged in -> redirect to login page
+    const userStr = localStorage.getItem("rhinco_user");
+    let currentUser = null;
+    try {
+      if (userStr) currentUser = JSON.parse(userStr);
+    } catch (e) {}
+
+    if (!currentUser || !currentUser.email) {
+      showToast("Please sign in or create an account to proceed with checkout");
+      localStorage.setItem("rhinco_redirect_after_login", "/cart");
+      setTimeout(() => {
+        navigate("/login");
+      }, 700);
       return;
     }
 
-    localStorage.setItem(
-      CHECKOUT_STORAGE_KEY,
-      JSON.stringify(selectedProducts)
-    );
+    // 2. Validate selected products
+    if (selectedProducts.length === 0) {
+      showToast("Please select at least one product to checkout");
+      return;
+    }
 
-    navigate("/checkout");
+    // 3. Validate delivery address
+    if (!deliveryAddress || !deliveryAddress.name || !deliveryAddress.phone) {
+      showToast("Please select or add a delivery address");
+      setShowAddressModal(true);
+      return;
+    }
+
+    // 4. Initiate Razorpay payment
+    setPaymentLoading(true);
+
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      showToast("Could not load Razorpay payment gateway. Please check your internet connection.");
+      setPaymentLoading(false);
+      return;
+    }
+
+    try {
+      // Create order on backend
+      const res = await fetch("http://localhost:5000/api/orders/razorpay-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: finalTotal,
+          currency: "INR",
+          receipt: `rcpt_${Date.now()}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success || !data.order) {
+        throw new Error(data.message || "Failed to initialize Razorpay checkout");
+      }
+
+      const { order: rzpOrder, keyId } = data;
+
+      // Configure Razorpay checkout popup options
+      const options = {
+        key: keyId || "rzp_test_TppGgVggUkbJv4",
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency || "INR",
+        name: "Rhinco Agro Equipments",
+        description: `Order Payment for ${selectedProducts.length} Equipment Product(s)`,
+        image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=120&q=80",
+        order_id: rzpOrder.id,
+        handler: async function (response) {
+          try {
+            showToast("Payment authorized. Verifying transaction with server...");
+            setPaymentLoading(true);
+
+            // Verify payment signature on backend and save to MongoDB
+            const verifyRes = await fetch("http://localhost:5000/api/orders/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                items: selectedProducts,
+                deliveryAddress: deliveryAddress,
+                subtotal: subtotal,
+                discount: discountAmount,
+                coupon: appliedCoupon,
+                totalAmount: finalTotal,
+                user: currentUser,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok || !verifyData.success) {
+              throw new Error(verifyData.message || "Payment verification failed on server");
+            }
+
+            const confirmedOrder = verifyData.data;
+
+            // Remove only the purchased items from cart
+            const purchasedIds = selectedProducts.map((p) => getProductId(p));
+            const remainingCart = cartItems.filter(
+              (item) => !purchasedIds.includes(getProductId(item))
+            );
+            setCartItems(remainingCart);
+            saveCart(remainingCart);
+            setSelectedItems([]);
+
+            // Save order into user's rhinco_orders for profile view
+            try {
+              const existingOrders = JSON.parse(
+                localStorage.getItem("rhinco_orders") || "[]"
+              );
+              existingOrders.unshift(confirmedOrder);
+              localStorage.setItem("rhinco_orders", JSON.stringify(existingOrders));
+            } catch (e) {}
+
+            setPaymentLoading(false);
+            setPlacedOrder(confirmedOrder);
+            showToast(`✓ Payment Successful! Order #${confirmedOrder.orderId} placed.`);
+
+            // Redirect user to Profile orders page after a brief delay
+            setTimeout(() => {
+              navigate("/profile?tab=orders", {
+                state: { highlightOrderId: confirmedOrder.orderId },
+              });
+            }, 1800);
+          } catch (verifyErr) {
+            console.error("Verification error:", verifyErr);
+            showToast(verifyErr.message || "Payment verification failed");
+            setPaymentLoading(false);
+          }
+        },
+        prefill: {
+          name: currentUser.name || deliveryAddress.name,
+          email: currentUser.email || "",
+          contact: currentUser.phone || deliveryAddress.phone,
+        },
+        notes: {
+          deliveryAddress: `${deliveryAddress.village}, ${deliveryAddress.district}, ${deliveryAddress.state} - ${deliveryAddress.pincode}`,
+          customerType: currentUser.role || "Farmer",
+        },
+        theme: {
+          color: "#166534",
+        },
+        modal: {
+          ondismiss: function () {
+            setPaymentLoading(false);
+            showToast("Payment window closed. You can retry checkout anytime.");
+          },
+        },
+      };
+
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.on("payment.failed", function (response) {
+        setPaymentLoading(false);
+        showToast(
+          `Payment failed: ${response.error?.description || "Transaction declined"}`
+        );
+      });
+
+      razorpayInstance.open();
+    } catch (err) {
+      console.error("Razorpay initiation error:", err);
+      showToast(err.message || "Failed to initiate payment gateway");
+      setPaymentLoading(false);
+    }
   };
 
   // Continue shopping
   const handleContinueShopping = () => {
-    navigate("/shop");
+    navigate("/products");
   };
 
-  // Empty cart
-  if (cartItems.length === 0) {
+  // Empty cart view
+  if (cartItems.length === 0 && !orderSuccess) {
     return (
       <section className="cartMain">
         <div className="cartEmptyContainer">
@@ -307,17 +600,16 @@ const CartMain = () => {
           <h2>Your Cart is Empty</h2>
 
           <p>
-            Looks like you haven't added anything to your
-            cart yet. Explore our healthy collection and
-            find something you love.
+            Explore our agricultural machinery, tractor implements, and farm supplies.
           </p>
 
           <button
-            className="cartContinueBtn"
+            type="button"
+            className="cartEmptyButton"
             onClick={handleContinueShopping}
           >
-            <ArrowLeft size={18} />
-            Continue Shopping
+            <ShoppingCart size={18} />
+            Explore Products
           </button>
         </div>
       </section>
@@ -326,49 +618,95 @@ const CartMain = () => {
 
   return (
     <section className="cartMain">
+      {/* TOAST MESSAGE */}
+      {toast && (
+        <div className="cartToast" role="alert">
+          <Check size={18} />
+          <span>{toast}</span>
+        </div>
+      )}
 
-      {/* HEADER */}
+      {/* CART HEADER */}
       <div className="cartHeader">
         <div>
-          <span className="cartEyebrow">
-            YOUR SHOPPING BAG
-          </span>
-
+          <span className="cartEyebrow">FARMTECH SHOPPING</span>
           <h1>
-            Shopping <span>Cart</span>
+            Your <span>Shopping Cart</span>
           </h1>
-
           <p>
-            Review your selected products before checkout.
+            Review selected equipment, verify delivery address, and proceed to checkout.
           </p>
         </div>
 
         <div className="cartHeaderCount">
           <ShoppingBag size={20} />
-
-          <span>
-            {cartItems.length} Products
-          </span>
+          <span>{cartItems.length} Products</span>
         </div>
       </div>
 
       {/* CART CONTENT */}
       <div className="cartLayout">
 
-        {/* LEFT CONTENT */}
+        {/* LEFT COLUMN */}
         <div className="cartProductsSection">
+
+          {/* LEFT SIDE TOP: DELIVERY ADDRESS SECTION */}
+          <div className="cartAddressCard">
+            <div className="cartAddressHeader">
+              <div className="cartAddressTitleWrap">
+                <div className="cartAddressIconCircle">
+                  <MapPin size={19} />
+                </div>
+                <div>
+                  <h3 className="cartAddressTitle">Delivery Address</h3>
+                  <p className="cartAddressSubtitle">
+                    Equipment will be delivered to this farm / warehouse location
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="cartAddressEditBtn"
+                onClick={() => {
+                  setSavedAddresses(loadSavedAddresses());
+                  setShowAddressModal(true);
+                }}
+              >
+                <Edit2 size={14} />
+                <span>Change Address</span>
+              </button>
+            </div>
+
+            <div className="cartAddressBody">
+              <div className="cartAddressBadgeRow">
+                <span className="cartAddressTypeBadge">
+                  {deliveryAddress.type || "Farm Delivery"}
+                </span>
+                <strong className="cartAddressRecipient">
+                  {deliveryAddress.name}
+                </strong>
+                <span className="cartAddressPhone">
+                  {deliveryAddress.phone}
+                </span>
+              </div>
+
+              <p className="cartAddressLocationText">
+                {deliveryAddress.village}, {deliveryAddress.district},{" "}
+                {deliveryAddress.state} - <strong>{deliveryAddress.pincode}</strong>
+              </p>
+            </div>
+          </div>
 
           {/* CART TOOLBAR */}
           <div className="cartToolbar">
-
             <label className="cartSelectAll">
               <input
                 type="checkbox"
                 checked={allSelected}
                 onChange={handleSelectAll}
               />
-
-              <span>Select All ({cartItems.length})</span>
+              <span>Select All ({cartItems.length} Products)</span>
             </label>
 
             <div className="cartToolbarActions">
@@ -378,7 +716,7 @@ const CartMain = () => {
                   onClick={removeSelectedItems}
                 >
                   <Trash2 size={15} />
-                  Remove Selected
+                  Remove Selected ({selectedItems.length})
                 </button>
               )}
 
@@ -393,19 +731,16 @@ const CartMain = () => {
 
           {/* PRODUCT LIST */}
           <div className="cartProductsList">
-
             {cartItems.map((item) => {
               const id = getProductId(item);
               const isSelected = selectedItems.includes(id);
+              const itemTotal = Number(item.price || 0) * Number(item.quantity || 1);
 
               return (
                 <div
-                  className={`cartProductCard ${
-                    isSelected ? "selected" : ""
-                  }`}
+                  className={`cartProductCard ${isSelected ? "selected" : ""}`}
                   key={id}
                 >
-
                   {/* CHECKBOX */}
                   <div className="cartProductCheckbox">
                     <input
@@ -421,24 +756,22 @@ const CartMain = () => {
                       src={getImageUrl(item.image)}
                       alt={item.name}
                       onError={(event) => {
-                        event.currentTarget.src =
-                          "/placeholder.png";
+                        event.currentTarget.src = "/placeholder.png";
                       }}
                     />
                   </div>
 
                   {/* DETAILS */}
                   <div className="cartProductDetails">
-
                     <span className="cartProductCategory">
-                      {item.category || "Healthy Products"}
+                      {item.category || "Agricultural Implement"}
                     </span>
 
                     <h3>{item.name}</h3>
 
                     <p>
                       {item.description ||
-                        "Fresh quality product for your daily needs."}
+                        "Fresh verified quality implement for your daily farming needs."}
                     </p>
 
                     <div className="cartProductPrice">
@@ -451,7 +784,6 @@ const CartMain = () => {
                     <span>Quantity</span>
 
                     <div className="cartQuantityControl">
-
                       <button
                         type="button"
                         onClick={() => decreaseQuantity(id)}
@@ -470,22 +802,16 @@ const CartMain = () => {
                       >
                         <Plus size={15} />
                       </button>
-
                     </div>
                   </div>
 
-                  {/* TOTAL */}
+                  {/* ITEM TOTAL */}
                   <div className="cartProductTotal">
                     <span>Item Total</span>
-
-                    <strong>
-                      {formatPrice(
-                        item.price * item.quantity
-                      )}
-                    </strong>
+                    <strong>{formatPrice(itemTotal)}</strong>
                   </div>
 
-                  {/* REMOVE */}
+                  {/* REMOVE BUTTON */}
                   <button
                     className="cartRemoveItem"
                     onClick={() => removeItem(id)}
@@ -494,11 +820,9 @@ const CartMain = () => {
                   >
                     <Trash2 size={18} />
                   </button>
-
                 </div>
               );
             })}
-
           </div>
 
           {/* CONTINUE SHOPPING */}
@@ -509,68 +833,74 @@ const CartMain = () => {
             <ArrowLeft size={17} />
             Continue Shopping
           </button>
-
         </div>
 
-        {/* RIGHT SUMMARY */}
+        {/* RIGHT COLUMN: ORDER SUMMARY (PRICE & DETAILS) */}
         <aside className="cartSummarySection">
-
           <div className="cartSummaryCard">
-
             <div className="cartSummaryHeader">
               <h2>Order Summary</h2>
-
-              <span>
-                {selectedQuantity} Items
+              <span className="cartSummaryBadge">
+                {selectedQuantity} Items Selected
               </span>
             </div>
 
-            {/* SUMMARY */}
+            {/* DETAILED CALCULATIONS */}
             <div className="cartSummaryDetails">
-
               <div className="cartSummaryRow">
                 <span>Products in Cart</span>
-                <span>{cartItems.length}</span>
+                <strong>{cartItems.length}</strong>
               </div>
 
               <div className="cartSummaryRow">
                 <span>Total Quantity</span>
-                <span>{totalQuantity}</span>
+                <strong>{totalQuantity} Units</strong>
               </div>
 
               <div className="cartSummaryRow">
                 <span>Selected Products</span>
-                <span>{selectedProducts.length}</span>
+                <strong style={{ color: "#166534" }}>
+                  {selectedProducts.length} Items ({selectedQuantity} Units)
+                </strong>
               </div>
 
               <div className="cartSummaryRow">
-                <span>Subtotal</span>
+                <span>Items Subtotal</span>
                 <strong>{formatPrice(subtotal)}</strong>
               </div>
 
+              {discountAmount > 0 && (
+                <div
+                  className="cartSummaryRow"
+                  style={{ color: "#166534", fontWeight: 700 }}
+                >
+                  <span>Coupon Discount ({appliedCoupon})</span>
+                  <span>-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
+
               <div className="cartSummaryRow cartShippingRow">
-                <span>Shipping</span>
-                <span className="cartFreeShipping">
-                  Calculated at checkout
-                </span>
+                <span>Farm Delivery / Shipping</span>
+                <span className="cartFreeShipping">FREE Delivery</span>
               </div>
 
+              <div className="cartSummaryRow">
+                <span>GST &amp; Taxes</span>
+                <span style={{ color: "#64748b" }}>Included</span>
+              </div>
             </div>
 
-            {/* COUPON */}
-            <form
-              className="cartCouponForm"
-              onSubmit={handleApplyCoupon}
-            >
+            {/* COUPON FORM */}
+            <form className="cartCouponForm" onSubmit={handleApplyCoupon}>
               <label>
                 <Tag size={16} />
-                Have a coupon?
+                Have a coupon or subsidy code?
               </label>
 
               <div className="cartCouponInput">
                 <input
                   type="text"
-                  placeholder="Enter coupon code"
+                  placeholder="Try FARM10 or KISAN"
                   value={coupon}
                   onChange={(event) => {
                     setCoupon(event.target.value);
@@ -578,85 +908,238 @@ const CartMain = () => {
                   }}
                 />
 
-                <button type="submit">
-                  Apply
-                </button>
+                <button type="submit">Apply</button>
               </div>
 
               {couponMessage && (
-                <p className="cartCouponMessage">
+                <p
+                  className="cartCouponMessage"
+                  style={{
+                    color: couponDiscountPercent > 0 ? "#166534" : "#dc2626",
+                  }}
+                >
                   {couponMessage}
                 </p>
               )}
             </form>
 
-            {/* TOTAL */}
+            {/* GRAND TOTAL */}
             <div className="cartGrandTotal">
-              <span>Estimated Subtotal</span>
-
-              <strong>{formatPrice(subtotal)}</strong>
+              <span>Final Payable Amount</span>
+              <strong style={{ color: "#166534", fontSize: "24px" }}>
+                {formatPrice(finalTotal)}
+              </strong>
             </div>
 
-            {/* CHECKOUT */}
+            {/* CHECKOUT BUTTON */}
             <button
               className="cartCheckoutBtn"
               onClick={handleCheckout}
-              disabled={selectedProducts.length === 0}
+              disabled={paymentLoading || selectedProducts.length === 0}
+              style={{
+                opacity: paymentLoading ? 0.8 : 1,
+                cursor: paymentLoading ? "wait" : "pointer",
+              }}
             >
-              Proceed to Checkout
-              <ArrowRight size={19} />
+              {paymentLoading ? (
+                <>
+                  <span className="cartCheckoutSpinner" />
+                  <span>Connecting to Razorpay...</span>
+                </>
+              ) : (
+                <>
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight size={19} />
+                </>
+              )}
             </button>
 
             <p className="cartCheckoutNote">
-              Your selected products will be saved for checkout.
+              {selectedProducts.length > 0
+                ? `Ready to order ${selectedProducts.length} product(s) for farm delivery.`
+                : "Select products on the left to calculate subtotal and proceed."}
             </p>
 
-            {/* BENEFITS */}
+            {/* TRUST BENEFITS */}
             <div className="cartBenefits">
-
               <div className="cartBenefitItem">
                 <ShieldCheck size={21} />
-
                 <div>
-                  <strong>Secure Shopping</strong>
-                  <span>Safe shopping experience</span>
+                  <strong>Secure Ordering</strong>
+                  <span>Direct from verified manufacturers</span>
                 </div>
               </div>
 
               <div className="cartBenefitItem">
                 <Truck size={21} />
-
                 <div>
-                  <strong>Delivery Information</strong>
-                  <span>Shipping calculated at checkout</span>
+                  <strong>Doorstep Delivery</strong>
+                  <span>Free shipment directly to your farm</span>
                 </div>
               </div>
 
               <div className="cartBenefitItem">
                 <PackageCheck size={21} />
-
                 <div>
-                  <strong>Quality Products</strong>
-                  <span>Carefully selected products</span>
+                  <strong>Verified Implements</strong>
+                  <span>Quality checked and subsidy eligible</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </aside>
+      </div>
 
-              <div className="cartBenefitItem">
-                <RefreshCw size={21} />
-
+      {/* SELECT DELIVERY ADDRESS MODAL */}
+      {showAddressModal && (
+        <div
+          className="cartModalOverlay"
+          onClick={() => setShowAddressModal(false)}
+        >
+          <div
+            className="cartAddressModal cartAddressSelectModal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="cartAddressSelectHeader">
+              <div className="cartAddressSelectTitleGroup">
+                <div className="cartAddressSelectIconCircle">
+                  <MapPin size={20} />
+                </div>
                 <div>
-                  <strong>Easy Shopping</strong>
-                  <span>Manage your cart anytime</span>
+                  <h3 className="cartAddressSelectTitle">Select Delivery Address</h3>
+                  <p className="cartAddressSelectSubtitle">
+                    Choose a saved address or add a new delivery location
+                  </p>
                 </div>
               </div>
-
+              <button
+                type="button"
+                onClick={() => setShowAddressModal(false)}
+                className="cartModalCloseBtn"
+                aria-label="Close"
+              >
+                ✕
+              </button>
             </div>
 
+            <div className="cartAddressTopBar">
+              <span className="cartAddressSavedCount">
+                Saved Locations ({savedAddresses.length})
+              </span>
+              <button
+                type="button"
+                className="cartAddressAddNewActionBtn"
+                onClick={handleRedirectToNewAddress}
+              >
+                <Plus size={15} />
+                <span>+ New Address</span>
+              </button>
+            </div>
+
+            <div className="cartAddressList">
+              {savedAddresses.map((addr) => {
+                const isSelected =
+                  (deliveryAddress.id && deliveryAddress.id === addr.id) ||
+                  (deliveryAddress.village === addr.village &&
+                    deliveryAddress.pincode === addr.pincode);
+
+                return (
+                  <div
+                    key={addr.id || `${addr.village}-${addr.pincode}`}
+                    className={`cartAddressItemCard ${isSelected ? "selected" : ""}`}
+                    onClick={() => handleSelectAddress(addr)}
+                  >
+                    <div className="cartAddressItemRadioCol">
+                      <div className={`cartAddressRadioCircle ${isSelected ? "checked" : ""}`}>
+                        {isSelected && <Check size={12} strokeWidth={3} />}
+                      </div>
+                    </div>
+
+                    <div className="cartAddressItemContent">
+                      <div className="cartAddressItemBadges">
+                        <span className="cartAddressItemTypeBadge">
+                          {addr.type || "Farm Delivery"}
+                        </span>
+                        {addr.isDefault && (
+                          <span className="cartAddressItemDefaultBadge">Default</span>
+                        )}
+                        {isSelected && (
+                          <span className="cartAddressItemActiveBadge">Selected for Order</span>
+                        )}
+                      </div>
+
+                      <div className="cartAddressItemPerson">
+                        <strong className="cartAddressItemName">{addr.name}</strong>
+                        <span className="cartAddressItemPhone">📞 {addr.phone}</span>
+                      </div>
+
+                      <p className="cartAddressItemText">
+                        {addr.village}, {addr.district}, {addr.state} - <strong>{addr.pincode}</strong>
+                      </p>
+                    </div>
+
+                    <div className="cartAddressItemActionCol">
+                      {isSelected ? (
+                        <span className="cartAddressSelectedPill">
+                          <Check size={13} /> Delivering Here
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          className="cartAddressSelectThisBtn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectAddress(addr);
+                          }}
+                        >
+                          Deliver Here
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Redirect to Profile New Address Card */}
+            <div
+              className="cartAddressNewCard"
+              onClick={handleRedirectToNewAddress}
+            >
+              <div className="cartAddressNewCardIcon">
+                <Plus size={19} />
+              </div>
+              <div className="cartAddressNewCardText">
+                <strong>+ Add New Delivery Address</strong>
+                <p>Register a new farm, warehouse, or workshop location in your profile</p>
+              </div>
+              <ArrowRight size={17} className="cartAddressNewCardArrow" />
+            </div>
+
+            <div className="cartAddressSelectFooter">
+              <button
+                type="button"
+                className="cartAddressManageProfileBtn"
+                onClick={() => {
+                  setShowAddressModal(false);
+                  navigate("/profile?tab=address");
+                }}
+              >
+                Manage All Addresses in Profile →
+              </button>
+              <button
+                type="button"
+                className="cartAddressDoneBtn"
+                onClick={() => setShowAddressModal(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
+        </div>
+      )}
 
-        </aside>
 
-      </div>
 
       {/* CLEAR CART MODAL */}
       {showClearModal && (
@@ -665,32 +1148,21 @@ const CartMain = () => {
           onClick={() => setShowClearModal(false)}
         >
           <div
-            className="cartConfirmModal"
+            className="cartModal"
             onClick={(event) => event.stopPropagation()}
           >
-
-            <button
-              className="cartModalClose"
-              onClick={() => setShowClearModal(false)}
-            >
-              <X size={20} />
-            </button>
-
             <div className="cartModalIcon">
-              <Trash2 size={30} />
+              <Trash2 size={32} />
             </div>
 
             <h3>Clear Your Cart?</h3>
-
             <p>
-              Are you sure you want to remove all products
-              from your shopping cart? This action cannot
-              be undone.
+              Are you sure you want to remove all products from your shopping cart?
             </p>
 
             <div className="cartModalActions">
-
               <button
+                type="button"
                 className="cartModalCancel"
                 onClick={() => setShowClearModal(false)}
               >
@@ -698,27 +1170,16 @@ const CartMain = () => {
               </button>
 
               <button
+                type="button"
                 className="cartModalConfirm"
                 onClick={clearCart}
               >
-                <Check size={17} />
-                Yes, Clear Cart
+                Yes, Clear All
               </button>
-
             </div>
-
           </div>
         </div>
       )}
-
-      {/* TOAST */}
-      {toast && (
-        <div className="cartToast">
-          <Check size={18} />
-          <span>{toast}</span>
-        </div>
-      )}
-
     </section>
   );
 };

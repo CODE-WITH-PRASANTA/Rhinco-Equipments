@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
 import {
   FiPlus, FiSearch, FiEye, FiEdit2, FiTrash2, FiX, FiUploadCloud,
@@ -9,7 +10,7 @@ import {
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
 
-const STORAGE_KEY = "rhino_equipment_posts";
+const MACHINERY_API = "http://localhost:5000/api/machinery";
 
 const categories = [
   "Excavators",
@@ -74,20 +75,17 @@ const formatDate = (date) =>
 const plainText = (html = "") =>
   html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
-const imageSrc = (image) => image?.data || "";
+const imageSrc = (image) => {
+  if (!image) return "";
+  if (typeof image === "string") return image;
+  return image.data || image.preview || image.url || "";
+};
 
 const MachineryEquipment = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("form");
-
-  const [equipments, setEquipments] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
+  const [equipments, setEquipments] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
@@ -103,16 +101,49 @@ const MachineryEquipment = () => {
 
   const itemsPerPage = 6;
 
-  useEffect(() => {
+  // LOAD REAL EQUIPMENT FROM DATABASE
+  const loadEquipments = async () => {
+    setLoading(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(equipments));
-    } catch (error) {
-      console.error("Equipment storage error:", error);
-      setNotice(
-        "Browser storage is full. Please use smaller images or connect a backend for larger files."
-      );
+      const res = await fetch(MACHINERY_API);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        setEquipments(data.data);
+      }
+    } catch (err) {
+      console.error("Error loading machinery equipment:", err);
+      setNotice("Could not load equipment from database. Ensure backend is running.");
+    } finally {
+      setLoading(false);
     }
-  }, [equipments]);
+  };
+
+  useEffect(() => {
+    loadEquipments();
+  }, []);
+
+  // EDIT DETECTION VIA NAVIGATION OR URL QUERY
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const editId = params.get("edit");
+
+    if (location.state?.equipment) {
+      openEditForm(location.state.equipment);
+    } else if (editId) {
+      const fetchItem = async () => {
+        try {
+          const res = await fetch(`${MACHINERY_API}/${editId}`);
+          const data = await res.json();
+          if (res.ok && data.success && data.data) {
+            openEditForm(data.data);
+          }
+        } catch (err) {
+          console.error("Error loading equipment to edit:", err);
+        }
+      };
+      fetchItem();
+    }
+  }, [location.state, location.search]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({
@@ -235,24 +266,42 @@ const MachineryEquipment = () => {
   const openEditForm = (item) => {
     setForm({
       ...emptyForm(),
-      ...item,
-      machineImages: item.machineImages || [],
-      documents: item.documents || []
+      title: item.title || item.name || "",
+      brandName: item.brandName || item.brand || "",
+      modelName: item.modelName || "",
+      implementType: item.implementType || item.type || "",
+      category: item.category || "",
+      implementPower: item.implementPower || item.power || "",
+      price: item.price !== undefined && item.price !== null ? String(item.price) : "",
+      discountPrice:
+        item.discountPrice !== undefined && item.discountPrice !== null
+          ? String(item.discountPrice)
+          : "",
+      description: item.description || "",
+      specification: item.specification || "",
+      availableAtStore: item.availableAtStore || "Yes",
+      machineImages:
+        item.machineImages && item.machineImages.length > 0
+          ? item.machineImages
+          : item.image
+          ? [{ name: "Image 1", data: item.image }]
+          : [],
+      documents: item.documents || [],
     });
 
-    setEditingId(item.id);
-    setNotice("");
+    setEditingId(item._id || item.id);
+    setNotice("Editing equipment: " + (item.title || item.name));
     setActiveTab("form");
     setViewEquipment(null);
 
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
+      behavior: "smooth",
     });
   };
 
-  // SUBMIT FORM
-  const handleSubmit = (event) => {
+  // SUBMIT FORM TO DATABASE
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!form.machineImages.length) {
@@ -299,64 +348,83 @@ const MachineryEquipment = () => {
       );
     }
 
-    setSaving(true);
+    try {
+      setSaving(true);
 
-    const now = new Date().toISOString();
+      const payload = {
+        title: form.title.trim(),
+        brandName: form.brandName.trim(),
+        modelName: form.modelName.trim(),
+        implementType: form.implementType.trim(),
+        category: form.category,
+        implementPower: form.implementPower.trim(),
+        price: Number(form.price),
+        discountPrice:
+          form.discountPrice === "" ? null : Number(form.discountPrice),
+        description: form.description,
+        specification: form.specification,
+        availableAtStore: form.availableAtStore || "Yes",
+        machineImages: form.machineImages,
+        documents: form.documents,
+      };
 
-    const previous = equipments.find(
-      (item) => item.id === editingId
-    );
+      const url = editingId ? `${MACHINERY_API}/${editingId}` : MACHINERY_API;
+      const method = editingId ? "PUT" : "POST";
 
-    const data = {
-      ...form,
-      id: editingId || Date.now(),
-      title: form.title.trim(),
-      brandName: form.brandName.trim(),
-      modelName: form.modelName.trim(),
-      implementType: form.implementType.trim(),
-      price: Number(form.price),
-      discountPrice:
-        form.discountPrice === ""
-          ? ""
-          : Number(form.discountPrice),
-      createdAt: previous?.createdAt || now,
-      updatedAt: now
-    };
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    setEquipments((prev) =>
-      editingId
-        ? prev.map((item) =>
-            item.id === editingId ? data : item
-          )
-        : [data, ...prev]
-    );
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Failed to save equipment to database.");
+      }
 
-    setNotice(
-      editingId
-        ? "Equipment updated successfully."
-        : "Equipment added successfully."
-    );
+      setNotice(
+        editingId
+          ? "Equipment updated successfully in database."
+          : "Equipment added successfully into database."
+      );
 
-    setForm(emptyForm());
-    setEditingId(null);
-    setCurrentPage(1);
-    setActiveTab("table");
-    setSaving(false);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+      setForm(emptyForm());
+      setEditingId(null);
+      setCurrentPage(1);
+      await loadEquipments();
+      setActiveTab("table");
+    } catch (err) {
+      console.error("Save error:", err);
+      setNotice(err.message || "Failed to save equipment. Please try again.");
+    } finally {
+      setSaving(false);
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   // DELETE EQUIPMENT
-  const confirmDelete = () => {
-    setEquipments((prev) =>
-      prev.filter((item) => item.id !== deleteId)
-    );
+  const confirmDelete = async () => {
+    if (!deleteId) return;
 
-    setDeleteId(null);
-    setNotice("Equipment deleted successfully.");
+    try {
+      const res = await fetch(`${MACHINERY_API}/${deleteId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete equipment from database.");
+      }
+
+      await loadEquipments();
+      setDeleteId(null);
+      setNotice("Equipment deleted successfully from database.");
+    } catch (err) {
+      console.error("Delete error:", err);
+      setNotice(err.message || "Failed to delete equipment.");
+    }
   };
 
   // SEARCH AND FILTER
@@ -815,6 +883,8 @@ const MachineryEquipment = () => {
               </label>
 
               <Editor
+                key={editingId ? `desc-${editingId}` : "desc-new"}
+                tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
                 apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
                 value={form.description}
                 onEditorChange={(value) =>
@@ -846,6 +916,8 @@ const MachineryEquipment = () => {
               </label>
 
               <Editor
+                key={editingId ? `spec-${editingId}` : "spec-new"}
+                tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
                 apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
                 value={form.specification}
                 onEditorChange={(value) =>
@@ -1075,12 +1147,12 @@ const MachineryEquipment = () => {
               <tbody>
                 {paginatedEquipments.length > 0 ? (
                   paginatedEquipments.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item._id || item.id}>
                       <td>
                         <div className="MachineryEquipment-productCell">
-                          {item.machineImages?.[0]?.data ? (
+                          {imageSrc(item.machineImages?.[0]) || item.image ? (
                             <img
-                              src={item.machineImages[0].data}
+                              src={imageSrc(item.machineImages?.[0]) || item.image}
                               alt={item.title}
                             />
                           ) : (
@@ -1176,7 +1248,7 @@ const MachineryEquipment = () => {
                           <button
                             type="button"
                             title="Delete"
-                            onClick={() => setDeleteId(item.id)}
+                            onClick={() => setDeleteId(item._id || item.id)}
                           >
                             <FiTrash2 />
                           </button>

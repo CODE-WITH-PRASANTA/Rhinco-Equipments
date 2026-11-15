@@ -2342,16 +2342,16 @@
 
 
 
+.EquipmentManagement-card--activeMenu {
+  z-index: 60 !important;
+  position: relative !important;
+}
+
 .EquipmentManagement-cardMenu {
-
   position: absolute;
-
   top: 13px;
-
   right: 13px;
-
-  z-index: 5;
-
+  z-index: 70;
 }
 
 
