@@ -1,5 +1,4 @@
-
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Package,
   ArrowRight,
@@ -7,11 +6,14 @@ import {
   Users,
   X,
   Search,
-  ExternalLink,
+  ChevronRight,
+  Phone,
+  Mail,
+  MapPin,
   CalendarDays,
-  IndianRupee,
-  Eye,
+  Tag,
   Tractor,
+  Eye,
 } from "lucide-react";
 
 import {
@@ -180,15 +182,19 @@ const enquiries = [
   },
 ];
 
+const TOTAL_ENQUIRIES = 129;
+
 const sourceData = [
-  { name: "Website Form", value: 52, color: "#20a735" },
-  { name: "Product Page", value: 28, color: "#2695f5" },
-  { name: "Contact Page", value: 12, color: "#f5a623" },
+  { name: "Website Form", value: 52, color: "#22a447" },
+  { name: "Product Page", value: 28, color: "#2f7fd6" },
+  { name: "Contact Page", value: 12, color: "#f0a41c" },
   { name: "Others", value: 8, color: "#9560d8" },
 ];
 
+const maxEnquiries = Math.max(...products.map((product) => product.enquiries));
+
 /* ==============================
-   FORMAT CURRENCY
+   HELPERS
 ================================ */
 
 const formatPrice = (price) =>
@@ -197,6 +203,11 @@ const formatPrice = (price) =>
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(price);
+
+const statusClass = (status) => String(status).toLowerCase();
+
+const sourceCount = (source) =>
+  Math.round((TOTAL_ENQUIRIES * source.value) / 100);
 
 /* ==============================
    CUSTOM CHART TOOLTIP
@@ -222,6 +233,35 @@ const SourceTooltip = ({ active, payload }) => {
 };
 
 /* ==============================
+   SMALL REUSABLE PIECES
+================================ */
+
+const StatusBadge = ({ status }) => (
+  <span
+    className={`Dashboard-Second--badge Dashboard-Second--badge-${statusClass(
+      status
+    )}`}
+  >
+    <span className="Dashboard-Second--badge-dot" />
+    {status}
+  </span>
+);
+
+const ProductThumb = ({ src, alt, className }) => (
+  <div className={className}>
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+      }}
+    />
+    <Tractor />
+  </div>
+);
+
+/* ==============================
    MAIN COMPONENT
 ================================ */
 
@@ -231,19 +271,48 @@ const DashbordSecond = () => {
   const [search, setSearch] = useState("");
   const [selectedSource, setSelectedSource] = useState(null);
 
+  /* ---------- modal: Esc key + body scroll lock ---------- */
+
+  useEffect(() => {
+    if (!modalType) return undefined;
+
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setModalType(null);
+        setSelectedItem(null);
+        setSearch("");
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [modalType]);
+
+  /* ---------- derived ---------- */
+
   const filteredProducts = useMemo(() => {
+    const text = search.trim().toLowerCase();
     return products.filter((product) =>
-      product.name.toLowerCase().includes(search.toLowerCase())
+      product.name.toLowerCase().includes(text)
     );
   }, [search]);
 
   const filteredEnquiries = useMemo(() => {
+    const text = search.trim().toLowerCase();
     return enquiries.filter(
       (item) =>
-        item.name.toLowerCase().includes(search.toLowerCase()) ||
-        item.product.toLowerCase().includes(search.toLowerCase())
+        item.name.toLowerCase().includes(text) ||
+        item.product.toLowerCase().includes(text)
     );
   }, [search]);
+
+  /* ---------- handlers ---------- */
 
   const openAll = (type) => {
     setSearch("");
@@ -269,32 +338,29 @@ const DashbordSecond = () => {
   };
 
   const displayedProducts = products.slice(0, 4);
-  const displayedEnquiries = enquiries.slice(0, 4);
+  const displayedEnquiries = enquiries.slice(0, 5);
 
-  const currentSource = sourceData.find(
-    (item) => item.name === selectedSource
-  );
+  const currentSource = sourceData.find((item) => item.name === selectedSource);
 
   return (
     <section className="Dashboard-Second--wrapper">
       <div className="Dashboard-Second--container">
-
         <div className="Dashboard-Second--grid">
-
           {/* =========================
               TOP PRODUCTS
           ========================== */}
 
           <div className="Dashboard-Second--card Dashboard-Second--products">
-
             <div className="Dashboard-Second--card-header">
-
               <div className="Dashboard-Second--heading">
-                <div className="Dashboard-Second--heading-icon green">
-                  <Package size={19} strokeWidth={2.5} />
+                <div className="Dashboard-Second--heading-icon">
+                  <Package size={20} strokeWidth={2.3} />
                 </div>
 
-                <h3>Top Products</h3>
+                <div>
+                  <h3>Top Products</h3>
+                  <p>Most enquired equipment</p>
+                </div>
               </div>
 
               <button
@@ -305,12 +371,10 @@ const DashbordSecond = () => {
                 View All
                 <ArrowRight size={15} />
               </button>
-
             </div>
 
             <div className="Dashboard-Second--product-list">
-
-              {displayedProducts.map((product) => (
+              {displayedProducts.map((product, index) => (
                 <button
                   type="button"
                   className="Dashboard-Second--product-row"
@@ -318,41 +382,46 @@ const DashbordSecond = () => {
                   onClick={() => openDetails("product-detail", product)}
                   title={`View ${product.name} details`}
                 >
+                  <span
+                    className={`Dashboard-Second--rank rank-${index + 1}`}
+                  >
+                    {index + 1}
+                  </span>
 
-                  <div className="Dashboard-Second--product-image">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                    <Tractor size={23} />
-                  </div>
+                  <ProductThumb
+                    src={product.image}
+                    alt={product.name}
+                    className="Dashboard-Second--product-image"
+                  />
 
                   <div className="Dashboard-Second--product-info">
                     <strong>{product.name}</strong>
+
+                    <div className="Dashboard-Second--meter">
+                      <span
+                        style={{
+                          width: `${(product.enquiries / maxEnquiries) * 100}%`,
+                        }}
+                      />
+                    </div>
+
                     <span>{product.enquiries} Enquiries</span>
                   </div>
 
                   <div className="Dashboard-Second--product-price">
                     {formatPrice(product.price)}
                   </div>
-
                 </button>
               ))}
-
             </div>
 
             <div className="Dashboard-Second--card-footer">
               <span>
-                <TrendingUp size={14} />
+                <TrendingUp size={15} />
                 Most enquired products
               </span>
-              <span>Top 4</span>
+              <span className="Dashboard-Second--pill">Top 4</span>
             </div>
-
           </div>
 
           {/* =========================
@@ -360,27 +429,25 @@ const DashbordSecond = () => {
           ========================== */}
 
           <div className="Dashboard-Second--card Dashboard-Second--sources">
-
             <div className="Dashboard-Second--card-header">
-
               <div className="Dashboard-Second--heading">
-                <div className="Dashboard-Second--heading-icon green">
-                  <TrendingUp size={19} strokeWidth={2.5} />
+                <div className="Dashboard-Second--heading-icon">
+                  <TrendingUp size={20} strokeWidth={2.3} />
                 </div>
 
-                <h3>Enquiries by Source</h3>
+                <div>
+                  <h3>Enquiries by Source</h3>
+                  <p>Where customers find you</p>
+                </div>
               </div>
 
               <span className="Dashboard-Second--source-period">
                 All Sources
               </span>
-
             </div>
 
             <div className="Dashboard-Second--source-content">
-
               <div className="Dashboard-Second--donut-wrap">
-
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -389,11 +456,11 @@ const DashbordSecond = () => {
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      innerRadius="59%"
-                      outerRadius="88%"
-                      paddingAngle={1}
+                      innerRadius="62%"
+                      outerRadius="92%"
+                      paddingAngle={2}
                       stroke="#ffffff"
-                      strokeWidth={2}
+                      strokeWidth={3}
                       startAngle={90}
                       endAngle={-270}
                       onClick={(data) => handleSourceClick(data)}
@@ -405,7 +472,7 @@ const DashbordSecond = () => {
                           fill={entry.color}
                           opacity={
                             selectedSource && selectedSource !== entry.name
-                              ? 0.35
+                              ? 0.3
                               : 1
                           }
                           style={{ cursor: "pointer", outline: "none" }}
@@ -418,14 +485,16 @@ const DashbordSecond = () => {
                 </ResponsiveContainer>
 
                 <div className="Dashboard-Second--donut-center">
-                  <strong>129</strong>
-                  <span>Total</span>
+                  <strong>
+                    {currentSource
+                      ? sourceCount(currentSource)
+                      : TOTAL_ENQUIRIES}
+                  </strong>
+                  <span>{currentSource ? currentSource.name : "Total"}</span>
                 </div>
-
               </div>
 
               <div className="Dashboard-Second--legend">
-
                 {sourceData.map((source) => (
                   <button
                     type="button"
@@ -435,7 +504,6 @@ const DashbordSecond = () => {
                     }`}
                     onClick={() => handleSourceClick(source)}
                   >
-
                     <span
                       className="Dashboard-Second--legend-dot"
                       style={{ background: source.color }}
@@ -446,12 +514,9 @@ const DashbordSecond = () => {
                     </span>
 
                     <strong>{source.value}%</strong>
-
                   </button>
                 ))}
-
               </div>
-
             </div>
 
             <div className="Dashboard-Second--source-insight">
@@ -463,14 +528,9 @@ const DashbordSecond = () => {
                   />
                   <span>
                     {currentSource.name}:{" "}
-                    <strong>
-                      {Math.round(129 * currentSource.value / 100)} enquiries
-                    </strong>
+                    <strong>{sourceCount(currentSource)} enquiries</strong>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSource(null)}
-                  >
+                  <button type="button" onClick={() => setSelectedSource(null)}>
                     Clear
                   </button>
                 </>
@@ -481,7 +541,6 @@ const DashbordSecond = () => {
                 </>
               )}
             </div>
-
           </div>
 
           {/* =========================
@@ -489,15 +548,16 @@ const DashbordSecond = () => {
           ========================== */}
 
           <div className="Dashboard-Second--card Dashboard-Second--recent">
-
             <div className="Dashboard-Second--card-header">
-
               <div className="Dashboard-Second--heading">
-                <div className="Dashboard-Second--heading-icon green">
-                  <Users size={19} strokeWidth={2.5} />
+                <div className="Dashboard-Second--heading-icon">
+                  <Users size={20} strokeWidth={2.3} />
                 </div>
 
-                <h3>Recent Enquiries</h3>
+                <div>
+                  <h3>Recent Enquiries</h3>
+                  <p>Latest customer requests</p>
+                </div>
               </div>
 
               <button
@@ -508,36 +568,35 @@ const DashbordSecond = () => {
                 View All
                 <ArrowRight size={15} />
               </button>
-
             </div>
 
             <div className="Dashboard-Second--table-wrap">
-
               <table className="Dashboard-Second--table">
-
                 <thead>
                   <tr>
-                    <th>Name</th>
+                    <th>Customer</th>
                     <th>Product / Interest</th>
-                    <th>Date</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
 
                 <tbody>
-
                   {displayedEnquiries.map((item) => (
                     <tr
                       key={item.id}
                       onClick={() => openDetails("enquiry-detail", item)}
                       title={`View ${item.name}'s enquiry`}
                     >
-
                       <td>
                         <div className="Dashboard-Second--customer">
                           <span className="Dashboard-Second--avatar">
                             {item.name.charAt(0)}
                           </span>
-                          <strong>{item.name}</strong>
+
+                          <div>
+                            <strong>{item.name}</strong>
+                            <span>{item.date}</span>
+                          </div>
                         </div>
                       </td>
 
@@ -548,29 +607,22 @@ const DashbordSecond = () => {
                       </td>
 
                       <td>
-                        <span className="Dashboard-Second--date">
-                          {item.date}
-                        </span>
+                        <StatusBadge status={item.status} />
                       </td>
-
                     </tr>
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
 
             <div className="Dashboard-Second--recent-footer">
               <span>Latest customer enquiries</span>
-              <span>{enquiries.length} records</span>
+              <span className="Dashboard-Second--pill">
+                {enquiries.length} records
+              </span>
             </div>
-
           </div>
-
         </div>
-
       </div>
 
       {/* ==============================
@@ -578,10 +630,7 @@ const DashbordSecond = () => {
       ================================= */}
 
       {modalType && (
-        <div
-          className="Dashboard-Second--modal-overlay"
-          onClick={closeModal}
-        >
+        <div className="Dashboard-Second--modal-overlay" onClick={closeModal}>
           <div
             className="Dashboard-Second--modal"
             role="dialog"
@@ -589,12 +638,10 @@ const DashbordSecond = () => {
             aria-label="Dashboard details"
             onClick={(e) => e.stopPropagation()}
           >
-
             <div className="Dashboard-Second--modal-header">
-
               <div>
                 <span className="Dashboard-Second--modal-eyebrow">
-                  DASHBOARD MANAGEMENT
+                  RHINO'S EQUIPMENT / DASHBOARD
                 </span>
 
                 <h2>
@@ -613,7 +660,6 @@ const DashbordSecond = () => {
               >
                 <X size={20} />
               </button>
-
             </div>
 
             {/* PRODUCT LIST MODAL */}
@@ -632,26 +678,18 @@ const DashbordSecond = () => {
                 </div>
 
                 <div className="Dashboard-Second--modal-list">
-
                   {filteredProducts.map((product) => (
                     <button
                       type="button"
                       key={product.id}
                       className="Dashboard-Second--modal-product"
-                      onClick={() =>
-                        openDetails("product-detail", product)
-                      }
+                      onClick={() => openDetails("product-detail", product)}
                     >
-                      <div className="Dashboard-Second--modal-product-image">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                          }}
-                        />
-                        <Tractor size={22} />
-                      </div>
+                      <ProductThumb
+                        src={product.image}
+                        alt={product.name}
+                        className="Dashboard-Second--modal-product-image"
+                      />
 
                       <div className="Dashboard-Second--modal-item-info">
                         <strong>{product.name}</strong>
@@ -662,7 +700,7 @@ const DashbordSecond = () => {
                         {formatPrice(product.price)}
                       </strong>
 
-                      <ExternalLink size={16} />
+                      <ChevronRight size={18} />
                     </button>
                   ))}
 
@@ -671,7 +709,6 @@ const DashbordSecond = () => {
                       No matching products found.
                     </p>
                   )}
-
                 </div>
               </>
             )}
@@ -692,15 +729,12 @@ const DashbordSecond = () => {
                 </div>
 
                 <div className="Dashboard-Second--modal-list">
-
                   {filteredEnquiries.map((item) => (
                     <button
                       type="button"
                       key={item.id}
                       className="Dashboard-Second--modal-enquiry"
-                      onClick={() =>
-                        openDetails("enquiry-detail", item)
-                      }
+                      onClick={() => openDetails("enquiry-detail", item)}
                     >
                       <span className="Dashboard-Second--avatar large">
                         {item.name.charAt(0)}
@@ -711,11 +745,12 @@ const DashbordSecond = () => {
                         <span>{item.product}</span>
                       </div>
 
-                      <div className="Dashboard-Second--modal-enquiry-date">
-                        {item.date}
+                      <div className="Dashboard-Second--modal-enquiry-side">
+                        <StatusBadge status={item.status} />
+                        <span>{item.date}</span>
                       </div>
 
-                      <ExternalLink size={16} />
+                      <ChevronRight size={18} />
                     </button>
                   ))}
 
@@ -724,7 +759,6 @@ const DashbordSecond = () => {
                       No matching enquiries found.
                     </p>
                   )}
-
                 </div>
               </>
             )}
@@ -733,20 +767,17 @@ const DashbordSecond = () => {
 
             {modalType === "product-detail" && selectedItem && (
               <div className="Dashboard-Second--detail-content">
-
-                <div className="Dashboard-Second--detail-image">
-                  <img
-                    src={selectedItem.image}
-                    alt={selectedItem.name}
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                  />
-                  <Tractor size={38} />
-                </div>
+                <ProductThumb
+                  src={selectedItem.image}
+                  alt={selectedItem.name}
+                  className="Dashboard-Second--detail-image"
+                />
 
                 <div className="Dashboard-Second--detail-title">
-                  <span>{selectedItem.category}</span>
+                  <span className="Dashboard-Second--category">
+                    <Tag size={13} />
+                    {selectedItem.category}
+                  </span>
                   <h3>{selectedItem.name}</h3>
                   <strong>{formatPrice(selectedItem.price)}</strong>
                 </div>
@@ -764,7 +795,6 @@ const DashbordSecond = () => {
                     <strong>{selectedItem.stock} Units</strong>
                   </div>
                 </div>
-
               </div>
             )}
 
@@ -772,7 +802,6 @@ const DashbordSecond = () => {
 
             {modalType === "enquiry-detail" && selectedItem && (
               <div className="Dashboard-Second--detail-content">
-
                 <div className="Dashboard-Second--customer-detail">
                   <span className="Dashboard-Second--avatar detail-avatar">
                     {selectedItem.name.charAt(0)}
@@ -780,60 +809,75 @@ const DashbordSecond = () => {
 
                   <div>
                     <h3>{selectedItem.name}</h3>
-                    <span>Customer enquiry</span>
+                    <StatusBadge status={selectedItem.status} />
                   </div>
                 </div>
 
                 <div className="Dashboard-Second--detail-fields">
-
                   <div>
-                    <span>Product Interest</span>
+                    <span>
+                      <Package size={14} />
+                      Product Interest
+                    </span>
                     <strong>{selectedItem.product}</strong>
                   </div>
 
                   <div>
-                    <span>Enquiry Date</span>
+                    <span>
+                      <CalendarDays size={14} />
+                      Enquiry Date
+                    </span>
                     <strong>{selectedItem.date}</strong>
                   </div>
 
                   <div>
-                    <span>Phone Number</span>
+                    <span>
+                      <Phone size={14} />
+                      Phone Number
+                    </span>
                     <strong>{selectedItem.phone}</strong>
                   </div>
 
                   <div>
-                    <span>Email Address</span>
+                    <span>
+                      <Mail size={14} />
+                      Email Address
+                    </span>
                     <strong>{selectedItem.email}</strong>
                   </div>
 
-                  <div>
-                    <span>Location</span>
+                  <div className="wide">
+                    <span>
+                      <MapPin size={14} />
+                      Location
+                    </span>
                     <strong>{selectedItem.location}</strong>
                   </div>
-
-                  <div>
-                    <span>Enquiry Status</span>
-                    <strong className="Dashboard-Second--status">
-                      {selectedItem.status}
-                    </strong>
-                  </div>
-
                 </div>
 
-                <a
-                  className="Dashboard-Second--contact-button"
-                  href={`tel:${selectedItem.phone.replace(/\s/g, "")}`}
-                >
-                  <Users size={17} />
-                  Contact Customer
-                </a>
+                <div className="Dashboard-Second--contact-row">
+                  <a
+                    className="Dashboard-Second--contact-button"
+                    href={`tel:${selectedItem.phone.replace(/\s/g, "")}`}
+                  >
+                    <Phone size={17} />
+                    Call Customer
+                  </a>
 
+                  <a
+                    className="Dashboard-Second--contact-button secondary"
+                    href={`mailto:${selectedItem.email}`}
+                  >
+                    <Mail size={17} />
+                    Send Email
+                  </a>
+                </div>
               </div>
             )}
 
             <div className="Dashboard-Second--modal-footer">
               <span>
-                <Eye size={15} />
+                <Eye size={16} />
                 Dashboard information
               </span>
 
@@ -841,11 +885,9 @@ const DashbordSecond = () => {
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
-
     </section>
   );
 };

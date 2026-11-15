@@ -1,5 +1,4 @@
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiGrid,
@@ -11,10 +10,10 @@ import {
   FiEye,
   FiEdit2,
   FiTrash2,
-  FiCalendar,
   FiPlus,
   FiArrowUpRight,
   FiCheckCircle,
+  FiCheck,
   FiX,
   FiImage,
   FiPackage,
@@ -23,21 +22,11 @@ import {
   FiBox,
   FiTag,
   FiStar,
+  FiSliders,
 } from "react-icons/fi";
 import "./ManageProduct.css";
 
 const STORAGE_KEY = "rhino_equipment_products";
-
-const categories = [
-  "Excavators",
-  "Loaders",
-  "Cranes",
-  "Road Construction",
-  "Material Handling",
-  "Generators",
-  "Industrial Equipment",
-  "Other",
-];
 
 const initialProducts = [
   {
@@ -150,6 +139,21 @@ const initialProducts = [
   },
 ];
 
+const stockOptions = [
+  { value: "All Stock", label: "All Stock" },
+  { value: "In Stock", label: "In Stock", tone: "green" },
+  { value: "Low Stock", label: "Low Stock", tone: "amber" },
+  { value: "Out of Stock", label: "Out of Stock", tone: "red" },
+];
+
+const sortOptions = [
+  { value: "newest", label: "Newest First" },
+  { value: "oldest", label: "Oldest First" },
+  { value: "title", label: "Name A–Z" },
+  { value: "priceLow", label: "Price: Low to High" },
+  { value: "priceHigh", label: "Price: High to Low" },
+];
+
 const getInitialProducts = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -198,6 +202,167 @@ const formatDate = (date) => {
   });
 };
 
+/* =====================================================
+   PREMIUM CUSTOM DROPDOWN
+===================================================== */
+
+const CustomSelect = ({
+  value,
+  options,
+  onChange,
+  icon,
+  heading,
+  ariaLabel,
+  className = "",
+}) => {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  const wrapRef = useRef(null);
+  const listRef = useRef(null);
+
+  const selected = options.find((option) => option.value === value) || options[0];
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleOutside = (event) => {
+      if (wrapRef.current && !wrapRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [open]);
+
+  // Keep keyboard-highlighted option visible
+  useEffect(() => {
+    if (!open || activeIndex < 0 || !listRef.current) return;
+    const node = listRef.current.children[activeIndex];
+    if (node) node.scrollIntoView({ block: "nearest" });
+  }, [open, activeIndex]);
+
+  const openMenu = () => {
+    setActiveIndex(
+      Math.max(
+        0,
+        options.findIndex((option) => option.value === value)
+      )
+    );
+    setOpen(true);
+  };
+
+  const handleToggle = () => (open ? setOpen(false) : openMenu());
+
+  const choose = (optionValue) => {
+    onChange(optionValue);
+    setOpen(false);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape" || event.key === "Tab") {
+      setOpen(false);
+      return;
+    }
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+
+      if (!open) {
+        openMenu();
+        return;
+      }
+
+      setActiveIndex((previous) => {
+        const next = event.key === "ArrowDown" ? previous + 1 : previous - 1;
+        return (next + options.length) % options.length;
+      });
+      return;
+    }
+
+    if ((event.key === "Enter" || event.key === " ") && open && activeIndex >= 0) {
+      event.preventDefault();
+      choose(options[activeIndex].value);
+    }
+  };
+
+  return (
+    <div
+      ref={wrapRef}
+      className={`ManageProduct-select ${open ? "is-open" : ""} ${className}`}
+    >
+      <button
+        type="button"
+        className="ManageProduct-selectTrigger"
+        onClick={handleToggle}
+        onKeyDown={handleKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+      >
+        <span className="ManageProduct-selectIcon">{icon}</span>
+
+        <span className="ManageProduct-selectValue">
+          {selected.tone && (
+            <i
+              className={`ManageProduct-selectDot ManageProduct-selectDot--${selected.tone}`}
+            />
+          )}
+          {selected.label}
+        </span>
+
+        <FiChevronDown className="ManageProduct-selectChevron" />
+      </button>
+
+      {open && (
+        <div className="ManageProduct-selectMenu">
+          {heading && (
+            <span className="ManageProduct-selectHeading">{heading}</span>
+          )}
+
+          <ul ref={listRef} role="listbox" aria-label={ariaLabel}>
+            {options.map((option, index) => {
+              const isSelected = option.value === value;
+
+              return (
+                <li
+                  key={option.value}
+                  role="option"
+                  aria-selected={isSelected}
+                  className={`ManageProduct-selectOption ${
+                    isSelected ? "is-selected" : ""
+                  } ${index === activeIndex ? "is-active" : ""}`}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => choose(option.value)}
+                >
+                  <span className="ManageProduct-selectOptionLabel">
+                    {option.tone && (
+                      <i
+                        className={`ManageProduct-selectDot ManageProduct-selectDot--${option.tone}`}
+                      />
+                    )}
+                    {option.label}
+                  </span>
+
+                  {option.count !== undefined && (
+                    <span className="ManageProduct-selectCount">
+                      {option.count}
+                    </span>
+                  )}
+
+                  {isSelected && <FiCheck className="ManageProduct-selectCheck" />}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const ManageProduct = () => {
   const navigate = useNavigate();
 
@@ -224,13 +389,20 @@ const ManageProduct = () => {
     }
   }, [products]);
 
-  const availableCategories = useMemo(
-    () => [
-      "All Categories",
+  const categoryOptions = useMemo(() => {
+    const names = [
       ...new Set(products.map((product) => product.category).filter(Boolean)),
-    ],
-    [products]
-  );
+    ];
+
+    return [
+      { value: "All Categories", label: "All Categories", count: products.length },
+      ...names.map((name) => ({
+        value: name,
+        label: name,
+        count: products.filter((product) => product.category === name).length,
+      })),
+    ];
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -293,8 +465,9 @@ const ManageProduct = () => {
   );
 
   const totalValue = products.reduce(
-    (sum, product) => sum + Number(product.finalPrice || 0) *
-      Number(product.stockQuantity || 0),
+    (sum, product) =>
+      sum +
+      Number(product.finalPrice || 0) * Number(product.stockQuantity || 0),
     0
   );
 
@@ -305,12 +478,7 @@ const ManageProduct = () => {
 
   const lowStockCount = products.filter(
     (product) =>
-      Number(product.stockQuantity) > 0 &&
-      Number(product.stockQuantity) <= 5
-  ).length;
-
-  const bestSellerCount = products.filter(
-    (product) => product.bestSeller
+      Number(product.stockQuantity) > 0 && Number(product.stockQuantity) <= 5
   ).length;
 
   const changeFilter = (setter, value) => {
@@ -438,9 +606,7 @@ const ManageProduct = () => {
           </span>
 
           <div>
-            <span className="ManageProduct-eyebrow">
-              RHINO'S EQUIPMENT
-            </span>
+            <span className="ManageProduct-eyebrow">RHINO'S EQUIPMENT</span>
             <h1>Product Management</h1>
             <p>
               Manage your machinery catalogue, product details and inventory.
@@ -574,9 +740,7 @@ const ManageProduct = () => {
             <input
               type="search"
               value={search}
-              onChange={(event) =>
-                changeFilter(setSearch, event.target.value)
-              }
+              onChange={(event) => changeFilter(setSearch, event.target.value)}
               placeholder="Search product, code, company..."
               aria-label="Search products"
             />
@@ -592,56 +756,33 @@ const ManageProduct = () => {
             )}
           </label>
 
-          <label className="ManageProduct-selectWrap">
-            <FiFilter />
-            <select
-              value={categoryFilter}
-              onChange={(event) =>
-                changeFilter(setCategoryFilter, event.target.value)
-              }
-              aria-label="Filter by category"
-            >
-              {availableCategories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            <FiChevronDown className="ManageProduct-selectArrow" />
-          </label>
+          <CustomSelect
+            icon={<FiFilter />}
+            heading="Filter by category"
+            ariaLabel="Filter by category"
+            value={categoryFilter}
+            options={categoryOptions}
+            onChange={(value) => changeFilter(setCategoryFilter, value)}
+          />
 
-          <label className="ManageProduct-selectWrap">
-            <select
-              value={stockFilter}
-              onChange={(event) =>
-                changeFilter(setStockFilter, event.target.value)
-              }
-              aria-label="Filter by stock"
-            >
-              <option value="All Stock">All Stock</option>
-              <option value="In Stock">In Stock</option>
-              <option value="Low Stock">Low Stock</option>
-              <option value="Out of Stock">Out of Stock</option>
-            </select>
-            <FiChevronDown className="ManageProduct-selectArrow" />
-          </label>
+          <CustomSelect
+            icon={<FiBox />}
+            heading="Filter by stock"
+            ariaLabel="Filter by stock"
+            value={stockFilter}
+            options={stockOptions}
+            onChange={(value) => changeFilter(setStockFilter, value)}
+          />
 
-          <label className="ManageProduct-selectWrap ManageProduct-sortSelect">
-            <select
-              value={sortBy}
-              onChange={(event) =>
-                changeFilter(setSortBy, event.target.value)
-              }
-              aria-label="Sort products"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="title">Name A–Z</option>
-              <option value="priceLow">Price: Low to High</option>
-              <option value="priceHigh">Price: High to Low</option>
-            </select>
-            <FiChevronDown className="ManageProduct-selectArrow" />
-          </label>
+          <CustomSelect
+            icon={<FiSliders />}
+            heading="Sort products"
+            ariaLabel="Sort products"
+            value={sortBy}
+            options={sortOptions}
+            onChange={(value) => changeFilter(setSortBy, value)}
+            className="ManageProduct-select--right"
+          />
         </div>
 
         {/* RESULTS BAR */}
@@ -894,23 +1035,20 @@ const ManageProduct = () => {
                 ‹
               </button>
 
-              {Array.from(
-                { length: totalPages },
-                (_, index) => index + 1
-              ).map((page) => (
-                <button
-                  type="button"
-                  key={page}
-                  className={
-                    page === safePage
-                      ? "ManageProduct-pageButton--active"
-                      : ""
-                  }
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                (page) => (
+                  <button
+                    type="button"
+                    key={page}
+                    className={
+                      page === safePage ? "ManageProduct-pageButton--active" : ""
+                    }
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
 
               <button
                 type="button"
@@ -940,9 +1078,7 @@ const ManageProduct = () => {
           >
             <div className="ManageProduct-modalHeader">
               <div>
-                <span className="ManageProduct-eyebrow">
-                  RHINO'S EQUIPMENT
-                </span>
+                <span className="ManageProduct-eyebrow">RHINO'S EQUIPMENT</span>
                 <h2>Product Details</h2>
               </div>
 
@@ -971,9 +1107,7 @@ const ManageProduct = () => {
                 {renderStock(selectedProduct.stockQuantity)}
               </div>
 
-              <h3 id="ManageProduct-detailTitle">
-                {selectedProduct.title}
-              </h3>
+              <h3 id="ManageProduct-detailTitle">{selectedProduct.title}</h3>
 
               <p>{selectedProduct.code}</p>
 

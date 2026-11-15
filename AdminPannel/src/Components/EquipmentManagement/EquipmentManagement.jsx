@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -16,15 +16,16 @@ import {
   FiPlus,
   FiArrowUpRight,
   FiCheckCircle,
+  FiCheck,
   FiClock,
   FiFileText,
   FiX,
   FiImage,
   FiMapPin,
-  FiTag,
-  FiFolder,
   FiFile,
   FiMessageSquare,
+  FiSliders,
+  FiActivity,
 } from "react-icons/fi";
 
 import "./EquipmentManagement.css";
@@ -35,17 +36,6 @@ import "./EquipmentManagement.css";
 ========================================================= */
 
 const STORAGE_KEY = "rhino_equipment_posts";
-
-const equipmentCategories = [
-  "Excavators",
-  "Loaders",
-  "Cranes & Lifting",
-  "Road Construction",
-  "Earthmoving",
-  "Material Handling",
-  "Generators & Compressors",
-  "Attachments & Parts",
-];
 
 const statusOptions = ["Available", "Reserved", "Sold"];
 
@@ -173,7 +163,7 @@ const initialEquipment = [
   {
     id: 2007,
     code: "EQP-0007",
-    title: "Kirloskar  Kirloskar 125 kVA Diesel Generator",
+    title: "Kirloskar 125 kVA Diesel Generator",
     category: "Generators & Compressors",
     postedBy: "Power Solutions Team",
     authorName: "Power Solutions Team",
@@ -184,7 +174,7 @@ const initialEquipment = [
     tags: "Kirloskar, Generator, 125 kVA, Power Backup",
     seoTitle: "Kirloskar 125 kVA Diesel Generator | Rhino's Equipment",
     seoDescription: "View the Kirloskar 125 kVA diesel generator listing and request equipment details.",
-    featuredImage: { name: "diesel-generator.jpg", data: "https://images.unsplash.com/photo-1473341304170-971ystd?auto=format&fit=crop&w=1200&q=85" },
+    featuredImage: { name: "diesel-generator.jpg", data: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1200&q=85" },
     otherImages: [], documents: [],
     status: "Available", enquiries: 890,
     createdAt: "2026-10-14T09:00:00.000Z", updatedAt: "2026-10-14T09:00:00.000Z",
@@ -230,7 +220,11 @@ const getTags = (tags) => {
 };
 
 const getImage = (item) => {
-  const image = item.featuredImage || item.mainImage || item.image;
+  const image =
+    item.featuredImage ||
+    item.mainImage ||
+    item.image ||
+    item.machineImages?.[0];
 
   if (!image) return "";
 
@@ -241,6 +235,8 @@ const getImage = (item) => {
 
 const getAuthor = (item) =>
   item.postedBy || item.authorName || item.author || "Admin";
+
+const getStatus = (item) => item.status || "Available";
 
 const getDescription = (item) => {
   const description = item.description || item.excerpt || "";
@@ -269,6 +265,26 @@ const formatDate = (date) => {
   }
 };
 
+// Works with both text prices ("₹48,50,000") and numeric prices
+const formatPrice = (item) => {
+  const value =
+    item.discountPrice !== undefined && item.discountPrice !== ""
+      ? item.discountPrice
+      : item.price;
+
+  if (value === undefined || value === null || value === "") return "";
+
+  if (typeof value === "number") {
+    return value.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    });
+  }
+
+  return String(value);
+};
+
 const getInitialEquipment = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -281,16 +297,177 @@ const getInitialEquipment = () => {
       }
     }
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(initialEquipment)
-    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(initialEquipment));
 
     return initialEquipment;
   } catch (error) {
     console.error("Unable to initialize item data:", error);
     return initialEquipment;
   }
+};
+
+/* =========================================================
+   PREMIUM CUSTOM DROPDOWN
+========================================================= */
+
+const CustomSelect = ({
+  value,
+  options,
+  onChange,
+  icon,
+  heading,
+  ariaLabel,
+  className = "",
+}) => {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  const wrapRef = useRef(null);
+  const listRef = useRef(null);
+
+  const selected =
+    options.find((option) => option.value === value) || options[0];
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleOutside = (event) => {
+      if (wrapRef.current && !wrapRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [open]);
+
+  // Keep keyboard-highlighted option visible
+  useEffect(() => {
+    if (!open || activeIndex < 0 || !listRef.current) return;
+    const node = listRef.current.children[activeIndex];
+    if (node) node.scrollIntoView({ block: "nearest" });
+  }, [open, activeIndex]);
+
+  const openMenu = () => {
+    setActiveIndex(
+      Math.max(
+        0,
+        options.findIndex((option) => option.value === value)
+      )
+    );
+    setOpen(true);
+  };
+
+  const handleToggle = () => (open ? setOpen(false) : openMenu());
+
+  const choose = (optionValue) => {
+    onChange(optionValue);
+    setOpen(false);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape" || event.key === "Tab") {
+      setOpen(false);
+      return;
+    }
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+
+      if (!open) {
+        openMenu();
+        return;
+      }
+
+      setActiveIndex((previous) => {
+        const next = event.key === "ArrowDown" ? previous + 1 : previous - 1;
+        return (next + options.length) % options.length;
+      });
+      return;
+    }
+
+    if ((event.key === "Enter" || event.key === " ") && open && activeIndex >= 0) {
+      event.preventDefault();
+      choose(options[activeIndex].value);
+    }
+  };
+
+  return (
+    <div
+      ref={wrapRef}
+      className={`EquipmentManagement-select ${open ? "is-open" : ""} ${className}`}
+    >
+      <button
+        type="button"
+        className="EquipmentManagement-selectTrigger"
+        onClick={handleToggle}
+        onKeyDown={handleKeyDown}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+      >
+        <span className="EquipmentManagement-selectIcon">{icon}</span>
+
+        <span className="EquipmentManagement-selectValue">
+          {selected.tone && (
+            <i
+              className={`EquipmentManagement-selectDot EquipmentManagement-selectDot--${selected.tone}`}
+            />
+          )}
+          {selected.label}
+        </span>
+
+        <FiChevronDown className="EquipmentManagement-selectChevron" />
+      </button>
+
+      {open && (
+        <div className="EquipmentManagement-selectMenu">
+          {heading && (
+            <span className="EquipmentManagement-selectHeading">{heading}</span>
+          )}
+
+          <ul ref={listRef} role="listbox" aria-label={ariaLabel}>
+            {options.map((option, index) => {
+              const isSelected = option.value === value;
+
+              return (
+                <li
+                  key={option.value}
+                  role="option"
+                  aria-selected={isSelected}
+                  className={`EquipmentManagement-selectOption ${
+                    isSelected ? "is-selected" : ""
+                  } ${index === activeIndex ? "is-active" : ""}`}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => choose(option.value)}
+                >
+                  <span className="EquipmentManagement-selectOptionLabel">
+                    {option.tone && (
+                      <i
+                        className={`EquipmentManagement-selectDot EquipmentManagement-selectDot--${option.tone}`}
+                      />
+                    )}
+                    {option.label}
+                  </span>
+
+                  {option.count !== undefined && (
+                    <span className="EquipmentManagement-selectCount">
+                      {option.count}
+                    </span>
+                  )}
+
+                  {isSelected && (
+                    <FiCheck className="EquipmentManagement-selectCheck" />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
 };
 
 /* =========================================================
@@ -301,63 +478,36 @@ const EquipmentManagement = () => {
   const navigate = useNavigate();
 
   const [equipment, setEquipment] = useState(getInitialEquipment);
-
   const [viewMode, setViewMode] = useState("grid");
-
   const [search, setSearch] = useState("");
-
-  const [typeFilter, setTypeFilter] =
-    useState("All Equipment Types");
-
-  const [statusFilter, setStatusFilter] =
-    useState("All Status");
-
+  const [typeFilter, setTypeFilter] = useState("All Equipment Types");
+  const [statusFilter, setStatusFilter] = useState("All Status");
   const [sortBy, setSortBy] = useState("newest");
-
   const [currentPage, setCurrentPage] = useState(1);
-
   const [openMenu, setOpenMenu] = useState(null);
-
   const [selectedEquipment, setSelectedEquipment] = useState(null);
-
   const [deleteId, setDeleteId] = useState(null);
-
   const [notice, setNotice] = useState("");
 
   const itemsPerPage = 6;
 
-  /* =====================================================
-     SAVE DATA LOCALLY
-  ===================================================== */
-
+  /* SAVE DATA LOCALLY */
   useEffect(() => {
     try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(equipment)
-      );
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(equipment));
     } catch (error) {
       console.error("Local storage error:", error);
-      setNotice(
-        "Browser storage is full. Reduce the size of uploaded files."
-      );
+      setNotice("Browser storage is full. Reduce the size of uploaded files.");
     }
   }, [equipment]);
 
-  /* =====================================================
-     CREATE EQUIPMENT
-  ===================================================== */
-
+  /* CREATE */
   const handleCreate = () => {
     setOpenMenu(null);
-
     navigate("/equipment/equipment-posting");
   };
 
-  /* =====================================================
-     EDIT EQUIPMENT
-  ===================================================== */
-
+  /* EDIT */
   const handleEdit = (item) => {
     setOpenMenu(null);
     setSelectedEquipment(null);
@@ -370,26 +520,52 @@ const EquipmentManagement = () => {
     });
   };
 
-  /* =====================================================
-     EQUIPMENT TYPE FILTERS
-  ===================================================== */
+  /* DROPDOWN OPTIONS */
+  const typeOptions = useMemo(() => {
+    const names = [
+      ...new Set(equipment.map((item) => item.category).filter(Boolean)),
+    ];
 
-  const availableEquipmentCategories = useMemo(
+    return [
+      {
+        value: "All Equipment Types",
+        label: "All Equipment Types",
+        count: equipment.length,
+      },
+      ...names.map((name) => ({
+        value: name,
+        label: name,
+        count: equipment.filter((item) => item.category === name).length,
+      })),
+    ];
+  }, [equipment]);
+
+  const statusSelectOptions = useMemo(
     () => [
-      "All Equipment Types",
-      ...new Set(
-        equipment
-          .map((item) => item.category)
-          .filter(Boolean)
-      ),
+      { value: "All Status", label: "All Status" },
+      ...statusOptions.map((status) => ({
+        value: status,
+        label: status,
+        tone:
+          status === "Available"
+            ? "green"
+            : status === "Reserved"
+            ? "amber"
+            : "gray",
+        count: equipment.filter((item) => getStatus(item) === status).length,
+      })),
     ],
     [equipment]
   );
 
-  /* =====================================================
-     FILTER AND SORT
-  ===================================================== */
+  const sortOptions = [
+    { value: "newest", label: "Newest First" },
+    { value: "oldest", label: "Oldest First" },
+    { value: "title", label: "Title A–Z" },
+    { value: "mostViewed", label: "Most Enquiries" },
+  ];
 
+  /* FILTER AND SORT */
   const filteredEquipment = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -402,70 +578,46 @@ const EquipmentManagement = () => {
           (item.title || "").toLowerCase().includes(query) ||
           getAuthor(item).toLowerCase().includes(query) ||
           (item.category || "").toLowerCase().includes(query) ||
-          (item.code || item.equipmentCode || "")
+          (item.code || item.equipmentCode || "").toLowerCase().includes(query) ||
+          (item.location || "").toLowerCase().includes(query) ||
+          (item.manufacturer || item.brandName || "")
             .toLowerCase()
             .includes(query) ||
-          (item.location || "").toLowerCase().includes(query) ||
-          tags.some((tag) =>
-            tag.toLowerCase().includes(query)
-          );
+          (item.model || item.modelName || "").toLowerCase().includes(query) ||
+          tags.some((tag) => tag.toLowerCase().includes(query));
 
         const matchesCategory =
-          typeFilter === "All Equipment Types" ||
-          item.category === typeFilter;
+          typeFilter === "All Equipment Types" || item.category === typeFilter;
 
         const matchesStatus =
-          statusFilter === "All Status" ||
-          (item.status || "Available") === statusFilter;
+          statusFilter === "All Status" || getStatus(item) === statusFilter;
 
-        return (
-          matchesSearch &&
-          matchesCategory &&
-          matchesStatus
-        );
+        return matchesSearch && matchesCategory && matchesStatus;
       })
       .sort((a, b) => {
         if (sortBy === "oldest") {
-          return (
-            new Date(getDate(a)) -
-            new Date(getDate(b))
-          );
+          return new Date(getDate(a)) - new Date(getDate(b));
         }
 
         if (sortBy === "title") {
-          return (a.title || "").localeCompare(
-            b.title || ""
-          );
+          return (a.title || "").localeCompare(b.title || "");
         }
 
         if (sortBy === "mostViewed") {
           return (b.enquiries || 0) - (a.enquiries || 0);
         }
 
-        return (
-          new Date(getDate(b)) -
-          new Date(getDate(a))
-        );
+        return new Date(getDate(b)) - new Date(getDate(a));
       });
-  }, [
-    equipment,
-    search,
-    typeFilter,
-    statusFilter,
-    sortBy,
-  ]);
+  }, [equipment, search, typeFilter, statusFilter, sortBy]);
 
-  /* =====================================================
-     PAGINATION
-  ===================================================== */
-
+  /* PAGINATION */
   const totalPages = Math.max(
     1,
     Math.ceil(filteredEquipment.length / itemsPerPage)
   );
 
   const safePage = Math.min(currentPage, totalPages);
-
   const startIndex = (safePage - 1) * itemsPerPage;
 
   const visibleEquipment = filteredEquipment.slice(
@@ -473,20 +625,17 @@ const EquipmentManagement = () => {
     startIndex + itemsPerPage
   );
 
-  /* =====================================================
-     STATISTICS
-  ===================================================== */
-
+  /* STATISTICS */
   const availableCount = equipment.filter(
-    (item) => item.status === "Available"
+    (item) => getStatus(item) === "Available"
   ).length;
 
   const reservedCount = equipment.filter(
-    (item) => item.status === "Reserved"
+    (item) => getStatus(item) === "Reserved"
   ).length;
 
   const soldCount = equipment.filter(
-    (item) => item.status === "Sold"
+    (item) => getStatus(item) === "Sold"
   ).length;
 
   const totalEnquiries = equipment.reduce(
@@ -494,10 +643,7 @@ const EquipmentManagement = () => {
     0
   );
 
-  /* =====================================================
-     FILTER HANDLERS
-  ===================================================== */
-
+  /* FILTER HANDLERS */
   const changeFilter = (setter, value) => {
     setter(value);
     setCurrentPage(1);
@@ -516,40 +662,30 @@ const EquipmentManagement = () => {
     setOpenMenu(null);
   };
 
-  /* =====================================================
-     DELETE EQUIPMENT - LOCAL ONLY
-  ===================================================== */
-
+  /* DELETE - LOCAL ONLY */
   const handleDelete = () => {
     if (deleteId === null) return;
 
-    setEquipment((previous) =>
-      previous.filter(
-        (item) => item.id !== deleteId
-      )
-    );
+    setEquipment((previous) => previous.filter((item) => item.id !== deleteId));
 
     if (selectedEquipment?.id === deleteId) {
       setSelectedEquipment(null);
     }
 
     setDeleteId(null);
-
     showNotice("Equipment post deleted successfully.");
   };
 
-  /* =====================================================
-     CHANGE STATUS - LOCAL ONLY
-  ===================================================== */
-
+  /* CHANGE STATUS - LOCAL ONLY */
   const handleStatusChange = (item) => {
-    const nextStatus = item.status === "Available" ? "Reserved" : "Available";
+    const nextStatus =
+      getStatus(item) === "Available" ? "Reserved" : "Available";
 
     setEquipment((previous) =>
       previous.map((currentItem) =>
         currentItem.id === item.id
           ? {
-              ...item,
+              ...currentItem,
               status: nextStatus,
               updatedAt: new Date().toISOString(),
             }
@@ -567,10 +703,7 @@ const EquipmentManagement = () => {
     showNotice(`Equipment status changed to ${nextStatus}.`);
   };
 
-  /* =====================================================
-     STATUS COMPONENT
-  ===================================================== */
-
+  /* STATUS BADGE */
   const renderStatus = (status = "Available") => (
     <span
       className={`EquipmentManagement-status EquipmentManagement-status--${status.toLowerCase()}`}
@@ -580,21 +713,13 @@ const EquipmentManagement = () => {
     </span>
   );
 
-  /* =====================================================
-     ACTION MENU
-  ===================================================== */
-
+  /* ACTION MENU */
   const renderActions = (item) => (
     <div className="EquipmentManagement-cardMenu">
-
       <button
         type="button"
         className="EquipmentManagement-menuTrigger"
-        onClick={() =>
-          setOpenMenu(
-            openMenu === item.id ? null : item.id
-          )
-        }
+        onClick={() => setOpenMenu(openMenu === item.id ? null : item.id)}
         aria-label={`Actions for ${item.title}`}
         aria-expanded={openMenu === item.id}
       >
@@ -603,7 +728,6 @@ const EquipmentManagement = () => {
 
       {openMenu === item.id && (
         <div className="EquipmentManagement-menuDropdown">
-
           <button
             type="button"
             onClick={() => {
@@ -615,25 +739,15 @@ const EquipmentManagement = () => {
             View equipment
           </button>
 
-          <button
-            type="button"
-            onClick={() => handleEdit(item)}
-          >
+          <button type="button" onClick={() => handleEdit(item)}>
             <FiEdit2 />
             Edit equipment
           </button>
 
-          <button
-            type="button"
-            onClick={() => handleStatusChange(item)}
-          >
-            {item.status === "Available" ? (
-              <FiClock />
-            ) : (
-              <FiCheckCircle />
-            )}
+          <button type="button" onClick={() => handleStatusChange(item)}>
+            {getStatus(item) === "Available" ? <FiClock /> : <FiCheckCircle />}
 
-            {item.status === "Available"
+            {getStatus(item) === "Available"
               ? "Mark as reserved"
               : "Mark as available"}
           </button>
@@ -649,42 +763,28 @@ const EquipmentManagement = () => {
             <FiTrash2 />
             Delete item
           </button>
-
         </div>
       )}
     </div>
   );
 
-  /* =====================================================
-     MAIN JSX
-  ===================================================== */
-
+  /* MAIN JSX */
   return (
     <div className="EquipmentManagement">
-
       {/* HEADER */}
-
       <div className="EquipmentManagement-header">
-
         <div className="EquipmentManagement-heading">
-
           <span className="EquipmentManagement-headingIcon">
             <FiFileText />
           </span>
 
           <div>
-            <span className="EquipmentManagement-eyebrow">
-              RHINO'S EQUIPMENT
-            </span>
+            <span className="EquipmentManagement-eyebrow">RHINO'S EQUIPMENT</span>
 
             <h1>Equipment Management</h1>
 
-            <p>
-              Manage industry insights, machinery updates
-              and company news.
-            </p>
+            <p>Manage your machinery listings, availability and enquiries.</p>
           </div>
-
         </div>
 
         <button
@@ -695,18 +795,13 @@ const EquipmentManagement = () => {
           <FiPlus />
           Add Equipment
         </button>
-
       </div>
 
       {/* NOTIFICATION */}
-
       {notice && (
         <div className="EquipmentManagement-notice" role="status">
-
           <FiCheckCircle />
-
           <span>{notice}</span>
-
           <button
             type="button"
             aria-label="Dismiss message"
@@ -714,14 +809,11 @@ const EquipmentManagement = () => {
           >
             <FiX />
           </button>
-
         </div>
       )}
 
       {/* STATISTICS */}
-
       <div className="EquipmentManagement-stats">
-
         <div className="EquipmentManagement-statCard">
           <span className="EquipmentManagement-statIcon">
             <FiFileText />
@@ -735,7 +827,7 @@ const EquipmentManagement = () => {
         </div>
 
         <div className="EquipmentManagement-statCard">
-          <span className="EquipmentManagement-statIcon EquipmentManagement-statIcon--green">
+          <span className="EquipmentManagement-statIcon EquipmentManagement-statIcon--teal">
             <FiCheckCircle />
           </span>
 
@@ -748,7 +840,7 @@ const EquipmentManagement = () => {
 
         <div className="EquipmentManagement-statCard">
           <span className="EquipmentManagement-statIcon EquipmentManagement-statIcon--amber">
-            <FiFileText />
+            <FiClock />
           </span>
 
           <div>
@@ -760,7 +852,7 @@ const EquipmentManagement = () => {
 
         <div className="EquipmentManagement-statCard">
           <span className="EquipmentManagement-statIcon EquipmentManagement-statIcon--blue">
-            <FiEye />
+            <FiActivity />
           </span>
 
           <div>
@@ -769,27 +861,20 @@ const EquipmentManagement = () => {
             <small>{soldCount} sold listings</small>
           </div>
         </div>
-
       </div>
 
       {/* EQUIPMENT COLLECTION */}
-
       <section className="EquipmentManagement-panel">
-
         <div className="EquipmentManagement-panelHeader">
-
           <div>
+            <span className="EquipmentManagement-sectionLabel">
+              LISTINGS OVERVIEW
+            </span>
             <h2>Your Equipment Collection</h2>
-            <p>
-              Browse, edit and organize your equipment listings.
-            </p>
+            <p>Browse, edit and organize your equipment listings.</p>
           </div>
 
-          <div
-            className="EquipmentManagement-viewToggle"
-            aria-label="View mode"
-          >
-
+          <div className="EquipmentManagement-viewToggle" aria-label="View mode">
             <button
               type="button"
               className={
@@ -817,25 +902,18 @@ const EquipmentManagement = () => {
             >
               <FiList />
             </button>
-
           </div>
-
         </div>
 
         {/* SEARCH AND FILTERS */}
-
         <div className="EquipmentManagement-toolbar">
-
           <label className="EquipmentManagement-search">
-
             <FiSearch />
 
             <input
               type="search"
               value={search}
-              onChange={(event) =>
-                changeFilter(setSearch, event.target.value)
-              }
+              onChange={(event) => changeFilter(setSearch, event.target.value)}
               placeholder="Search equipment, brand, model, location..."
               aria-label="Search equipment listings"
             />
@@ -849,86 +927,41 @@ const EquipmentManagement = () => {
                 <FiX />
               </button>
             )}
-
           </label>
 
-          <label className="EquipmentManagement-selectWrap">
+          <CustomSelect
+            icon={<FiFilter />}
+            heading="Filter by equipment type"
+            ariaLabel="Filter by equipment type"
+            value={typeFilter}
+            options={typeOptions}
+            onChange={(value) => changeFilter(setTypeFilter, value)}
+          />
 
-            <FiFilter />
+          <CustomSelect
+            icon={<FiActivity />}
+            heading="Filter by status"
+            ariaLabel="Filter by status"
+            value={statusFilter}
+            options={statusSelectOptions}
+            onChange={(value) => changeFilter(setStatusFilter, value)}
+          />
 
-            <select
-              value={typeFilter}
-              onChange={(event) =>
-                changeFilter(
-                  setTypeFilter,
-                  event.target.value
-                )
-              }
-              aria-label="Filter by equipment type"
-            >
-              {availableEquipmentCategories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-
-            <FiChevronDown className="EquipmentManagement-selectArrow" />
-
-          </label>
-
-          <label className="EquipmentManagement-selectWrap">
-
-            <select
-              value={statusFilter}
-              onChange={(event) =>
-                changeFilter(
-                  setStatusFilter,
-                  event.target.value
-                )
-              }
-              aria-label="Filter by status"
-            >
-              <option value="All Status">All Status</option>
-
-              {statusOptions.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-
-            <FiChevronDown className="EquipmentManagement-selectArrow" />
-
-          </label>
-
-          <label className="EquipmentManagement-selectWrap EquipmentManagement-sortSelect">
-
-            <select
-              value={sortBy}
-              onChange={(event) =>
-                changeFilter(setSortBy, event.target.value)
-              }
-              aria-label="Sort equipment listings"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="title">Title A–Z</option>
-              <option value="mostViewed">Most Enquiries</option>
-            </select>
-
-            <FiChevronDown className="EquipmentManagement-selectArrow" />
-
-          </label>
-
+          <CustomSelect
+            icon={<FiSliders />}
+            heading="Sort listings"
+            ariaLabel="Sort equipment listings"
+            value={sortBy}
+            options={sortOptions}
+            onChange={(value) => changeFilter(setSortBy, value)}
+            className="EquipmentManagement-select--right"
+          />
         </div>
 
         {/* RESULTS COUNT */}
-
         <div className="EquipmentManagement-resultsBar">
-
           <p>
-            Showing <strong>{filteredEquipment.length}</strong> item{" "}
+            Showing <strong>{filteredEquipment.length}</strong>{" "}
             {filteredEquipment.length === 1 ? "listing" : "listings"}
           </p>
 
@@ -936,30 +969,19 @@ const EquipmentManagement = () => {
             typeFilter !== "All Equipment Types" ||
             statusFilter !== "All Status" ||
             sortBy !== "newest") && (
-            <button
-              type="button"
-              onClick={clearFilters}
-            >
+            <button type="button" onClick={clearFilters}>
               <FiX />
               Clear filters
             </button>
           )}
-
         </div>
 
         {/* GRID VIEW */}
-
         {viewMode === "grid" && filteredEquipment.length > 0 && (
           <div className="EquipmentManagement-grid">
-
             {visibleEquipment.map((item) => (
-              <article
-                className="EquipmentManagement-card"
-                key={item.id}
-              >
-
+              <article className="EquipmentManagement-card" key={item.id}>
                 <div className="EquipmentManagement-cardImage">
-
                   {getImage(item) ? (
                     <img
                       src={getImage(item)}
@@ -982,13 +1004,11 @@ const EquipmentManagement = () => {
                   {renderActions(item)}
 
                   <div className="EquipmentManagement-imageStatus">
-                    {renderStatus(item.status)}
+                    {renderStatus(getStatus(item))}
                   </div>
-
                 </div>
 
                 <div className="EquipmentManagement-cardBody">
-
                   <span className="EquipmentManagement-category">
                     {item.category || "Uncategorized"}
                   </span>
@@ -1004,10 +1024,25 @@ const EquipmentManagement = () => {
                     <span>{getAuthor(item)}</span>
                   </div>
 
+                  {(item.location || formatPrice(item)) && (
+                    <div className="EquipmentManagement-cardInfo">
+                      {item.location && (
+                        <span className="EquipmentManagement-location">
+                          <FiMapPin />
+                          {item.location}
+                        </span>
+                      )}
+
+                      {formatPrice(item) && (
+                        <strong className="EquipmentManagement-price">
+                          {formatPrice(item)}
+                        </strong>
+                      )}
+                    </div>
+                  )}
+
                   <div className="EquipmentManagement-cardFooter">
-
                     <div className="EquipmentManagement-cardMeta">
-
                       <span>
                         <FiCalendar />
                         {formatDate(getDate(item))}
@@ -1017,7 +1052,6 @@ const EquipmentManagement = () => {
                         <FiEye />
                         {(item.enquiries || 0).toLocaleString("en-IN")} enquiries
                       </span>
-
                     </div>
 
                     <button
@@ -1027,29 +1061,23 @@ const EquipmentManagement = () => {
                     >
                       View <FiArrowUpRight />
                     </button>
-
                   </div>
-
                 </div>
-
               </article>
             ))}
-
           </div>
         )}
 
         {/* LIST VIEW */}
-
         {viewMode === "list" && filteredEquipment.length > 0 && (
           <div className="EquipmentManagement-listWrap">
-
             <table className="EquipmentManagement-table">
-
               <thead>
                 <tr>
                   <th>Equipment Post</th>
                   <th>Equipment Type</th>
                   <th>Added By</th>
+                  <th>Price</th>
                   <th>Status</th>
                   <th>Enquiries</th>
                   <th>Listed Date</th>
@@ -1058,13 +1086,10 @@ const EquipmentManagement = () => {
               </thead>
 
               <tbody>
-
                 {visibleEquipment.map((item) => (
                   <tr key={item.id}>
-
                     <td>
                       <div className="EquipmentManagement-listPost">
-
                         {getImage(item) ? (
                           <img
                             src={getImage(item)}
@@ -1079,14 +1104,9 @@ const EquipmentManagement = () => {
 
                         <div>
                           <strong>{item.title}</strong>
-
-                          <span>
-                            {item.code || `EQP-${item.id}`}
-                          </span>
-
+                          <span>{item.code || `EQP-${item.id}`}</span>
                           <small>{getDescription(item)}</small>
                         </div>
-
                       </div>
                     </td>
 
@@ -1104,20 +1124,19 @@ const EquipmentManagement = () => {
                     </td>
 
                     <td>
-                      {renderStatus(item.status)}
+                      <span className="EquipmentManagement-listPrice">
+                        {formatPrice(item) || "—"}
+                      </span>
                     </td>
 
-                    <td>
-                      {(item.enquiries || 0).toLocaleString("en-IN")}
-                    </td>
+                    <td>{renderStatus(getStatus(item))}</td>
 
-                    <td>
-                      {formatDate(getDate(item))}
-                    </td>
+                    <td>{(item.enquiries || 0).toLocaleString("en-IN")}</td>
+
+                    <td>{formatDate(getDate(item))}</td>
 
                     <td>
                       <div className="EquipmentManagement-listActions">
-
                         <button
                           type="button"
                           aria-label={`View ${item.title}`}
@@ -1145,61 +1164,42 @@ const EquipmentManagement = () => {
                         >
                           <FiTrash2 />
                         </button>
-
                       </div>
                     </td>
-
                   </tr>
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
         )}
 
         {/* EMPTY STATE */}
-
         {filteredEquipment.length === 0 && (
           <div className="EquipmentManagement-empty">
-
             <span>
               <FiImage />
             </span>
 
             <h3>No equipment listings found</h3>
 
-            <p>
-              Try changing your search or filters to find equipment.
-            </p>
+            <p>Try changing your search or filters to find equipment.</p>
 
-            <button
-              type="button"
-              onClick={clearFilters}
-            >
+            <button type="button" onClick={clearFilters}>
               Clear all filters
             </button>
-
           </div>
         )}
 
         {/* PAGINATION */}
-
         {filteredEquipment.length > 0 && (
           <div className="EquipmentManagement-pagination">
-
             <span>
               Showing {startIndex + 1}–
-              {Math.min(
-                startIndex + itemsPerPage,
-                filteredEquipment.length
-              )}{" "}
-              of {filteredEquipment.length} listings
+              {Math.min(startIndex + itemsPerPage, filteredEquipment.length)} of{" "}
+              {filteredEquipment.length} listings
             </span>
 
             <div className="EquipmentManagement-pageButtons">
-
               <button
                 type="button"
                 disabled={safePage === 1}
@@ -1209,23 +1209,22 @@ const EquipmentManagement = () => {
                 ‹
               </button>
 
-              {Array.from(
-                { length: totalPages },
-                (_, index) => index + 1
-              ).map((page) => (
-                <button
-                  type="button"
-                  key={page}
-                  className={
-                    page === safePage
-                      ? "EquipmentManagement-pageButton--active"
-                      : ""
-                  }
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                (page) => (
+                  <button
+                    type="button"
+                    key={page}
+                    className={
+                      page === safePage
+                        ? "EquipmentManagement-pageButton--active"
+                        : ""
+                    }
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
 
               <button
                 type="button"
@@ -1235,24 +1234,17 @@ const EquipmentManagement = () => {
               >
                 ›
               </button>
-
             </div>
-
           </div>
         )}
-
       </section>
 
-      {/* =================================================
-         EQUIPMENT PREVIEW MODAL
-      ================================================= */}
-
+      {/* EQUIPMENT PREVIEW MODAL */}
       {selectedEquipment && (
         <div
           className="EquipmentManagement-modalBackdrop"
           onClick={() => setSelectedEquipment(null)}
         >
-
           <section
             className="EquipmentManagement-detailModal"
             role="dialog"
@@ -1260,17 +1252,13 @@ const EquipmentManagement = () => {
             aria-labelledby="EquipmentManagement-detailTitle"
             onClick={(event) => event.stopPropagation()}
           >
-
             <div className="EquipmentManagement-modalHeader">
-
               <div>
                 <span className="EquipmentManagement-eyebrow">
                   RHINO'S EQUIPMENT
                 </span>
 
-                <h2 id="EquipmentManagement-detailTitle">
-                  Equipment Details
-                </h2>
+                <h2 id="EquipmentManagement-detailTitle">Equipment Details</h2>
               </div>
 
               <button
@@ -1280,7 +1268,6 @@ const EquipmentManagement = () => {
               >
                 <FiX />
               </button>
-
             </div>
 
             {getImage(selectedEquipment) && (
@@ -1292,10 +1279,8 @@ const EquipmentManagement = () => {
             )}
 
             <div className="EquipmentManagement-detailBody">
-
               <div className="EquipmentManagement-detailMeta">
-
-                {renderStatus(selectedEquipment.status)}
+                {renderStatus(getStatus(selectedEquipment))}
 
                 <span className="EquipmentManagement-category">
                   {selectedEquipment.category}
@@ -1305,7 +1290,6 @@ const EquipmentManagement = () => {
                   <FiCalendar />
                   {formatDate(getDate(selectedEquipment))}
                 </span>
-
               </div>
 
               <h3>{selectedEquipment.title}</h3>
@@ -1321,20 +1305,30 @@ const EquipmentManagement = () => {
                   {selectedEquipment.location}
                 </div>
               )}
+
               <div className="EquipmentManagement-detailSpecs">
                 {[
-                  ["Manufacturer", selectedEquipment.manufacturer],
-                  ["Model", selectedEquipment.model],
+                  [
+                    "Manufacturer",
+                    selectedEquipment.manufacturer || selectedEquipment.brandName,
+                  ],
+                  [
+                    "Model",
+                    selectedEquipment.model || selectedEquipment.modelName,
+                  ],
                   ["Year", selectedEquipment.year],
                   ["Operating Hours", selectedEquipment.operatingHours],
+                  ["Implement Power", selectedEquipment.implementPower],
                   ["Condition", selectedEquipment.condition],
-                  ["Asking Price", selectedEquipment.price],
-                ].filter(([, value]) => value).map(([label, value]) => (
-                  <div key={label}>
-                    <span>{label}</span>
-                    <strong>{value}</strong>
-                  </div>
-                ))}
+                  ["Asking Price", formatPrice(selectedEquipment)],
+                ]
+                  .filter(([, value]) => value)
+                  .map(([label, value]) => (
+                    <div key={label}>
+                      <span>{label}</span>
+                      <strong>{value}</strong>
+                    </div>
+                  ))}
               </div>
 
               <div
@@ -1346,16 +1340,15 @@ const EquipmentManagement = () => {
                 }}
               />
 
-             {selectedEquipment.quote && (
-  <blockquote className="EquipmentManagement-detailQuote">
-    <FiMessageSquare />
-    {selectedEquipment.quote}
-  </blockquote>
-)}
+              {selectedEquipment.quote && (
+                <blockquote className="EquipmentManagement-detailQuote">
+                  <FiMessageSquare />
+                  {selectedEquipment.quote}
+                </blockquote>
+              )}
 
               {selectedEquipment.otherImages?.length > 0 && (
                 <div className="EquipmentManagement-detailImages">
-
                   <h4>Additional Images</h4>
 
                   <div>
@@ -1371,43 +1364,36 @@ const EquipmentManagement = () => {
                       />
                     ))}
                   </div>
-
                 </div>
               )}
 
               {getTags(selectedEquipment.tags).length > 0 && (
                 <div className="EquipmentManagement-detailTags">
-
                   {getTags(selectedEquipment.tags).map((tag) => (
                     <span key={tag}>#{tag}</span>
                   ))}
-
                 </div>
               )}
 
               {(selectedEquipment.seoTitle ||
                 selectedEquipment.seoDescription) && (
                 <div className="EquipmentManagement-detailSEO">
-
                   <h4>SEO Information</h4>
 
                   {selectedEquipment.seoTitle && (
                     <p>
-                      <strong>SEO Title:</strong>{" "}
-                      {selectedEquipment.seoTitle}
+                      <strong>SEO Title:</strong> {selectedEquipment.seoTitle}
                     </p>
                   )}
 
                   {selectedEquipment.seoDescription && (
                     <p>{selectedEquipment.seoDescription}</p>
                   )}
-
                 </div>
               )}
 
               {selectedEquipment.documents?.length > 0 && (
                 <div className="EquipmentManagement-detailDocuments">
-
                   <h4>Attached Documents</h4>
 
                   {selectedEquipment.documents.map((document, index) => (
@@ -1416,20 +1402,14 @@ const EquipmentManagement = () => {
                       className="EquipmentManagement-detailDocument"
                     >
                       <FiFile />
-
-                      <span>
-                        {document.name || `Document ${index + 1}`}
-                      </span>
+                      <span>{document.name || `Document ${index + 1}`}</span>
                     </div>
                   ))}
-
                 </div>
               )}
-
             </div>
 
             <div className="EquipmentManagement-modalFooter">
-
               <button
                 type="button"
                 className="EquipmentManagement-modalSecondary"
@@ -1446,24 +1426,17 @@ const EquipmentManagement = () => {
                 <FiEdit2 />
                 Edit Equipment
               </button>
-
             </div>
-
           </section>
-
         </div>
       )}
 
-      {/* =================================================
-         DELETE CONFIRMATION
-      ================================================= */}
-
+      {/* DELETE CONFIRMATION */}
       {deleteId !== null && (
         <div
           className="EquipmentManagement-modalBackdrop"
           onClick={() => setDeleteId(null)}
         >
-
           <section
             className="EquipmentManagement-confirmModal"
             role="dialog"
@@ -1471,22 +1444,18 @@ const EquipmentManagement = () => {
             aria-labelledby="EquipmentManagement-deleteTitle"
             onClick={(event) => event.stopPropagation()}
           >
-
             <span className="EquipmentManagement-deleteIcon">
               <FiTrash2 />
             </span>
 
-            <h2 id="EquipmentManagement-deleteTitle">
-              Delete item post?
-            </h2>
+            <h2 id="EquipmentManagement-deleteTitle">Delete item post?</h2>
 
             <p>
-              This item will be removed from your local
-              item collection. This action cannot be undone.
+              This item will be removed from your local item collection. This
+              action cannot be undone.
             </p>
 
             <div className="EquipmentManagement-confirmActions">
-
               <button
                 type="button"
                 className="EquipmentManagement-modalSecondary"
@@ -1503,16 +1472,12 @@ const EquipmentManagement = () => {
                 <FiTrash2 />
                 Delete Equipment
               </button>
-
             </div>
-
           </section>
-
         </div>
       )}
 
-      {/* CLOSE DROPDOWN WHEN CLICKING OUTSIDE */}
-
+      {/* CLOSE ACTION MENU WHEN CLICKING OUTSIDE */}
       {openMenu !== null && (
         <button
           type="button"
@@ -1521,7 +1486,6 @@ const EquipmentManagement = () => {
           onClick={() => setOpenMenu(null)}
         />
       )}
-
     </div>
   );
 };
