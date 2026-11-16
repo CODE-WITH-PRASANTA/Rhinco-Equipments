@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -14,22 +13,11 @@ import {
   FiPlusSquare,
   FiMail,
   FiX,
-  FiTruck,
-  FiCalendar,
-  FiShoppingCart,
   FiSettings,
-  FiStar,
-  FiBarChart2,
-  FiClipboard,
 } from "react-icons/fi";
 
+import logo from "../../assets/logo.png";
 import "./Sidebar.css";
-
-const BrandMark = ({ className = "" }) => (
-  <div className={className}>
-    <FiTruck size={25} />
-  </div>
-);
 
 const menuItems = [
   {
@@ -99,34 +87,9 @@ const menuItems = [
     ],
   },
   {
-    text: "Service Slot",
-    path: "/service-slot",
-    icon: <FiCalendar size={20} />,
-  },
-  {
-    text: "Product Orders",
-    path: "/product-orders",
-    icon: <FiShoppingCart size={20} />,
-  },
-  {
-    text: "Machinery Orders",
-    path: "/machinery-orders",
-    icon: <FiTruck size={20} />,
-  },
-  {
-    text: "Review",
-    path: "/review",
-    icon: <FiStar size={20} />,
-  },
-  {
     text: "Enquiry",
     path: "/enquiry",
     icon: <FiMail size={20} />,
-  },
-  {
-    text: "Report",
-    path: "/report",
-    icon: <FiBarChart2 size={20} />,
   },
   {
     text: "Settings",
@@ -135,24 +98,22 @@ const menuItems = [
   },
 ];
 
-const Sidebar = ({
-  isCollapsed,
-  isMobileOpen,
-  onClose,
-}) => {
-  const location = useLocation();
+const isPathActive = (pathname, path) =>
+  pathname === path || pathname.startsWith(path + "/");
 
+const Sidebar = ({ isCollapsed, isMobileOpen, onClose }) => {
+  const location = useLocation();
   const [openDropdown, setOpenDropdown] = useState("");
+
+  const showText = !isCollapsed || isMobileOpen;
 
   // Automatically open the dropdown of the active route
   useEffect(() => {
     const activeDropdown = menuItems.find(
       (item) =>
         item.type === "dropdown" &&
-        item.children?.some(
-          (child) =>
-            location.pathname === child.path ||
-            location.pathname.startsWith(child.path + "/")
+        item.children?.some((child) =>
+          isPathActive(location.pathname, child.path)
         )
     );
 
@@ -160,29 +121,20 @@ const Sidebar = ({
   }, [location.pathname]);
 
   const handleNavClick = () => {
-    if (isMobileOpen && onClose) {
-      onClose();
-    }
+    if (isMobileOpen && onClose) onClose();
   };
 
   const handleDropdownToggle = (text) => {
     if (isCollapsed && !isMobileOpen) return;
-
     setOpenDropdown((prev) => (prev === text ? "" : text));
   };
 
   const isChildActive = (children) =>
-    children?.some(
-      (child) =>
-        location.pathname === child.path ||
-        location.pathname.startsWith(child.path + "/")
-    );
+    children?.some((child) => isPathActive(location.pathname, child.path));
 
   return (
     <aside
-      className={`Sidebar ${
-        isCollapsed ? "collapsed" : ""
-      } ${
+      className={`Sidebar ${isCollapsed ? "collapsed" : ""} ${
         isMobileOpen ? "mobile-open" : ""
       }`}
     >
@@ -191,14 +143,17 @@ const Sidebar = ({
       {/* LOGO */}
       <div className="Sidebar-logo">
         <div className="Sidebar-logo-iconWrap">
-          <BrandMark className="Sidebar-logo-icon" />
+          <img
+            src={logo}
+            alt="Rhino's Equipment logo"
+            className="Sidebar-logo-img"
+          />
         </div>
 
-        {(!isCollapsed || isMobileOpen) && (
+        {showText && (
           <div className="Sidebar-logo-text-group">
-            <span className="Sidebar-logo-text">
-              Rhino's Equipment
-            </span>
+            <span className="Sidebar-logo-text">Rhino's Equipment</span>
+            <span className="Sidebar-logo-tagline">Admin Panel</span>
           </div>
         )}
 
@@ -235,23 +190,14 @@ const Sidebar = ({
                     isActive ? "active" : ""
                   }`}
                   onClick={() => handleDropdownToggle(item.text)}
-                  title={
-                    isCollapsed && !isMobileOpen
-                      ? item.text
-                      : undefined
-                  }
+                  title={!showText ? item.text : undefined}
                   aria-expanded={isOpen}
                 >
-                  <span className="Sidebar-icon">
-                    {item.icon}
-                  </span>
+                  <span className="Sidebar-icon">{item.icon}</span>
 
-                  {(!isCollapsed || isMobileOpen) && (
+                  {showText && (
                     <>
-                      <span className="Sidebar-text">
-                        {item.text}
-                      </span>
-
+                      <span className="Sidebar-text">{item.text}</span>
                       <FiChevronDown
                         size={16}
                         className={`Sidebar-chevron ${
@@ -263,7 +209,7 @@ const Sidebar = ({
                 </button>
 
                 {/* SUBMENU */}
-                {(!isCollapsed || isMobileOpen) && isOpen && (
+                {showText && isOpen && (
                   <div className="Sidebar-submenu">
                     {item.children.map((child) => (
                       <NavLink
@@ -272,9 +218,7 @@ const Sidebar = ({
                         end
                         onClick={handleNavClick}
                         className={({ isActive }) =>
-                          `Sidebar-submenu-link ${
-                            isActive ? "active" : ""
-                          }`
+                          `Sidebar-submenu-link ${isActive ? "active" : ""}`
                         }
                       >
                         {child.icon}
@@ -293,25 +237,14 @@ const Sidebar = ({
               key={item.text}
               to={item.path}
               end={item.path === "/"}
-              title={
-                isCollapsed && !isMobileOpen
-                  ? item.text
-                  : undefined
-              }
+              title={!showText ? item.text : undefined}
               onClick={handleNavClick}
               className={({ isActive }) =>
                 `Sidebar-link ${isActive ? "active" : ""}`
               }
             >
-              <span className="Sidebar-icon">
-                {item.icon}
-              </span>
-
-              {(!isCollapsed || isMobileOpen) && (
-                <span className="Sidebar-text">
-                  {item.text}
-                </span>
-              )}
+              <span className="Sidebar-icon">{item.icon}</span>
+              {showText && <span className="Sidebar-text">{item.text}</span>}
             </NavLink>
           );
         })}

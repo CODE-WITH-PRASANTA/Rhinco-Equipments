@@ -1,5043 +1,2050 @@
 /* =====================================================
-
-   EQUIPMENT MANAGEMENT - BASE
-
-\===================================================== */
-
-
+   EQUIPMENT MANAGEMENT
+   White + Light Green Theme
+===================================================== */
 
 .EquipmentManagement {
-
-  --EquipmentManagement-bronze: #e87524;
-
-  --EquipmentManagement-bronze-dark: #bd5418;
-
-  --EquipmentManagement-bronze-light: #e87524;
-
-  --EquipmentManagement-cream: #f3f6f8;
-
-  --EquipmentManagement-cream-dark: #e8eef2;
-
-  --EquipmentManagement-border: #dce4ea;
-
-  --EquipmentManagement-text: #1d2b36;
-
-  --EquipmentManagement-muted: #71808c;
-
-  --EquipmentManagement-white: #ffffff;
-
-
+  --EM-green: #16a34a;
+  --EM-green-dark: #15803d;
+  --EM-green-soft: #ecfdf3;
+  --EM-green-softer: #f4fcf7;
+  --EM-bg: #f5f9f6;
+  --EM-border: #e1ece4;
+  --EM-border-strong: #d3e6d9;
+  --EM-text: #1e3a2a;
+  --EM-muted: #6b7f72;
 
   width: 100%;
-
   min-width: 0;
-
-  padding: 26px;
-
-  color: var(--EquipmentManagement-text);
-
-  background: var(--EquipmentManagement-cream);
-
+  padding: 28px;
+  color: var(--EM-text);
+  background: var(--EM-bg);
   font-family: Inter, "Segoe UI", Arial, sans-serif;
-
+  font-size: 14px;
   box-sizing: border-box;
-
 }
-
-
 
 .EquipmentManagement *,
-
 .EquipmentManagement *::before,
-
 .EquipmentManagement *::after {
-
   box-sizing: border-box;
-
 }
-
-
 
 .EquipmentManagement button,
-
-.EquipmentManagement input,
-
-.EquipmentManagement select,
-
-.EquipmentManagement textarea {
-
+.EquipmentManagement input {
   font: inherit;
-
 }
-
-
 
 .EquipmentManagement button {
-
   cursor: pointer;
-
 }
-
-
 
 .EquipmentManagement button:disabled {
-
   cursor: not-allowed;
-
   opacity: 0.45;
-
 }
-
-
 
 .EquipmentManagement button:focus-visible,
-
-.EquipmentManagement input:focus-visible,
-
-.EquipmentManagement select:focus-visible,
-
-.EquipmentManagement textarea:focus-visible {
-
-  outline: 3px solid rgba(145, 99, 51, 0.22);
-
+.EquipmentManagement input:focus-visible {
+  outline: 3px solid rgba(22, 163, 74, 0.22);
   outline-offset: 2px;
-
 }
 
-
-
 /* =====================================================
-
    HEADER
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-header {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 22px;
-
-  margin-bottom: 24px;
-
+  margin-bottom: 26px;
 }
-
-
 
 .EquipmentManagement-heading {
-
   display: flex;
-
   align-items: center;
-
-  gap: 15px;
-
+  gap: 16px;
   min-width: 0;
-
 }
-
-
 
 .EquipmentManagement-headingIcon {
-
-  width: 55px;
-
-  height: 55px;
-
+  width: 58px;
+  height: 58px;
   flex-shrink: 0;
-
   display: grid;
-
   place-items: center;
-
-  border-radius: 15px;
-
+  border-radius: 16px;
   color: #ffffff;
-
-  background: linear-gradient(145deg, #f29a55, #d9651d);
-
-  box-shadow: 0 7px 18px rgba(120, 82, 42, 0.16);
-
-  font-size: 23px;
-
+  background: linear-gradient(145deg, #34d160, #15803d);
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.28);
+  font-size: 25px;
 }
-
-
 
 .EquipmentManagement-eyebrow {
-
   display: block;
-
   margin-bottom: 6px;
-
-  color: var(--EquipmentManagement-bronze);
-
-  font-size: 10px;
-
+  color: var(--EM-green);
+  font-size: 11px;
   font-weight: 800;
-
-  letter-spacing: 1.5px;
-
+  letter-spacing: 1.6px;
 }
-
-
 
 .EquipmentManagement-heading h1 {
-
   margin: 0;
-
-  color: var(--EquipmentManagement-text);
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: clamp(25px, 2.5vw, 34px);
-
-  font-weight: 700;
-
+  color: var(--EM-text);
+  font-size: clamp(26px, 2.6vw, 34px);
+  font-weight: 800;
   letter-spacing: -0.7px;
-
   line-height: 1.2;
-
 }
-
-
 
 .EquipmentManagement-heading p {
-
-  margin: 7px 0 0;
-
-  color: var(--EquipmentManagement-muted);
-
-  font-size: 12px;
-
+  margin: 6px 0 0;
+  color: var(--EM-muted);
+  font-size: 14px;
   line-height: 1.6;
-
 }
-
-
 
 .EquipmentManagement-createButton {
-
-  min-height: 43px;
-
+  min-height: 46px;
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 9px;
-
   flex-shrink: 0;
-
-  padding: 11px 17px;
-
-  border: 1px solid var(--EquipmentManagement-bronze);
-
-  border-radius: 9px;
-
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 12px;
   color: #ffffff;
-
-  background: var(--EquipmentManagement-bronze);
-
-  box-shadow: 0 4px 10px rgba(145, 99, 51, 0.1);
-
-  font-size: 12px;
-
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+  font-size: 14px;
   font-weight: 700;
-
-  transition: background 0.2s ease, transform 0.2s ease;
-
+  transition: 0.2s ease;
 }
-
-
 
 .EquipmentManagement-createButton:hover {
-
-  background: var(--EquipmentManagement-bronze-dark);
-
-  transform: translateY(-1px);
-
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(22, 163, 74, 0.38);
 }
-
-
 
 .EquipmentManagement-createButton svg {
-
   flex-shrink: 0;
-
-  font-size: 16px;
-
+  font-size: 18px;
 }
 
-
-
 /* =====================================================
-
    NOTIFICATION
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-notice {
-
   display: flex;
-
   align-items: center;
-
   gap: 10px;
-
   margin-bottom: 20px;
-
-  padding: 13px 15px;
-
-  border: 1px solid #d8e8d5;
-
-  border-radius: 9px;
-
-  color: #356a43;
-
-  background: #f0f8ee;
-
-  font-size: 12px;
-
+  padding: 14px 16px;
+  border: 1px solid #bbf0cd;
+  border-radius: 12px;
+  color: #15803d;
+  background: #ecfdf3;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.5;
-
 }
-
-
 
 .EquipmentManagement-notice > svg {
-
   flex-shrink: 0;
-
-  font-size: 17px;
-
+  font-size: 18px;
 }
-
-
 
 .EquipmentManagement-notice span {
-
   flex: 1;
-
 }
-
-
 
 .EquipmentManagement-notice button {
-
-  width: 28px;
-
-  height: 28px;
-
+  width: 30px;
+  height: 30px;
   display: grid;
-
   place-items: center;
-
   flex-shrink: 0;
-
   padding: 0;
-
   border: 0;
-
-  border-radius: 6px;
-
+  border-radius: 8px;
   color: inherit;
-
   background: transparent;
-
 }
-
-
 
 .EquipmentManagement-notice button:hover {
-
-  background: rgba(53, 106, 67, 0.09);
-
+  background: rgba(22, 163, 74, 0.12);
 }
 
-
-
 /* =====================================================
-
    STATISTICS
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-stats {
-
   display: grid;
-
   grid-template-columns: repeat(4, minmax(0, 1fr));
-
-  gap: 15px;
-
-  margin-bottom: 24px;
-
+  gap: 16px;
+  margin-bottom: 26px;
 }
-
-
 
 .EquipmentManagement-statCard {
-
   min-width: 0;
-
-  min-height: 105px;
-
+  min-height: 112px;
   display: flex;
-
   align-items: center;
-
-  gap: 13px;
-
-  padding: 19px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 12px;
-
-  background: var(--EquipmentManagement-white);
-
-  box-shadow: 0 3px 10px rgba(75, 53, 30, 0.025);
-
+  gap: 15px;
+  padding: 20px;
+  border: 1px solid var(--EM-border);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(22, 90, 50, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-
 }
-
-
 
 .EquipmentManagement-statCard:hover {
-
-  transform: translateY(-2px);
-
-  box-shadow: 0 8px 20px rgba(75, 53, 30, 0.06);
-
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px rgba(22, 90, 50, 0.1);
 }
-
-
 
 .EquipmentManagement-statIcon {
-
-  width: 43px;
-
-  height: 43px;
-
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
-
   display: grid;
-
   place-items: center;
-
-  border-radius: 11px;
-
-  color: #d9651d;
-
-  background: #fff0e5;
-
-  font-size: 20px;
-
+  border-radius: 13px;
+  color: #16a34a;
+  background: #e3f8ea;
+  font-size: 22px;
 }
 
-
-
-.EquipmentManagement-statIcon--green {
-
-  color: #24845d;
-
-  background: #e8f5ee;
-
+.EquipmentManagement-statIcon--teal {
+  color: #0f9d6b;
+  background: #def7ee;
 }
-
-
 
 .EquipmentManagement-statIcon--amber {
-
-  color: #b86b21;
-
-  background: #fff3e7;
-
+  color: #c27a14;
+  background: #fff1d6;
 }
-
-
 
 .EquipmentManagement-statIcon--blue {
-
-  color: #397ca5;
-
-  background: #eaf3f8;
-
+  color: #3b82c4;
+  background: #e6f1fc;
 }
-
-
 
 .EquipmentManagement-statCard > div {
-
   display: flex;
-
   flex-direction: column;
-
   min-width: 0;
-
   gap: 3px;
-
 }
-
-
 
 .EquipmentManagement-statCard > div > span {
-
-  color: var(--EquipmentManagement-muted);
-
-  font-size: 11px;
-
-  font-weight: 550;
-
+  color: var(--EM-muted);
+  font-size: 13px;
+  font-weight: 600;
 }
-
-
 
 .EquipmentManagement-statCard strong {
-
-  color: var(--EquipmentManagement-text);
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 27px;
-
-  line-height: 1.1;
-
+  color: var(--EM-text);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
 }
-
-
 
 .EquipmentManagement-statCard small {
-
-  color: #a49a8c;
-
-  font-size: 10px;
-
+  color: #8ea196;
+  font-size: 12px;
   line-height: 1.4;
-
 }
 
-
-
 /* =====================================================
-
    MAIN PANEL
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-panel {
-
   min-width: 0;
-
-  padding: 24px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 14px;
-
-  background: var(--EquipmentManagement-white);
-
-  box-shadow: 0 4px 18px rgba(75, 53, 30, 0.025);
-
+  padding: 26px;
+  border: 1px solid var(--EM-border);
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 6px 22px rgba(22, 90, 50, 0.04);
 }
-
-
 
 .EquipmentManagement-panelHeader {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   flex-wrap: wrap;
-
   gap: 18px;
-
-  margin-bottom: 23px;
-
+  margin-bottom: 24px;
 }
 
-
+.EquipmentManagement-sectionLabel {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--EM-green);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
 
 .EquipmentManagement-panelHeader h2 {
-
   margin: 0;
-
-  color: var(--EquipmentManagement-text);
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 23px;
-
+  color: var(--EM-text);
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
   line-height: 1.3;
-
 }
-
-
 
 .EquipmentManagement-panelHeader p {
-
-  margin: 7px 0 0;
-
-  color: var(--EquipmentManagement-muted);
-
-  font-size: 12px;
-
+  margin: 6px 0 0;
+  color: var(--EM-muted);
+  font-size: 14px;
   line-height: 1.6;
-
-}
-
-
-
-.EquipmentManagement-tabs {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  flex-wrap: wrap;
-
-  gap: 5px;
-
-  padding: 5px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 10px;
-
-  background: #f5f7f9;
-
-}
-
-
-
-.EquipmentManagement-tab {
-
-  min-height: 36px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 7px;
-
-  padding: 9px 13px;
-
-  border: 1px solid transparent;
-
-  border-radius: 7px;
-
-  color: #647684;
-
-  background: transparent;
-
-  font-size: 11px;
-
-  font-weight: 650;
-
-  transition: background 0.2s ease, color 0.2s ease;
-
-}
-
-
-
-.EquipmentManagement-tab svg {
-
-  font-size: 15px;
-
-}
-
-
-
-.EquipmentManagement-tab:hover {
-
-  color: var(--EquipmentManagement-bronze-dark);
-
-}
-
-
-
-.EquipmentManagement-tab--active {
-
-  border-color: #f2c6a6;
-
-  color: var(--EquipmentManagement-bronze-dark);
-
-  background: #ffffff;
-
-  box-shadow: 0 2px 5px rgba(75, 53, 30, 0.06);
-
-}
-
-
-
-/* =====================================================
-
-   FORM INTRODUCTION
-
-\===================================================== */
-
-
-
-.EquipmentManagement-form {
-
-  width: 100%;
-
-}
-
-
-
-.EquipmentManagement-formIntro {
-
-  margin-bottom: 23px;
-
-  padding: 18px;
-
-  border: 1px solid #dce6ed;
-
-  border-radius: 10px;
-
-  background: #f7f9fa;
-
-}
-
-
-
-.EquipmentManagement-formIntro h3 {
-
-  margin: 0;
-
-  color: var(--EquipmentManagement-text);
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 22px;
-
-}
-
-
-
-.EquipmentManagement-formIntro p {
-
-  margin: 8px 0 0;
-
-  color: var(--EquipmentManagement-muted);
-
-  font-size: 12px;
-
-  line-height: 1.6;
-
-}
-
-
-
-/* =====================================================
-
-   FORM GRID AND INPUTS
-
-\===================================================== */
-
-
-
-.EquipmentManagement-formGrid {
-
-  display: grid;
-
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 21px 20px;
-
-}
-
-
-
-.EquipmentManagement-field {
-
-  display: flex;
-
-  flex-direction: column;
-
-  min-width: 0;
-
-  gap: 8px;
-
-}
-
-
-
-.EquipmentManagement-field--wide {
-
-  grid-column: 1 / -1;
-
-}
-
-
-
-.EquipmentManagement-field > label,
-
-.EquipmentManagement-uploadTitle label {
-
-  color: #514332;
-
-  font-size: 12px;
-
-  font-weight: 750;
-
-}
-
-
-
-.EquipmentManagement-field input:not([type="file"]),
-
-.EquipmentManagement-field select,
-
-.EquipmentManagement-field textarea {
-
-  width: 100%;
-
-  min-width: 0;
-
-  min-height: 43px;
-
-  padding: 11px 13px;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 8px;
-
-  outline: none;
-
-  color: #4b4033;
-
-  background: #ffffff;
-
-  font-size: 12px;
-
-  line-height: 1.5;
-
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-}
-
-
-
-.EquipmentManagement-field input::placeholder,
-
-.EquipmentManagement-field textarea::placeholder {
-
-  color: #8b99a4;
-
-}
-
-
-
-.EquipmentManagement-field input:focus,
-
-.EquipmentManagement-field select:focus,
-
-.EquipmentManagement-field textarea:focus {
-
-  border-color: #e87524;
-
-  box-shadow: 0 0 0 3px rgba(145, 99, 51, 0.08);
-
-}
-
-
-
-.EquipmentManagement-field textarea {
-
-  min-height: 90px;
-
-  resize: vertical;
-
-}
-
-
-
-.EquipmentManagement-field select {
-
-  cursor: pointer;
-
-}
-
-
-
-.EquipmentManagement-inputIcon {
-
-  min-width: 0;
-
-  min-height: 43px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 0 12px;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 8px;
-
-  background: #ffffff;
-
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-}
-
-
-
-.EquipmentManagement-inputIcon:focus-within {
-
-  border-color: #e87524;
-
-  box-shadow: 0 0 0 3px rgba(145, 99, 51, 0.08);
-
-}
-
-
-
-.EquipmentManagement-inputIcon > svg {
-
-  flex-shrink: 0;
-
-  color: #e87524;
-
-  font-size: 16px;
-
-}
-
-
-
-.EquipmentManagement-inputIcon input:not([type="file"]) {
-
-  min-width: 0;
-
-  min-height: 41px;
-
-  padding: 8px 0;
-
-  border: 0;
-
-  outline: 0;
-
-  box-shadow: none;
-
-}
-
-
-
-.EquipmentManagement-inputIcon input:focus {
-
-  border: 0;
-
-  box-shadow: none;
-
-}
-
-
-
-.EquipmentManagement-fieldHint {
-
-  display: block;
-
-  color: #a09484;
-
-  font-size: 10px;
-
-  line-height: 1.6;
-
-}
-
-
-
-/* =====================================================
-
-   CHARACTERISTICS INPUT
-
-\===================================================== */
-
-
-
-.EquipmentManagement-characteristicHeading {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  flex-wrap: wrap;
-
-  gap: 10px;
-
-  margin-bottom: 2px;
-
-}
-
-
-
-.EquipmentManagement-characteristicHeading label {
-
-  display: block;
-
-  margin-bottom: 6px;
-
-  color: #514332;
-
-  font-size: 12px;
-
-  font-weight: 750;
-
-}
-
-
-
-.EquipmentManagement-characteristicHeading p {
-
-  margin: 0;
-
-  color: var(--EquipmentManagement-muted);
-
-  font-size: 11px;
-
-  line-height: 1.6;
-
-}
-
-
-
-.EquipmentManagement-characteristicCount {
-
-  flex-shrink: 0;
-
-  padding: 7px 10px;
-
-  border: 1px solid #e8d6bd;
-
-  border-radius: 7px;
-
-  color: #a64b19;
-
-  background: #fff0e5;
-
-  font-size: 10px;
-
-  font-weight: 750;
-
-}
-
-
-
-.EquipmentManagement-characteristicRow {
-
-  display: flex;
-
-  align-items: stretch;
-
-  gap: 10px;
-
-}
-
-
-
-.EquipmentManagement-characteristicRow .EquipmentManagement-inputIcon {
-
-  flex: 1;
-
-}
-
-
-
-.EquipmentManagement-addCharacteristic {
-
-  min-height: 43px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 7px;
-
-  padding: 0 17px;
-
-  border: 1px solid var(--EquipmentManagement-bronze);
-
-  border-radius: 8px;
-
-  color: #ffffff;
-
-  background: var(--EquipmentManagement-bronze);
-
-  font-size: 12px;
-
-  font-weight: 700;
-
-  transition: background 0.2s ease;
-
-}
-
-
-
-.EquipmentManagement-addCharacteristic:hover {
-
-  background: var(--EquipmentManagement-bronze-dark);
-
-}
-
-
-
-.EquipmentManagement-characteristicChips {
-
-  display: flex;
-
-  align-items: center;
-
-  flex-wrap: wrap;
-
-  gap: 8px;
-
-  margin-top: 5px;
-
-}
-
-
-
-.EquipmentManagement-characteristicChip {
-
-  max-width: 100%;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  padding: 7px 8px 7px 10px;
-
-  overflow-wrap: anywhere;
-
-  border: 1px solid #f2c6a6;
-
-  border-radius: 7px;
-
-  color: #a64b19;
-
-  background: #faf2e7;
-
-  font-size: 11px;
-
-  line-height: 1.4;
-
-}
-
-
-
-.EquipmentManagement-characteristicChip > svg {
-
-  flex-shrink: 0;
-
-  color: #e87524;
-
-}
-
-
-
-.EquipmentManagement-characteristicChip button {
-
-  width: 19px;
-
-  height: 19px;
-
-  display: grid;
-
-  place-items: center;
-
-  flex-shrink: 0;
-
-  padding: 0;
-
-  border: 0;
-
-  border-radius: 5px;
-
-  color: #a64b19;
-
-  background: rgba(164, 123, 75, 0.12);
-
-}
-
-
-
-.EquipmentManagement-characteristicChip button:hover {
-
-  color: #ffffff;
-
-  background: var(--EquipmentManagement-bronze);
-
-}
-
-
-
-.EquipmentManagement-characteristicChip button svg {
-
-  font-size: 12px;
-
-}
-
-
-
-.EquipmentManagement-noCharacteristics {
-
-  color: #a49a8c;
-
-  font-size: 11px;
-
-}
-
-
-
-/* =====================================================
-
-   TINYMCE EDITOR
-
-\===================================================== */
-
-
-
-.EquipmentManagement-editor {
-
-  width: 100%;
-
-  min-width: 0;
-
-  overflow: hidden;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 9px;
-
-  background: #ffffff;
-
-}
-
-
-
-.EquipmentManagement-editor .tox-tinymce {
-
-  max-width: 100%;
-
-  border: 0 !important;
-
-  border-radius: 9px !important;
-
-}
-
-
-
-.EquipmentManagement-editor .tox .tox-toolbar,
-
-.EquipmentManagement-editor .tox .tox-toolbar__primary {
-
-  background: #f3f6f8 !important;
-
-}
-
-
-
-.EquipmentManagement-editor .tox .tox-statusbar {
-
-  border-top: 1px solid #e2e9ee !important;
-
-}
-
-
-
-/* =====================================================
-
-   IMAGE UPLOAD SECTION
-
-\===================================================== */
-
-
-
-.EquipmentManagement-uploadTitle {
-
-  display: flex;
-
-  align-items: flex-start;
-
-  gap: 11px;
-
-  margin-bottom: 4px;
-
-}
-
-
-
-.EquipmentManagement-uploadTitle > svg {
-
-  flex-shrink: 0;
-
-  margin-top: 1px;
-
-  color: #e87524;
-
-  font-size: 20px;
-
-}
-
-
-
-.EquipmentManagement-uploadTitle > div {
-
-  min-width: 0;
-
-}
-
-
-
-.EquipmentManagement-uploadTitle p {
-
-  margin: 5px 0 0;
-
-  color: var(--EquipmentManagement-muted);
-
-  font-size: 11px;
-
-  line-height: 1.6;
-
-}
-
-
-
-.EquipmentManagement-hiddenInput {
-
-  display: none !important;
-
-}
-
-
-
-.EquipmentManagement-uploadBox {
-
-  width: 100%;
-
-  min-width: 0;
-
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 9px;
-
-  padding: 27px 18px;
-
-  border: 1px dashed #e8b18b;
-
-  border-radius: 11px;
-
-  color: #85603b;
-
-  background: #f7f9fa;
-
-  text-align: center;
-
-  transition: border-color 0.2s ease, background 0.2s ease;
-
-}
-
-
-
-.EquipmentManagement-uploadBox:hover {
-
-  border-color: var(--EquipmentManagement-bronze);
-
-  background: #faf2e7;
-
-}
-
-
-
-.EquipmentManagement-uploadBox > svg {
-
-  font-size: 25px;
-
-  color: #e87524;
-
-}
-
-
-
-.EquipmentManagement-uploadBox strong {
-
-  color: #253b4a;
-
-  font-size: 12px;
-
-}
-
-
-
-.EquipmentManagement-uploadBox span {
-
-  color: #968777;
-
-  font-size: 11px;
-
-  line-height: 1.5;
-
-}
-
-
-
-.EquipmentManagement-uploadBox--main {
-
-  min-height: 165px;
-
-}
-
-
-
-.EquipmentManagement-mainPreview {
-
-  position: relative;
-
-  width: 100%;
-
-  height: 270px;
-
-  overflow: hidden;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 11px;
-
-  background: #edf2f5;
-
-}
-
-
-
-.EquipmentManagement-mainPreview > img {
-
-  width: 100%;
-
-  height: 100%;
-
-  display: block;
-
-  object-fit: cover;
-
-}
-
-
-
-.EquipmentManagement-previewOverlay {
-
-  position: absolute;
-
-  right: 0;
-
-  bottom: 0;
-
-  left: 0;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 12px;
-
-  padding: 14px;
-
-  color: #ffffff;
-
-  background: linear-gradient(transparent, rgba(35, 26, 17, 0.83));
-
-}
-
-
-
-.EquipmentManagement-previewOverlay > span {
-
-  min-width: 0;
-
-  overflow: hidden;
-
-  font-size: 11px;
-
-  font-weight: 650;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-
-}
-
-
-
-.EquipmentManagement-previewOverlay > div {
-
-  display: flex;
-
-  flex-shrink: 0;
-
-  gap: 7px;
-
-}
-
-
-
-.EquipmentManagement-previewOverlay button {
-
-  width: 34px;
-
-  height: 34px;
-
-  display: grid;
-
-  place-items: center;
-
-  border: 1px solid rgba(255, 255, 255, 0.4);
-
-  border-radius: 8px;
-
-  color: #ffffff;
-
-  background: rgba(255, 255, 255, 0.14);
-
-}
-
-
-
-.EquipmentManagement-previewOverlay button:hover {
-
-  background: var(--EquipmentManagement-bronze);
-
-}
-
-
-
-.EquipmentManagement-bodyImageGrid {
-
-  display: grid;
-
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 15px;
-
-}
-
-
-
-.EquipmentManagement-bodyImageCard {
-
-  position: relative;
-
-  min-width: 0;
-
-  padding: 12px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 10px;
-
-  background: #fbfcfd;
-
-}
-
-
-
-.EquipmentManagement-imageNumber {
-
-  display: inline-block;
-
-  margin-bottom: 10px;
-
-  color: #8d6a45;
-
-  font-size: 9px;
-
-  font-weight: 800;
-
-  letter-spacing: 1px;
-
-}
-
-
-
-.EquipmentManagement-uploadBox--body {
-
-  min-height: 170px;
-
-  padding: 20px 12px;
-
-}
-
-
-
-.EquipmentManagement-bodyPreview {
-
-  overflow: hidden;
-
-  border-radius: 8px;
-
-  background: #edf2f5;
-
-}
-
-
-
-.EquipmentManagement-bodyPreview > img {
-
-  width: 100%;
-
-  height: 170px;
-
-  display: block;
-
-  object-fit: cover;
-
-}
-
-
-
-.EquipmentManagement-bodyPreview > div {
-
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 7px;
-
-  padding: 10px;
-
-}
-
-
-
-.EquipmentManagement-bodyPreview button {
-
-  min-height: 32px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 6px;
-
-  padding: 7px 9px;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 6px;
-
-  color: #a64b19;
-
-  background: #ffffff;
-
-  font-size: 10px;
-
-}
-
-
-
-.EquipmentManagement-bodyPreview button:hover {
-
-  border-color: #e87524;
-
-  background: #faf2e7;
-
-}
-
-
-
-/* =====================================================
-
-   FORM FOOTER
-
-\===================================================== */
-
-
-
-.EquipmentManagement-formFooter {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  flex-wrap: wrap;
-
-  gap: 15px;
-
-  margin-top: 27px;
-
-  padding-top: 21px;
-
-  border-top: 1px solid #e2e9ee;
-
-}
-
-
-
-.EquipmentManagement-formFooter > span {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  gap: 8px;
-
-  color: #948575;
-
-  font-size: 10px;
-
-  line-height: 1.6;
-
-}
-
-
-
-.EquipmentManagement-formFooter > span svg {
-
-  flex-shrink: 0;
-
-  color: #6d9c6c;
-
-  font-size: 16px;
-
-}
-
-
-
-.EquipmentManagement-formFooter > div {
-
-  display: flex;
-
-  align-items: center;
-
-  flex-wrap: wrap;
-
-  gap: 9px;
-
-}
-
-
-
-.EquipmentManagement-secondaryButton {
-
-  min-height: 40px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 7px;
-
-  padding: 10px 13px;
-
-  border: 1px solid #d5dfe6;
-
-  border-radius: 8px;
-
-  color: #526573;
-
-  background: #ffffff;
-
-  font-size: 11px;
-
-  font-weight: 650;
-
-  transition: background 0.2s ease;
-
-}
-
-
-
-.EquipmentManagement-secondaryButton:hover {
-
-  background: #fff5ee;
-
-}
-
-
-
-/* =====================================================
-
-   TOOLBAR AND VIEW SWITCH
-
-\===================================================== */
-
-
-
-.EquipmentManagement-viewToolbar {
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 13px;
-
-  margin-bottom: 17px;
-
-}
-
-
-
-.EquipmentManagement-toolbar {
-
-  display: grid;
-
-  grid-template-columns: minmax(200px, 1.6fr) repeat(3, minmax(125px, 0.8fr));
-
-  flex: 1;
-
-  gap: 10px;
-
-  min-width: 0;
-
-}
-
-
-
-.EquipmentManagement-search {
-
-  min-width: 0;
-
-  min-height: 43px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 9px;
-
-  padding: 0 12px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 8px;
-
-  background: #ffffff;
-
-}
-
-
-
-.EquipmentManagement-search > svg {
-
-  flex-shrink: 0;
-
-  color: #a09281;
-
-  font-size: 17px;
-
-}
-
-
-
-.EquipmentManagement-search input {
-
-  width: 100%;
-
-  min-width: 0;
-
-  height: 40px;
-
-  padding: 0;
-
-  border: 0;
-
-  outline: 0;
-
-  color: #514332;
-
-  background: transparent;
-
-  font-size: 11px;
-
-}
-
-
-
-.EquipmentManagement-search input:focus {
-
-  outline: 0;
-
-  box-shadow: none;
-
-}
-
-
-
-.EquipmentManagement-search input::placeholder {
-
-  color: #8b99a4;
-
-}
-
-
-
-.EquipmentManagement-search > button {
-
-  width: 24px;
-
-  height: 24px;
-
-  display: grid;
-
-  place-items: center;
-
-  flex-shrink: 0;
-
-  padding: 0;
-
-  border: 0;
-
-  border-radius: 5px;
-
-  color: #9a8b78;
-
-  background: transparent;
-
-}
-
-
-
-.EquipmentManagement-search > button:hover {
-
-  background: #edf2f5;
-
-}
-
-
-
-.EquipmentManagement-selectWrap {
-
-  position: relative;
-
-  min-width: 0;
-
-  min-height: 43px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  padding: 0 10px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 8px;
-
-  background: #ffffff;
-
-}
-
-
-
-.EquipmentManagement-selectWrap > svg:first-child {
-
-  flex-shrink: 0;
-
-  color: #9c8a75;
-
-  font-size: 15px;
-
-}
-
-
-
-.EquipmentManagement-selectWrap select {
-
-  width: 100%;
-
-  min-width: 0;
-
-  height: 40px;
-
-  padding: 0 18px 0 0;
-
-  appearance: none;
-
-  border: 0;
-
-  outline: 0;
-
-  color: #6c5944;
-
-  background: transparent;
-
-  font-size: 10px;
-
-  cursor: pointer;
-
-}
-
-
-
-.EquipmentManagement-selectWrap select:focus {
-
-  outline: 0;
-
-  box-shadow: none;
-
-}
-
-
-
-.EquipmentManagement-selectArrow {
-
-  position: absolute;
-
-  right: 9px;
-
-  flex-shrink: 0;
-
-  color: #a18d77;
-
-  font-size: 12px;
-
-  pointer-events: none;
-
 }
-
 
+/* GRID / LIST TOGGLE */
 
 .EquipmentManagement-viewToggle {
-
   display: inline-flex;
-
   align-items: center;
-
   gap: 4px;
-
-  flex-shrink: 0;
-
   padding: 4px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 9px;
-
-  background: #f5f7f9;
-
+  border: 1px solid var(--EM-border);
+  border-radius: 12px;
+  background: var(--EM-green-softer);
 }
-
-
 
 .EquipmentManagement-viewButton {
-
-  width: 36px;
-
-  height: 34px;
-
+  width: 40px;
+  height: 38px;
   display: grid;
-
   place-items: center;
-
   padding: 0;
-
   border: 1px solid transparent;
-
-  border-radius: 6px;
-
-  color: #647684;
-
+  border-radius: 9px;
+  color: #7e9486;
   background: transparent;
-
-  font-size: 17px;
-
-  transition: background 0.2s ease, color 0.2s ease;
-
+  font-size: 18px;
+  transition: 0.2s ease;
 }
-
-
 
 .EquipmentManagement-viewButton:hover {
-
-  color: var(--EquipmentManagement-bronze);
-
+  color: var(--EM-green);
 }
-
-
 
 .EquipmentManagement-viewButton--active {
-
-  border-color: #f2c6a6;
-
-  color: var(--EquipmentManagement-bronze-dark);
-
+  border-color: #cdeed8;
+  color: var(--EM-green-dark);
   background: #ffffff;
-
-  box-shadow: 0 2px 5px rgba(75, 53, 30, 0.06);
-
+  box-shadow: 0 3px 8px rgba(22, 163, 74, 0.14);
 }
 
+/* =====================================================
+   SEARCH AND FILTER TOOLBAR
+===================================================== */
 
+.EquipmentManagement-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(165px, 0.8fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.EquipmentManagement-search {
+  min-width: 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--EM-border);
+  border-radius: 12px;
+  background: #ffffff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.EquipmentManagement-search:focus-within {
+  border-color: var(--EM-green);
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+.EquipmentManagement-search > svg {
+  flex-shrink: 0;
+  color: #7e9486;
+  font-size: 17px;
+}
+
+.EquipmentManagement-search:focus-within > svg {
+  color: var(--EM-green);
+}
+
+.EquipmentManagement-search input {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: var(--EM-text);
+  background: transparent;
+  font-size: 14px;
+}
+
+.EquipmentManagement-search input:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+.EquipmentManagement-search input::placeholder {
+  color: #9db0a3;
+}
+
+.EquipmentManagement-search > button {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: #7e9486;
+  background: transparent;
+  font-size: 15px;
+}
+
+.EquipmentManagement-search > button:hover {
+  background: #ecf7ef;
+}
 
 /* =====================================================
+   PREMIUM CUSTOM DROPDOWN
+===================================================== */
 
+.EquipmentManagement-select {
+  position: relative;
+  min-width: 0;
+}
+
+.EquipmentManagement-select.is-open {
+  z-index: 40;
+}
+
+.EquipmentManagement-selectTrigger {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--EM-border);
+  border-radius: 12px;
+  color: var(--EM-text);
+  background: #ffffff;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.EquipmentManagement-selectTrigger:hover {
+  border-color: #b7e4c6;
+  background: var(--EM-green-softer);
+}
+
+.EquipmentManagement-select.is-open .EquipmentManagement-selectTrigger {
+  border-color: var(--EM-green);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+.EquipmentManagement-selectIcon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  color: var(--EM-green);
+  background: var(--EM-green-soft);
+  font-size: 15px;
+}
+
+.EquipmentManagement-selectValue {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.EquipmentManagement-selectChevron {
+  flex-shrink: 0;
+  color: #7e9486;
+  font-size: 16px;
+  transition: transform 0.25s ease, color 0.2s ease;
+}
+
+.EquipmentManagement-select.is-open .EquipmentManagement-selectChevron {
+  transform: rotate(180deg);
+  color: var(--EM-green);
+}
+
+.EquipmentManagement-selectMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 100%;
+  width: max-content;
+  max-width: 320px;
+  padding: 8px;
+  border: 1px solid #d5ebdc;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 22px 50px -12px rgba(22, 90, 50, 0.28),
+    0 8px 18px -8px rgba(15, 40, 25, 0.14);
+  transform-origin: top center;
+  animation: EquipmentManagement-selectIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.EquipmentManagement-select--right .EquipmentManagement-selectMenu {
+  left: auto;
+  right: 0;
+}
+
+.EquipmentManagement-selectHeading {
+  display: block;
+  margin-bottom: 4px;
+  padding: 6px 10px 8px;
+  border-bottom: 1px solid #edf4ee;
+  color: #8ea196;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.EquipmentManagement-selectMenu ul {
+  max-height: 270px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: #bfe5cb transparent;
+}
+
+.EquipmentManagement-selectMenu ul::-webkit-scrollbar {
+  width: 5px;
+}
+
+.EquipmentManagement-selectMenu ul::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #bfe5cb;
+}
+
+.EquipmentManagement-selectOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  margin-top: 2px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #3f5a49;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.EquipmentManagement-selectOption.is-active {
+  color: var(--EM-green-dark);
+  background: #f0fbf3;
+}
+
+.EquipmentManagement-selectOption.is-selected {
+  color: var(--EM-green-dark);
+  background: #e3f8ea;
+  font-weight: 700;
+}
+
+.EquipmentManagement-selectOptionLabel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+
+.EquipmentManagement-selectCount {
+  min-width: 26px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  color: #5d8a6b;
+  background: #eef6f0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.EquipmentManagement-selectOption.is-selected .EquipmentManagement-selectCount {
+  color: var(--EM-green-dark);
+  background: #ffffff;
+}
+
+.EquipmentManagement-selectCheck {
+  flex-shrink: 0;
+  color: var(--EM-green);
+  font-size: 16px;
+}
+
+.EquipmentManagement-selectDot {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.EquipmentManagement-selectDot--green {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.EquipmentManagement-selectDot--amber {
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.EquipmentManagement-selectDot--gray {
+  background: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.25);
+}
+
+@keyframes EquipmentManagement-selectIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =====================================================
    RESULTS BAR
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-resultsBar {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   flex-wrap: wrap;
-
   gap: 10px;
-
-  margin-bottom: 17px;
-
+  margin-bottom: 16px;
 }
-
-
 
 .EquipmentManagement-resultsBar p {
-
   margin: 0;
-
-  color: #978878;
-
-  font-size: 11px;
-
+  color: var(--EM-muted);
+  font-size: 13px;
 }
-
-
 
 .EquipmentManagement-resultsBar strong {
-
-  color: #5b4832;
-
+  color: var(--EM-green-dark);
 }
-
-
 
 .EquipmentManagement-resultsBar > button {
-
   display: inline-flex;
-
   align-items: center;
-
-  gap: 5px;
-
-  padding: 6px 8px;
-
+  gap: 6px;
+  padding: 7px 12px;
   border: 0;
-
-  border-radius: 6px;
-
-  color: var(--EquipmentManagement-bronze);
-
-  background: #faf2e7;
-
-  font-size: 10px;
-
-  font-weight: 650;
-
+  border-radius: 8px;
+  color: var(--EM-green-dark);
+  background: #ecfdf3;
+  font-size: 12.5px;
+  font-weight: 700;
 }
-
-
 
 .EquipmentManagement-resultsBar > button:hover {
-
-  background: #f3e5d1;
-
+  background: #d9f6e3;
 }
 
-
-
 /* =====================================================
-
    GRID VIEW
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-grid {
-
   display: grid;
-
   grid-template-columns: repeat(3, minmax(0, 1fr));
-
   align-items: stretch;
-
-  gap: 22px;
-
+  gap: 20px;
 }
-
-
 
 .EquipmentManagement-card {
-
   min-width: 0;
-
   display: flex;
-
   flex-direction: column;
-
   overflow: visible;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 15px;
-
+  border: 1px solid var(--EM-border);
+  border-radius: 16px;
   background: #ffffff;
-
-  box-shadow: 0 4px 13px rgba(75, 53, 30, 0.025);
-
+  box-shadow: 0 4px 14px rgba(22, 90, 50, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-
 }
-
-
 
 .EquipmentManagement-card:hover {
-
-  transform: translateY(-3px);
-
-  box-shadow: 0 11px 28px rgba(75, 53, 30, 0.09);
-
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(22, 90, 50, 0.12);
 }
-
-
 
 .EquipmentManagement-cardImage {
-
   position: relative;
-
-  height: 240px;
-
+  height: 220px;
   overflow: visible;
-
-  border-radius: 14px 14px 0 0;
-
-  background: #f1e8dc;
-
+  border-radius: 15px 15px 0 0;
+  background: #e8f3ec;
 }
-
-
 
 .EquipmentManagement-cardImage > img {
-
   width: 100%;
-
   height: 100%;
-
   display: block;
-
   object-fit: cover;
-
-  border-radius: 14px 14px 0 0;
-
+  border-radius: 15px 15px 0 0;
 }
 
-
-
-.EquipmentManagement-imagePlaceholder {
-
+.EquipmentManagement-noImage {
   width: 100%;
-
   height: 100%;
-
   display: grid;
-
   place-items: center;
-
-  border-radius: 14px 14px 0 0;
-
-  color: #b29877;
-
-  background: linear-gradient(135deg, #f6eee3, #e8d9c5);
-
-  font-size: 38px;
-
-}
-
-
-
-.EquipmentManagement-blogCode {
-
-  position: absolute;
-
-  top: 14px;
-
-  left: 14px;
-
-  max-width: calc(100% - 80px);
-
-  padding: 9px 11px;
-
-  overflow: hidden;
-
-  border: 1px solid rgba(234, 223, 209, 0.9);
-
-  border-radius: 8px;
-
-  color: #795733;
-
-  background: rgba(255, 253, 249, 0.96);
-
-  font-size: 10px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.5px;
-
-  text-overflow: ellipsis;
-
-  white-space: nowrap;
-
-}
-
-
-
-.EquipmentManagement-cardMenu {
-
-  position: absolute;
-
-  top: 13px;
-
-  right: 13px;
-
-  z-index: 5;
-
-}
-
-
-
-.EquipmentManagement-menuTrigger {
-
-  width: 39px;
-
-  height: 42px;
-
-  display: grid;
-
-  place-items: center;
-
-  border: 1px solid rgba(234, 223, 209, 0.9);
-
-  border-radius: 9px;
-
-  color: #6d5a45;
-
-  background: rgba(255, 255, 255, 0.97);
-
-  font-size: 20px;
-
-  box-shadow: 0 3px 10px rgba(45, 31, 17, 0.08);
-
-}
-
-
-
-.EquipmentManagement-menuTrigger:hover {
-
-  color: #ffffff;
-
-  background: var(--EquipmentManagement-bronze);
-
-}
-
-
-
-.EquipmentManagement-menuDropdown {
-
-  position: absolute;
-
-  top: 47px;
-
-  right: 0;
-
-  z-index: 30;
-
-  width: 175px;
-
-  padding: 6px;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
   border-radius: 10px;
-
-  background: #ffffff;
-
-  box-shadow: 0 12px 30px rgba(44, 32, 20, 0.17);
-
-  animation: EquipmentManagement-dropdownIn 0.15s ease-out;
-
+  color: #78a587;
+  background: #e8f5ec;
+  font-size: 32px;
 }
 
-
-
-.EquipmentManagement-menuDropdown button {
-
-  width: 100%;
-
-  min-height: 36px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 9px;
-
-  padding: 9px;
-
-  border: 0;
-
-  border-radius: 6px;
-
-  color: #6e5c47;
-
-  background: transparent;
-
-  text-align: left;
-
+.EquipmentManagement-equipmentCode {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  max-width: calc(100% - 70px);
+  padding: 6px 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  color: #ffffff;
+  background: rgba(15, 50, 28, 0.72);
+  backdrop-filter: blur(6px);
   font-size: 11px;
-
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-
-
-.EquipmentManagement-menuDropdown button:hover {
-
-  background: #faf3e9;
-
-}
-
-
-
-.EquipmentManagement-menuDropdown button svg {
-
-  flex-shrink: 0;
-
-  font-size: 14px;
-
-}
-
-
-
-.EquipmentManagement-menuDropdown .EquipmentManagement-menuDelete {
-
-  color: #bb4f49;
-
-}
-
-
-
-.EquipmentManagement-menuDropdown .EquipmentManagement-menuDelete:hover {
-
-  background: #fff0ef;
-
-}
-
-
 
 .EquipmentManagement-imageStatus {
-
   position: absolute;
-
-  bottom: 13px;
-
-  left: 13px;
-
+  bottom: 12px;
+  left: 12px;
 }
 
+/* CARD ACTION MENU */
 
+.EquipmentManagement-cardMenu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+.EquipmentManagement-menuTrigger {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 9px;
+  color: #ffffff;
+  background: rgba(15, 50, 28, 0.7);
+  backdrop-filter: blur(6px);
+  font-size: 18px;
+}
+
+.EquipmentManagement-menuTrigger:hover {
+  background: var(--EM-green-dark);
+}
+
+.EquipmentManagement-menuDropdown {
+  position: absolute;
+  top: 42px;
+  right: 0;
+  z-index: 30;
+  width: 205px;
+  padding: 6px;
+  border: 1px solid #d5ebdc;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 16px 36px rgba(22, 90, 50, 0.2);
+  animation: EquipmentManagement-dropdownIn 0.16s ease;
+}
+
+.EquipmentManagement-menuDropdown button {
+  width: 100%;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 0;
+  border-radius: 8px;
+  color: #4b6454;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.EquipmentManagement-menuDropdown button:hover {
+  color: var(--EM-green-dark);
+  background: #ecfdf3;
+}
+
+.EquipmentManagement-menuDropdown button svg {
+  flex-shrink: 0;
+  font-size: 15px;
+}
+
+.EquipmentManagement-menuDropdown .EquipmentManagement-menuDelete {
+  color: #c24747;
+}
+
+.EquipmentManagement-menuDropdown .EquipmentManagement-menuDelete:hover {
+  color: #ffffff;
+  background: #d14b4b;
+}
+
+.EquipmentManagement-dismissMenu {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+/* STATUS BADGES */
 
 .EquipmentManagement-status {
-
-  min-height: 27px;
-
+  min-height: 28px;
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
   gap: 7px;
-
-  padding: 6px 10px;
-
+  padding: 5px 11px;
   border: 1px solid transparent;
-
-  border-radius: 7px;
-
-  font-size: 10px;
-
-  font-weight: 750;
-
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
   white-space: nowrap;
-
 }
-
-
 
 .EquipmentManagement-statusDot {
-
   width: 7px;
-
   height: 7px;
-
   flex-shrink: 0;
-
   border-radius: 50%;
-
   background: currentColor;
-
 }
-
-
 
 .EquipmentManagement-status--available {
-
-  border-color: #d3e9d6;
-
-  color: #28774a;
-
-  background: #eff8ef;
-
+  border-color: #bbf0cd;
+  color: #15803d;
+  background: #ecfdf3;
 }
-
-
 
 .EquipmentManagement-status--reserved {
-
-  border-color: #dce3eb;
-
-  color: #64778c;
-
-  background: #f0f4f8;
-
+  border-color: #fde3b0;
+  color: #b9740f;
+  background: #fff6e3;
 }
-
-
 
 .EquipmentManagement-status--sold {
-
-  border-color: #f0dfbd;
-
-  color: #9b702a;
-
-  background: #fff7e8;
-
+  border-color: #dde3ea;
+  color: #64717d;
+  background: #f1f4f7;
 }
 
-
+/* CARD BODY */
 
 .EquipmentManagement-cardBody {
-
   flex: 1;
-
   display: flex;
-
   flex-direction: column;
-
   min-width: 0;
-
-  padding: 18px 20px 17px;
-
+  padding: 18px;
 }
-
-
 
 .EquipmentManagement-category {
-
   width: fit-content;
-
   max-width: 100%;
-
   display: inline-flex;
-
   align-items: center;
-
-  padding: 7px 10px;
-
+  padding: 5px 10px;
   overflow-wrap: anywhere;
-
-  border: 1px solid #efe0ce;
-
-  border-radius: 7px;
-
-  color: #956b3d;
-
-  background: #faf3e9;
-
-  font-size: 10px;
-
-  font-weight: 650;
-
+  border: 1px solid #cfeedb;
+  border-radius: 8px;
+  color: #17803f;
+  background: #ecfdf3;
+  font-size: 12px;
+  font-weight: 700;
   line-height: 1.4;
-
 }
-
-
 
 .EquipmentManagement-cardBody h3 {
-
-  margin: 12px 0 9px;
-
-  color: #342b21;
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 22px;
-
-  line-height: 1.3;
-
+  margin: 12px 0 8px;
+  color: var(--EM-text);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
   overflow-wrap: anywhere;
-
 }
-
-
 
 .EquipmentManagement-excerpt {
-
   display: -webkit-box;
-
-  min-height: 57px;
-
+  min-height: 62px;
   margin: 0;
-
   overflow: hidden;
-
-  color: #968777;
-
-  font-size: 11px;
-
-  line-height: 1.7;
-
+  color: #73877a;
+  font-size: 13px;
+  line-height: 1.65;
   -webkit-box-orient: vertical;
-
   -webkit-line-clamp: 3;
-
 }
-
-
 
 .EquipmentManagement-author {
-
   display: flex;
-
   align-items: center;
-
   gap: 8px;
-
-  margin-top: 16px;
-
-  color: #897968;
-
-  font-size: 11px;
-
+  margin-top: 14px;
+  color: #6b7f72;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1.5;
-
 }
-
-
 
 .EquipmentManagement-author svg {
-
   flex-shrink: 0;
-
-  color: #b28a5b;
-
-  font-size: 16px;
-
+  color: #4aa66a;
+  font-size: 15px;
 }
-
-
 
 .EquipmentManagement-author span {
-
   min-width: 0;
-
   overflow-wrap: anywhere;
-
 }
 
-
-
-.EquipmentManagement-cardCharacteristics {
-
+.EquipmentManagement-cardInfo {
   display: flex;
-
   align-items: center;
-
-  flex-wrap: wrap;
-
-  gap: 5px;
-
-  margin-top: 12px;
-
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid #ecf3ee;
 }
 
-
-
-.EquipmentManagement-cardCharacteristics > span,
-
-.EquipmentManagement-listCharacteristics > span {
-
-  max-width: 100%;
-
+.EquipmentManagement-location {
+  min-width: 0;
   display: inline-flex;
-
   align-items: center;
-
-  padding: 5px 7px;
-
-  overflow-wrap: anywhere;
-
-  border: 1px solid #ebddca;
-
-  border-radius: 5px;
-
-  color: #89643b;
-
-  background: #faf3e9;
-
-  font-size: 9px;
-
-  line-height: 1.4;
-
+  gap: 6px;
+  color: #6b7f72;
+  font-size: 12.5px;
 }
 
-
-
-.EquipmentManagement-cardCharacteristics > span:last-child:not(:first-child) {
-
-  font-weight: 750;
-
+.EquipmentManagement-location svg {
+  flex-shrink: 0;
+  color: #4aa66a;
+  font-size: 14px;
 }
 
-
-
-.EquipmentManagement-cardCharacteristics small {
-
-  color: #a49a8c;
-
-  font-size: 10px;
-
+.EquipmentManagement-price {
+  flex-shrink: 0;
+  color: var(--EM-green-dark);
+  font-size: 17px;
+  font-weight: 800;
 }
-
-
 
 .EquipmentManagement-cardFooter {
-
   display: flex;
-
   align-items: flex-end;
-
   justify-content: space-between;
-
   gap: 10px;
-
   margin-top: auto;
-
-  padding-top: 17px;
-
+  padding-top: 15px;
 }
-
-
 
 .EquipmentManagement-cardMeta {
-
   display: flex;
-
   flex-direction: column;
-
-  gap: 8px;
-
+  gap: 7px;
   min-width: 0;
-
 }
-
-
 
 .EquipmentManagement-cardMeta > span {
-
   display: inline-flex;
-
   align-items: center;
-
   gap: 7px;
-
-  color: #8e806e;
-
-  font-size: 10px;
-
+  color: #7e9486;
+  font-size: 12.5px;
   line-height: 1.4;
-
 }
-
-
 
 .EquipmentManagement-cardMeta svg {
-
   flex-shrink: 0;
-
-  color: #9caa8c;
-
+  color: #4aa66a;
   font-size: 14px;
-
 }
-
-
 
 .EquipmentManagement-viewLink {
-
-  min-height: 36px;
-
+  min-height: 38px;
   display: inline-flex;
-
   align-items: center;
-
   justify-content: center;
-
-  gap: 7px;
-
+  gap: 6px;
   flex-shrink: 0;
-
-  padding: 8px 11px;
-
-  border: 1px solid #eddfcc;
-
-  border-radius: 8px;
-
-  color: #e87524;
-
-  background: #fbf6ef;
-
-  font-size: 11px;
-
-  transition: background 0.2s ease;
-
+  padding: 8px 14px;
+  border: 1px solid #cfeedb;
+  border-radius: 10px;
+  color: var(--EM-green-dark);
+  background: #f1fbf4;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.2s ease;
 }
-
-
 
 .EquipmentManagement-viewLink:hover {
-
+  border-color: var(--EM-green);
   color: #ffffff;
-
-  background: var(--EquipmentManagement-bronze);
-
+  background: var(--EM-green);
 }
-
-
 
 .EquipmentManagement-viewLink svg {
-
-  font-size: 14px;
-
+  font-size: 15px;
 }
 
-
-
 /* =====================================================
-
    LIST VIEW TABLE
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-listWrap {
-
   width: 100%;
-
   overflow-x: auto;
-
-  border: 1px solid var(--EquipmentManagement-border);
-
-  border-radius: 10px;
-
+  border: 1px solid var(--EM-border);
+  border-radius: 14px;
   scrollbar-width: thin;
-
-  scrollbar-color: #d8c2a5 #faf6ef;
-
+  scrollbar-color: #bfe5cb #f4faf6;
 }
-
-
 
 .EquipmentManagement-table {
-
   width: 100%;
-
-  min-width: 1230px;
-
+  min-width: 1200px;
   border-collapse: separate;
-
   border-spacing: 0;
-
   background: #ffffff;
-
   text-align: left;
-
 }
-
-
 
 .EquipmentManagement-table th {
-
-  padding: 14px 13px;
-
-  border-bottom: 1px solid #e9ded1;
-
-  color: #87745c;
-
-  background: #faf7f1;
-
-  font-size: 10px;
-
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--EM-border);
+  color: #5d7566;
+  background: #f4faf6;
+  font-size: 12px;
   font-weight: 800;
-
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
   white-space: nowrap;
-
 }
-
-
 
 .EquipmentManagement-table td {
-
-  padding: 14px 13px;
-
-  border-bottom: 1px solid #f0e9df;
-
-  color: #746451;
-
-  font-size: 11px;
-
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf3ef;
+  color: #4f665a;
+  font-size: 13.5px;
   vertical-align: middle;
-
 }
-
-
-
-.EquipmentManagement-table tbody tr:last-child td {
-
-  border-bottom: 0;
-
-}
-
-
 
 .EquipmentManagement-table tbody tr {
-
   transition: background 0.15s ease;
-
 }
-
-
 
 .EquipmentManagement-table tbody tr:hover {
-
-  background: #f7f9fa;
-
+  background: #f7fcf9;
 }
 
-
+.EquipmentManagement-table tbody tr:last-child td {
+  border-bottom: 0;
+}
 
 .EquipmentManagement-listPost {
-
-  min-width: 240px;
-
+  min-width: 270px;
   display: flex;
-
   align-items: center;
-
-  gap: 12px;
-
+  gap: 13px;
 }
-
-
 
 .EquipmentManagement-listPost > img,
-
-.EquipmentManagement-listPlaceholder {
-
+.EquipmentManagement-listPost > .EquipmentManagement-noImage {
   width: 66px;
-
-  height: 62px;
-
+  height: 58px;
   flex-shrink: 0;
-
-  display: block;
-
-  overflow: hidden;
-
-  border-radius: 8px;
-
-  object-fit: cover;
-
-  background: #f4eadd;
-
-}
-
-
-
-.EquipmentManagement-listPlaceholder {
-
   display: grid;
-
   place-items: center;
-
-  color: #ad8a61;
-
-  font-size: 22px;
-
+  overflow: hidden;
+  border-radius: 10px;
+  object-fit: cover;
+  font-size: 20px;
 }
-
-
 
 .EquipmentManagement-listPost > div:last-child {
-
   min-width: 0;
-
   display: flex;
-
   flex-direction: column;
-
-  gap: 5px;
-
+  gap: 3px;
 }
-
-
 
 .EquipmentManagement-listPost strong {
-
-  max-width: 260px;
-
-  color: #493b2b;
-
-  font-size: 11px;
-
-  line-height: 1.5;
-
+  max-width: 250px;
+  color: var(--EM-text);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.4;
   overflow-wrap: anywhere;
-
 }
-
-
 
 .EquipmentManagement-listPost span {
-
-  color: #aa9479;
-
-  font-size: 9px;
-
+  color: #809387;
+  font-size: 12px;
+  font-weight: 600;
 }
-
-
 
 .EquipmentManagement-listPost small {
-
   max-width: 260px;
-
   display: -webkit-box;
-
   overflow: hidden;
-
-  color: #a09484;
-
-  font-size: 10px;
-
+  color: #8a9c91;
+  font-size: 12px;
   line-height: 1.5;
-
   -webkit-box-orient: vertical;
-
   -webkit-line-clamp: 2;
-
 }
-
-
 
 .EquipmentManagement-listAuthor {
-
+  min-width: 120px;
   display: inline-flex;
-
   align-items: center;
-
-  gap: 7px;
-
-  min-width: 110px;
-
-  color: #526573;
-
-  font-size: 10px;
-
+  gap: 8px;
+  color: #4f665a;
+  font-size: 13px;
 }
-
-
 
 .EquipmentManagement-listAuthor svg {
-
   flex-shrink: 0;
-
-  color: #e87524;
-
-  font-size: 14px;
-
+  color: #4aa66a;
+  font-size: 15px;
 }
 
-
-
-.EquipmentManagement-listCharacteristics {
-
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 5px;
-
-  min-width: 125px;
-
-  max-width: 200px;
-
+.EquipmentManagement-listPrice {
+  color: var(--EM-green-dark);
+  font-size: 14.5px;
+  font-weight: 800;
+  white-space: nowrap;
 }
-
-
-
-.EquipmentManagement-listCharacteristics > small {
-
-  color: #a49a8c;
-
-}
-
-
 
 .EquipmentManagement-listActions {
-
   display: flex;
-
   align-items: center;
-
-  gap: 5px;
-
+  gap: 7px;
 }
-
-
 
 .EquipmentManagement-listActions button {
-
-  width: 30px;
-
-  height: 30px;
-
+  width: 35px;
+  height: 35px;
   display: grid;
-
   place-items: center;
-
   padding: 0;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 7px;
-
-  color: #92734e;
-
-  background: #ffffff;
-
-  font-size: 14px;
-
-  transition: background 0.2s ease;
-
+  border: 1px solid #d5ebdc;
+  border-radius: 10px;
+  color: #17803f;
+  background: #f1fbf4;
+  font-size: 15px;
+  transition: 0.2s ease;
 }
-
-
 
 .EquipmentManagement-listActions button:hover {
-
-  background: #faf0e2;
-
+  border-color: var(--EM-green);
+  color: #ffffff;
+  background: var(--EM-green);
 }
-
-
 
 .EquipmentManagement-listActions .EquipmentManagement-listDelete {
-
-  color: #bd5b55;
-
+  border-color: #f4d9d9;
+  color: #c24747;
+  background: #fff6f6;
 }
-
-
 
 .EquipmentManagement-listActions .EquipmentManagement-listDelete:hover {
-
-  background: #fff0ef;
-
+  border-color: #d14b4b;
+  color: #ffffff;
+  background: #d14b4b;
 }
 
-
-
 /* =====================================================
-
    EMPTY STATE
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-empty {
-
+  min-height: 280px;
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
-
-  min-height: 270px;
-
-  padding: 35px 20px;
-
-  border: 1px dashed #e4d4bf;
-
-  border-radius: 11px;
-
-  background: #fbfcfd;
-
+  padding: 30px 20px;
+  border: 1px dashed #bfe5cb;
+  border-radius: 14px;
+  background: var(--EM-green-softer);
   text-align: center;
-
 }
-
-
 
 .EquipmentManagement-empty > span {
-
-  width: 55px;
-
-  height: 55px;
-
+  width: 64px;
+  height: 64px;
   display: grid;
-
   place-items: center;
-
-  border-radius: 15px;
-
-  color: #a17a4e;
-
-  background: #f5e9d8;
-
-  font-size: 24px;
-
+  border-radius: 18px;
+  color: var(--EM-green);
+  background: #e3f8ea;
+  font-size: 28px;
 }
-
-
 
 .EquipmentManagement-empty h3 {
-
-  margin: 17px 0 6px;
-
-  color: #483a2b;
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 21px;
-
+  margin: 16px 0 0;
+  color: var(--EM-text);
+  font-size: 18px;
+  font-weight: 800;
 }
-
-
 
 .EquipmentManagement-empty p {
-
-  margin: 0 0 18px;
-
-  color: #978777;
-
-  font-size: 12px;
-
-  line-height: 1.6;
-
+  max-width: 400px;
+  margin: 8px 0 16px;
+  color: #7a8f81;
+  font-size: 14px;
+  line-height: 1.7;
 }
-
-
 
 .EquipmentManagement-empty > button {
-
-  min-height: 36px;
-
-  padding: 9px 13px;
-
-  border: 1px solid #e3d1b9;
-
-  border-radius: 7px;
-
-  color: #a64b19;
-
-  background: #faf2e7;
-
-  font-size: 11px;
-
-  font-weight: 650;
-
+  min-height: 40px;
+  padding: 9px 18px;
+  border: 1px solid #bfe5cb;
+  border-radius: 10px;
+  color: var(--EM-green-dark);
+  background: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
 }
-
-
 
 .EquipmentManagement-empty > button:hover {
-
-  background: #f2e3cf;
-
+  color: #ffffff;
+  background: var(--EM-green);
 }
 
-
-
 /* =====================================================
-
    PAGINATION
-
-\===================================================== */
-
-
+===================================================== */
 
 .EquipmentManagement-pagination {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   flex-wrap: wrap;
-
   gap: 14px;
-
-  margin-top: 22px;
-
-  padding-top: 17px;
-
-  border-top: 1px solid #eee5da;
-
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #ecf3ee;
 }
-
-
 
 .EquipmentManagement-pagination > span {
-
-  color: #958574;
-
-  font-size: 11px;
-
+  color: var(--EM-muted);
+  font-size: 13px;
 }
-
-
 
 .EquipmentManagement-pageButtons {
-
   display: flex;
-
   align-items: center;
-
-  gap: 5px;
-
+  gap: 6px;
 }
-
-
 
 .EquipmentManagement-pageButtons button {
-
-  min-width: 32px;
-
-  height: 32px;
-
+  min-width: 36px;
+  height: 36px;
   display: grid;
-
   place-items: center;
-
-  padding: 0 8px;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 7px;
-
-  color: #8b785f;
-
+  padding: 0 9px;
+  border: 1px solid #dcebe1;
+  border-radius: 10px;
+  color: #5d7566;
   background: #ffffff;
-
-  font-size: 11px;
-
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: 0.2s ease;
 }
-
-
 
 .EquipmentManagement-pageButtons button:hover:not(:disabled) {
-
-  border-color: #c7a77f;
-
-  background: #faf3e9;
-
+  border-color: #9fdbb4;
+  color: var(--EM-green);
+  background: #f1fbf4;
 }
-
-
 
 .EquipmentManagement-pageButtons button.EquipmentManagement-pageButton--active {
-
-  border-color: var(--EquipmentManagement-bronze);
-
+  border-color: var(--EM-green);
   color: #ffffff;
-
-  background: var(--EquipmentManagement-bronze);
-
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  box-shadow: 0 6px 14px rgba(22, 163, 74, 0.3);
 }
 
-
-
 /* =====================================================
-
-   MODAL BACKDROP
-
-\===================================================== */
-
-
+   MODALS
+===================================================== */
 
 .EquipmentManagement-modalBackdrop {
-
   position: fixed;
-
   inset: 0;
-
   z-index: 10000;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   padding: 20px;
-
   overflow-y: auto;
-
-  background: rgba(37, 29, 21, 0.58);
-
+  background: rgba(12, 32, 20, 0.55);
   backdrop-filter: blur(4px);
-
   animation: EquipmentManagement-fadeIn 0.18s ease-out;
-
 }
-
-
 
 .EquipmentManagement-detailModal,
-
 .EquipmentManagement-confirmModal {
-
   width: 100%;
-
   max-height: calc(100vh - 40px);
-
   overflow-y: auto;
-
-  border: 1px solid #e9dccb;
-
-  border-radius: 15px;
-
+  border: 1px solid #dcebe1;
+  border-radius: 20px;
   background: #ffffff;
-
-  box-shadow: 0 24px 70px rgba(27, 19, 11, 0.25);
-
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.25);
 }
-
-
 
 .EquipmentManagement-detailModal {
-
-  max-width: 760px;
-
+  max-width: 780px;
 }
-
-
 
 .EquipmentManagement-modalHeader {
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 15px;
-
-  padding: 20px 23px;
-
-  border-bottom: 1px solid #e2e9ee;
-
+  padding: 20px 26px;
+  border-bottom: 1px solid var(--EM-border);
+  background: linear-gradient(90deg, #ffffff, #f4fcf7);
 }
-
-
 
 .EquipmentManagement-modalHeader h2 {
-
   margin: 0;
-
-  color: #433628;
-
-  font-family: Georgia, "Times New Roman", serif;
-
+  color: var(--EM-text);
   font-size: 22px;
-
+  font-weight: 800;
 }
-
-
 
 .EquipmentManagement-modalHeader > button {
-
-  width: 35px;
-
-  height: 35px;
-
+  width: 38px;
+  height: 38px;
   display: grid;
-
   place-items: center;
-
   flex-shrink: 0;
-
-  border: 1px solid #e9ded1;
-
-  border-radius: 8px;
-
-  color: #7e6a53;
-
-  background: #ffffff;
-
-  font-size: 17px;
-
+  border: 1px solid #dcebe1;
+  border-radius: 10px;
+  color: #5d7566;
+  background: #f6fbf8;
+  font-size: 18px;
 }
-
-
 
 .EquipmentManagement-modalHeader > button:hover {
-
-  background: #faf2e7;
-
+  color: #ffffff;
+  background: var(--EM-green);
 }
-
-
 
 .EquipmentManagement-detailImage {
-
-  width: calc(100% - 40px);
-
-  max-height: 330px;
-
+  width: calc(100% - 52px);
+  max-height: 340px;
   display: block;
-
   margin: 20px auto 0;
-
-  border-radius: 10px;
-
+  border-radius: 14px;
   object-fit: cover;
-
 }
-
-
 
 .EquipmentManagement-detailBody {
-
-  padding: 22px 25px;
-
+  padding: 22px 26px;
 }
-
-
 
 .EquipmentManagement-detailMeta {
-
   display: flex;
-
   align-items: center;
-
   flex-wrap: wrap;
-
   gap: 10px;
-
-  margin-bottom: 17px;
-
+  margin-bottom: 16px;
 }
-
-
 
 .EquipmentManagement-detailMeta > span:not(.EquipmentManagement-status):not(.EquipmentManagement-category) {
-
   display: inline-flex;
-
   align-items: center;
-
-  gap: 5px;
-
-  color: #968777;
-
-  font-size: 10px;
-
+  gap: 6px;
+  color: #7e9486;
+  font-size: 13px;
 }
-
-
 
 .EquipmentManagement-detailBody > h3 {
-
-  margin: 0 0 9px;
-
-  color: #372c21;
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: clamp(23px, 3vw, 31px);
-
+  margin: 0 0 12px;
+  color: var(--EM-text);
+  font-size: clamp(23px, 3vw, 30px);
+  font-weight: 800;
   line-height: 1.3;
-
   overflow-wrap: anywhere;
-
 }
-
-
-
-.EquipmentManagement-detailSlug {
-
-  margin: 0 0 16px !important;
-
-  color: #a28a70 !important;
-
-  font-size: 11px !important;
-
-  overflow-wrap: anywhere;
-
-}
-
-
-
-.EquipmentManagement-detailBody > p {
-
-  margin: 12px 0;
-
-  color: #827363;
-
-  font-size: 12px;
-
-  line-height: 1.8;
-
-}
-
-
 
 .EquipmentManagement-detailAuthor {
-
   display: flex;
-
   align-items: center;
-
-  gap: 9px;
-
-  margin: 15px 0;
-
-  padding: 12px;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 8px;
-
-  color: #725637;
-
-  background: #fcf8f2;
-
-  font-size: 12px;
-
+  gap: 10px;
+  margin: 10px 0;
+  padding: 12px 14px;
+  border: 1px solid #e3eee7;
+  border-radius: 12px;
+  color: #3f5a49;
+  background: #f6fbf8;
+  font-size: 14px;
+  font-weight: 500;
 }
-
-
 
 .EquipmentManagement-detailAuthor svg {
-
-  color: #e87524;
-
+  flex-shrink: 0;
+  color: var(--EM-green);
 }
 
-
-
-.EquipmentManagement-detailCharacteristics {
-
-  margin: 16px 0;
-
-  padding: 14px;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 9px;
-
-  background: #fdfaf5;
-
-}
-
-
-
-.EquipmentManagement-detailCharacteristics > strong {
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 7px;
-
-  margin-bottom: 11px;
-
-  color: #5b4935;
-
-  font-size: 12px;
-
-}
-
-
-
-.EquipmentManagement-detailCharacteristics > strong svg {
-
-  color: #e87524;
-
-}
-
-
-
-.EquipmentManagement-detailCharacteristics > div {
-
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 7px;
-
-}
-
-
-
-.EquipmentManagement-detailCharacteristics > div > span,
-
-.EquipmentManagement-detailTags > span {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  padding: 7px 9px;
-
-  border: 1px solid #ebddca;
-
-  border-radius: 6px;
-
-  color: #89643b;
-
-  background: #faf3e9;
-
-  font-size: 10px;
-
-  line-height: 1.5;
-
-  overflow-wrap: anywhere;
-
-}
-
-
-
-.EquipmentManagement-detailDescription {
-
-  margin-top: 20px;
-
-  color: #5b4b39;
-
-  font-size: 13px;
-
-  line-height: 1.8;
-
-  overflow-wrap: anywhere;
-
-}
-
-
-
-.EquipmentManagement-detailDescription img {
-
-  max-width: 100%;
-
-  height: auto;
-
-}
-
-
-
-.EquipmentManagement-detailImages {
-
-  display: grid;
-
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  gap: 12px;
-
-  margin-top: 20px;
-
-}
-
-
-
-.EquipmentManagement-detailImages img {
-
-  width: 100%;
-
-  height: 180px;
-
-  display: block;
-
-  border-radius: 9px;
-
-  object-fit: cover;
-
-}
-
-
-
-.EquipmentManagement-detailTags {
-
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 7px;
-
-  margin-top: 18px;
-
-}
-
-
-
-.EquipmentManagement-detailSeo {
-
-  margin-top: 20px;
-
-  padding: 13px;
-
-  border: 1px solid #dce4ea;
-
-  border-radius: 8px;
-
-  background: #fcf8f2;
-
-}
-
-
-
-.EquipmentManagement-detailSeo strong {
-
-  color: #6e5438;
-
-  font-size: 11px;
-
-}
-
-
-
-.EquipmentManagement-detailSeo p {
-
-  margin: 7px 0 0;
-
-  color: #71808c;
-
-  font-size: 11px;
-
-  line-height: 1.7;
-
-}
-
-
-
-.EquipmentManagement-modalFooter {
-
-  display: flex;
-
-  justify-content: flex-end;
-
-  flex-wrap: wrap;
-
-  gap: 9px;
-
-  padding: 16px 22px;
-
-  border-top: 1px solid #e2e9ee;
-
-  background: #fbfcfd;
-
-}
-
-
-
-/* =====================================================
-
-   DELETE CONFIRMATION
-
-\===================================================== */
-
-
-
-.EquipmentManagement-confirmModal {
-
-  max-width: 430px;
-
-  padding: 29px;
-
-  text-align: center;
-
-}
-
-
-
-.EquipmentManagement-deleteIcon {
-
-  width: 58px;
-
-  height: 58px;
-
-  display: grid;
-
-  place-items: center;
-
-  margin: 0 auto 16px;
-
-  border-radius: 16px;
-
-  color: #bb514b;
-
-  background: #fff0ef;
-
-  font-size: 25px;
-
-}
-
-
-
-.EquipmentManagement-confirmModal h2 {
-
-  margin: 0;
-
-  color: #413326;
-
-  font-family: Georgia, "Times New Roman", serif;
-
-  font-size: 23px;
-
-}
-
-
-
-.EquipmentManagement-confirmModal > p {
-
-  margin: 12px 0 23px;
-
-  color: #968777;
-
-  font-size: 12px;
-
-  line-height: 1.8;
-
-}
-
-
-
-.EquipmentManagement-confirmActions {
-
-  display: flex;
-
-  justify-content: center;
-
-  flex-wrap: wrap;
-
-  gap: 9px;
-
-}
-
-
-
-.EquipmentManagement-confirmDelete {
-
-  min-height: 40px;
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  gap: 7px;
-
-  padding: 10px 15px;
-
-  border: 1px solid #bb514b;
-
-  border-radius: 8px;
-
-  color: #ffffff;
-
-  background: #bb514b;
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-}
-
-
-
-.EquipmentManagement-confirmDelete:hover {
-
-  background: #a43d38;
-
-}
-
-
-
-/* =====================================================
-
-   ANIMATIONS
-
-\===================================================== */
-
-
-
-@keyframes EquipmentManagement-fadeIn {
-
-  from {
-
-    opacity: 0;
-
-  }
-
-  to {
-
-    opacity: 1;
-
-  }
-
-}
-
-
-
-@keyframes EquipmentManagement-dropdownIn {
-
-  from {
-
-    opacity: 0;
-
-    transform: translateY(-4px);
-
-  }
-
-  to {
-
-    opacity: 1;
-
-    transform: translateY(0);
-
-  }
-
-}
-
-
-
-/* =====================================================
-
-   LARGE LAPTOP
-
-\===================================================== */
-
-
-
-@media (max-width: 1450px) {
-
-  .EquipmentManagement {
-
-    padding: 22px;
-
-  }
-
-
-
-  .EquipmentManagement-panel {
-
-    padding: 20px;
-
-  }
-
-
-
-  .EquipmentManagement-stats {
-
-    gap: 12px;
-
-  }
-
-
-
-  .EquipmentManagement-statCard {
-
-    padding: 15px;
-
-    gap: 10px;
-
-  }
-
-
-
-  .EquipmentManagement-statIcon {
-
-    width: 39px;
-
-    height: 39px;
-
-  }
-
-
-
-  .EquipmentManagement-grid {
-
-    gap: 17px;
-
-  }
-
-
-
-  .EquipmentManagement-cardImage {
-
-    height: 215px;
-
-  }
-
-
-
-  .EquipmentManagement-cardBody {
-
-    padding: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-cardBody h3 {
-
-    font-size: 20px;
-
-  }
-
-
-
-  .EquipmentManagement-toolbar {
-
-    grid-template-columns: minmax(170px, 1.4fr) repeat(3, minmax(110px, 0.8fr));
-
-  }
-
-}
-
-
-
-/* =====================================================
-
-   TABLET / SMALL LAPTOP
-
-\===================================================== */
-
-
-
-@media (max-width: 1100px) {
-
-  .EquipmentManagement-stats {
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  }
-
-
-
-  .EquipmentManagement-grid {
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  }
-
-
-
-  .EquipmentManagement-viewToolbar {
-
-    align-items: stretch;
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-toolbar {
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  }
-
-
-
-  .EquipmentManagement-viewToggle {
-
-    align-self: flex-end;
-
-  }
-
-}
-
-
-
-/* =====================================================
-
-   TABLET
-
-\===================================================== */
-
-
-
-@media (max-width: 768px) {
-
-  .EquipmentManagement {
-
-    padding: 16px;
-
-  }
-
-
-
-  .EquipmentManagement-header {
-
-    align-items: flex-start;
-
-  }
-
-
-
-  .EquipmentManagement-heading {
-
-    gap: 11px;
-
-  }
-
-
-
-  .EquipmentManagement-headingIcon {
-
-    width: 46px;
-
-    height: 46px;
-
-    border-radius: 12px;
-
-    font-size: 20px;
-
-  }
-
-
-
-  .EquipmentManagement-heading h1 {
-
-    font-size: 25px;
-
-  }
-
-
-
-  .EquipmentManagement-heading p {
-
-    font-size: 11px;
-
-  }
-
-
-
-  .EquipmentManagement-createButton {
-
-    padding: 10px 12px;
-
-    font-size: 11px;
-
-  }
-
-
-
-  .EquipmentManagement-panel {
-
-    padding: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-panelHeader {
-
-    align-items: flex-start;
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-panelHeader h2 {
-
-    font-size: 21px;
-
-  }
-
-
-
-  .EquipmentManagement-tabs {
-
-    width: 100%;
-
-  }
-
-
-
-  .EquipmentManagement-tab {
-
-    flex: 1;
-
-  }
-
-
-
-  .EquipmentManagement-formGrid {
-
-    gap: 17px 13px;
-
-  }
-
-
-
-  .EquipmentManagement-cardImage {
-
-    height: 190px;
-
-  }
-
-
-
-  .EquipmentManagement-cardBody {
-
-    padding: 13px;
-
-  }
-
-
-
-  .EquipmentManagement-cardBody h3 {
-
-    font-size: 19px;
-
-  }
-
-
-
-  .EquipmentManagement-cardFooter {
-
-    align-items: flex-start;
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-viewLink {
-
-    align-self: flex-end;
-
-  }
-
-
-
-  .EquipmentManagement-formFooter {
-
-    align-items: flex-start;
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-formFooter > div {
-
-    width: 100%;
-
-  }
-
-
-
-  .EquipmentManagement-formFooter > div > button {
-
-    flex: 1;
-
-  }
-
-
-
-  .EquipmentManagement-mainPreview {
-
-    height: 230px;
-
-  }
-
-}
-
-
-
-/* =====================================================
-
-   MOBILE
-
-\===================================================== */
-
-
-
-@media (max-width: 520px) {
-
-  .EquipmentManagement {
-
-    padding: 11px;
-
-  }
-
-
-
-  .EquipmentManagement-header {
-
-    flex-direction: column;
-
-    gap: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-heading {
-
-    align-items: flex-start;
-
-  }
-
-
-
-  .EquipmentManagement-heading h1 {
-
-    font-size: 24px;
-
-  }
-
-
-
-  .EquipmentManagement-header > .EquipmentManagement-createButton {
-
-    width: 100%;
-
-  }
-
-
-
-  .EquipmentManagement-stats {
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 9px;
-
-    margin-bottom: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-statCard {
-
-    min-height: 91px;
-
-    gap: 9px;
-
-    padding: 11px;
-
-    border-radius: 10px;
-
-  }
-
-
-
-  .EquipmentManagement-statIcon {
-
-    width: 34px;
-
-    height: 34px;
-
-    border-radius: 9px;
-
-    font-size: 17px;
-
-  }
-
-
-
-  .EquipmentManagement-statCard > div > span {
-
-    font-size: 10px;
-
-  }
-
-
-
-  .EquipmentManagement-statCard strong {
-
-    font-size: 22px;
-
-  }
-
-
-
-  .EquipmentManagement-statCard small {
-
-    font-size: 9px;
-
-  }
-
-
-
-  .EquipmentManagement-panel {
-
-    padding: 12px;
-
-    border-radius: 11px;
-
-  }
-
-
-
-  .EquipmentManagement-panelHeader h2 {
-
-    font-size: 20px;
-
-  }
-
-
-
-  .EquipmentManagement-tabs {
-
-    gap: 3px;
-
-    padding: 4px;
-
-  }
-
-
-
-  .EquipmentManagement-tab {
-
-    gap: 5px;
-
-    padding: 9px 7px;
-
-    font-size: 10px;
-
-  }
-
-
-
-  .EquipmentManagement-toolbar {
-
-    grid-template-columns: minmax(0, 1fr);
-
-    gap: 8px;
-
-  }
-
-
-
-  .EquipmentManagement-search,
-
-  .EquipmentManagement-selectWrap {
-
-    min-height: 42px;
-
-  }
-
-
-
-  .EquipmentManagement-search input,
-
-  .EquipmentManagement-selectWrap select {
-
-    font-size: 11px;
-
-  }
-
-
-
-  .EquipmentManagement-grid {
-
-    grid-template-columns: minmax(0, 1fr);
-
-    gap: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-cardImage {
-
-    height: 225px;
-
-  }
-
-
-
-  .EquipmentManagement-cardBody {
-
-    padding: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-cardBody h3 {
-
-    font-size: 21px;
-
-  }
-
-
-
-  .EquipmentManagement-cardFooter {
-
-    align-items: flex-end;
-
-    flex-direction: row;
-
-  }
-
-
-
-  .EquipmentManagement-viewLink {
-
-    align-self: auto;
-
-  }
-
-
-
-  .EquipmentManagement-formGrid {
-
-    grid-template-columns: minmax(0, 1fr);
-
-    gap: 17px;
-
-  }
-
-
-
-  .EquipmentManagement-field--wide {
-
-    grid-column: auto;
-
-  }
-
-
-
-  .EquipmentManagement-characteristicRow {
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-addCharacteristic {
-
-    width: 100%;
-
-  }
-
-
-
-  .EquipmentManagement-bodyImageGrid {
-
-    grid-template-columns: minmax(0, 1fr);
-
-  }
-
-
-
-  .EquipmentManagement-uploadBox--body {
-
-    min-height: 140px;
-
-  }
-
-
-
-  .EquipmentManagement-bodyPreview > img {
-
-    height: 190px;
-
-  }
-
-
-
-  .EquipmentManagement-mainPreview {
-
-    height: 205px;
-
-  }
-
-
-
-  .EquipmentManagement-formFooter > div {
-
-    display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  }
-
-
-
-  .EquipmentManagement-formFooter > div > button:last-child {
-
-    grid-column: 1 / -1;
-
-  }
-
-
-
-  .EquipmentManagement-pagination {
-
-    align-items: flex-start;
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-pageButtons {
-
-    max-width: 100%;
-
-    flex-wrap: wrap;
-
-  }
-
-
-
-  .EquipmentManagement-modalBackdrop {
-
-    align-items: flex-start;
-
-    padding: 10px;
-
-  }
-
-
-
-  .EquipmentManagement-detailModal,
-
-  .EquipmentManagement-confirmModal {
-
-    max-height: calc(100vh - 20px);
-
-    border-radius: 11px;
-
-  }
-
-
-
-  .EquipmentManagement-modalHeader {
-
-    padding: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-detailBody {
-
-    padding: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-detailImage {
-
-    width: calc(100% - 30px);
-
-    max-height: 220px;
-
-    margin-top: 15px;
-
-  }
-
-
-
-  .EquipmentManagement-detailImages img {
-
-    height: 125px;
-
-  }
-
-
-
-  .EquipmentManagement-confirmModal {
-
-    margin-top: 10vh;
-
-    padding: 23px 17px;
-
-  }
-
-
-
-  .EquipmentManagement-modalFooter {
-
-    padding: 13px 15px;
-
-  }
-
-}
-
-
-
-/* =====================================================
-
-   SMALL MOBILE
-
-\===================================================== */
-
-
-
-@media (max-width: 350px) {
-
-  .EquipmentManagement {
-
-    padding: 8px;
-
-  }
-
-
-
-  .EquipmentManagement-panel {
-
-    padding: 9px;
-
-  }
-
-
-
-  .EquipmentManagement-headingIcon {
-
-    width: 39px;
-
-    height: 39px;
-
-  }
-
-
-
-  .EquipmentManagement-heading h1 {
-
-    font-size: 21px;
-
-  }
-
-
-
-  .EquipmentManagement-statCard {
-
-    align-items: flex-start;
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-cardImage {
-
-    height: 185px;
-
-  }
-
-
-
-  .EquipmentManagement-cardFooter {
-
-    align-items: flex-start;
-
-    flex-direction: column;
-
-  }
-
-
-
-  .EquipmentManagement-viewLink {
-
-    align-self: flex-end;
-
-  }
-
-
-
-  .EquipmentManagement-formFooter > div {
-
-    grid-template-columns: minmax(0, 1fr);
-
-  }
-
-
-
-  .EquipmentManagement-formFooter > div > button:last-child {
-
-    grid-column: auto;
-
-  }
-
-}
-
-
-
-/* =====================================================
-
-   REDUCED MOTION
-
-\===================================================== */
-
-
-
-@media (prefers-reduced-motion: reduce) {
-
-  .EquipmentManagement *,
-
-  .EquipmentManagement *::before,
-
-  .EquipmentManagement *::after {
-
-    scroll-behavior: auto !important;
-
-    animation-duration: 0.01ms !important;
-
-    animation-iteration-count: 1 !important;
-
-    transition-duration: 0.01ms !important;
-
-  }
-
-}
-
-/* EQUIPMENT SPECIFICATIONS */
 .EquipmentManagement-detailSpecs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
   margin: 18px 0;
 }
+
 .EquipmentManagement-detailSpecs > div {
   display: flex;
   flex-direction: column;
   gap: 5px;
   min-width: 0;
-  padding: 12px;
-  border: 1px solid var(--EquipmentManagement-border);
-  border-radius: 9px;
-  background: #f7f9fa;
+  padding: 14px;
+  border: 1px solid #e3eee7;
+  border-radius: 12px;
+  background: #f6fbf8;
 }
+
 .EquipmentManagement-detailSpecs span {
-  color: var(--EquipmentManagement-muted);
-  font-size: 10px;
-  font-weight: 650;
-}
-.EquipmentManagement-detailSpecs strong {
-  color: var(--EquipmentManagement-text);
+  color: #7a8f81;
   font-size: 12px;
+  font-weight: 600;
+}
+
+.EquipmentManagement-detailSpecs strong {
+  color: var(--EM-text);
+  font-size: 14.5px;
+  font-weight: 800;
   overflow-wrap: anywhere;
 }
-@media (max-width: 640px) {
+
+.EquipmentManagement-detailDescription {
+  margin-top: 20px;
+  color: #4f665a;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.EquipmentManagement-detailDescription h2,
+.EquipmentManagement-detailDescription h3 {
+  color: var(--EM-text);
+  font-weight: 800;
+}
+
+.EquipmentManagement-detailDescription h2 {
+  font-size: 20px;
+}
+
+.EquipmentManagement-detailDescription h3 {
+  font-size: 16px;
+}
+
+.EquipmentManagement-detailDescription img {
+  max-width: 100%;
+  height: auto;
+}
+
+.EquipmentManagement-detailQuote {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 20px 0 0;
+  padding: 16px 18px;
+  border-left: 4px solid var(--EM-green);
+  border-radius: 0 12px 12px 0;
+  color: #2c4a37;
+  background: var(--EM-green-soft);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.EquipmentManagement-detailQuote svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--EM-green);
+  font-size: 18px;
+}
+
+.EquipmentManagement-detailImages {
+  margin-top: 22px;
+}
+
+.EquipmentManagement-detailImages h4,
+.EquipmentManagement-detailSEO h4,
+.EquipmentManagement-detailDocuments h4 {
+  margin: 0 0 10px;
+  color: var(--EM-text);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.EquipmentManagement-detailImages > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.EquipmentManagement-detailImages img {
+  width: 100%;
+  height: 180px;
+  display: block;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.EquipmentManagement-detailTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.EquipmentManagement-detailTags > span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid #cfeedb;
+  border-radius: 20px;
+  color: #17803f;
+  background: #ecfdf3;
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.EquipmentManagement-detailSEO {
+  margin-top: 22px;
+  padding: 16px;
+  border: 1px solid #e3eee7;
+  border-radius: 12px;
+  background: #f6fbf8;
+}
+
+.EquipmentManagement-detailSEO p {
+  margin: 6px 0 0;
+  color: #5d7566;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.EquipmentManagement-detailSEO strong {
+  color: var(--EM-text);
+}
+
+.EquipmentManagement-detailDocuments {
+  margin-top: 22px;
+}
+
+.EquipmentManagement-detailDocument {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--EM-border);
+  border-radius: 12px;
+  color: var(--EM-green-dark);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.EquipmentManagement-detailDocument svg {
+  flex-shrink: 0;
+  font-size: 17px;
+}
+
+.EquipmentManagement-modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 26px;
+  border-top: 1px solid var(--EM-border);
+  background: #fbfefc;
+}
+
+.EquipmentManagement-modalSecondary,
+.EquipmentManagement-confirmDelete {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1px solid #dcebe1;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.EquipmentManagement-modalSecondary {
+  color: #4f665a;
+  background: #ffffff;
+}
+
+.EquipmentManagement-modalSecondary:hover {
+  border-color: #a9dcbc;
+  background: var(--EM-green-softer);
+}
+
+/* =====================================================
+   DELETE CONFIRMATION
+===================================================== */
+
+.EquipmentManagement-confirmModal {
+  max-width: 430px;
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.EquipmentManagement-deleteIcon {
+  width: 60px;
+  height: 60px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  color: #d14b4b;
+  background: #fff0f0;
+  font-size: 26px;
+}
+
+.EquipmentManagement-confirmModal h2 {
+  margin: 0;
+  color: var(--EM-text);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.EquipmentManagement-confirmModal > p {
+  margin: 12px 0 24px;
+  color: #7a8f81;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.EquipmentManagement-confirmActions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.EquipmentManagement-confirmDelete {
+  border-color: #c94646;
+  color: #ffffff;
+  background: #d14b4b;
+}
+
+.EquipmentManagement-confirmDelete:hover {
+  background: #b93a3a;
+}
+
+/* =====================================================
+   ANIMATIONS
+===================================================== */
+
+@keyframes EquipmentManagement-fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes EquipmentManagement-dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE - LARGE LAPTOP
+===================================================== */
+
+@media (max-width: 1450px) {
+  .EquipmentManagement {
+    padding: 22px;
+  }
+
+  .EquipmentManagement-panel {
+    padding: 22px;
+  }
+
+  .EquipmentManagement-stats {
+    gap: 13px;
+  }
+
+  .EquipmentManagement-statCard {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .EquipmentManagement-statIcon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .EquipmentManagement-grid {
+    gap: 16px;
+  }
+
+  .EquipmentManagement-cardImage {
+    height: 200px;
+  }
+
+  .EquipmentManagement-cardBody {
+    padding: 16px;
+  }
+
+  .EquipmentManagement-toolbar {
+    grid-template-columns: minmax(180px, 1.4fr) repeat(3, minmax(140px, 0.8fr));
+  }
+}
+
+/* =====================================================
+   RESPONSIVE - TABLET / SMALL LAPTOP
+===================================================== */
+
+@media (max-width: 1100px) {
+  .EquipmentManagement-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .EquipmentManagement-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .EquipmentManagement-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .EquipmentManagement-search {
+    grid-column: 1 / -1;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE - TABLET
+===================================================== */
+
+@media (max-width: 768px) {
+  .EquipmentManagement {
+    padding: 16px;
+  }
+
+  .EquipmentManagement-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .EquipmentManagement-header > .EquipmentManagement-createButton {
+    width: 100%;
+  }
+
+  .EquipmentManagement-heading {
+    gap: 12px;
+  }
+
+  .EquipmentManagement-headingIcon {
+    width: 50px;
+    height: 50px;
+    border-radius: 13px;
+    font-size: 21px;
+  }
+
+  .EquipmentManagement-panel {
+    padding: 17px;
+  }
+
+  .EquipmentManagement-panelHeader {
+    align-items: flex-start;
+  }
+
+  .EquipmentManagement-cardImage {
+    height: 185px;
+  }
+
+  .EquipmentManagement-cardBody h3 {
+    font-size: 17px;
+  }
+
   .EquipmentManagement-detailSpecs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* EQUIPMENT AVAILABILITY STATES */
-.EquipmentManagement-status--available {
-  color: #19734d;
-  background: #e8f5ee;
+/* =====================================================
+   RESPONSIVE - MOBILE
+===================================================== */
+
+@media (max-width: 520px) {
+  .EquipmentManagement {
+    padding: 13px;
+  }
+
+  .EquipmentManagement-heading {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .EquipmentManagement-headingIcon {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .EquipmentManagement-heading h1 {
+    font-size: 23px;
+  }
+
+  .EquipmentManagement-heading p {
+    font-size: 13px;
+  }
+
+  .EquipmentManagement-stats {
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .EquipmentManagement-statCard {
+    min-height: 98px;
+    gap: 9px;
+    padding: 12px;
+  }
+
+  .EquipmentManagement-statIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 18px;
+  }
+
+  .EquipmentManagement-statCard > div > span {
+    font-size: 12px;
+  }
+
+  .EquipmentManagement-statCard strong {
+    font-size: 22px;
+  }
+
+  .EquipmentManagement-statCard small {
+    font-size: 11px;
+  }
+
+  .EquipmentManagement-panel {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .EquipmentManagement-panelHeader h2 {
+    font-size: 21px;
+  }
+
+  .EquipmentManagement-panelHeader p {
+    font-size: 13px;
+  }
+
+  .EquipmentManagement-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .EquipmentManagement-search {
+    grid-column: auto;
+  }
+
+  .EquipmentManagement-selectMenu,
+  .EquipmentManagement-select--right .EquipmentManagement-selectMenu {
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  .EquipmentManagement-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .EquipmentManagement-cardImage {
+    height: 210px;
+  }
+
+  .EquipmentManagement-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .EquipmentManagement-pageButtons {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .EquipmentManagement-modalBackdrop {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .EquipmentManagement-detailModal,
+  .EquipmentManagement-confirmModal {
+    max-height: calc(100vh - 20px);
+    border-radius: 16px;
+  }
+
+  .EquipmentManagement-modalHeader {
+    padding: 15px 16px;
+  }
+
+  .EquipmentManagement-detailBody {
+    padding: 16px;
+  }
+
+  .EquipmentManagement-detailImage {
+    width: calc(100% - 32px);
+    max-height: 220px;
+    margin-top: 16px;
+  }
+
+  .EquipmentManagement-detailImages > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .EquipmentManagement-confirmModal {
+    margin-top: 10vh;
+    padding: 24px 18px;
+  }
+
+  .EquipmentManagement-modalFooter {
+    padding: 14px 16px;
+  }
+
+  .EquipmentManagement-modalFooter button {
+    flex: 1;
+  }
 }
-.EquipmentManagement-status--reserved {
-  color: #a65b12;
-  background: #fff1df;
+
+/* =====================================================
+   RESPONSIVE - SMALL MOBILE
+===================================================== */
+
+@media (max-width: 350px) {
+  .EquipmentManagement {
+    padding: 9px;
+  }
+
+  .EquipmentManagement-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .EquipmentManagement-detailSpecs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .EquipmentManagement-cardFooter {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .EquipmentManagement-viewLink {
+    align-self: flex-end;
+  }
 }
-.EquipmentManagement-status--sold {
-  color: #64717d;
-  background: #edf1f4;
-}
-.EquipmentManagement-status--available .EquipmentManagement-statusDot {
-  background: #239765;
-}
-.EquipmentManagement-status--reserved .EquipmentManagement-statusDot {
-  background: #df8a2e;
-}
-.EquipmentManagement-status--sold .EquipmentManagement-statusDot {
-  background: #84919b;
+
+/* =====================================================
+   REDUCED MOTION
+===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .EquipmentManagement *,
+  .EquipmentManagement *::before,
+  .EquipmentManagement *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
