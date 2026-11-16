@@ -13,7 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import Farmer from "../../assets/Farmer.png";
+import Farmer from "../../assets/farmer.png";
 import "./ContactTwo.css";
 import { API_ENDPOINTS } from "../../config/api";
 
