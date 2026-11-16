@@ -737,3 +737,42 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================
+   LOADING SKELETON & EMPTY STATE
+========================================== */
+
+.BrowsbyCategory-card-skeleton {
+  pointer-events: none;
+  animation: BrowsbyCategory-pulse 1.5s ease-in-out infinite;
+}
+
+.BrowsbyCategory-skeleton-shimmer {
+  background: #f0f3ed;
+  border-radius: 8px;
+}
+
+.BrowsbyCategory-skeleton-line {
+  width: 65%;
+  height: 12px;
+  background: #e2e8de;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+@keyframes BrowsbyCategory-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.BrowsbyCategory-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #697166;
+  font-size: 15px;
+  padding: 30px 0;
+}

@@ -8,210 +8,187 @@ import {
 } from "lucide-react";
 
 import "./BrowsbyCategory.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-// Wikimedia Commons direct image URLs
+const CATEGORIES_API = API_ENDPOINTS.CATEGORIES;
+
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=500&q=80";
+
+// Wikimedia Commons helper for high-quality implement visuals
 const commonsImage = (filename) =>
   `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
     filename
   )}?width=500`;
 
-const makeSubcategories = (items) =>
-  items.map(([name, image]) => ({
-    name,
-    slug: name.toLowerCase().replace(/\s+/g, "-"),
-    image: commonsImage(image),
-  }));
+// Rich subcategories mapping for implements when database item doesn't specify explicit subcategories
+const SUBCATEGORY_DEFAULTS = {
+  tractor: [
+    { name: "Mini Tractor", image: commonsImage("A tractor.jpg") },
+    { name: "Utility Tractor", image: commonsImage("John Deere 8320.jpg") },
+    { name: "4WD Tractor", image: commonsImage("Mc Cormick-by-RaBoe-07.jpg") },
+    { name: "Farm Tractor", image: commonsImage("Photo A working machine tractor 1963 - Touring Club Italiano 2 6042.jpg") },
+  ],
+  "power-tiller": [
+    { name: "Diesel Power Tiller", image: commonsImage("Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg") },
+    { name: "Petrol Power Tiller", image: commonsImage("Maly neseny prekopavac.jpg") },
+    { name: "Mini Power Tiller", image: commonsImage("Samojizdny mostovy prekopavac.jpg") },
+  ],
+  weeder: [
+    { name: "Electric Weeder", image: commonsImage("Agricultural Equipment (1).jpg") },
+    { name: "Back Rotary Weeder", image: commonsImage("Maly neseny prekopavac.jpg") },
+    { name: "Front Rotary Weeder", image: commonsImage("Agricultural Equipment (2).jpg") },
+    { name: "Weeder", image: commonsImage("Agricultural Equipment (3).jpg") },
+  ],
+  transplanter: [
+    { name: "Rice Transplanter", image: commonsImage("Rotor poplar and willow cuttings planter, planting a new nursery of poplar for biomass with short rotation..JPG") },
+    { name: "Vegetable Transplanter", image: commonsImage("Agricultural Equipment (4).jpg") },
+    { name: "Manual Transplanter", image: commonsImage("Agricultural Equipment (3).jpg") },
+  ],
+  reaper: [
+    { name: "Self Propelled Reaper", image: commonsImage("Ridley's reapers at work.jpg") },
+    { name: "Tractor Mounted Reaper", image: commonsImage("Carrot Digger on a tractor.jpg") },
+    { name: "Mini Reaper", image: commonsImage("A Twenty-Four Horse Power Harvester (NBY 9002).jpg") },
+  ],
+  harvester: [
+    { name: "Combine Harvester", image: commonsImage("Agriculture Machinery Harvester.jpg") },
+    { name: "Mini Harvester", image: commonsImage("A Twenty-Four Horse Power Harvester (NBY 9002).jpg") },
+    { name: "Paddy Harvester", image: commonsImage("Maehdrescher1 hg.jpg") },
+  ],
+  rotavator: [
+    { name: "Mini Rotavator", image: commonsImage("Maly neseny prekopavac.jpg") },
+    { name: "Heavy Duty Rotavator", image: commonsImage("Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg") },
+    { name: "Tractor Rotavator", image: commonsImage("Agricultural Equipment (2).jpg") },
+  ],
+  thresher: [
+    { name: "Multi Crop Thresher", image: commonsImage("Somewhere in Bihar 06 threshing (32126379105).jpg") },
+    { name: "Wheat Thresher", image: commonsImage("Somewhere in Bihar 07 threshing (31285110604).jpg") },
+    { name: "Paddy Thresher", image: commonsImage("Threshing machines.jpg") },
+  ],
+  pumpset: [
+    { name: "Diesel Pump Set", image: commonsImage("Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India.jpg") },
+    { name: "Electric Pump Set", image: commonsImage("Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India 02.jpg") },
+    { name: "Portable Pump", image: commonsImage("New pump for the well (4679681019).jpg") },
+  ],
+  "brush-cutter": [
+    { name: "Petrol Brush Cutter", image: commonsImage("Aerosolni generator 33.jpg") },
+    { name: "Electric Brush Cutter", image: commonsImage("Aerosolni generator egipat.jpg") },
+    { name: "Backpack Brush Cutter", image: commonsImage("Aerosolni generator1.jpg") },
+  ],
+  sprayer: [
+    { name: "Battery Sprayer", image: commonsImage("Atomizador agrícola.jpg") },
+    { name: "Power Sprayer", image: commonsImage("Aerosolni generator egipat.jpg") },
+    { name: "Knapsack Sprayer", image: commonsImage("Aerosolni generator 33.jpg") },
+  ],
+  "chaff-cutter": [
+    { name: "Electric Chaff Cutter", image: commonsImage("Chaff cutter machine at work.jpg") },
+    { name: "Manual Chaff Cutter", image: commonsImage("Січкарня у стодолі 03.jpg") },
+    { name: "Heavy Duty Chaff Cutter", image: commonsImage("Food cuter machine.jpg") },
+  ],
+  pulverizer: [
+    { name: "Mini Pulverizer", image: commonsImage("Agricultural Equipment (3).jpg") },
+    { name: "Commercial Pulverizer", image: commonsImage("Agricultural Equipment (4).jpg") },
+    { name: "Impact Pulverizer", image: commonsImage("Noe mobile grinder.jpg") },
+  ],
+  "rice-mill": [
+    { name: "Mini Rice Mill", image: commonsImage("Machines agricoles 01.jpg") },
+    { name: "Commercial Rice Mill", image: commonsImage("Machines agricoles 02.jpg") },
+    { name: "Rice Huller", image: commonsImage("Machines agricoles 03.jpg") },
+  ],
+  "dal-mill": [
+    { name: "Mini Dal Mill", image: commonsImage("Machines agricoles 04.jpg") },
+    { name: "Commercial Dal Mill", image: commonsImage("Machines agricoles 05.jpg") },
+    { name: "Automatic Dal Mill", image: commonsImage("Machines agricoles 06.jpg") },
+  ],
+  "oil-mill": [
+    { name: "Mini Oil Mill", image: commonsImage("Machine for making mustard oil, Jaura 2.jpg") },
+    { name: "Commercial Oil Mill", image: commonsImage("Machine for making mustard oil, Jaura 3.jpg") },
+    { name: "Automatic Oil Mill", image: commonsImage("Machine for making mustard oil, Jaura, 2.jpg") },
+  ],
+  "cleaner-cum-grader": [
+    { name: "Seed Cleaner", image: commonsImage("Electronic seed colour separator.jpg") },
+    { name: "Grain Grader", image: commonsImage("Saatgut-Reinigungsanlage 3786.JPG") },
+    { name: "Multi Crop Cleaner", image: commonsImage("Saatgut-Reinigungsanlage 3787.jpg") },
+  ],
+  "ragi-thresher": [
+    { name: "Mini Ragi Thresher", image: commonsImage("Somewhere in Bihar 06 threshing (32126379105).jpg") },
+    { name: "Power Ragi Thresher", image: commonsImage("Somewhere in Bihar 07 threshing (31285110604).jpg") },
+    { name: "Multi Crop Ragi Thresher", image: commonsImage("Agriculture Machinery Harvester.jpg") },
+  ],
+};
 
-const categories = [
-  {
-    name: "Tractor",
-    slug: "tractor",
-    image: commonsImage("John Deere 8320.jpg"),
-    subcategories: makeSubcategories([
-      ["Mini Tractor", "A tractor.jpg"],
-      ["Utility Tractor", "John Deere 8320.jpg"],
-      ["4WD Tractor", "Mc Cormick-by-RaBoe-07.jpg"],
-      ["Farm Tractor", "Photo A working machine tractor 1963 - Touring Club Italiano 2 6042.jpg"],
-    ]),
-  },
-  {
-    name: "Power Tiller",
-    slug: "power-tiller",
-    image: commonsImage("Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg"),
-    subcategories: makeSubcategories([
-      ["Diesel Power Tiller", "Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg"],
-      ["Petrol Power Tiller", "Maly neseny prekopavac.jpg"],
-      ["Mini Power Tiller", "Samojizdny mostovy prekopavac.jpg"],
-    ]),
-  },
-  {
-    name: "Weeder",
-    slug: "weeder",
-    image: commonsImage("Agricultural Equipment (1).jpg"),
-    subcategories: makeSubcategories([
-      ["Electric Weeder", "Agricultural Equipment (1).jpg"],
-      ["Back Rotary Weeder", "Maly neseny prekopavac.jpg"],
-      ["Front Rotary Weeder", "Agricultural Equipment (2).jpg"],
-      ["Weeder", "Agricultural Equipment (3).jpg"],
-    ]),
-  },
-  {
-    name: "Transplanter",
-    slug: "transplanter",
-    image: commonsImage("Rotor poplar and willow cuttings planter, planting a new nursery of poplar for biomass with short rotation..JPG"),
-    subcategories: makeSubcategories([
-      ["Rice Transplanter", "Rotor poplar and willow cuttings planter, planting a new nursery of poplar for biomass with short rotation..JPG"],
-      ["Vegetable Transplanter", "Agricultural Equipment (4).jpg"],
-      ["Manual Transplanter", "Agricultural Equipment (3).jpg"],
-    ]),
-  },
-  {
-    name: "Reaper",
-    slug: "reaper",
-    image: commonsImage("Ridley's reapers at work.jpg"),
-    subcategories: makeSubcategories([
-      ["Self Propelled Reaper", "Ridley's reapers at work.jpg"],
-      ["Tractor Mounted Reaper", "Carrot Digger on a tractor.jpg"],
-      ["Mini Reaper", "A Twenty-Four Horse Power Harvester (NBY 9002).jpg"],
-    ]),
-  },
-  {
-    name: "Harvester",
-    slug: "harvester",
-    image: commonsImage("Agriculture Machinery Harvester.jpg"),
-    subcategories: makeSubcategories([
-      ["Combine Harvester", "Agriculture Machinery Harvester.jpg"],
-      ["Mini Harvester", "A Twenty-Four Horse Power Harvester (NBY 9002).jpg"],
-      ["Paddy Harvester", "Maehdrescher1 hg.jpg"],
-    ]),
-  },
-  {
-    name: "Rotavator",
-    slug: "rotavator",
-    image: commonsImage("Maly neseny prekopavac.jpg"),
-    subcategories: makeSubcategories([
-      ["Mini Rotavator", "Maly neseny prekopavac.jpg"],
-      ["Heavy Duty Rotavator", "Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg"],
-      ["Tractor Rotavator", "Agricultural Equipment (2).jpg"],
-    ]),
-  },
-  {
-    name: "Thresher",
-    slug: "thresher",
-    image: commonsImage("Somewhere in Bihar 06 threshing (32126379105).jpg"),
-    subcategories: makeSubcategories([
-      ["Multi Crop Thresher", "Somewhere in Bihar 06 threshing (32126379105).jpg"],
-      ["Wheat Thresher", "Somewhere in Bihar 07 threshing (31285110604).jpg"],
-      ["Paddy Thresher", "Threshing machines.jpg"],
-    ]),
-  },
-  {
-    name: "PumpSet",
-    slug: "pumpset",
-    image: commonsImage("Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India.jpg"),
-    subcategories: makeSubcategories([
-      ["Diesel Pump Set", "Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India.jpg"],
-      ["Electric Pump Set", "Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India 02.jpg"],
-      ["Portable Pump", "New pump for the well (4679681019).jpg"],
-    ]),
-  },
-  {
-    name: "Brush Cutter",
-    slug: "brush-cutter",
-    image: commonsImage("Aerosolni generator 33.jpg"),
-    subcategories: makeSubcategories([
-      ["Petrol Brush Cutter", "Aerosolni generator 33.jpg"],
-      ["Electric Brush Cutter", "Aerosolni generator egipat.jpg"],
-      ["Backpack Brush Cutter", "Aerosolni generator1.jpg"],
-    ]),
-  },
-  {
-    name: "Sprayer",
-    slug: "sprayer",
-    image: commonsImage("Atomizador agrícola.jpg"),
-    subcategories: makeSubcategories([
-      ["Battery Sprayer", "Atomizador agrícola.jpg"],
-      ["Power Sprayer", "Aerosolni generator egipat.jpg"],
-      ["Knapsack Sprayer", "Aerosolni generator 33.jpg"],
-    ]),
-  },
-  {
-    name: "Chaff Cutter",
-    slug: "chaff-cutter",
-    image: commonsImage("Chaff cutter machine at work.jpg"),
-    subcategories: makeSubcategories([
-      ["Electric Chaff Cutter", "Chaff cutter machine at work.jpg"],
-      ["Manual Chaff Cutter", "Січкарня у стодолі 03.jpg"],
-      ["Heavy Duty Chaff Cutter", "Food cuter machine.jpg"],
-    ]),
-  },
-  {
-    name: "Pulverizer",
-    slug: "pulverizer",
-    image: commonsImage("Agricultural Equipment (3).jpg"),
-    subcategories: makeSubcategories([
-      ["Mini Pulverizer", "Agricultural Equipment (3).jpg"],
-      ["Commercial Pulverizer", "Agricultural Equipment (4).jpg"],
-      ["Impact Pulverizer", "Noe mobile grinder.jpg"],
-    ]),
-  },
-  {
-    name: "Rice Mill",
-    slug: "rice-mill",
-    image: commonsImage("Machines agricoles 01.jpg"),
-    subcategories: makeSubcategories([
-      ["Mini Rice Mill", "Machines agricoles 01.jpg"],
-      ["Commercial Rice Mill", "Machines agricoles 02.jpg"],
-      ["Rice Huller", "Machines agricoles 03.jpg"],
-    ]),
-  },
-  {
-    name: "Dal Mill",
-    slug: "dal-mill",
-    image: commonsImage("Machines agricoles 04.jpg"),
-    subcategories: makeSubcategories([
-      ["Mini Dal Mill", "Machines agricoles 04.jpg"],
-      ["Commercial Dal Mill", "Machines agricoles 05.jpg"],
-      ["Automatic Dal Mill", "Machines agricoles 06.jpg"],
-    ]),
-  },
-  {
-    name: "Oil Mill",
-    slug: "oil-mill",
-    image: commonsImage("Machine for making mustard oil, Jaura 2.jpg"),
-    subcategories: makeSubcategories([
-      ["Mini Oil Mill", "Machine for making mustard oil, Jaura 2.jpg"],
-      ["Commercial Oil Mill", "Machine for making mustard oil, Jaura 3.jpg"],
-      ["Automatic Oil Mill", "Machine for making mustard oil, Jaura, 2.jpg"],
-    ]),
-  },
-  {
-    name: "Cleaner Cum Grader",
-    slug: "cleaner-cum-grader",
-    image: commonsImage("Electronic seed colour separator.jpg"),
-    subcategories: makeSubcategories([
-      ["Seed Cleaner", "Electronic seed colour separator.jpg"],
-      ["Grain Grader", "Saatgut-Reinigungsanlage 3786.JPG"],
-      ["Multi Crop Cleaner", "Saatgut-Reinigungsanlage 3787.jpg"],
-    ]),
-  },
-  {
-    name: "Ragi Thresher",
-    slug: "ragi-thresher",
-    image: commonsImage("Somewhere in Bihar 07 threshing (31285110604).jpg"),
-    subcategories: makeSubcategories([
-      ["Mini Ragi Thresher", "Somewhere in Bihar 06 threshing (32126379105).jpg"],
-      ["Power Ragi Thresher", "Somewhere in Bihar 07 threshing (31285110604).jpg"],
-      ["Multi Crop Ragi Thresher", "Agriculture Machinery Harvester.jpg"],
-    ]),
-  },
-];
+const normalizeKey = (str) =>
+  (str || "").toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
+
+const resolveSubcategories = (cat) => {
+  if (Array.isArray(cat.subcategories) && cat.subcategories.length > 0) {
+    return cat.subcategories.map((sub) => {
+      if (typeof sub === "string") {
+        return {
+          name: sub,
+          slug: normalizeKey(sub),
+          image: cat.image || FALLBACK_IMAGE,
+        };
+      }
+      return {
+        name: sub.name || "Subcategory",
+        slug: sub.slug || normalizeKey(sub.name),
+        image: sub.image || cat.image || FALLBACK_IMAGE,
+      };
+    });
+  }
+
+  const key = normalizeKey(cat.slug || cat.name);
+  const defaults = SUBCATEGORY_DEFAULTS[key];
+  if (defaults && defaults.length > 0) {
+    return defaults.map((item) => ({
+      name: item.name,
+      slug: normalizeKey(item.name),
+      image: item.image || cat.image || FALLBACK_IMAGE,
+    }));
+  }
+
+  return [];
+};
 
 const BrowsbyCategory = () => {
   const navigate = useNavigate();
 
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isClosing, setIsClosing] = useState(false);
+
+  // Dynamically fetch categories from the database API
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(CATEGORIES_API);
+        const result = await res.json();
+
+        if (isMounted && res.ok && result.success && Array.isArray(result.data)) {
+          // Filter out Inactive categories if marked as such
+          const activeCategories = result.data.filter(
+            (c) => c.status !== "Inactive"
+          );
+          setCategories(activeCategories);
+        }
+      } catch (err) {
+        console.error("Error loading categories from database:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchCategories();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const closePopup = () => {
     if (!selectedCategory || isClosing) return;
@@ -241,8 +218,19 @@ const BrowsbyCategory = () => {
   }, [selectedCategory, isClosing]);
 
   const openCategory = (category) => {
+    const subcategories = resolveSubcategories(category);
+
+    // If category has no subcategories, navigate directly to that category
+    if (!subcategories || subcategories.length === 0) {
+      goToCategory(category);
+      return;
+    }
+
     setIsClosing(false);
-    setSelectedCategory(category);
+    setSelectedCategory({
+      ...category,
+      subcategories,
+    });
   };
 
   const goToCategory = (category, subcategory = null) => {
@@ -287,29 +275,54 @@ const BrowsbyCategory = () => {
         </div>
 
         <div className="BrowsbyCategory-grid">
-          {categories.map((category) => (
-            <button
-              type="button"
-              key={category.slug}
-              className="BrowsbyCategory-card"
-              onClick={() => openCategory(category)}
-              aria-label={`View ${category.name} subcategories`}
-            >
-              <div className="BrowsbyCategory-image-wrap">
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="BrowsbyCategory-image"
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
+          {loading ? (
+            Array.from({ length: 9 }).map((_, i) => (
+              <div
+                key={i}
+                className="BrowsbyCategory-card BrowsbyCategory-card-skeleton"
+              >
+                <div className="BrowsbyCategory-image-wrap BrowsbyCategory-skeleton-shimmer" />
+                <span className="BrowsbyCategory-skeleton-line" />
               </div>
+            ))
+          ) : categories.length === 0 ? (
+            <p className="BrowsbyCategory-empty">
+              No categories available at the moment.
+            </p>
+          ) : (
+            categories.map((category) => {
+              const catKey = category._id || category.slug || category.name;
+              const catImage = category.image || FALLBACK_IMAGE;
 
-              <span className="BrowsbyCategory-card-name">
-                {category.name}
-              </span>
-            </button>
-          ))}
+              return (
+                <button
+                  type="button"
+                  key={catKey}
+                  className="BrowsbyCategory-card"
+                  onClick={() => openCategory(category)}
+                  aria-label={`View ${category.name} subcategories`}
+                >
+                  <div className="BrowsbyCategory-image-wrap">
+                    <img
+                      src={catImage}
+                      alt={category.name}
+                      className="BrowsbyCategory-image"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = FALLBACK_IMAGE;
+                      }}
+                    />
+                  </div>
+
+                  <span className="BrowsbyCategory-card-name">
+                    {category.name}
+                  </span>
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -341,7 +354,7 @@ const BrowsbyCategory = () => {
                   </h3>
 
                   <span className="BrowsbyCategory-count">
-                    {selectedCategory.subcategories.length}
+                    {selectedCategory.subcategories ? selectedCategory.subcategories.length : 0}
                   </span>
                 </div>
 
@@ -384,10 +397,10 @@ const BrowsbyCategory = () => {
               </button>
 
               <div className="BrowsbyCategory-subcategory-grid">
-                {selectedCategory.subcategories.map((subcategory) => (
+                {(selectedCategory.subcategories || []).map((subcategory) => (
                   <button
                     type="button"
-                    key={subcategory.slug}
+                    key={subcategory.slug || subcategory.name}
                     className="BrowsbyCategory-subcategory-card"
                     onClick={() =>
                       goToCategory(selectedCategory, subcategory)
@@ -395,11 +408,15 @@ const BrowsbyCategory = () => {
                   >
                     <div className="BrowsbyCategory-subcategory-image-wrap">
                       <img
-                        src={subcategory.image}
+                        src={subcategory.image || FALLBACK_IMAGE}
                         alt={subcategory.name}
                         className="BrowsbyCategory-subcategory-image"
                         loading="lazy"
                         referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = FALLBACK_IMAGE;
+                        }}
                       />
                     </div>
 
@@ -413,7 +430,7 @@ const BrowsbyCategory = () => {
 
             <div className="BrowsbyCategory-modal-footer">
               <span>
-                {selectedCategory.subcategories.length} options
+                {selectedCategory.subcategories ? selectedCategory.subcategories.length : 0} options
               </span>
 
               <button
