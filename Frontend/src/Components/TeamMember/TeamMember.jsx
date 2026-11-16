@@ -1,83 +1,41 @@
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./TeamMember.css";
 
-const teamMembers = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    role: "Founder & CEO",
-    department: "Management",
-    description: "Leading our vision to make agriculture smarter and more sustainable.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=85",
-    email: "rahul@farmtechagro.com",
-  },
-  {
-    id: 2,
-    name: "Priya Das",
-    role: "Agriculture Specialist",
-    department: "Agriculture",
-    description: "Helping farmers discover better crop practices and farming solutions.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=85",
-    email: "priya@farmtechagro.com",
-  },
-  {
-    id: 3,
-    name: "Amit Kumar",
-    role: "Operations Manager",
-    department: "Operations",
-    description: "Managing operations to ensure reliable service and smooth delivery.",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=85",
-    email: "amit@farmtechagro.com",
-  },
-  {
-    id: 4,
-    name: "Sneha Patel",
-    role: "Marketing Manager",
-    department: "Marketing",
-    description: "Building meaningful connections between farmers and quality products.",
-    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=600&auto=format&fit=crop&q=85",
-    email: "sneha@farmtechagro.com",
-  },
-  {
-    id: 5,
-    name: "Vikash Singh",
-    role: "Product Manager",
-    department: "Product",
-    description: "Developing product strategies for real-world farming requirements.",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=85",
-    email: "vikash@farmtechagro.com",
-  },
-  {
-    id: 6,
-    name: "Ananya Mohanty",
-    role: "Customer Support Lead",
-    department: "Support",
-    description: "Ensuring every farmer receives friendly and dependable support.",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&auto=format&fit=crop&q=85",
-    email: "ananya@farmtechagro.com",
-  },
-  {
-    id: 7,
-    name: "Rohit Verma",
-    role: "Technology Lead",
-    department: "Technology",
-    description: "Using technology and innovation to improve modern farming.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=85",
-    email: "rohit@farmtechagro.com",
-  },
-  {
-    id: 8,
-    name: "Neha Sahoo",
-    role: "Finance Executive",
-    department: "Finance",
-    description: "Supporting business growth through careful financial planning.",
-    image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&auto=format&fit=crop&q=85",
-    email: "neha@farmtechagro.com",
-  },
-];
+const TEAM_API = "http://localhost:5000/api/team";
+
+const fallbackAvatar =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='450' viewBox='0 0 400 450'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ccircle cx='200' cy='170' r='70' fill='%23cbd5e1'/%3E%3Cpath d='M80 380 c0-70 55-120 120-120 s120 50 120 120 Z' fill='%23cbd5e1'/%3E%3C/svg%3E";
 
 const TeamMember = () => {
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(TEAM_API);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch team members: ${res.statusText}`);
+        }
+        const result = await res.json();
+        if (result.success && Array.isArray(result.data)) {
+          setTeamMembers(result.data);
+        } else {
+          setTeamMembers([]);
+        }
+      } catch (err) {
+        console.error("Error loading team members:", err);
+        setError("Unable to load team members right now.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeamMembers();
+  }, []);
+
   return (
     <section className="TeamMember-section">
       <div className="TeamMember-container">
@@ -95,79 +53,159 @@ const TeamMember = () => {
             <p className="TeamMember-intro">
               Behind every successful harvest is a dedicated team.
               Meet the people working together to build a better
-              agricultural future.
+              agricultural future with Rhinco Equipments.
             </p>
           </div>
 
           <div className="TeamMember-count">
-            <strong>08</strong>
+            <strong>{String(teamMembers.length).padStart(2, "0")}</strong>
             <span>Dedicated Members</span>
           </div>
         </div>
 
-        <div className="TeamMember-grid">
-          {teamMembers.map((member) => (
-            <article className="TeamMember-card" key={member.id}>
-              <div className="TeamMember-image-box">
-                <img
-                  className="TeamMember-image"
-                  src={member.image}
-                  alt={member.name}
-                  loading="lazy"
-                  onError={(event) => {
-                    event.currentTarget.src =
-                      "https://placehold.co/600x650/eaf1df/356005?text=Team+Member";
-                  }}
-                />
+        {/* LOADING STATE */}
+        {loading && (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>
+            <div
+              style={{
+                width: "42px",
+                height: "42px",
+                border: "4px solid #e2e8f0",
+                borderTopColor: "#729a36",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+                margin: "0 auto 16px",
+              }}
+            />
+            <p style={{ fontSize: "15px", fontWeight: 500 }}>
+              Fetching real team members from database...
+            </p>
+          </div>
+        )}
 
-                <span className="TeamMember-number">
-                  {String(member.id).padStart(2, "0")}
-                </span>
+        {/* ERROR STATE */}
+        {!loading && error && (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "30px",
+              background: "#fef2f2",
+              border: "1px solid #fecaca",
+              borderRadius: "10px",
+              color: "#b91c1c",
+              marginBottom: "30px",
+            }}
+          >
+            <p style={{ margin: 0, fontWeight: 600 }}>{error}</p>
+          </div>
+        )}
 
-                <div className="TeamMember-image-overlay">
-                  <a
-                    href={`mailto:${member.email}`}
-                    className="TeamMember-email-icon"
-                    aria-label={`Email ${member.name}`}
-                  >
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <rect x="3" y="5" width="18" height="14" rx="2" />
-                      <path d="m3 7 9 7 9-7" />
-                    </svg>
-                  </a>
+        {/* EMPTY STATE */}
+        {!loading && !error && teamMembers.length === 0 && (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              background: "#f8fafc",
+              borderRadius: "12px",
+              color: "#64748b",
+            }}
+          >
+            <h3 style={{ color: "#334155", marginBottom: "8px" }}>
+              No Team Members Found
+            </h3>
+            <p>Team members added via the Admin Panel will appear here.</p>
+          </div>
+        )}
+
+        {/* TEAM GRID */}
+        {!loading && teamMembers.length > 0 && (
+          <div className="TeamMember-grid">
+            {teamMembers.map((member, index) => (
+              <article
+                className="TeamMember-card"
+                key={member._id || member.id || index}
+              >
+                <div className="TeamMember-image-box">
+                  <img
+                    className="TeamMember-image"
+                    src={member.image || fallbackAvatar}
+                    alt={member.name}
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.src = fallbackAvatar;
+                    }}
+                  />
+
+                  <span className="TeamMember-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
+                  <div className="TeamMember-image-overlay">
+                    {member.email && (
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="TeamMember-email-icon"
+                        aria-label={`Email ${member.name}`}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <rect x="3" y="5" width="18" height="14" rx="2" />
+                          <path d="m3 7 9 7 9-7" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="TeamMember-details">
-                <span className="TeamMember-department">
-                  {member.department}
-                </span>
+                <div className="TeamMember-details">
+                  <span className="TeamMember-department">
+                    {member.department || member.designation || "Core Team"}
+                  </span>
 
-                <h3 className="TeamMember-name">{member.name}</h3>
+                  <h3 className="TeamMember-name">{member.name}</h3>
 
-                <p className="TeamMember-role">{member.role}</p>
+                  <p className="TeamMember-role">{member.designation}</p>
 
-                <p className="TeamMember-description">
-                  {member.description}
-                </p>
+                  {member.description && (
+                    <p className="TeamMember-description">
+                      {member.description}
+                    </p>
+                  )}
 
-                <a
-                  href={`mailto:${member.email}`}
-                  className="TeamMember-contact"
-                >
-                  Contact Member
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M7 17 17 7M7 7h10v10" />
-                  </svg>
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
+                  <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
+                    {member.email && (
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="TeamMember-contact"
+                      >
+                        Email Member
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M7 17 17 7M7 7h10v10" />
+                        </svg>
+                      </a>
+                    )}
+                    {member.contact && (
+                      <a
+                        href={`tel:${member.contact}`}
+                        className="TeamMember-contact"
+                        style={{ background: "#f0fdf4", color: "#166534", border: "1px solid #bbf7d0" }}
+                      >
+                        Call
+                        <svg viewBox="0 0 24 24" aria-hidden="true" style={{ width: 14, height: 14 }}>
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
 
         <div className="TeamMember-bottom">
           <div className="TeamMember-bottom-content">
-            <span>GROW WITH FARMTECH AGRO</span>
+            <span>GROW WITH RHINCO EQUIPMENTS</span>
             <h3>Great things happen when we grow together.</h3>
           </div>
 

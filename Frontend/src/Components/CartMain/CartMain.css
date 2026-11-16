@@ -647,6 +647,24 @@
   cursor: not-allowed;
 }
 
+.cartCheckoutSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: cartBtnSpin 0.7s linear infinite;
+  display: inline-block;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+@keyframes cartBtnSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .cartCheckoutNote {
   margin: 12px 0 20px;
   color: var(--cart-muted);
@@ -1300,4 +1318,661 @@
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================
+   DELIVERY ADDRESS CARD (LEFT SIDE TOP)
+============================================ */
+
+.cartAddressCard {
+  background: #ffffff;
+  border: 1.5px solid #dcfce7;
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(22, 101, 52, 0.05);
+  transition: all 0.25s ease;
+}
+
+.cartAddressCard:hover {
+  border-color: #86efac;
+  box-shadow: 0 6px 20px rgba(22, 101, 52, 0.09);
+}
+
+.cartAddressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 14px;
+}
+
+.cartAddressTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cartAddressIconCircle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cartAddressTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.cartAddressSubtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+.cartAddressEditBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cartAddressEditBtn:hover {
+  background: #166534;
+  color: #ffffff;
+}
+
+.cartAddressBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cartAddressBadgeRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cartAddressTypeBadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: #166534;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.cartAddressRecipient {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.cartAddressPhone {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.cartAddressLocationText {
+  font-size: 13.5px;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Order Summary Badge */
+.cartSummaryBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Address Edit Modal */
+.cartAddressModal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+  animation: cartModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cartAddressSelectModal {
+  max-width: 640px;
+}
+
+.cartAddressSelectHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 16px;
+}
+
+.cartAddressSelectTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cartAddressSelectIconCircle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #eaf5e6;
+  color: #1b5e20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cartAddressSelectTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.cartAddressSelectSubtitle {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 3px 0 0;
+}
+
+.cartAddressTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cartAddressSavedCount {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cartAddressAddNewActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #1b5e20;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cartAddressAddNewActionBtn:hover {
+  background: #154a19;
+  transform: translateY(-1px);
+}
+
+.cartAddressList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 290px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 14px;
+}
+
+.cartAddressItemCard {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cartAddressItemCard:hover {
+  border-color: #86efac;
+  background: #f8fafc;
+}
+
+.cartAddressItemCard.selected {
+  border-color: #1b5e20;
+  background: #f0fdf4;
+  box-shadow: 0 3px 10px rgba(27, 94, 32, 0.08);
+}
+
+.cartAddressItemRadioCol {
+  padding-top: 3px;
+  flex-shrink: 0;
+}
+
+.cartAddressRadioCircle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.cartAddressRadioCircle.checked {
+  border-color: #1b5e20;
+  background: #1b5e20;
+  color: #ffffff;
+}
+
+.cartAddressItemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.cartAddressItemBadges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.cartAddressItemTypeBadge {
+  background: #dcfce7;
+  color: #166534;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.cartAddressItemDefaultBadge {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.cartAddressItemActiveBadge {
+  background: #bbf7d0;
+  color: #14532d;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.cartAddressItemPerson {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.cartAddressItemName {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.cartAddressItemPhone {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.cartAddressItemText {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.cartAddressItemActionCol {
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.cartAddressSelectedPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #166534;
+  background: #dcfce7;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.cartAddressSelectThisBtn {
+  background: #ffffff;
+  border: 1px solid #1b5e20;
+  color: #1b5e20;
+  border-radius: 7px;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cartAddressSelectThisBtn:hover {
+  background: #1b5e20;
+  color: #ffffff;
+}
+
+.cartAddressNewCard {
+  border: 1.5px dashed #86efac;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #f8fdf6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 14px;
+}
+
+.cartAddressNewCard:hover {
+  background: #ecfdf5;
+  border-color: #1b5e20;
+  transform: translateY(-1px);
+}
+
+.cartAddressNewCardIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cartAddressNewCardText {
+  flex: 1;
+  min-width: 0;
+}
+
+.cartAddressNewCardText strong {
+  display: block;
+  font-size: 13px;
+  color: #166534;
+  font-weight: 700;
+}
+
+.cartAddressNewCardText p {
+  font-size: 11.5px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+.cartAddressNewCardArrow {
+  color: #166534;
+  flex-shrink: 0;
+}
+
+.cartAddressSelectFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+}
+
+.cartAddressManageProfileBtn {
+  background: none;
+  border: none;
+  color: #1b5e20;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cartAddressManageProfileBtn:hover {
+  color: #0f3d13;
+}
+
+.cartAddressDoneBtn {
+  padding: 7px 18px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cartAddressDoneBtn:hover {
+  background: #e2e8f0;
+}
+
+.cartAddressModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+
+.cartAddressModalHeader h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.cartModalCloseBtn {
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cartAddressForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cartAddressFormRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.cartAddressFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cartAddressFormGroup label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.cartAddressFormGroup input,
+.cartAddressFormGroup select {
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #1e293b;
+  outline: none;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.cartAddressFormGroup input:focus,
+.cartAddressFormGroup select:focus {
+  border-color: #166534;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+}
+
+.cartAddressModalActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cartAddressCancelBtn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cartAddressSaveBtn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: none;
+  background: #166534;
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cartAddressSaveBtn:hover {
+  background: #14532d;
+}
+
+/* Order Success Modal */
+.cartSuccessModal {
+  width: 100%;
+  max-width: 500px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 36px 30px;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+  animation: cartModalIn 0.25s ease;
+}
+
+.cartSuccessIconWrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.cartSuccessModal h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.cartSuccessOrderNum {
+  font-size: 14px;
+  color: #166534;
+  margin: 0 0 16px;
+}
+
+.cartSuccessText {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.cartSuccessBtnGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cartSuccessPrimaryBtn {
+  display: block;
+  padding: 12px 24px;
+  background: #166534;
+  color: #ffffff;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.cartSuccessSecondaryBtn {
+  padding: 11px 24px;
+  background: #f1f5f9;
+  border: none;
+  color: #334155;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
 }

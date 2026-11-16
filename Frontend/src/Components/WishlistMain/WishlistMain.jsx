@@ -16,138 +16,15 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./WishlistMain.css";
+import {
+  getWishlist,
+  saveWishlist,
+  addToCart as helperAddToCart,
+  removeFromWishlist as helperRemoveFromWishlist,
+  getProductId as getHelperProductId,
+} from "../../utils/cartWishlist";
 
-const WISHLIST_KEY = "healthy_heaven_wishlist";
-const CART_KEY = "healthy_heaven_cart";
-const DEMO_VERSION_KEY = "healthy_heaven_wishlist_demo_version";
-const DEMO_VERSION = "2";
-
-// 15 demo products
-const dummyProducts = [
-  {
-    productId: "demo-honey-001",
-    name: "Organic Forest Honey",
-    category: "Natural Sweeteners",
-    description: "Pure natural honey with a rich taste and golden texture.",
-    price: 349,
-    image: "https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-almond-002",
-    name: "Premium California Almonds",
-    category: "Dry Fruits",
-    description: "Crunchy premium almonds for everyday snacking.",
-    price: 599,
-    image: "https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-green-tea-003",
-    name: "Organic Green Tea",
-    category: "Beverages",
-    description: "Refreshing green tea for a relaxing daily routine.",
-    price: 249,
-    image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-dates-004",
-    name: "Premium Seedless Dates",
-    category: "Dry Fruits",
-    description: "Naturally sweet and soft dates for healthy snacking.",
-    price: 399,
-    image: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-cookies-005",
-    name: "Healthy Millet Cookies",
-    category: "Healthy Snacks",
-    description: "Delicious cookies made for wholesome snacking.",
-    price: 199,
-    image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-moringa-006",
-    name: "Organic Moringa Powder",
-    category: "Organic Products",
-    description: "Versatile moringa powder for everyday recipes.",
-    price: 299,
-    image: "https://images.unsplash.com/photo-1547592180-85f173990554?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-cashew-007",
-    name: "Premium Whole Cashews",
-    category: "Dry Fruits",
-    description: "Rich and creamy whole cashews for delicious snacking.",
-    price: 699,
-    image: "https://images.unsplash.com/photo-1563412885-1394d5b8f9e6?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-oats-008",
-    name: "Rolled Wholegrain Oats",
-    category: "Healthy Breakfast",
-    description: "A versatile breakfast ingredient for busy mornings.",
-    price: 179,
-    image: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-seeds-009",
-    name: "Mixed Super Seeds",
-    category: "Seeds",
-    description: "A convenient mix of seeds for meals and smoothies.",
-    price: 279,
-    image: "https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-peanut-010",
-    name: "Natural Peanut Butter",
-    category: "Healthy Spreads",
-    description: "A creamy spread for toast, snacks, and smoothies.",
-    price: 329,
-    image: "https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-coconut-011",
-    name: "Cold Pressed Coconut Oil",
-    category: "Natural Oils",
-    description: "A versatile coconut oil for everyday use.",
-    price: 449,
-    image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-granola-012",
-    name: "Crunchy Fruit Granola",
-    category: "Healthy Breakfast",
-    description: "Crunchy granola with a delicious fruity combination.",
-    price: 389,
-    image: "https://images.unsplash.com/photo-1517093157656-b9eccef91cb1?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-pistachio-013",
-    name: "Premium Salted Pistachios",
-    category: "Dry Fruits",
-    description: "Tasty pistachios for a satisfying snack.",
-    price: 749,
-    image: "https://images.unsplash.com/photo-1579532467592-3f1f4a5a8c64?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-chia-014",
-    name: "Organic Chia Seeds",
-    category: "Seeds",
-    description: "Small versatile seeds for puddings and smoothies.",
-    price: 229,
-    image: "https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=800&auto=format&fit=crop",
-  },
-  {
-    productId: "demo-raisins-015",
-    name: "Natural Golden Raisins",
-    category: "Dry Fruits",
-    description: "Naturally sweet raisins for snacks and baking.",
-    price: 259,
-    image: "https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=800&auto=format&fit=crop",
-  },
-];
-
-const getProductId = (item) =>
-  String(item.productId || item.id || item._id || "");
+const getProductId = (item) => getHelperProductId(item);
 
 const formatPrice = (price) =>
   Number(price || 0).toLocaleString("en-IN", {
@@ -170,103 +47,34 @@ const getImageUrl = (image) => {
   return image.startsWith("/") ? image : `/${image}`;
 };
 
-// Load saved wishlist and add new demo products only once.
-const getInitialWishlist = () => {
-  try {
-    const stored = localStorage.getItem(WISHLIST_KEY);
-    const parsed = stored ? JSON.parse(stored) : [];
-    const existingItems = Array.isArray(parsed) ? parsed : [];
-
-    const currentVersion = localStorage.getItem(DEMO_VERSION_KEY);
-
-    if (currentVersion !== DEMO_VERSION) {
-      const existingIds = new Set(
-        existingItems.map((item) => getProductId(item))
-      );
-
-      const newDemoProducts = dummyProducts.filter(
-        (product) => !existingIds.has(getProductId(product))
-      );
-
-      const updatedWishlist = [
-        ...existingItems,
-        ...newDemoProducts,
-      ];
-
-      localStorage.setItem(
-        WISHLIST_KEY,
-        JSON.stringify(updatedWishlist)
-      );
-
-      localStorage.setItem(DEMO_VERSION_KEY, DEMO_VERSION);
-
-      return updatedWishlist;
-    }
-
-    return existingItems;
-  } catch (error) {
-    console.error("Unable to load wishlist:", error);
-    return [];
-  }
-};
-
-const getStoredWishlist = () => {
-  try {
-    const stored = localStorage.getItem(WISHLIST_KEY);
-    const parsed = stored ? JSON.parse(stored) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const getStoredCart = () => {
-  try {
-    const stored = localStorage.getItem(CART_KEY);
-    const parsed = stored ? JSON.parse(stored) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
 const WishlistMain = () => {
   const navigate = useNavigate();
 
-  const [wishlistItems, setWishlistItems] = useState(getInitialWishlist);
+  const [wishlistItems, setWishlistItems] = useState(getWishlist);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [showClearModal, setShowClearModal] = useState(false);
   const [toast, setToast] = useState("");
 
-  // Save wishlist
+  // Sync with other components
   useEffect(() => {
-    localStorage.setItem(
-      WISHLIST_KEY,
-      JSON.stringify(wishlistItems)
-    );
-  }, [wishlistItems]);
-
-  // Listen for updates
-  useEffect(() => {
-    const handleWishlistUpdate = () => {
-      setWishlistItems(getStoredWishlist());
+    const handleSync = () => {
+      setWishlistItems(getWishlist());
     };
 
-    const handleStorage = (event) => {
-      if (event.key === WISHLIST_KEY) {
-        setWishlistItems(getStoredWishlist());
-      }
-    };
-
-    window.addEventListener("wishlistUpdated", handleWishlistUpdate);
-    window.addEventListener("storage", handleStorage);
+    window.addEventListener("rhinco_wishlist_updated", handleSync);
+    window.addEventListener("storage", handleSync);
 
     return () => {
-      window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
-      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("rhinco_wishlist_updated", handleSync);
+      window.removeEventListener("storage", handleSync);
     };
   }, []);
+
+  // Save changes to localStorage and notify
+  useEffect(() => {
+    saveWishlist(wishlistItems);
+  }, [wishlistItems]);
 
   // Toast
   const showToast = (message) => {
@@ -332,94 +140,25 @@ const WishlistMain = () => {
 
   // Add product to cart
   const addToCart = (product) => {
-    const productId = getProductId(product);
-
-    if (!productId) {
-      showToast("Unable to identify this product");
-      return;
-    }
-
-    const cart = getStoredCart();
-
-    const existingIndex = cart.findIndex(
-      (item) => getProductId(item) === productId
-    );
-
-    let updatedCart;
-
-    if (existingIndex !== -1) {
-      updatedCart = cart.map((item, index) =>
-        index === existingIndex
-          ? {
-              ...item,
-              quantity: (Number(item.quantity) || 1) + 1,
-            }
-          : item
-      );
-    } else {
-      updatedCart = [
-        ...cart,
-        {
-          productId,
-          name: product.name,
-          description: product.description || "",
-          price: Number(product.price) || 0,
-          image: product.image || "",
-          category: product.category || "",
-          quantity: 1,
-        },
-      ];
-    }
-
-    localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event("cartUpdated"));
-
+    helperAddToCart(product, 1);
     showToast("Product added to cart");
   };
 
   // Move to cart and remove from wishlist
   const moveToCart = (product) => {
-    addToCart(product);
-    removeFromWishlist(getProductId(product));
+    helperAddToCart(product, 1);
+    const pId = getProductId(product);
+    setWishlistItems((prev) => prev.filter((item) => getProductId(item) !== pId));
+    showToast("Moved product to cart");
   };
 
   // Add all products to cart
   const addAllToCart = () => {
     if (!wishlistItems.length) return;
-
-    const updatedCart = [...getStoredCart()];
-
     wishlistItems.forEach((product) => {
-      const productId = getProductId(product);
-
-      if (!productId) return;
-
-      const existingIndex = updatedCart.findIndex(
-        (item) => getProductId(item) === productId
-      );
-
-      if (existingIndex !== -1) {
-        updatedCart[existingIndex] = {
-          ...updatedCart[existingIndex],
-          quantity:
-            (Number(updatedCart[existingIndex].quantity) || 1) + 1,
-        };
-      } else {
-        updatedCart.push({
-          productId,
-          name: product.name,
-          description: product.description || "",
-          price: Number(product.price) || 0,
-          image: product.image || "",
-          category: product.category || "",
-          quantity: 1,
-        });
-      }
+      helperAddToCart(product, 1);
     });
-
-    localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event("cartUpdated"));
-
+    setWishlistItems([]);
     showToast("All wishlist products added to cart");
   };
 

@@ -1,103 +1,48 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Zap,
   Tractor,
   ArrowRight,
   X,
-  Phone,
   Mail,
   ChevronRight,
 } from "lucide-react";
 import "./AgriMachinery.css";
 
-const machineryProducts = [
-  {
-    id: 1,
-    name: "Fieldking Gold Rotary Tiller",
-    power: "40-70 HP",
-    category: "Tillage",
-    price: "₹ 1.15 - 1.55 Lakh*",
-    image:
-      "https://kubota.com.mm/en/products/implements/rx220g/images/img_hero.png",
-    badge: "Sponsored",
-    description: "Heavy-duty rotary tiller for efficient soil preparation.",
-  },
-  {
-    id: 2,
-    name: "Shaktiman Regular Plus Series",
-    power: "30-75 HP",
-    category: "Tillage",
-    price: "₹ 93,000 - 1.21 Lakh*",
-    image:
-      "https://image.makewebeasy.net/makeweb/m_1920x0/vwSRPSHKb/ROTARYTILLER/RT_F160SS_002.png?v=202405291424",
-    description: "Reliable rotary tiller for different soil conditions.",
-  },
-  {
-    id: 3,
-    name: "Punni Paddy Multi Thresher 4603",
-    power: "40 HP",
-    category: "Post Harvest",
-    price: null,
-    image:
-      "https://cpimg.tistatic.com/5519198/b/4/power-tiller-operated-paddy-thresher-machine.jpg",
-    description: "Efficient paddy threshing machine for harvesting needs.",
-  },
-  {
-    id: 4,
-    name: "KSA Paddy Straw Chopper",
-    power: "45-60 HP",
-    category: "Post Harvest",
-    price: "₹ 1.35 - 1.80 Lakh*",
-    image:
-      "https://d91ztqmtx7u1k.cloudfront.net/ClientContent/Images/Catalogue/56-inch-ksa-paddy-straw-choppe-20240916134212791.jpg",
-    description: "Designed for effective crop residue management.",
-  },
-  {
-    id: 5,
-    name: "ACI Power Tiller Classic",
-    power: "12 HP",
-    category: "Power Tiller",
-    price: "₹ 85,000 - 1.10 Lakh*",
-    image:
-      "https://acimotors-bd.com/assets/images/product/power-tiller/r-28.jpg",
-    description: "Compact power tiller for small and medium farms.",
-  },
-  {
-    id: 6,
-    name: "Sonalika Paddyvator Rotary Tiller",
-    power: "40-55 HP",
-    category: "Tillage",
-    price: "₹ 95,000 - 1.40 Lakh*",
-    image:
-      "https://lemken.com/fileadmin/_processed_/4/3/csm_Kyanite-75_1133fb8858.jpg",
-    description: "Specialized implement for paddy field preparation.",
-  },
-  {
-    id: 7,
-    name: "BEW Super Seeder 4-in-1",
-    power: "50-75 HP",
-    category: "Sowing",
-    price: "₹ 2.50 - 3.50 Lakh*",
-    image:
-      "https://www.bewindia.co/storage/2023/09/Super-Seeder-4-in-1-.jpg",
-    description: "Combines seed sowing and residue management operations.",
-  },
-  {
-    id: 8,
-    name: "John Deere Seed Fertilizer Drill",
-    power: "35-50 HP",
-    category: "Sowing",
-    price: null,
-    image:
-      "https://www.deere.co.in/assets/images/region-1/products/implements/seed_fertilizer_drill_large_eab835ad3c902260de299f6ea0530e6ccc87aa0a.png",
-    description: "Seed and fertilizer application in a single operation.",
-  },
-];
+const MACHINERY_API = "http://localhost:5000/api/machinery";
 
 const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
+  const [machineryProducts, setMachineryProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [imageErrors, setImageErrors] = useState([]);
+
+  // Fetch real machinery from database
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMachinery = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(MACHINERY_API);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          if (isMounted) {
+            setMachineryProducts(data.data);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching machinery in AgriMachinery:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchMachinery();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleImageError = (id) => {
     setImageErrors((previous) => [...previous, id]);
@@ -119,12 +64,17 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
       return;
     }
 
+    const productName = selectedProduct.title || selectedProduct.name;
+    const power = selectedProduct.implementPower || selectedProduct.power || "Standard";
+    const category = selectedProduct.category || selectedProduct.implementType || "Machinery";
+    const price = selectedProduct.formattedPrice || (selectedProduct.discountPrice ? `₹ ${selectedProduct.discountPrice.toLocaleString('en-IN')}` : "Please share price");
+
     const subject = encodeURIComponent(
-      `Dealer Enquiry - ${selectedProduct.name}`
+      `Dealer Enquiry - ${productName}`
     );
 
     const body = encodeURIComponent(
-      `Hello,\n\nI am interested in the following agricultural machinery:\n\nProduct: ${selectedProduct.name}\nPower: ${selectedProduct.power}\nCategory: ${selectedProduct.category}\nPrice: ${selectedProduct.price || "Please share price"}\n\nPlease share more details.\n\nThank you.`
+      `Hello,\n\nI am interested in the following agricultural machinery:\n\nProduct: ${productName}\nPower: ${power}\nCategory: ${category}\nPrice: ${price}\n\nPlease share more details.\n\nThank you.`
     );
 
     window.location.href = `mailto:${dealerEmail}?subject=${subject}&body=${body}`;
@@ -153,120 +103,160 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
           </div>
 
           <div className="agriMachineryHeaderCount">
-            <strong>08</strong>
+            <strong>{String(machineryProducts.length).padStart(2, "0")}</strong>
             <span>Featured Products</span>
           </div>
         </div>
 
         {/* PRODUCT GRID */}
-        <div className="agriMachineryGrid">
-          {machineryProducts.map((product) => (
-            <article
-              className="agriMachineryCard"
-              key={product.id}
-            >
-              {/* IMAGE */}
-              <div className="agriMachineryImage">
-                {!imageErrors.includes(product.id) ? (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                    onError={() => handleImageError(product.id)}
-                  />
-                ) : (
-                  <div className="agriMachineryImageFallback">
-                    <Tractor size={55} strokeWidth={1.3} />
-                    <span>Machinery Image</span>
-                  </div>
-                )}
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>
+            <p>Loading real machinery...</p>
+          </div>
+        ) : machineryProducts.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#64748b" }}>
+            <p>No machinery available at the moment.</p>
+          </div>
+        ) : (
+          <div className="agriMachineryGrid">
+            {machineryProducts.map((product, index) => {
+              const productId = product._id || product.id || index;
+              const name = product.title || product.name;
+              const power = product.implementPower || product.power || "Standard HP";
+              const category = product.category || product.implementType || "Machinery";
+              const image = (Array.isArray(product.machineImages) && product.machineImages[0]) ||
+                product.image ||
+                product.featuredImage?.data ||
+                "";
+              const priceDisplay = product.formattedPrice ||
+                (product.discountPrice ? `₹ ${Number(product.discountPrice).toLocaleString("en-IN")}` :
+                (product.price ? `₹ ${Number(product.price).toLocaleString("en-IN")}` : null));
+              const badge = product.sponsored ? "Sponsored" : (product.status === "Available" ? "Available" : "");
 
-                {product.badge && (
-                  <span className="agriMachineryBadge">
-                    {product.badge}
-                  </span>
-                )}
-
-                <span className="agriMachineryImageNumber">
-                  0{product.id}
-                </span>
-              </div>
-
-              {/* PRODUCT DETAILS */}
-              <div className="agriMachineryDetails">
-                <span className="agriMachineryCategoryTag">
-                  {product.category}
-                </span>
-
-                <h3>{product.name}</h3>
-
-                {/* SPECIFICATIONS */}
-                <div className="agriMachinerySpecs">
-                  <div className="agriMachinerySpecItem">
-                    <span>Power</span>
-                    <strong>
-                      <Zap size={14} />
-                      {product.power}
-                    </strong>
-                  </div>
-
-                  <div className="agriMachinerySpecItem">
-                    <span>Category</span>
-                    <strong>{product.category}</strong>
-                  </div>
-                </div>
-
-                {/* PRICE */}
-                <div className="agriMachineryPrice">
-                  {product.price ? (
-                    <strong>{product.price}</strong>
-                  ) : (
-                    <>
-                      <span>For Price</span>
-                      <button
-                        onClick={() => handleContactDealer(product)}
-                      >
-                        Click Here
-                        <ChevronRight size={15} />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* CONTACT BUTTON */}
-                <button
-                  className="agriMachineryContactButton"
-                  onClick={() => handleContactDealer(product)}
+              return (
+                <article
+                  className="agriMachineryCard"
+                  key={productId}
                 >
-                  Contact Dealer
-                  <ArrowRight size={17} />
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+                  {/* IMAGE */}
+                  <Link
+                    to={`/machinery/${encodeURIComponent(name)}`}
+                    className="agriMachineryImage"
+                    style={{ textDecoration: "none", display: "block" }}
+                  >
+                    {!imageErrors.includes(productId) && image ? (
+                      <img
+                        src={image}
+                        alt={name}
+                        loading="lazy"
+                        onError={() => handleImageError(productId)}
+                      />
+                    ) : (
+                      <div className="agriMachineryImageFallback">
+                        <Tractor size={55} strokeWidth={1.3} />
+                        <span>Machinery Image</span>
+                      </div>
+                    )}
+
+                    {badge && (
+                      <span className="agriMachineryBadge">
+                        {badge}
+                      </span>
+                    )}
+
+                    <span className="agriMachineryImageNumber">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </Link>
+
+                  {/* PRODUCT DETAILS */}
+                  <div className="agriMachineryDetails">
+                    <span className="agriMachineryCategoryTag">
+                      {category}
+                    </span>
+
+                    <h3>
+                      <Link
+                        to={`/machinery/${encodeURIComponent(name)}`}
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        {name}
+                      </Link>
+                    </h3>
+
+                    {/* SPECIFICATIONS */}
+                    <div className="agriMachinerySpecs">
+                      <div className="agriMachinerySpecItem">
+                        <span>Power</span>
+                        <strong>
+                          <Zap size={14} />
+                          {power}
+                        </strong>
+                      </div>
+
+                      <div className="agriMachinerySpecItem">
+                        <span>Category</span>
+                        <strong>{category}</strong>
+                      </div>
+                    </div>
+
+                    {/* PRICE */}
+                    <div className="agriMachineryPrice">
+                      {priceDisplay ? (
+                        <strong>{priceDisplay}</strong>
+                      ) : (
+                        <>
+                          <span>For Price</span>
+                          <button
+                            type="button"
+                            onClick={() => handleContactDealer(product)}
+                          >
+                            Click Here
+                            <ChevronRight size={15} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+
+                    {/* CONTACT BUTTON */}
+                    <button
+                      type="button"
+                      className="agriMachineryContactButton"
+                      onClick={() => handleContactDealer(product)}
+                    >
+                      Contact Dealer
+                      <ArrowRight size={17} />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
 
         {/* BOTTOM INFORMATION */}
-        <div className="agriMachineryBottom">
-          <div className="agriMachineryBottomIcon">
-            <Tractor size={24} />
-          </div>
+        {machineryProducts.length > 0 && (
+          <div className="agriMachineryBottom">
+            <div className="agriMachineryBottomIcon">
+              <Tractor size={24} />
+            </div>
 
-          <div className="agriMachineryBottomText">
-            <strong>Looking for the right farm equipment?</strong>
-            <span>
-              Contact our team for product details and dealer assistance.
-            </span>
-          </div>
+            <div className="agriMachineryBottomText">
+              <strong>Looking for the right farm equipment?</strong>
+              <span>
+                Contact our team for product details and dealer assistance.
+              </span>
+            </div>
 
-          <button
-            className="agriMachineryBottomButton"
-            onClick={() => handleContactDealer(machineryProducts[0])}
-          >
-            Get In Touch
-            <ArrowRight size={17} />
-          </button>
-        </div>
+            <button
+              className="agriMachineryBottomButton"
+              onClick={() => handleContactDealer(machineryProducts[0])}
+            >
+              Get In Touch
+              <ArrowRight size={17} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* DEALER ENQUIRY MODAL */}
@@ -302,15 +292,16 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
             </p>
 
             <div className="agriMachineryModalProduct">
-              <strong>{selectedProduct.name}</strong>
+              <strong>{selectedProduct.title || selectedProduct.name}</strong>
 
               <div>
-                <span>Power: {selectedProduct.power}</span>
-                <span>Category: {selectedProduct.category}</span>
+                <span>Power: {selectedProduct.implementPower || selectedProduct.power || "Standard HP"}</span>
+                <span>Category: {selectedProduct.category || selectedProduct.implementType || "Machinery"}</span>
               </div>
 
               <strong>
-                {selectedProduct.price || "Price on request"}
+                {selectedProduct.formattedPrice ||
+                 (selectedProduct.discountPrice ? `₹ ${Number(selectedProduct.discountPrice).toLocaleString("en-IN")}` : "Price on request")}
               </strong>
             </div>
 
@@ -324,8 +315,7 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
               </button>
             ) : (
               <p className="agriMachineryModalNote">
-                To send enquiries directly, provide your dealer email
-                using the <code>dealerEmail</code> prop.
+                To send enquiries directly, please contact our helpline or submit a request on the machinery details page.
               </p>
             )}
 

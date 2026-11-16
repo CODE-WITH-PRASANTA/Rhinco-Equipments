@@ -1,5 +1,5 @@
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
 import {
   FiPackage,
@@ -20,23 +20,13 @@ import {
   FiSearch,
   FiPlus,
   FiRotateCcw,
+  FiRefreshCw,
 } from "react-icons/fi";
 
 import "./AddPost.css";
 
-const categories = [
-  "Tractors",
-  "Rotavators",
-  "Cultivators",
-  "Disc Harrows",
-  "Seed Drills",
-  "Ploughs",
-  "Harvesting Equipment",
-  "Sprayers",
-  "Trailers",
-  "Tractor Attachments",
-  "Other Equipment",
-];
+const PRODUCTS_API = "http://localhost:5000/api/products";
+const CATEGORIES_API = "http://localhost:5000/api/categories";
 
 const createEmptyForm = () => ({
   category: "",
@@ -50,38 +40,133 @@ const createEmptyForm = () => ({
 });
 
 const AddPost = ({ onSubmit }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
-  const imagesRef = useRef([]);
 
   const [images, setImages] = useState([]);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [form, setForm] = useState(createEmptyForm);
 
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Keep image reference updated
-  useEffect(() => {
-    imagesRef.current = images;
-  }, [images]);
+  // LOAD REAL CATEGORIES FROM DATABASE
+  const loadCategories = async () => {
+    setCategoriesLoading(true);
+    try {
+      const res = await fetch(CATEGORIES_API);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        setCategories(data.data);
+      }
+    } catch (err) {
+      console.warn("Could not load categories from backend:", err);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
+  // LOAD REAL PRODUCTS FROM DATABASE
+  const loadProducts = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(PRODUCTS_API);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        setProducts(data.data);
+      }
+    } catch (err) {
+      console.error("Error loading products from database:", err);
+      setNotice("Could not connect to database. Make sure backend is running.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    loadCategories();
+    loadProducts();
+
+    window.addEventListener("blog_categories_updated", loadCategories);
     return () => {
-      imagesRef.current.forEach((image) => {
-        if (image.preview?.startsWith("blob:")) {
-          URL.revokeObjectURL(image.preview);
-        }
-      });
+      window.removeEventListener("blog_categories_updated", loadCategories);
     };
   }, []);
+
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const editIdFromUrl = searchParams.get("edit");
+
+  // CHECK IF EDITING PRODUCT PASSED VIA NAVIGATION STATE OR URL PARAMETER
+  useEffect(() => {
+    if (location.state?.product) {
+      populateEditProduct(location.state.product);
+    } else if (editIdFromUrl) {
+      const fetchProductToEdit = async () => {
+        try {
+          const res = await fetch(`${PRODUCTS_API}/${editIdFromUrl}`);
+          const data = await res.json();
+          if (res.ok && data.success && data.data) {
+            populateEditProduct(data.data);
+          }
+        } catch (err) {
+          console.error("Error fetching product for edit:", err);
+        }
+      };
+      fetchProductToEdit();
+    }
+  }, [location.state, editIdFromUrl]);
+
+  const populateEditProduct = (product) => {
+    if (!product) return;
+    setForm({
+      category: product.category || "",
+      title: product.title || product.name || "",
+      description: product.description || "",
+      price: String(
+        product.oldPrice !== undefined
+          ? product.oldPrice
+          : product.price || ""
+      ),
+      discount: String(product.discount !== undefined ? product.discount : "0"),
+      stockQuantity: String(
+        product.stockQuantity !== undefined ? product.stockQuantity : "1"
+      ),
+      companyName: product.companyName || product.brand || "",
+      bestSeller: Boolean(product.bestSeller),
+    });
+
+    const rawImages =
+      product.images && product.images.length > 0
+        ? product.images
+        : product.image
+        ? [product.image]
+        : [];
+
+    const existingImgs = rawImages.map((img, idx) => ({
+      id: `${Date.now()}-${idx}`,
+      preview:
+        typeof img === "string"
+          ? img
+          : img.preview || img.url || img.data || "",
+      name: `Image ${idx + 1}`,
+    }));
+
+    setImages(existingImgs);
+    setEditingId(product._id || product.id);
+    setNotice("Editing product: " + (product.title || product.name));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // PRICE CALCULATION
   const finalPrice = useMemo(() => {
     const price = Number(form.price) || 0;
     const discount = Number(form.discount) || 0;
-
     return Math.max(0, price - (price * discount) / 100);
   }, [form.price, form.discount]);
 
@@ -92,7 +177,7 @@ const AddPost = ({ onSubmit }) => {
       maximumFractionDigits: 2,
     }).format(Number(value) || 0);
 
-  // UPDATE FORM
+  // UPDATE FORM FIELD
   const updateField = (field, value) => {
     setForm((prev) => ({
       ...prev,
@@ -100,14 +185,12 @@ const AddPost = ({ onSubmit }) => {
     }));
   };
 
-  // IMAGE UPLOAD
+  // IMAGE UPLOAD - Convert to Base64 for persistent database storage
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files || []);
-
     if (!files.length) return;
 
     const remaining = 5 - images.length;
-
     if (remaining <= 0) {
       setNotice("Maximum 5 images are allowed.");
       e.target.value = "";
@@ -115,9 +198,7 @@ const AddPost = ({ onSubmit }) => {
     }
 
     const validFiles = files.filter(
-      (file) =>
-        file.type.startsWith("image/") &&
-        file.size <= 5 * 1024 * 1024
+      (file) => file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024
     );
 
     if (validFiles.length !== files.length) {
@@ -126,27 +207,27 @@ const AddPost = ({ onSubmit }) => {
       setNotice("");
     }
 
-    const selected = validFiles.slice(0, remaining).map((file) => ({
-      id: `${Date.now()}-${Math.random()}`,
-      file,
-      preview: URL.createObjectURL(file),
-    }));
+    validFiles.slice(0, remaining).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImages((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}-${Math.random()}`,
+            preview: reader.result,
+            name: file.name,
+          },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
 
-    setImages((prev) => [...prev, ...selected]);
     e.target.value = "";
   };
 
   // REMOVE IMAGE
   const removeImage = (id) => {
-    setImages((prev) => {
-      const removed = prev.find((img) => img.id === id);
-
-      if (removed?.preview?.startsWith("blob:")) {
-        URL.revokeObjectURL(removed.preview);
-      }
-
-      return prev.filter((img) => img.id !== id);
-    });
+    setImages((prev) => prev.filter((img) => img.id !== id));
   };
 
   // RESET FORM
@@ -155,13 +236,12 @@ const AddPost = ({ onSubmit }) => {
     setForm(createEmptyForm());
     setEditingId(null);
     setNotice("");
-
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  // SUBMIT PRODUCT
+  // SUBMIT PRODUCT TO DATABASE
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -199,120 +279,93 @@ const AddPost = ({ onSubmit }) => {
       return;
     }
 
-    const productId = editingId || Date.now();
-
-    const product = {
-      id: productId,
-      ...form,
+    const payload = {
       title: form.title.trim(),
+      category: form.category,
       companyName: form.companyName.trim(),
+      description: form.description,
       price,
       discount,
       finalPrice,
       stockQuantity: stock,
-      images: images.map((image) => ({
-        id: image.id,
-        file: image.file || null,
-        preview: image.preview,
-        name: image.name || image.file?.name || "Product image",
-      })),
-      updatedAt: new Date().toISOString(),
+      bestSeller: Boolean(form.bestSeller),
+      images: images.map((img) => img.preview).filter(Boolean),
     };
-
-    const formData = new FormData();
-
-    formData.append("category", product.category);
-    formData.append("title", product.title);
-    formData.append("description", product.description);
-    formData.append("price", String(product.price));
-    formData.append("discount", String(product.discount));
-    formData.append("finalPrice", String(product.finalPrice));
-    formData.append("stockQuantity", String(product.stockQuantity));
-    formData.append("companyName", product.companyName);
-    formData.append("bestSeller", String(product.bestSeller));
-
-    images.forEach((image) => {
-      if (image.file) {
-        formData.append("images", image.file);
-      }
-    });
 
     try {
       setIsSubmitting(true);
 
-      // Optional backend callback
-      if (onSubmit) {
-        await onSubmit(formData, product);
+      const url = editingId ? `${PRODUCTS_API}/${editingId}` : PRODUCTS_API;
+      const method = editingId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Failed to save product to database.");
       }
 
-      if (editingId) {
-        setProducts((prev) =>
-          prev.map((item) =>
-            item.id === editingId ? product : item
-          )
-        );
-        setNotice("Product updated successfully!");
-      } else {
-        setProducts((prev) => [product, ...prev]);
-        setNotice("Product added successfully!");
-      }
+      setNotice(
+        editingId
+          ? `Product "${form.title}" updated successfully in database!`
+          : `Product "${form.title}" saved to database successfully!`
+      );
 
       resetForm();
+      await loadProducts();
     } catch (error) {
       console.error("Product submission error:", error);
-      setNotice("Unable to save product. Please try again.");
+      setNotice(error.message || "Unable to save product. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // EDIT PRODUCT
+  // EDIT PRODUCT FROM TABLE
   const handleEdit = (product) => {
-    setForm({
-      category: product.category,
-      title: product.title,
-      description: product.description,
-      price: String(product.price),
-      discount: String(product.discount),
-      stockQuantity: String(product.stockQuantity),
-      companyName: product.companyName,
-      bestSeller: product.bestSeller,
-    });
-
-    setImages(product.images);
-    setEditingId(product.id);
-    setNotice("Editing product: " + product.title);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    populateEditProduct(product);
   };
 
-  // DELETE PRODUCT
-  const handleDelete = (id) => {
+  // DELETE PRODUCT FROM DATABASE
+  const handleDelete = async (id) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this product?"
+      "Are you sure you want to delete this product from the database?"
     );
-
     if (!confirmed) return;
 
-    setProducts((prev) => prev.filter((item) => item.id !== id));
+    try {
+      const res = await fetch(`${PRODUCTS_API}/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete product.");
+      }
 
-    if (editingId === id) {
-      resetForm();
+      setNotice("Product deleted successfully from database.");
+      if (editingId === id) {
+        resetForm();
+      }
+      await loadProducts();
+    } catch (err) {
+      console.error("Delete error:", err);
+      setNotice(err.message || "Could not delete product.");
     }
-
-    setNotice("Product deleted successfully.");
   };
 
-  // SEARCH
+  // SEARCH FILTER
   const filteredProducts = products.filter((product) =>
     [
       product.title,
+      product.name,
       product.category,
       product.companyName,
     ]
+      .filter(Boolean)
       .join(" ")
       .toLowerCase()
       .includes(search.toLowerCase())
@@ -320,7 +373,6 @@ const AddPost = ({ onSubmit }) => {
 
   return (
     <div className="AddPost">
-
       {/* HEADER */}
       <div className="AddPost-header">
         <div className="AddPost-headerLeft">
@@ -329,24 +381,28 @@ const AddPost = ({ onSubmit }) => {
           </div>
 
           <div>
-            <span className="AddPost-eyebrow">
-              RHINO'S EQUIPMENT
-            </span>
-            <h2>Product Management</h2>
-            <p>Add, edit and manage your equipment products.</p>
+            <h2>{editingId ? "Edit Product" : "Add New Product"}</h2>
+            <p>
+              Fill out the details below to publish equipment products to MongoDB and your live storefront.
+            </p>
           </div>
         </div>
 
-        <div className="AddPost-headerCount">
-          <FiLayers />
-          <span>Total Products</span>
-          <strong>{products.length}</strong>
+        <div className="AddPost-headerActions">
+          <button
+            type="button"
+            className="AddPost-resetBtn"
+            onClick={resetForm}
+            title="Clear all fields"
+          >
+            <FiRotateCcw /> Reset Form
+          </button>
         </div>
       </div>
 
-      {/* NOTICE */}
+      {/* ALERT NOTICE */}
       {notice && (
-        <div className="AddPost-notice" role="status">
+        <div className={`AddPost-notice ${notice.includes("successfully") ? "success" : ""}`}>
           <FiCheckCircle />
           <span>{notice}</span>
           <button type="button" onClick={() => setNotice("")}>
@@ -355,88 +411,20 @@ const AddPost = ({ onSubmit }) => {
         </div>
       )}
 
-      {/* PRODUCT FORM */}
-      <form className="AddPost-form" onSubmit={handleSubmit}>
-
-        {/* IMAGES */}
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="AddPost-form">
+        {/* SECTION 1: BASIC INFO */}
         <div className="AddPost-card">
           <div className="AddPost-cardHeader">
-            <div className="AddPost-cardHeading">
-              <span className="AddPost-sectionIcon"><FiImage /></span>
-              <div>
-                <h3>Product Images</h3>
-                <p>Upload up to 5 product images.</p>
-              </div>
-            </div>
-
-            <span className="AddPost-imageCount">
-              {images.length}/5 Images
-            </span>
-          </div>
-
-          <div className="AddPost-imageGrid">
-            {images.map((image, index) => (
-              <div className="AddPost-imageItem" key={image.id}>
-                <img src={image.preview} alt={`Product ${index + 1}`} />
-
-                <span className="AddPost-imageNumber">
-                  {index === 0 ? "Main Image" : `Image ${index + 1}`}
-                </span>
-
-                <button
-                  type="button"
-                  className="AddPost-removeImage"
-                  onClick={() => removeImage(image.id)}
-                  aria-label="Remove image"
-                >
-                  <FiX />
-                </button>
-              </div>
-            ))}
-
-            {images.length < 5 && (
-              <button
-                type="button"
-                className="AddPost-uploadBox"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <span className="AddPost-uploadIcon"><FiUploadCloud /></span>
-                <strong>Upload Image</strong>
-                <span>Click to browse</span>
-                <small>PNG, JPG, WEBP · Max 5MB</small>
-              </button>
-            )}
-          </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            hidden
-            onChange={handleImageUpload}
-          />
-
-          <p className="AddPost-imageHint">
-            <FiCheckCircle />
-            First image will be used as the main product image.
-          </p>
-        </div>
-
-        {/* BASIC DETAILS */}
-        <div className="AddPost-card">
-          <div className="AddPost-cardHeader">
-            <div className="AddPost-cardHeading">
-              <span className="AddPost-sectionIcon"><FiLayers /></span>
-              <div>
-                <h3>Basic Information</h3>
-                <p>Enter your product details.</p>
-              </div>
+            <span className="AddPost-sectionNumber">1</span>
+            <span className="AddPost-sectionIcon"><FiLayers /></span>
+            <div>
+              <h3>Basic Information</h3>
+              <p>Enter your product details and category.</p>
             </div>
           </div>
 
           <div className="AddPost-formGrid">
-
             <div className="AddPost-field">
               <label>Choose Category <span>*</span></label>
               <div className="AddPost-inputWrap">
@@ -446,12 +434,42 @@ const AddPost = ({ onSubmit }) => {
                   onChange={(e) => updateField("category", e.target.value)}
                   required
                 >
-                  <option value="">Select product category</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
+                  <option value="">
+                    {categoriesLoading
+                      ? "Loading real categories from database..."
+                      : "-- Select Category --"}
+                  </option>
+                  {form.category &&
+                    !categories.some(
+                      (c) =>
+                        (typeof c === "string" ? c : c.name) === form.category
+                    ) && (
+                      <option value={form.category}>{form.category}</option>
+                    )}
+                  {categories.map((category) => {
+                    const catName =
+                      typeof category === "string" ? category : category.name;
+                    const catId =
+                      typeof category === "string"
+                        ? category
+                        : category._id || category.id || category.name;
+                    return (
+                      <option key={catId} value={catName}>
+                        {catName}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
+              {categories.length === 0 && !categoriesLoading && (
+                <small style={{ color: "#d97706", fontSize: "12px", marginTop: "3px" }}>
+                  No categories found in database. Create one in{" "}
+                  <Link to="/category" style={{ color: "#258b32", fontWeight: 600 }}>
+                    Category Management
+                  </Link>
+                  .
+                </small>
+              )}
             </div>
 
             <div className="AddPost-field">
@@ -469,81 +487,59 @@ const AddPost = ({ onSubmit }) => {
               </div>
             </div>
 
-            <div className="AddPost-field AddPost-fieldWide">
-              <label>Company Name <span>*</span></label>
+            <div className="AddPost-field">
+              <label>Manufacturer / Company Name <span>*</span></label>
               <div className="AddPost-inputWrap">
                 <FiBriefcase />
                 <input
                   type="text"
-                  placeholder="Enter manufacturer or company name"
+                  placeholder="e.g. Rhinco Heavy Machinery"
                   value={form.companyName}
+                  maxLength={80}
                   onChange={(e) => updateField("companyName", e.target.value)}
                   required
                 />
               </div>
             </div>
 
-            <div className="AddPost-field AddPost-fieldWide">
-              <div className="AddPost-editorHeading">
-                <label>Product Description <span>*</span></label>
-                <span>Rich Text Editor</span>
-              </div>
-
-              <div className="AddPost-editor">
-                <Editor
-                  apiKey={import.meta.env.VITE_TINYMCE_API_KEY || "8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"}
-                  value={form.description}
-                  onEditorChange={(content) => updateField("description", content)}
-                  init={{
-                    height: 350,
-                    menubar: "edit view insert format tools table",
-                    plugins: [
-                      "advlist", "autolink", "lists", "link",
-                      "image", "charmap", "preview", "anchor",
-                      "searchreplace", "visualblocks", "code",
-                      "fullscreen", "table", "wordcount",
-                    ],
-                    toolbar:
-                      "undo redo | blocks | bold italic underline | " +
-                      "forecolor backcolor | alignleft aligncenter alignright | " +
-                      "bullist numlist | link image table | removeformat | code fullscreen",
-                    branding: false,
-                    promotion: false,
-                    resize: true,
-                    placeholder: "Write detailed product information...",
-                    content_style:
-                      "body { font-family: Arial,sans-serif; font-size:14px; line-height:1.7; color:#26372b; padding:12px; }",
-                  }}
+            <div className="AddPost-field">
+              <label>Stock Quantity <span>*</span></label>
+              <div className="AddPost-inputWrap">
+                <FiBox />
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Available inventory units"
+                  value={form.stockQuantity}
+                  onChange={(e) => updateField("stockQuantity", e.target.value)}
+                  required
                 />
               </div>
             </div>
-
           </div>
         </div>
 
-        {/* PRICE AND STOCK */}
+        {/* SECTION 2: PRICING */}
         <div className="AddPost-card">
           <div className="AddPost-cardHeader">
-            <div className="AddPost-cardHeading">
-              <span className="AddPost-sectionIcon"><FiDollarSign /></span>
-              <div>
-                <h3>Pricing & Stock</h3>
-                <p>Manage product price, discount and inventory.</p>
-              </div>
+            <span className="AddPost-sectionNumber">2</span>
+            <span className="AddPost-sectionIcon"><FiDollarSign /></span>
+            <div>
+              <h3>Pricing & Discounts</h3>
+              <p>Set base price and promotional discounts.</p>
             </div>
           </div>
 
           <div className="AddPost-formGrid">
-
             <div className="AddPost-field">
-              <label>Original Price (₹) <span>*</span></label>
+              <label>Price (₹) <span>*</span></label>
               <div className="AddPost-inputWrap">
                 <FiDollarSign />
                 <input
                   type="number"
-                  min="0.01"
+                  min="1"
                   step="0.01"
-                  placeholder="Enter original price"
+                  placeholder="Enter base price"
                   value={form.price}
                   onChange={(e) => updateField("price", e.target.value)}
                   required
@@ -559,91 +555,146 @@ const AddPost = ({ onSubmit }) => {
                   type="number"
                   min="0"
                   max="100"
-                  step="0.01"
-                  placeholder="Enter discount"
+                  placeholder="0 - 100%"
                   value={form.discount}
                   onChange={(e) => updateField("discount", e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="AddPost-field">
-              <label>Final Price (₹)</label>
-              <div className="AddPost-inputWrap AddPost-finalPriceWrap">
-                <FiCheckCircle />
-                <input type="text" value={formatPrice(finalPrice)} readOnly />
-              </div>
-            </div>
+            <div className="AddPost-field full">
+              <div className="AddPost-pricePreview">
+                <div className="AddPost-priceItem">
+                  <span>Base Price</span>
+                  <strong>{formatPrice(form.price)}</strong>
+                </div>
 
-            <div className="AddPost-field">
-              <label>Stock Quantity <span>*</span></label>
-              <div className="AddPost-inputWrap">
-                <FiBox />
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder="Enter available stock"
-                  value={form.stockQuantity}
-                  onChange={(e) => updateField("stockQuantity", e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          </div>
+                <div className="AddPost-priceItem">
+                  <span>Discount</span>
+                  <span className="discount">{Number(form.discount) || 0}% OFF</span>
+                </div>
 
-          <div className="AddPost-priceSummary">
-            <div>
-              <span>Original Price</span>
-              <strong>{formatPrice(form.price)}</strong>
-            </div>
-            <div>
-              <span>Discount</span>
-              <strong className="AddPost-discountValue">{form.discount || 0}%</strong>
-            </div>
-            <div>
-              <span>Final Selling Price</span>
-              <strong className="AddPost-sellingPrice">{formatPrice(finalPrice)}</strong>
+                <div className="AddPost-priceItem total">
+                  <span>Customer Final Price</span>
+                  <strong>{formatPrice(finalPrice)}</strong>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* SETTINGS */}
+        {/* SECTION 3: MEDIA */}
         <div className="AddPost-card">
           <div className="AddPost-cardHeader">
-            <div className="AddPost-cardHeading">
-              <span className="AddPost-sectionIcon"><FiStar /></span>
-              <div>
-                <h3>Product Settings</h3>
-                <p>Configure product promotional status.</p>
-              </div>
+            <span className="AddPost-sectionNumber">3</span>
+            <span className="AddPost-sectionIcon"><FiImage /></span>
+            <div>
+              <h3>Product Media <span>*</span></h3>
+              <p>Upload up to 5 clear images of your equipment (Max 5MB each).</p>
             </div>
           </div>
 
-          <label className="AddPost-bestSeller">
-            <div className="AddPost-bestSellerIcon"><FiStar /></div>
-            <div className="AddPost-bestSellerContent">
-              <strong>Mark as Best Seller</strong>
-              <span>Highlight this product as a popular product.</span>
-            </div>
+          <div
+            className={`AddPost-dropzone ${images.length >= 5 ? "disabled" : ""}`}
+            onClick={() => {
+              if (images.length < 5) {
+                fileInputRef.current?.click();
+              }
+            }}
+          >
+            <FiUploadCloud className="AddPost-dropzoneIcon" />
+            <h4>Drag & Drop product images here</h4>
+            <p>or click to browse files from your computer</p>
+            <span>JPG, PNG, WEBP (Max 5MB per file, up to 5 images)</span>
+
             <input
-              type="checkbox"
-              checked={form.bestSeller}
-              onChange={(e) => updateField("bestSeller", e.target.checked)}
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageUpload}
+              hidden
+              disabled={images.length >= 5}
             />
-            <span className="AddPost-toggle"></span>
-          </label>
+          </div>
+
+          {images.length > 0 && (
+            <div className="AddPost-imageGrid">
+              {images.map((image, index) => (
+                <div className="AddPost-imageCard" key={image.id}>
+                  <img src={image.preview} alt={`Upload ${index + 1}`} />
+                  <div className="AddPost-imageBadge">
+                    {index === 0 ? "Main Photo" : `#${index + 1}`}
+                  </div>
+                  <button
+                    type="button"
+                    className="AddPost-removeImageBtn"
+                    onClick={() => removeImage(image.id)}
+                    title="Remove image"
+                  >
+                    <FiX />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* FORM BUTTONS */}
-        <div className="AddPost-footer">
-          <button
-            type="button"
-            className="AddPost-resetButton"
-            onClick={resetForm}
-          >
-            <FiRotateCcw /> Reset Form
-          </button>
+        {/* SECTION 4: DESCRIPTION */}
+        <div className="AddPost-card">
+          <div className="AddPost-cardHeader">
+            <span className="AddPost-sectionNumber">4</span>
+            <span className="AddPost-sectionIcon"><FiPackage /></span>
+            <div>
+              <h3>Product Description <span>*</span></h3>
+              <p>Provide comprehensive equipment specifications and features.</p>
+            </div>
+          </div>
+
+          <div className="AddPost-editorWrap">
+            <Editor
+              key={editingId || "new"}
+              tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
+              value={form.description}
+              onEditorChange={(content) => updateField("description", content)}
+              init={{
+                height: 320,
+                menubar: false,
+                plugins: "advlist autolink lists link charmap preview searchreplace visualblocks code fullscreen insertdatetime table wordcount",
+                toolbar: "undo redo | formatselect | bold italic underline forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | code",
+                content_style: "body { font-family: Inter, Arial, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6; }",
+              }}
+            />
+          </div>
+
+          <div className="AddPost-toggleRow">
+            <label className="AddPost-checkboxLabel">
+              <input
+                type="checkbox"
+                checked={form.bestSeller}
+                onChange={(e) => updateField("bestSeller", e.target.checked)}
+              />
+              <span className="AddPost-customCheck" />
+              <div>
+                <strong>Mark as Best Seller Equipment</strong>
+                <p>Highlights this product with a badge on the store and catalogs.</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {/* SUBMIT BUTTON ROW */}
+        <div className="AddPost-submitRow">
+          {editingId && (
+            <button
+              type="button"
+              className="AddPost-cancelBtn"
+              onClick={resetForm}
+              disabled={isSubmitting}
+            >
+              Cancel Edit
+            </button>
+          )}
 
           <button
             type="submit"
@@ -651,11 +702,13 @@ const AddPost = ({ onSubmit }) => {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              "Saving Product..."
+              <>
+                <FiRefreshCw className="spin" /> Saving to Database...
+              </>
             ) : (
               <>
                 {editingId ? <FiEdit2 /> : <FiPlus />}
-                {editingId ? "Update Product" : "Add Product"}
+                {editingId ? "Update Product in Database" : "Save Product to Database"}
               </>
             )}
           </button>
@@ -665,18 +718,26 @@ const AddPost = ({ onSubmit }) => {
       {/* =====================================
           PRODUCT MANAGEMENT TABLE
       ====================================== */}
-
       <div className="AddPost-tableCard">
-
         <div className="AddPost-tableHeader">
           <div>
-            <h3>Manage Products</h3>
-            <p>View, edit and manage all your products.</p>
+            <h3>All Products in Database</h3>
+            <p>Live inventory from MongoDB. Click edit to update or delete to remove.</p>
           </div>
 
-          <span className="AddPost-tableTotal">
-            {products.length} Products
-          </span>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <button
+              type="button"
+              className="AddPost-resetBtn"
+              onClick={loadProducts}
+              title="Refresh database records"
+            >
+              <FiRefreshCw className={loading ? "spin" : ""} /> Sync
+            </button>
+            <span className="AddPost-tableTotal">
+              {products.length} Products
+            </span>
+          </div>
         </div>
 
         {/* SEARCH */}
@@ -712,92 +773,116 @@ const AddPost = ({ onSubmit }) => {
             </thead>
 
             <tbody>
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product, index) => (
-                  <tr key={product.id}>
-                    <td className="AddPost-serial">
-                      {String(index + 1).padStart(2, "0")}
-                    </td>
+              {loading && products.length === 0 ? (
+                <tr>
+                  <td colSpan="11">
+                    <div className="AddPost-emptyState">
+                      <FiRefreshCw className="spin" size={28} />
+                      <h4>Loading Products...</h4>
+                      <p>Fetching inventory from MongoDB.</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredProducts.length > 0 ? (
+                filteredProducts.map((product, index) => {
+                  const displayImg =
+                    product.images && product.images.length > 0
+                      ? typeof product.images[0] === "string"
+                        ? product.images[0]
+                        : product.images[0].preview || product.images[0].url
+                      : product.image || "https://placehold.co/100x80?text=Product";
 
-                    <td>
-                      <div className="AddPost-tableImage">
-                        <img
-                          src={product.images[0]?.preview}
-                          alt={product.title}
-                        />
-                      </div>
-                    </td>
+                  return (
+                    <tr key={product._id || product.id}>
+                      <td className="AddPost-serial">
+                        {String(index + 1).padStart(2, "0")}
+                      </td>
 
-                    <td>
-                      <div className="AddPost-productDetails">
-                        <strong>{product.title}</strong>
-                        <span>{product.images.length} Images</span>
-                      </div>
-                    </td>
+                      <td>
+                        <div className="AddPost-tableImage">
+                          <img
+                            src={displayImg}
+                            alt={product.title || product.name}
+                            onError={(e) => {
+                              e.currentTarget.src = "https://placehold.co/100x80?text=Product";
+                            }}
+                          />
+                        </div>
+                      </td>
 
-                    <td>
-                      <span className="AddPost-categoryBadge">
-                        {product.category}
-                      </span>
-                    </td>
+                      <td>
+                        <div className="AddPost-productDetails">
+                          <strong>{product.title || product.name}</strong>
+                          <span>{product.images?.length || 1} Images</span>
+                        </div>
+                      </td>
 
-                    <td className="AddPost-originalPrice">
-                      {formatPrice(product.price)}
-                    </td>
-
-                    <td>
-                      <span className="AddPost-discountBadge">
-                        {product.discount}%
-                      </span>
-                    </td>
-
-                    <td className="AddPost-tableFinalPrice">
-                      {formatPrice(product.finalPrice)}
-                    </td>
-
-                    <td>
-                      <span className={`AddPost-stockBadge ${
-                        product.stockQuantity > 0 ? "in-stock" : "out-stock"
-                      }`}>
-                        {product.stockQuantity}
-                      </span>
-                    </td>
-
-                    <td>{product.companyName}</td>
-
-                    <td>
-                      {product.bestSeller ? (
-                        <span className="AddPost-bestBadge">
-                          <FiStar /> Yes
+                      <td>
+                        <span className="AddPost-categoryBadge">
+                          {product.category}
                         </span>
-                      ) : (
-                        <span className="AddPost-noBadge">No</span>
-                      )}
-                    </td>
+                      </td>
 
-                    <td>
-                      <div className="AddPost-actionButtons">
-                        <button
-                          type="button"
-                          className="AddPost-editAction"
-                          title="Edit product"
-                          onClick={() => handleEdit(product)}
-                        >
-                          <FiEdit2 />
-                        </button>
+                      <td className="AddPost-originalPrice">
+                        {formatPrice(product.price || product.oldPrice)}
+                      </td>
 
-                        <button
-                          type="button"
-                          className="AddPost-deleteAction"
-                          title="Delete product"
-                          onClick={() => handleDelete(product.id)}
+                      <td>
+                        <span className="AddPost-discountBadge">
+                          {product.discount}%
+                        </span>
+                      </td>
+
+                      <td className="AddPost-tableFinalPrice">
+                        {formatPrice(product.finalPrice || product.price)}
+                      </td>
+
+                      <td>
+                        <span
+                          className={`AddPost-stockBadge ${
+                            product.stockQuantity > 0 ? "in-stock" : "out-stock"
+                          }`}
                         >
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          {product.stockQuantity}
+                        </span>
+                      </td>
+
+                      <td>{product.companyName}</td>
+
+                      <td>
+                        {product.bestSeller ? (
+                          <span className="AddPost-bestBadge">
+                            <FiStar /> Yes
+                          </span>
+                        ) : (
+                          <span className="AddPost-noBadge">No</span>
+                        )}
+                      </td>
+
+                      <td>
+                        <div className="AddPost-actionButtons">
+                          <button
+                            type="button"
+                            className="AddPost-editAction"
+                            title="Edit product"
+                            onClick={() => handleEdit(product)}
+                          >
+                            <FiEdit2 />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="AddPost-deleteAction"
+                            title="Delete product"
+                            onClick={() => handleDelete(product._id || product.id)}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan="11">
@@ -807,7 +892,7 @@ const AddPost = ({ onSubmit }) => {
                       <p>
                         {search
                           ? "Try another search term."
-                          : "Add your first product using the form above."}
+                          : "No products in database yet. Add your first product using the form above."}
                       </p>
                     </div>
                   </td>
@@ -818,7 +903,7 @@ const AddPost = ({ onSubmit }) => {
         </div>
 
         <div className="AddPost-tableFooter">
-          Showing {filteredProducts.length} of {products.length} products
+          Showing {filteredProducts.length} of {products.length} products in database
         </div>
       </div>
     </div>

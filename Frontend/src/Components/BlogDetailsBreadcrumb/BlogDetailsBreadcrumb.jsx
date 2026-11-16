@@ -7,13 +7,24 @@ import "./BlogDetailsBreadcrumb.css";
 import breadcrumbBg from "../../assets/bg.png";
 
 const BlogDetailsBreadcrumb = ({
-  title = "Blog Details",
-  subtitle = "Explore quality agricultural products and machinery.",
-  breadcrumbs = [
-    { label: "Home", path: "/" },
-    { label: "Blog Details", path: "/blog-details" },
-  ],
+  article = null,
+  title,
+  subtitle,
+  breadcrumbs,
 }) => {
+  const displayTitle = title || article?.title || "Blog Details";
+  const displaySubtitle =
+    subtitle ||
+    (article?.category
+      ? `${article.category} • ${article.readTime || "5 min read"}`
+      : "Expert Agricultural Machinery & Modern Farming Insights");
+
+  const displayBreadcrumbs =
+    breadcrumbs || [
+      { label: "Blog", path: "/blog" },
+      { label: article?.title || "Article Details", path: "#" },
+    ];
+
   return (
     <section
       className="ProductBreadcrumb"
@@ -23,12 +34,12 @@ const BlogDetailsBreadcrumb = ({
         <div className="BlogDetails-Breadcrumb-container">
           <div className="BlogDetails-Breadcrumb-content">
             <span className="BlogDetails-Breadcrumb-small-title">
-              FARMTECH AGRO
+              RHINCO EQUIPMENTS
             </span>
 
-            <h1 className="BlogDetails-Breadcrumb-title">{title}</h1>
+            <h1 className="BlogDetails-Breadcrumb-title">{displayTitle}</h1>
 
-            <p className="BlogDetails-Breadcrumb-subtitle">{subtitle}</p>
+            <p className="BlogDetails-Breadcrumb-subtitle">{displaySubtitle}</p>
 
             <nav
               className="BlogDetails-Breadcrumb-navigation"
@@ -41,11 +52,11 @@ const BlogDetailsBreadcrumb = ({
                 Home
               </Link>
 
-              {breadcrumbs.map((item, index) => (
+              {displayBreadcrumbs.map((item, index) => (
                 <React.Fragment key={`${item.label}-${index}`}>
                   <span className="BlogDetails-Breadcrumb-separator">›</span>
 
-                  {index === breadcrumbs.length - 1 ? (
+                  {index === displayBreadcrumbs.length - 1 ? (
                     <span
                       className="BlogDetails-Breadcrumb-current"
                       aria-current="page"

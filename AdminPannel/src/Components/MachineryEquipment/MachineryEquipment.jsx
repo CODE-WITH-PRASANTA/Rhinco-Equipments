@@ -1,14 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
 import {
   FiPlus, FiSearch, FiEye, FiEdit2, FiTrash2, FiX, FiUploadCloud,
-  FiImage, FiGrid, FiCheckCircle, FiCheck, FiFilter, FiChevronDown,
-  FiChevronLeft, FiChevronRight, FiSave, FiRotateCcw, FiLayers,
-  FiFileText, FiExternalLink, FiPackage, FiMapPin, FiDollarSign, FiTool
+  FiImage, FiGrid, FiCheckCircle, FiFilter, FiChevronLeft,
+  FiChevronRight, FiSave, FiRotateCcw, FiLayers, FiFileText,
+  FiTag, FiFolder, FiFile, FiExternalLink, FiPackage, FiMapPin,
+  FiDollarSign, FiBox, FiTool
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
 
-const STORAGE_KEY = "rhino_equipment_posts";
+const MACHINERY_API = "http://localhost:5000/api/machinery";
 
 const categories = [
   "Excavators",
@@ -73,172 +75,17 @@ const formatDate = (date) =>
 const plainText = (html = "") =>
   html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
-const imageSrc = (image) => image?.data || "";
-
-/* =====================================================
-   PREMIUM CUSTOM DROPDOWN
-===================================================== */
-
-const CustomSelect = ({
-  value,
-  options,
-  onChange,
-  icon,
-  heading,
-  ariaLabel,
-  className = ""
-}) => {
-  const [open, setOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(-1);
-
-  const wrapRef = useRef(null);
-  const listRef = useRef(null);
-
-  const selected =
-    options.find((option) => option.value === value) || options[0];
-
-  // Close when clicking outside
-  useEffect(() => {
-    if (!open) return undefined;
-
-    const handleOutside = (event) => {
-      if (wrapRef.current && !wrapRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, [open]);
-
-  // Keep the keyboard-highlighted option visible
-  useEffect(() => {
-    if (!open || activeIndex < 0 || !listRef.current) return;
-    const node = listRef.current.children[activeIndex];
-    if (node) node.scrollIntoView({ block: "nearest" });
-  }, [open, activeIndex]);
-
-  const openMenu = () => {
-    setActiveIndex(
-      Math.max(
-        0,
-        options.findIndex((option) => option.value === value)
-      )
-    );
-    setOpen(true);
-  };
-
-  const handleToggle = () => (open ? setOpen(false) : openMenu());
-
-  const choose = (optionValue) => {
-    onChange(optionValue);
-    setOpen(false);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === "Escape" || event.key === "Tab") {
-      setOpen(false);
-      return;
-    }
-
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      event.preventDefault();
-
-      if (!open) {
-        openMenu();
-        return;
-      }
-
-      setActiveIndex((previous) => {
-        const next = event.key === "ArrowDown" ? previous + 1 : previous - 1;
-        return (next + options.length) % options.length;
-      });
-      return;
-    }
-
-    if ((event.key === "Enter" || event.key === " ") && open && activeIndex >= 0) {
-      event.preventDefault();
-      choose(options[activeIndex].value);
-    }
-  };
-
-  return (
-    <div
-      ref={wrapRef}
-      className={`MachineryEquipment-select ${open ? "is-open" : ""} ${
-        value === "" ? "is-placeholder" : ""
-      } ${className}`}
-    >
-      <button
-        type="button"
-        className="MachineryEquipment-selectTrigger"
-        onClick={handleToggle}
-        onKeyDown={handleKeyDown}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label={ariaLabel}
-      >
-        <span className="MachineryEquipment-selectIcon">{icon}</span>
-        <span className="MachineryEquipment-selectValue">{selected.label}</span>
-        <FiChevronDown className="MachineryEquipment-selectChevron" />
-      </button>
-
-      {open && (
-        <div className="MachineryEquipment-selectMenu">
-          {heading && (
-            <span className="MachineryEquipment-selectHeading">{heading}</span>
-          )}
-
-          <ul ref={listRef} role="listbox" aria-label={ariaLabel}>
-            {options.map((option, index) => {
-              const isSelected = option.value === value;
-
-              return (
-                <li
-                  key={option.value || "placeholder"}
-                  role="option"
-                  aria-selected={isSelected}
-                  className={`MachineryEquipment-selectOption ${
-                    isSelected ? "is-selected" : ""
-                  } ${index === activeIndex ? "is-active" : ""}`}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => choose(option.value)}
-                >
-                  <span className="MachineryEquipment-selectOptionLabel">
-                    {option.label}
-                  </span>
-
-                  {option.count !== undefined && (
-                    <span className="MachineryEquipment-selectCount">
-                      {option.count}
-                    </span>
-                  )}
-
-                  {isSelected && (
-                    <FiCheck className="MachineryEquipment-selectCheck" />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
+const imageSrc = (image) => {
+  if (!image) return "";
+  if (typeof image === "string") return image;
+  return image.data || image.preview || image.url || "";
 };
 
 const MachineryEquipment = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("form");
-
-  const [equipments, setEquipments] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
+  const [equipments, setEquipments] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
@@ -254,16 +101,49 @@ const MachineryEquipment = () => {
 
   const itemsPerPage = 6;
 
-  useEffect(() => {
+  // LOAD REAL EQUIPMENT FROM DATABASE
+  const loadEquipments = async () => {
+    setLoading(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(equipments));
-    } catch (error) {
-      console.error("Equipment storage error:", error);
-      setNotice(
-        "Browser storage is full. Please use smaller images or connect a backend for larger files."
-      );
+      const res = await fetch(MACHINERY_API);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        setEquipments(data.data);
+      }
+    } catch (err) {
+      console.error("Error loading machinery equipment:", err);
+      setNotice("Could not load equipment from database. Ensure backend is running.");
+    } finally {
+      setLoading(false);
     }
-  }, [equipments]);
+  };
+
+  useEffect(() => {
+    loadEquipments();
+  }, []);
+
+  // EDIT DETECTION VIA NAVIGATION OR URL QUERY
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const editId = params.get("edit");
+
+    if (location.state?.equipment) {
+      openEditForm(location.state.equipment);
+    } else if (editId) {
+      const fetchItem = async () => {
+        try {
+          const res = await fetch(`${MACHINERY_API}/${editId}`);
+          const data = await res.json();
+          if (res.ok && data.success && data.data) {
+            openEditForm(data.data);
+          }
+        } catch (err) {
+          console.error("Error loading equipment to edit:", err);
+        }
+      };
+      fetchItem();
+    }
+  }, [location.state, location.search]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({
@@ -289,7 +169,9 @@ const MachineryEquipment = () => {
     }
 
     const valid = files.filter(
-      (file) => file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024
+      (file) =>
+        file.type.startsWith("image/") &&
+        file.size <= 5 * 1024 * 1024
     );
 
     if (valid.length !== files.length) {
@@ -319,7 +201,9 @@ const MachineryEquipment = () => {
   const removeImage = (index) => {
     setForm((prev) => ({
       ...prev,
-      machineImages: prev.machineImages.filter((_, i) => i !== index)
+      machineImages: prev.machineImages.filter(
+        (_, i) => i !== index
+      )
     }));
   };
 
@@ -372,28 +256,52 @@ const MachineryEquipment = () => {
     setNotice("");
     setActiveTab("form");
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   };
 
   // EDIT EQUIPMENT
   const openEditForm = (item) => {
     setForm({
       ...emptyForm(),
-      ...item,
-      machineImages: item.machineImages || [],
-      documents: item.documents || []
+      title: item.title || item.name || "",
+      brandName: item.brandName || item.brand || "",
+      modelName: item.modelName || "",
+      implementType: item.implementType || item.type || "",
+      category: item.category || "",
+      implementPower: item.implementPower || item.power || "",
+      price: item.price !== undefined && item.price !== null ? String(item.price) : "",
+      discountPrice:
+        item.discountPrice !== undefined && item.discountPrice !== null
+          ? String(item.discountPrice)
+          : "",
+      description: item.description || "",
+      specification: item.specification || "",
+      availableAtStore: item.availableAtStore || "Yes",
+      machineImages:
+        item.machineImages && item.machineImages.length > 0
+          ? item.machineImages
+          : item.image
+          ? [{ name: "Image 1", data: item.image }]
+          : [],
+      documents: item.documents || [],
     });
 
-    setEditingId(item.id);
-    setNotice("");
+    setEditingId(item._id || item.id);
+    setNotice("Editing equipment: " + (item.title || item.name));
     setActiveTab("form");
     setViewEquipment(null);
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
-  // SUBMIT FORM
-  const handleSubmit = (event) => {
+  // SUBMIT FORM TO DATABASE
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!form.machineImages.length) {
@@ -424,7 +332,10 @@ const MachineryEquipment = () => {
       return setNotice("Please enter a valid price.");
     }
 
-    if (form.discountPrice !== "" && Number(form.discountPrice) < 0) {
+    if (
+      form.discountPrice !== "" &&
+      Number(form.discountPrice) < 0
+    ) {
       return setNotice("Discount price cannot be negative.");
     }
 
@@ -437,53 +348,83 @@ const MachineryEquipment = () => {
       );
     }
 
-    setSaving(true);
+    try {
+      setSaving(true);
 
-    const now = new Date().toISOString();
+      const payload = {
+        title: form.title.trim(),
+        brandName: form.brandName.trim(),
+        modelName: form.modelName.trim(),
+        implementType: form.implementType.trim(),
+        category: form.category,
+        implementPower: form.implementPower.trim(),
+        price: Number(form.price),
+        discountPrice:
+          form.discountPrice === "" ? null : Number(form.discountPrice),
+        description: form.description,
+        specification: form.specification,
+        availableAtStore: form.availableAtStore || "Yes",
+        machineImages: form.machineImages,
+        documents: form.documents,
+      };
 
-    const previous = equipments.find((item) => item.id === editingId);
+      const url = editingId ? `${MACHINERY_API}/${editingId}` : MACHINERY_API;
+      const method = editingId ? "PUT" : "POST";
 
-    const data = {
-      ...form,
-      id: editingId || Date.now(),
-      title: form.title.trim(),
-      brandName: form.brandName.trim(),
-      modelName: form.modelName.trim(),
-      implementType: form.implementType.trim(),
-      price: Number(form.price),
-      discountPrice:
-        form.discountPrice === "" ? "" : Number(form.discountPrice),
-      createdAt: previous?.createdAt || now,
-      updatedAt: now
-    };
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    setEquipments((prev) =>
-      editingId
-        ? prev.map((item) => (item.id === editingId ? data : item))
-        : [data, ...prev]
-    );
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Failed to save equipment to database.");
+      }
 
-    setNotice(
-      editingId
-        ? "Equipment updated successfully."
-        : "Equipment added successfully."
-    );
+      setNotice(
+        editingId
+          ? "Equipment updated successfully in database."
+          : "Equipment added successfully into database."
+      );
 
-    setForm(emptyForm());
-    setEditingId(null);
-    setCurrentPage(1);
-    setActiveTab("table");
-    setSaving(false);
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+      setForm(emptyForm());
+      setEditingId(null);
+      setCurrentPage(1);
+      await loadEquipments();
+      setActiveTab("table");
+    } catch (err) {
+      console.error("Save error:", err);
+      setNotice(err.message || "Failed to save equipment. Please try again.");
+    } finally {
+      setSaving(false);
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
   };
 
   // DELETE EQUIPMENT
-  const confirmDelete = () => {
-    setEquipments((prev) => prev.filter((item) => item.id !== deleteId));
+  const confirmDelete = async () => {
+    if (!deleteId) return;
 
-    setDeleteId(null);
-    setNotice("Equipment deleted successfully.");
+    try {
+      const res = await fetch(`${MACHINERY_API}/${deleteId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete equipment from database.");
+      }
+
+      await loadEquipments();
+      setDeleteId(null);
+      setNotice("Equipment deleted successfully from database.");
+    } catch (err) {
+      console.error("Delete error:", err);
+      setNotice(err.message || "Failed to delete equipment.");
+    }
   };
 
   // SEARCH AND FILTER
@@ -500,7 +441,9 @@ const MachineryEquipment = () => {
           item.implementType,
           item.category,
           item.availableAtStore
-        ].some((value) => String(value || "").toLowerCase().includes(q));
+        ].some((value) =>
+          String(value || "").toLowerCase().includes(q)
+        );
 
       return (
         matchesQuery &&
@@ -521,12 +464,14 @@ const MachineryEquipment = () => {
   );
 
   const totalImages = equipments.reduce(
-    (total, item) => total + (item.machineImages?.length || 0),
+    (total, item) =>
+      total + (item.machineImages?.length || 0),
     0
   );
 
   const totalDocuments = equipments.reduce(
-    (total, item) => total + (item.documents?.length || 0),
+    (total, item) =>
+      total + (item.documents?.length || 0),
     0
   );
 
@@ -534,35 +479,17 @@ const MachineryEquipment = () => {
     (item) => item.availableAtStore === "Yes"
   ).length;
 
-  // Dropdown options
-  const formCategoryOptions = useMemo(
-    () => [
-      { value: "", label: "Select Category" },
-      ...categories.map((category) => ({ value: category, label: category }))
-    ],
-    []
-  );
-
-  const filterCategoryOptions = useMemo(
-    () => [
-      {
-        value: "All Categories",
-        label: "All Categories",
-        count: equipments.length
-      },
-      ...categories.map((category) => ({
-        value: category,
-        label: category,
-        count: equipments.filter((item) => item.category === category).length
-      }))
-    ],
-    [equipments]
-  );
-
   const editorConfig = {
     height: 260,
     menubar: false,
-    plugins: ["lists", "link", "table", "wordcount", "autolink", "code"],
+    plugins: [
+      "lists",
+      "link",
+      "table",
+      "wordcount",
+      "autolink",
+      "code"
+    ],
     toolbar:
       "undo redo | blocks | bold italic underline | " +
       "bullist numlist | alignleft aligncenter alignright | " +
@@ -570,30 +497,22 @@ const MachineryEquipment = () => {
     branding: false,
     promotion: false,
     content_style:
-      "body { font-family: Inter, Arial, sans-serif; font-size: 14px; color: #1e3a2a; }"
+      "body { font-family: Arial, sans-serif; font-size: 14px; color: #26352b; }"
   };
-
-  return (
+    return (
     <div className="MachineryEquipment">
       {/* PAGE HEADER */}
       <div className="MachineryEquipment-header">
-        <div className="MachineryEquipment-heading">
-          <span className="MachineryEquipment-headingIcon">
-            <FiTool />
+        <div>
+          <span className="MachineryEquipment-eyebrow">
+            RHINO'S EQUIPMENT / INVENTORY
           </span>
 
-          <div>
-            <span className="MachineryEquipment-eyebrow">
-              RHINO'S EQUIPMENT / INVENTORY
-            </span>
+          <h1>Machinery & Equipment</h1>
 
-            <h1>Machinery & Equipment</h1>
-
-            <p>
-              Manage your machinery products, pricing, images and
-              specifications.
-            </p>
-          </div>
+          <p>
+            Manage your machinery products, pricing, images and specifications.
+          </p>
         </div>
 
         <button
@@ -608,10 +527,13 @@ const MachineryEquipment = () => {
 
       {/* NOTIFICATION */}
       {notice && (
-        <div className="MachineryEquipment-notice" role="status">
+        <div className="MachineryEquipment-notice">
           <FiCheckCircle />
           <span>{notice}</span>
-          <button type="button" onClick={() => setNotice("")}>
+          <button
+            type="button"
+            onClick={() => setNotice("")}
+          >
             <FiX />
           </button>
         </div>
@@ -630,7 +552,7 @@ const MachineryEquipment = () => {
         </div>
 
         <div className="MachineryEquipment-statCard">
-          <div className="MachineryEquipment-statIcon MachineryEquipment-statIcon--teal">
+          <div className="MachineryEquipment-statIcon">
             <FiImage />
           </div>
           <div>
@@ -640,7 +562,7 @@ const MachineryEquipment = () => {
         </div>
 
         <div className="MachineryEquipment-statCard">
-          <div className="MachineryEquipment-statIcon MachineryEquipment-statIcon--amber">
+          <div className="MachineryEquipment-statIcon">
             <FiFileText />
           </div>
           <div>
@@ -650,7 +572,7 @@ const MachineryEquipment = () => {
         </div>
 
         <div className="MachineryEquipment-statCard">
-          <div className="MachineryEquipment-statIcon MachineryEquipment-statIcon--blue">
+          <div className="MachineryEquipment-statIcon">
             <FiMapPin />
           </div>
           <div>
@@ -664,7 +586,9 @@ const MachineryEquipment = () => {
       <div className="MachineryEquipment-tabs">
         <button
           type="button"
-          className={activeTab === "form" ? "active" : ""}
+          className={
+            activeTab === "form" ? "active" : ""
+          }
           onClick={() => setActiveTab("form")}
         >
           <FiPlus />
@@ -673,7 +597,9 @@ const MachineryEquipment = () => {
 
         <button
           type="button"
-          className={activeTab === "table" ? "active" : ""}
+          className={
+            activeTab === "table" ? "active" : ""
+          }
           onClick={() => setActiveTab("table")}
         >
           <FiGrid />
@@ -684,17 +610,26 @@ const MachineryEquipment = () => {
 
       {/* ADD / EDIT FORM */}
       {activeTab === "form" && (
-        <form className="MachineryEquipment-form" onSubmit={handleSubmit}>
+        <form
+          className="MachineryEquipment-form"
+          onSubmit={handleSubmit}
+        >
           <div className="MachineryEquipment-formHeading">
             <div>
               <h2>
-                {editingId ? "Update Equipment Details" : "Add New Machinery"}
+                {editingId
+                  ? "Update Equipment Details"
+                  : "Add New Machinery"}
               </h2>
-              <p>Enter all the required information about your machine.</p>
+              <p>
+                Enter all the required information about your machine.
+              </p>
             </div>
 
             {editingId && (
-              <span className="MachineryEquipment-editBadge">Editing</span>
+              <span className="MachineryEquipment-editBadge">
+                Editing
+              </span>
             )}
           </div>
 
@@ -719,7 +654,10 @@ const MachineryEquipment = () => {
                   className="MachineryEquipment-imagePreview"
                   key={`${image.name}-${index}`}
                 >
-                  <img src={imageSrc(image)} alt={image.name || "Machine"} />
+                  <img
+                    src={imageSrc(image)}
+                    alt={image.name || "Machine"}
+                  />
 
                   <button
                     type="button"
@@ -746,7 +684,9 @@ const MachineryEquipment = () => {
                 >
                   <FiUploadCloud />
                   <strong>Upload Images</strong>
-                  <span>{form.machineImages.length}/6 images</span>
+                  <span>
+                    {form.machineImages.length}/6 images
+                  </span>
                   <small>PNG, JPG, WEBP · Max 5 MB</small>
                 </button>
               )}
@@ -771,7 +711,9 @@ const MachineryEquipment = () => {
 
               <div>
                 <h3>Basic Machine Information</h3>
-                <p>Provide the machine's name, brand, model and category.</p>
+                <p>
+                  Provide the machine's name, brand, model and category.
+                </p>
               </div>
             </div>
 
@@ -784,7 +726,9 @@ const MachineryEquipment = () => {
                   type="text"
                   placeholder="Enter machine title"
                   value={form.title}
-                  onChange={(e) => updateField("title", e.target.value)}
+                  onChange={(e) =>
+                    updateField("title", e.target.value)
+                  }
                   required
                 />
               </div>
@@ -797,7 +741,9 @@ const MachineryEquipment = () => {
                   type="text"
                   placeholder="e.g. JCB, Caterpillar, Komatsu"
                   value={form.brandName}
-                  onChange={(e) => updateField("brandName", e.target.value)}
+                  onChange={(e) =>
+                    updateField("brandName", e.target.value)
+                  }
                   required
                 />
               </div>
@@ -808,7 +754,9 @@ const MachineryEquipment = () => {
                   type="text"
                   placeholder="Enter model name"
                   value={form.modelName}
-                  onChange={(e) => updateField("modelName", e.target.value)}
+                  onChange={(e) =>
+                    updateField("modelName", e.target.value)
+                  }
                 />
               </div>
 
@@ -828,14 +776,23 @@ const MachineryEquipment = () => {
                 <label>
                   Category <span>*</span>
                 </label>
-                <CustomSelect
-                  icon={<FiLayers />}
-                  heading="Select machine category"
-                  ariaLabel="Machine category"
+                <select
                   value={form.category}
-                  options={formCategoryOptions}
-                  onChange={(value) => updateField("category", value)}
-                />
+                  onChange={(e) =>
+                    updateField("category", e.target.value)
+                  }
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((category) => (
+                    <option
+                      value={category}
+                      key={category}
+                    >
+                      {category}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="MachineryEquipment-field">
@@ -861,7 +818,9 @@ const MachineryEquipment = () => {
 
               <div>
                 <h3>Pricing Information</h3>
-                <p>Set the original price and discounted selling price.</p>
+                <p>
+                  Set the original price and discounted selling price.
+                </p>
               </div>
             </div>
 
@@ -877,7 +836,9 @@ const MachineryEquipment = () => {
                     min="0"
                     placeholder="Enter original price"
                     value={form.price}
-                    onChange={(e) => updateField("price", e.target.value)}
+                    onChange={(e) =>
+                      updateField("price", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -910,7 +871,9 @@ const MachineryEquipment = () => {
 
               <div>
                 <h3>Product Description</h3>
-                <p>Write a detailed description of the machine.</p>
+                <p>
+                  Write a detailed description of the machine.
+                </p>
               </div>
             </div>
 
@@ -920,9 +883,13 @@ const MachineryEquipment = () => {
               </label>
 
               <Editor
+                key={editingId ? `desc-${editingId}` : "desc-new"}
+                tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
                 apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
                 value={form.description}
-                onEditorChange={(value) => updateField("description", value)}
+                onEditorChange={(value) =>
+                  updateField("description", value)
+                }
                 init={editorConfig}
               />
             </div>
@@ -937,7 +904,9 @@ const MachineryEquipment = () => {
 
               <div>
                 <h3>Machine Specifications</h3>
-                <p>Add technical specifications and machine features.</p>
+                <p>
+                  Add technical specifications and machine features.
+                </p>
               </div>
             </div>
 
@@ -947,9 +916,13 @@ const MachineryEquipment = () => {
               </label>
 
               <Editor
+                key={editingId ? `spec-${editingId}` : "spec-new"}
+                tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
                 apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
                 value={form.specification}
-                onEditorChange={(value) => updateField("specification", value)}
+                onEditorChange={(value) =>
+                  updateField("specification", value)
+                }
                 init={editorConfig}
               />
             </div>
@@ -964,7 +937,9 @@ const MachineryEquipment = () => {
 
               <div>
                 <h3>Required Documents</h3>
-                <p>Upload brochures, manuals, datasheets or other documents.</p>
+                <p>
+                  Upload brochures, manuals, datasheets or other documents.
+                </p>
               </div>
             </div>
 
@@ -1000,7 +975,9 @@ const MachineryEquipment = () => {
 
                     <div>
                       <strong>{doc.name}</strong>
-                      <small>{(doc.size / (1024 * 1024)).toFixed(2)} MB</small>
+                      <small>
+                        {(doc.size / (1024 * 1024)).toFixed(2)} MB
+                      </small>
                     </div>
 
                     <button
@@ -1017,7 +994,7 @@ const MachineryEquipment = () => {
           </section>
 
           {/* STORE AVAILABILITY */}
-          <section className="MachineryEquipment-section MachineryEquipment-section--last">
+          <section className="MachineryEquipment-section">
             <div className="MachineryEquipment-sectionTitle">
               <div className="MachineryEquipment-sectionIcon">
                 <FiMapPin />
@@ -1025,7 +1002,9 @@ const MachineryEquipment = () => {
 
               <div>
                 <h3>Store Availability</h3>
-                <p>Specify whether this machine is available at your store.</p>
+                <p>
+                  Specify whether this machine is available at your store.
+                </p>
               </div>
             </div>
 
@@ -1040,7 +1019,10 @@ const MachineryEquipment = () => {
                     value="Yes"
                     checked={form.availableAtStore === "Yes"}
                     onChange={(e) =>
-                      updateField("availableAtStore", e.target.value)
+                      updateField(
+                        "availableAtStore",
+                        e.target.value
+                      )
                     }
                   />
                   <span>Yes, Available</span>
@@ -1053,7 +1035,10 @@ const MachineryEquipment = () => {
                     value="No"
                     checked={form.availableAtStore === "No"}
                     onChange={(e) =>
-                      updateField("availableAtStore", e.target.value)
+                      updateField(
+                        "availableAtStore",
+                        e.target.value
+                      )
                     }
                   />
                   <span>Not Available</span>
@@ -1088,8 +1073,7 @@ const MachineryEquipment = () => {
           </div>
         </form>
       )}
-
-      {/* EQUIPMENT TABLE */}
+            {/* EQUIPMENT TABLE */}
       {activeTab === "table" && (
         <div className="MachineryEquipment-tableWrapper">
           <div className="MachineryEquipment-tableHeader">
@@ -1123,18 +1107,24 @@ const MachineryEquipment = () => {
               />
             </div>
 
-            <CustomSelect
-              icon={<FiFilter />}
-              heading="Filter by category"
-              ariaLabel="Filter by category"
-              value={categoryFilter}
-              options={filterCategoryOptions}
-              onChange={(value) => {
-                setCategoryFilter(value);
-                setCurrentPage(1);
-              }}
-              className="MachineryEquipment-select--filter"
-            />
+            <div className="MachineryEquipment-categoryFilter">
+              <FiFilter />
+              <select
+                value={categoryFilter}
+                onChange={(e) => {
+                  setCategoryFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="All Categories">All Categories</option>
+
+                {categories.map((category) => (
+                  <option value={category} key={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* TABLE */}
@@ -1157,12 +1147,12 @@ const MachineryEquipment = () => {
               <tbody>
                 {paginatedEquipments.length > 0 ? (
                   paginatedEquipments.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item._id || item.id}>
                       <td>
                         <div className="MachineryEquipment-productCell">
-                          {item.machineImages?.[0]?.data ? (
+                          {imageSrc(item.machineImages?.[0]) || item.image ? (
                             <img
-                              src={item.machineImages[0].data}
+                              src={imageSrc(item.machineImages?.[0]) || item.image}
                               alt={item.title}
                             />
                           ) : (
@@ -1173,7 +1163,9 @@ const MachineryEquipment = () => {
 
                           <div>
                             <strong>{item.title}</strong>
-                            <small>Added {formatDate(item.createdAt)}</small>
+                            <small>
+                              Added {formatDate(item.createdAt)}
+                            </small>
                           </div>
                         </div>
                       </td>
@@ -1196,8 +1188,10 @@ const MachineryEquipment = () => {
                       <td>{item.implementPower || "—"}</td>
 
                       <td>
-                        <strong className="MachineryEquipment-price">
-                          {formatCurrency(item.discountPrice || item.price)}
+                        <strong>
+                          {formatCurrency(
+                            item.discountPrice || item.price
+                          )}
                         </strong>
 
                         {item.discountPrice !== "" &&
@@ -1254,7 +1248,7 @@ const MachineryEquipment = () => {
                           <button
                             type="button"
                             title="Delete"
-                            onClick={() => setDeleteId(item.id)}
+                            onClick={() => setDeleteId(item._id || item.id)}
                           >
                             <FiTrash2 />
                           </button>
@@ -1264,10 +1258,15 @@ const MachineryEquipment = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="9" className="MachineryEquipment-empty">
+                    <td
+                      colSpan="9"
+                      className="MachineryEquipment-empty"
+                    >
                       <FiPackage />
                       <strong>No equipment found</strong>
-                      <span>Add equipment or change your search filters.</span>
+                      <span>
+                        Add equipment or change your search filters.
+                      </span>
                     </td>
                   </tr>
                 )}
@@ -1283,7 +1282,10 @@ const MachineryEquipment = () => {
                 ? 0
                 : (currentPage - 1) * itemsPerPage + 1}
               {" - "}
-              {Math.min(currentPage * itemsPerPage, filteredEquipments.length)}{" "}
+              {Math.min(
+                currentPage * itemsPerPage,
+                filteredEquipments.length
+              )}{" "}
               of {filteredEquipments.length} equipment
             </span>
 
@@ -1291,7 +1293,9 @@ const MachineryEquipment = () => {
               <button
                 type="button"
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.max(1, prev - 1))
+                }
               >
                 <FiChevronLeft />
               </button>
@@ -1304,7 +1308,9 @@ const MachineryEquipment = () => {
                 type="button"
                 disabled={currentPage >= totalPages}
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  setCurrentPage((prev) =>
+                    Math.min(totalPages, prev + 1)
+                  )
                 }
               >
                 <FiChevronRight />
@@ -1330,7 +1336,10 @@ const MachineryEquipment = () => {
                 <h2>{viewEquipment.title}</h2>
               </div>
 
-              <button type="button" onClick={() => setViewEquipment(null)}>
+              <button
+                type="button"
+                onClick={() => setViewEquipment(null)}
+              >
                 <FiX />
               </button>
             </div>
@@ -1376,12 +1385,16 @@ const MachineryEquipment = () => {
 
                 <div>
                   <span>Available at Store</span>
-                  <strong>{viewEquipment.availableAtStore || "Not Set"}</strong>
+                  <strong>
+                    {viewEquipment.availableAtStore || "Not Set"}
+                  </strong>
                 </div>
 
                 <div>
                   <span>Original Price</span>
-                  <strong>{formatCurrency(viewEquipment.price)}</strong>
+                  <strong>
+                    {formatCurrency(viewEquipment.price)}
+                  </strong>
                 </div>
 
                 <div>
@@ -1439,9 +1452,7 @@ const MachineryEquipment = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="MachineryEquipment-noDocs">
-                    No documents uploaded.
-                  </p>
+                  <p>No documents uploaded.</p>
                 )}
               </div>
             </div>

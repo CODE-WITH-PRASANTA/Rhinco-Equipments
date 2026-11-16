@@ -23,7 +23,7 @@ const BlogBreadCrumb = ({
         <div className="Blog-BreadCrumb-container">
           <div className="Blog-BreadCrumb-content">
             <span className="Blog-BreadCrumb-small-title">
-              FARMTECH AGRO
+              RHINCO EQUIPMENTS
             </span>
 
             <h1 className="Blog-BreadCrumb-title">{title}</h1>

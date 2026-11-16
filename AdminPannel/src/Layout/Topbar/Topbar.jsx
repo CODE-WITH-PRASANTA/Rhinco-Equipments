@@ -50,12 +50,13 @@ const Topbar = ({ toggleSidebar }) => {
   const fetchTopProfile = async () => {
     try {
       const res = await fetch(API_BASE_URL);
+      if (!res.ok) return;
       const result = await res.json();
       if (result.success && result.data?.length > 0) {
         setCurrentProfile(result.data[0]);
       }
     } catch (err) {
-      console.error('Failed to load profile in topbar:', err);
+      console.warn('Backend profile not reachable, using default profile.');
     }
   };
 

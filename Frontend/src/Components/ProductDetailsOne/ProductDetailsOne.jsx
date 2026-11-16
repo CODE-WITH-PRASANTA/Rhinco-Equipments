@@ -1,46 +1,93 @@
-
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import "./ProductDetailsOne.css";
 import drillImage from "../../assets/machine.jpg";
+import { addToCart, toggleWishlist, isInWishlist } from "../../utils/cartWishlist";
+
+const PRODUCTS_API = "http://localhost:5000/api/products";
 
 const categories = [
-  "Power Tools",
-  "Agricultural Machinery",
-  "Garden Equipment",
-  "Safety Equipment",
-  "Irrigation Tools",
-  "Hand Tools",
-  "Farm Accessories",
+  "Tillage & Cultivation",
+  "Harvesting & Threshing",
+  "Seeding & Planting",
+  "Earthmoving & Levelling",
+  "Tractor Attachments",
+  "Crop Protection & Sprayers",
 ];
 
 const ProductDetailsOne = () => {
+  const { name: paramName } = useParams();
+  const [searchParams] = useSearchParams();
+  const idParam = searchParams.get("id");
+  const queryName = searchParams.get("name");
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [pincode, setPincode] = useState("");
   const [deliveryMessage, setDeliveryMessage] = useState(
     "Expected Delivery in 4–10 Days"
   );
   const [deliveryStatus, setDeliveryStatus] = useState("default");
-  const [activeImage, setActiveImage] = useState(drillImage);
+  const [activeImage, setActiveImage] = useState("");
   const [cartCount, setCartCount] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState("Power Tools");
-  const [minPrice, setMinPrice] = useState(500);
-  const [maxPrice, setMaxPrice] = useState(10000);
+  const [justAdded, setJustAdded] = useState(false);
+  const [minPrice, setMinPrice] = useState(5000);
+  const [maxPrice, setMaxPrice] = useState(500000);
 
-  const product = {
-    name: "Professional Cordless Impact Driver",
-    brand: "FARMTECH AGRO",
-    price: 3499,
-    oldPrice: 4299,
-    rating: 4.8,
-    reviews: 124,
-    description:
-      "Make your everyday farm maintenance and repair work easier with this powerful cordless impact driver. Designed for convenient handling, reliable performance and comfortable operation, it is a useful addition to your agricultural tool collection.",
-    delivery: "Expected Delivery in 4–10 Days",
-  };
+  // FETCH REAL PRODUCT BY NAME OR ID
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(PRODUCTS_API);
+        const result = await res.json();
+        if (res.ok && result.success && Array.isArray(result.data)) {
+          const rawTarget = paramName || queryName || "";
+          const targetName = decodeURIComponent(rawTarget).trim().toLowerCase();
+
+          const found = result.data.find((item) => {
+            const pId = String(item._id || item.id || "");
+            const title = String(item.title || item.name || "").toLowerCase();
+
+            if (idParam && pId === idParam) return true;
+            if (targetName) {
+              if (title === targetName) return true;
+              if (title.replace(/\s+/g, "-") === targetName.replace(/\s+/g, "-")) return true;
+              if (title.includes(targetName) || targetName.includes(title)) return true;
+            }
+            return false;
+          });
+
+          if (found) {
+            setProduct(found);
+            const primary =
+              found.image ||
+              (Array.isArray(found.images) && found.images[0]) ||
+              drillImage;
+            setActiveImage(primary);
+          } else if (result.data.length > 0) {
+            // Default to first product if not matched
+            setProduct(result.data[0]);
+            const primary =
+              result.data[0].image ||
+              (Array.isArray(result.data[0].images) && result.data[0].images[0]) ||
+              drillImage;
+            setActiveImage(primary);
+          }
+        }
+      } catch (err) {
+        console.error("Could not fetch product details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [paramName, idParam, queryName]);
 
   const formatPrice = (price) =>
-    `₹${Number(price).toLocaleString("en-IN")}`;
+    `₹${Number(price || 0).toLocaleString("en-IN")}`;
 
   const handleDeliveryCheck = (event) => {
     event.preventDefault();
@@ -58,7 +105,11 @@ const ProductDetailsOne = () => {
   };
 
   const handleAddToCart = () => {
+    if (!product) return;
+    addToCart(product, quantity);
     setCartCount((previous) => previous + quantity);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 3000);
   };
 
   const decreaseQuantity = () => {
@@ -69,11 +120,61 @@ const ProductDetailsOne = () => {
     setQuantity((previous) => Math.min(99, previous + 1));
   };
 
+  if (loading) {
+    return (
+      <section className="ProductDetailsOne" style={{ padding: "80px 0", textAlign: "center" }}>
+        <div style={{ color: "#166534", fontSize: "16px", fontWeight: 600 }}>
+          Loading product details...
+        </div>
+      </section>
+    );
+  }
+
+  if (!product) {
+    return (
+      <section className="ProductDetailsOne" style={{ padding: "80px 0", textAlign: "center" }}>
+        <h2>Product Not Found</h2>
+        <p style={{ color: "#64748b", margin: "16px 0 24px" }}>
+          The requested product could not be found.
+        </p>
+        <Link
+          to="/products"
+          style={{
+            background: "#166534",
+            color: "#fff",
+            padding: "10px 20px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontWeight: 600,
+          }}
+        >
+          Explore All Products
+        </Link>
+      </section>
+    );
+  }
+
+  const productName = product.title || product.name || "Product";
+  const brandName = product.companyName || product.brand || "Rhinco Equipments";
+  const salesPrice = Number(product.finalPrice || product.price || 0);
+  const regularPrice = Number(product.oldPrice || product.price || salesPrice);
+  const discountPct =
+    product.discount ||
+    (regularPrice > salesPrice
+      ? Math.round(((regularPrice - salesPrice) / regularPrice) * 100)
+      : 0);
+
+  const imagesList =
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : product.image
+      ? [product.image]
+      : [drillImage];
+
   return (
     <section className="ProductDetailsOne">
       <div className="ProductDetailsOne-container">
         {/* Left sidebar */}
-
         <aside className="ProductDetailsOne-sidebar">
           <form
             className="ProductDetailsOne-search"
@@ -103,81 +204,40 @@ const ProductDetailsOne = () => {
             </button>
           </form>
 
-          <div className="ProductDetailsOne-sidebar-section">
-            <h2>Categories</h2>
-
-            <div className="ProductDetailsOne-category-box">
+          <div className="ProductDetailsOne-categories">
+            <h3>Categories</h3>
+            <ul>
               {categories.map((category) => (
-                <button
-                  type="button"
-                  key={category}
-                  className={`ProductDetailsOne-category-item ${
-                    selectedCategory === category
-                      ? "ProductDetailsOne-category-active"
-                      : ""
-                  }`}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {selectedCategory === category && (
-                    <span className="ProductDetailsOne-category-arrow">
-                      →
-                    </span>
-                  )}
-                  {category}
-                </button>
+                <li key={category}>
+                  <Link to={`/products?category=${encodeURIComponent(category)}`}>
+                    {category}
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          <div className="ProductDetailsOne-sidebar-section ProductDetailsOne-price-filter">
-            <h2>Filter By Price</h2>
-
-            <div className="ProductDetailsOne-range-values">
-              <span>{formatPrice(minPrice)}</span>
-              <span>{formatPrice(maxPrice)}</span>
-            </div>
-
-            <div className="ProductDetailsOne-range-control">
+          <div className="ProductDetailsOne-filter-price">
+            <h3>Filter by price</h3>
+            <div className="ProductDetailsOne-price-slider">
               <input
                 type="range"
-                min="0"
-                max="10000"
-                step="100"
-                value={minPrice}
-                onChange={(event) =>
-                  setMinPrice(
-                    Math.min(Number(event.target.value), maxPrice)
-                  )
-                }
-                aria-label="Minimum price"
-              />
-              <input
-                type="range"
-                min="0"
-                max="10000"
-                step="100"
+                min="5000"
+                max="500000"
+                step="5000"
                 value={maxPrice}
-                onChange={(event) =>
-                  setMaxPrice(
-                    Math.max(Number(event.target.value), minPrice)
-                  )
-                }
-                aria-label="Maximum price"
+                onChange={(event) => setMaxPrice(Number(event.target.value))}
+                aria-label="Filter by maximum price"
               />
             </div>
-
-            <div className="ProductDetailsOne-filter-bottom">
-              <button
-                type="button"
-                onClick={() => {
-                  setDeliveryStatus("default");
-                  setDeliveryMessage(
-                    `Showing products between ${formatPrice(minPrice)} and ${formatPrice(maxPrice)}`
-                  );
-                }}
+            <div className="ProductDetailsOne-price-row">
+              <Link
+                to={`/products?minPrice=${minPrice}&maxPrice=${maxPrice}`}
+                className="ProductDetailsOne-filter-button"
+                style={{ textDecoration: "none", textAlign: "center", lineHeight: "34px" }}
               >
                 Filter
-              </button>
+              </Link>
               <span>
                 {formatPrice(minPrice)} – {formatPrice(maxPrice)}
               </span>
@@ -185,60 +245,70 @@ const ProductDetailsOne = () => {
           </div>
         </aside>
 
-        {/* Main product image */}
-
+        {/* Main product image gallery */}
         <div className="ProductDetailsOne-gallery">
           <div className="ProductDetailsOne-main-image">
-            <img src={activeImage} alt={product.name} />
-            <span className="ProductDetailsOne-image-badge">
-              Quality Checked
-            </span>
+            <img src={activeImage || drillImage} alt={productName} />
+            {(product.badge || product.bestSeller) && (
+              <span className="ProductDetailsOne-image-badge">
+                {product.badge || "Best Seller"}
+              </span>
+            )}
           </div>
 
-          <div className="ProductDetailsOne-thumbnails">
-            <button
-              type="button"
-              className="ProductDetailsOne-thumbnail ProductDetailsOne-thumbnail-active"
-              onClick={() => setActiveImage(drillImage)}
-              aria-label="Show product image"
-            >
-              <img src={drillImage} alt="Product view" />
-            </button>
-          </div>
+          {imagesList.length > 1 && (
+            <div className="ProductDetailsOne-thumbnails">
+              {imagesList.map((img, idx) => {
+                const src = typeof img === "string" ? img : img.preview || img.url;
+                return (
+                  <button
+                    type="button"
+                    key={idx}
+                    className={`ProductDetailsOne-thumbnail ${
+                      activeImage === src ? "ProductDetailsOne-thumbnail-active" : ""
+                    }`}
+                    onClick={() => setActiveImage(src)}
+                    aria-label={`Show product image ${idx + 1}`}
+                  >
+                    <img src={src} alt={`${productName} view ${idx + 1}`} />
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Product information */}
-
         <div className="ProductDetailsOne-information">
-          <span className="ProductDetailsOne-brand">{product.brand}</span>
+          <span className="ProductDetailsOne-brand">{brandName}</span>
 
-          <h1 className="ProductDetailsOne-title">{product.name}</h1>
+          <h1 className="ProductDetailsOne-title">{productName}</h1>
 
           <div className="ProductDetailsOne-rating">
-            <span className="ProductDetailsOne-stars">★★★★★</span>
+            <span className="ProductDetailsOne-stars">
+              {"★".repeat(Math.floor(product.rating || 5))}
+              {"☆".repeat(5 - Math.floor(product.rating || 5))}
+            </span>
             <span className="ProductDetailsOne-rating-number">
-              {product.rating}
+              {product.rating || 4.8}
             </span>
             <span className="ProductDetailsOne-review-count">
-              ({product.reviews} reviews)
+              ({product.reviews || 12} reviews)
             </span>
           </div>
 
           <div className="ProductDetailsOne-price">
-            <strong>{formatPrice(product.price)}</strong>
-            <del>{formatPrice(product.oldPrice)}</del>
-            <span>
-              {Math.round(
-                ((product.oldPrice - product.price) / product.oldPrice) *
-                  100
-              )}
-              % OFF
-            </span>
+            <strong>{formatPrice(salesPrice)}</strong>
+            {regularPrice > salesPrice && <del>{formatPrice(regularPrice)}</del>}
+            {discountPct > 0 && <span>{discountPct}% OFF</span>}
           </div>
 
-          <p className="ProductDetailsOne-description">
-            {product.description}
-          </p>
+          {product.description && (
+            <div
+              className="ProductDetailsOne-description"
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
+          )}
 
           <div className="ProductDetailsOne-delivery">
             <h3>Check Delivery Option at Your Location:</h3>
@@ -288,9 +358,7 @@ const ProductDetailsOne = () => {
                 value={quantity}
                 onChange={(event) => {
                   const value = Number(event.target.value);
-                  setQuantity(
-                    Math.min(99, Math.max(1, value || 1))
-                  );
+                  setQuantity(Math.min(99, Math.max(1, value || 1)));
                 }}
                 aria-label="Quantity"
               />
@@ -309,19 +377,64 @@ const ProductDetailsOne = () => {
               type="button"
               className="ProductDetailsOne-add-cart"
               onClick={handleAddToCart}
+              style={
+                justAdded || cartCount > 0
+                  ? {
+                      backgroundColor: "#f0fdf4",
+                      color: "#166534",
+                      border: "2px solid #0f172a",
+                      borderRadius: "10px",
+                      fontWeight: 600,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      padding: "10px 24px",
+                    }
+                  : undefined
+              }
             >
-              <svg viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="10" cy="20" r="1.4" fill="currentColor" />
-                <circle cx="18" cy="20" r="1.4" fill="currentColor" />
-              </svg>
-              {cartCount > 0 ? `Added (${cartCount})` : "Add To Cart"}
+              {justAdded || cartCount > 0 ? (
+                <>✓ Added to Cart</>
+              ) : (
+                <>
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <circle cx="10" cy="20" r="1.4" fill="currentColor" />
+                    <circle cx="18" cy="20" r="1.4" fill="currentColor" />
+                  </svg>
+                  Add To Cart
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              style={{
+                background: isInWishlist(product._id || product.id) ? "#fef2f2" : "#f0fdf4",
+                border: "1.5px solid #166534",
+                borderRadius: "8px",
+                padding: "0 16px",
+                color: isInWishlist(product._id || product.id) ? "#dc2626" : "#166534",
+                fontSize: "20px",
+                cursor: "pointer",
+                height: "44px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s ease",
+              }}
+              onClick={() => toggleWishlist(product)}
+              title={isInWishlist(product._id || product.id) ? "In Wishlist" : "Add to Wishlist"}
+              aria-label="Wishlist toggle"
+            >
+              {isInWishlist(product._id || product.id) ? "♥" : "♡"}
             </button>
           </div>
 
@@ -343,8 +456,7 @@ const ProductDetailsOne = () => {
           <div className="ProductDetailsOne-cart-note" aria-live="polite">
             {cartCount > 0 && (
               <>
-                {cartCount} item(s) added locally. Connect this button to your
-                cart API or context for a persistent cart.
+                ✓ {cartCount} item(s) added to cart!
                 <Link to="/cart"> View Cart</Link>
               </>
             )}

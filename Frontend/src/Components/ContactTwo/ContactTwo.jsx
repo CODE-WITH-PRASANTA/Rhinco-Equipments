@@ -24,7 +24,9 @@ const ContactTwo = () => {
     message: "",
   });
 
+  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,22 +37,47 @@ const ContactTwo = () => {
     }));
 
     setSuccess(false);
+    setErrorMessage("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
 
-    // Connect your backend API here.
-    console.log("Contact Form:", formData);
+    try {
+      const res = await fetch("http://localhost:5000/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: "Not Provided",
+          subject: formData.subject || "General Contact Inquiry",
+          message: formData.message,
+          enquiryType: "General Contact",
+          productOrEquipment: "Website Contact Form",
+        }),
+      });
 
-    setSuccess(true);
-
-    setFormData({
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-    });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuccess(true);
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        setErrorMessage(data.message || "Failed to submit enquiry. Please try again.");
+      }
+    } catch (err) {
+      console.error("Enquiry submission failed:", err);
+      setErrorMessage("Network error: Could not reach the server.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -166,8 +193,15 @@ const ContactTwo = () => {
               <div className="ContactTwo-success">
                 <CheckCircle2 size={21} />
                 <span>
-                  Your message has been submitted successfully!
+                  Your message has been submitted successfully! Our team will contact you shortly.
                 </span>
+              </div>
+            )}
+
+            {/* ERROR MESSAGE */}
+            {errorMessage && (
+              <div style={{ padding: '12px 16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#b91c1c', fontSize: '14px', marginBottom: '16px' }}>
+                {errorMessage}
               </div>
             )}
 
@@ -282,8 +316,10 @@ const ContactTwo = () => {
             <button
               type="submit"
               className="ContactTwo-submit"
+              disabled={loading}
+              style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
             >
-              <span>Send Your Message</span>
+              <span>{loading ? "Sending..." : "Send Your Message"}</span>
               <Send size={19} />
             </button>
 

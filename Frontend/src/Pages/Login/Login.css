@@ -1,0 +1,452 @@
+/* ==========================================================================
+   Rhinco Equipments - Modern Auth Pages (Login & Register)
+   ========================================================================== */
+
+.AuthPage {
+  min-height: calc(100vh - 120px);
+  background: linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.AuthContainer {
+  width: 100%;
+  max-width: 1060px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(22, 101, 52, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.05fr 1.25fr;
+  border: 1px solid rgba(22, 101, 52, 0.1);
+}
+
+/* ==================== LEFT BRAND BANNER ==================== */
+.AuthBanner {
+  background: linear-gradient(145deg, #166534 0%, #0f3d1f 100%);
+  color: #ffffff;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.AuthBanner::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.AuthBanner::after {
+  content: "";
+  position: absolute;
+  bottom: -60px;
+  left: -40px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.AuthBanner-header {
+  position: relative;
+  z-index: 2;
+}
+
+.AuthBanner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #bbf7d0;
+  letter-spacing: 0.5px;
+  margin-bottom: 24px;
+}
+
+.AuthBanner-title {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 16px;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.AuthBanner-title span {
+  color: #86efac;
+}
+
+.AuthBanner-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #dcfce7;
+  margin: 0 0 32px;
+}
+
+/* Feature bullets */
+.AuthBanner-features {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 36px;
+}
+
+.AuthBanner-featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.AuthBanner-featureIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #86efac;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.AuthBanner-featureText h4 {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.AuthBanner-featureText p {
+  margin: 0;
+  font-size: 12px;
+  color: #bbf7d0;
+  line-height: 1.4;
+}
+
+.AuthBanner-footer {
+  position: relative;
+  z-index: 2;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #bbf7d0;
+}
+
+/* ==================== RIGHT FORM PANEL ==================== */
+.AuthFormPanel {
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ffffff;
+}
+
+/* Switcher tabs (Sign In / Create Account) */
+.AuthNavTabs {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+
+.AuthNavTab {
+  flex: 1;
+  text-align: center;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 9px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.AuthNavTab.active {
+  background: #ffffff;
+  color: #166534;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.AuthHeader {
+  margin-bottom: 24px;
+}
+
+.AuthHeader-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.AuthHeader-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Alerts */
+.AuthAlert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.AuthAlert-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.AuthAlert-success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* Form inputs */
+.AuthForm {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.AuthField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.AuthLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.AuthInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.AuthInputIcon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.AuthInput {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.AuthInput:focus {
+  border-color: #166534;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+}
+
+.AuthTogglePassword {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.AuthTogglePassword:hover {
+  color: #166534;
+}
+
+/* Role / Farmer Segment Selector */
+.AuthRoleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.AuthRoleBtn {
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.AuthRoleBtn.selected {
+  border-color: #166534;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+/* Extra options (Remember me, Forgot password) */
+.AuthExtras {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.AuthRemember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  cursor: pointer;
+  user-select: none;
+}
+
+.AuthRemember input[type="checkbox"] {
+  accent-color: #166534;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.AuthForgotLink {
+  color: #166534;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.AuthForgotLink:hover {
+  text-decoration: underline;
+  color: #14532d;
+}
+
+/* Submit Button */
+.AuthSubmitBtn {
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 12px;
+  border: none;
+  background: #166534;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+  box-shadow: 0 4px 14px rgba(22, 101, 52, 0.25);
+}
+
+.AuthSubmitBtn:hover:not(:disabled) {
+  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(22, 101, 52, 0.32);
+}
+
+.AuthSubmitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Footer Switch text */
+.AuthFooter {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.AuthFooter a {
+  color: #166534;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 6px;
+}
+
+.AuthFooter a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .AuthContainer {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+  }
+
+  .AuthBanner {
+    display: none;
+  }
+
+  .AuthFormPanel {
+    padding: 36px 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .AuthFormPanel {
+    padding: 28px 18px;
+  }
+
+  .AuthHeader-title {
+    font-size: 22px;
+  }
+
+  .AuthRoleGrid {
+    grid-template-columns: 1fr;
+  }
+}

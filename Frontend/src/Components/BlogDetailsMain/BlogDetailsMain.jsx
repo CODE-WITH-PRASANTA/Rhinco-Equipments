@@ -1,96 +1,244 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Calendar,
+  Clock,
+  User,
+  Eye,
+  Share2,
+  Tag,
+  ArrowLeft,
+  ArrowRight,
+  Search,
+  BookOpen,
+  Check,
+  Heart,
+  MessageSquare,
+  Sparkles,
+} from "lucide-react";
 import "./BlogDetailsMain.css";
 
-const article = {
-  category: "Agriculture",
-  subcategories: ["Modern Farming", "Technology", "Equipment"],
-  title: "Top 10 Reasons Why You Should Choose Modern Agriculture",
-  date: "03 November, 2026",
-  author: "Rahul Sharma",
-  authorRole: "Agriculture Expert",
-  authorImage:
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=160&q=85",
-  heroImage:
-    "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&q=90",
-  readTime: "7 min read",
-  intro:
-    "Agriculture is changing every day. New ideas, better equipment, and smarter farming methods are helping farmers improve productivity while taking better care of the land.",
-};
+const BLOGS_API = "http://localhost:5000/api/blogs";
+const BLOG_CATEGORIES_API = "http://localhost:5000/api/blog-categories";
 
-const categories = [
-  { name: "Modern Farming", count: 6 },
-  { name: "Agricultural Equipment", count: 2 },
-  { name: "Agriculture", count: 8 },
-  { name: "Organic Farming", count: 5 },
-  { name: "Crop Management", count: 3 },
-];
+const fallbackHero =
+  "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&q=90";
 
-const latestPosts = [
-  {
-    title: "How Technology Is Changing Modern Agriculture",
-    date: "NOVEMBER 03, 2026",
-    image:
-      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=300&q=80",
-    slug: "technology-modern-agriculture",
-  },
-  {
-    title: "Choosing the Right Equipment for Your Farm",
-    date: "OCTOBER 28, 2026",
-    image:
-      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&q=80",
-    slug: "choosing-farm-equipment",
-  },
-  {
-    title: "Simple Ways to Improve Soil Health",
-    date: "OCTOBER 21, 2026",
-    image:
-      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&q=80",
-    slug: "improve-soil-health",
-  },
-];
+const BlogDetailsMain = ({
+  article: propArticle = null,
+  allBlogs: propAllBlogs = [],
+  loading: propLoading = false,
+}) => {
+  const navigate = useNavigate();
+  const { slug: paramSlug } = useParams();
+  const [searchParams] = useSearchParams();
+  const idParam = searchParams.get("id");
+  const querySlug = searchParams.get("slug");
 
-const galleryImages = [
-  "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=300&q=80",
-  "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=300&q=80",
-  "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&q=80",
-  "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=300&q=80",
-  "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=300&q=80",
-  "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=300&q=80",
-];
-
-const tags = [
-  "Agriculture",
-  "Farm Equipment",
-  "Organic",
-  "Technology",
-  "Harvest",
-  "Soil Health",
-  "Irrigation",
-  "Innovation",
-  "Sustainability",
-];
-
-const articleTags = ["Agriculture", "Technology", "Modern Farming"];
-
-const BlogDetailsMain = () => {
+  const [article, setArticle] = useState(propArticle);
+  const [allBlogs, setAllBlogs] = useState(propAllBlogs);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(propLoading);
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("");
-  const [activeTag, setActiveTag] = useState("");
   const [liked, setLiked] = useState(false);
-  const [likes, setLikes] = useState(18);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [likes, setLikes] = useState(0);
+  const [copied, setCopied] = useState(false);
 
+  // Sync state if props change
+  useEffect(() => {
+    if (propArticle) {
+      setArticle(propArticle);
+      setLikes(propArticle.views ? Math.floor(propArticle.views / 20) + 12 : 18);
+    }
+  }, [propArticle]);
+
+  useEffect(() => {
+    if (propAllBlogs && propAllBlogs.length > 0) {
+      setAllBlogs(propAllBlogs);
+    }
+  }, [propAllBlogs]);
+
+  useEffect(() => {
+    setLoading(propLoading);
+  }, [propLoading]);
+
+  // Fetch data if standalone or missing
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMissingData = async () => {
+      try {
+        // Fetch categories for sidebar
+        const catRes = await fetch(BLOG_CATEGORIES_API).catch(() => null);
+        if (catRes && catRes.ok) {
+          const catData = await catRes.json();
+          if (catData.success && Array.isArray(catData.data) && isMounted) {
+            setCategories(catData.data);
+          }
+        }
+
+        // If no allBlogs passed
+        if (!propAllBlogs || propAllBlogs.length === 0) {
+          const bRes = await fetch(BLOGS_API).catch(() => null);
+          if (bRes && bRes.ok) {
+            const bData = await bRes.json();
+            if (bData.success && Array.isArray(bData.data) && isMounted) {
+              setAllBlogs(bData.data);
+              if (!propArticle) {
+                const target = (paramSlug || querySlug || idParam || "").toLowerCase().trim();
+                const matched = bData.data.find(
+                  (b) =>
+                    (b._id && b._id.toLowerCase() === target) ||
+                    (b.slug && b.slug.toLowerCase() === target) ||
+                    (b.title && b.title.toLowerCase().includes(target))
+                );
+                const chosen = matched || bData.data[0] || null;
+                setArticle(chosen);
+                if (chosen) {
+                  setLikes(chosen.views ? Math.floor(chosen.views / 20) + 12 : 18);
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching supplementary blog data:", err);
+      } finally {
+        if (isMounted && !propArticle) setLoading(false);
+      }
+    };
+
+    fetchMissingData();
+    return () => {
+      isMounted = false;
+    };
+  }, [paramSlug, querySlug, idParam, propArticle, propAllBlogs]);
+
+  // Handle Likes
   const handleLike = () => {
-    setLiked((previous) => {
-      setLikes((count) => count + (previous ? -1 : 1));
-      return !previous;
+    setLiked((prev) => {
+      setLikes((c) => c + (prev ? -1 : 1));
+      return !prev;
     });
   };
 
-  const filteredPosts = latestPosts.filter((post) =>
-    post.title.toLowerCase().includes(search.toLowerCase())
-  );
+  // Handle Share / Copy Link
+  const handleCopyLink = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  // Derive categories from allBlogs if API returns empty
+  const activeCategories = useMemo(() => {
+    if (categories.length > 0) {
+      return categories.filter((c) => c.status !== "Inactive").slice(0, 10);
+    }
+    // Fallback: derive dynamically from allBlogs
+    const map = {};
+    allBlogs.forEach((b) => {
+      if (b.category) {
+        map[b.category] = (map[b.category] || 0) + 1;
+      }
+    });
+    return Object.entries(map).map(([name, postCount]) => ({
+      _id: name,
+      name,
+      postCount,
+    }));
+  }, [categories, allBlogs]);
+
+  // Related / Latest stories (excluding current article)
+  const relatedStories = useMemo(() => {
+    if (!article) return allBlogs.slice(0, 5);
+    const others = allBlogs.filter(
+      (b) => b._id !== article._id && b.slug !== article.slug
+    );
+
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      return others.filter(
+        (b) =>
+          (b.title || "").toLowerCase().includes(q) ||
+          (b.category || "").toLowerCase().includes(q) ||
+          (b.author || "").toLowerCase().includes(q)
+      );
+    }
+
+    return others.slice(0, 5);
+  }, [allBlogs, article, search]);
+
+  // Previous & Next Articles
+  const { prevArticle, nextArticle } = useMemo(() => {
+    if (!article || allBlogs.length < 2) return { prevArticle: null, nextArticle: null };
+    const currentIndex = allBlogs.findIndex(
+      (b) => b._id === article._id || b.slug === article.slug
+    );
+    if (currentIndex === -1) return { prevArticle: null, nextArticle: null };
+
+    const prev = currentIndex > 0 ? allBlogs[currentIndex - 1] : null;
+    const next = currentIndex < allBlogs.length - 1 ? allBlogs[currentIndex + 1] : null;
+    return { prevArticle: prev, nextArticle: next };
+  }, [allBlogs, article]);
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 20px", color: "#166534" }}>
+        <div
+          style={{
+            width: "42px",
+            height: "42px",
+            border: "3px solid #e2e8f0",
+            borderTopColor: "#166534",
+            borderRadius: "50%",
+            margin: "0 auto 16px",
+            animation: "spin 0.8s linear infinite",
+          }}
+        />
+        <p style={{ fontWeight: 600, fontSize: "15px" }}>Loading article from database...</p>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div style={{ textAlign: "center", padding: "100px 20px" }}>
+        <BookOpen size={48} color="#94a3b8" style={{ marginBottom: "16px" }} />
+        <h2 style={{ fontSize: "22px", color: "#0f172a", margin: "0 0 10px" }}>Article Not Found</h2>
+        <p style={{ color: "#64748b", margin: "0 0 24px" }}>
+          The requested farming guide or article could not be located in our database.
+        </p>
+        <Link
+          to="/blog"
+          style={{
+            display: "inline-block",
+            padding: "10px 24px",
+            backgroundColor: "#166534",
+            color: "#fff",
+            borderRadius: "8px",
+            textDecoration: "none",
+            fontWeight: 700,
+            fontSize: "14px",
+          }}
+        >
+          ← Return to All Articles
+        </Link>
+      </div>
+    );
+  }
+
+  const formattedDate = article.publishDate || article.createdAt
+    ? new Date(article.publishDate || article.createdAt).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "Recent";
+
+  const tags = Array.isArray(article.tags) ? article.tags : [];
+  const heroImg = article.image || fallbackHero;
+  const authorInitial = (article.author || "R").charAt(0).toUpperCase();
 
   return (
     <section className="BlogDetailsMain-section">
@@ -99,430 +247,424 @@ const BlogDetailsMain = () => {
         {/* Main Article Column */}
         <main className="BlogDetailsMain-content">
 
-          {/* Article Header */}
+          {/* Article Header (Full Width Clean Editorial Layout) */}
           <header className="BlogDetailsMain-article-header">
-            <div className="BlogDetailsMain-author-top">
-              <img
-                src={article.authorImage}
-                alt={article.author}
-                className="BlogDetailsMain-author-avatar"
-              />
-
-              <div className="BlogDetailsMain-author-top-info">
-                <span className="BlogDetailsMain-author-label">
-                  ARTICLE BY
-                </span>
-                <strong>{article.author}</strong>
-                <span>{article.authorRole}</span>
-              </div>
-            </div>
-
             <div className="BlogDetailsMain-title-area">
               <div className="BlogDetailsMain-breadcrumb">
-                <span>Home</span>
+                <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>Home</Link>
                 <span className="BlogDetailsMain-breadcrumb-separator">/</span>
-                <span>Blog</span>
-                <span className="BlogDetailsMain-breadcrumb-separator">/</span>
-                <span>{article.category}</span>
+                <Link to="/blog" style={{ textDecoration: "none", color: "inherit" }}>Blog</Link>
+                {article.category && (
+                  <>
+                    <span className="BlogDetailsMain-breadcrumb-separator">/</span>
+                    <Link
+                      to={`/blog`}
+                      style={{ textDecoration: "none", color: "#166534", fontWeight: 700 }}
+                    >
+                      {article.category}
+                    </Link>
+                  </>
+                )}
               </div>
 
-              <div className="BlogDetailsMain-category-line">
-                <span className="BlogDetailsMain-category-icon">✦</span>
-                {article.subcategories.map((item) => (
-                  <span key={item}>{item}</span>
-                ))}
-              </div>
+              {article.category && (
+                <div className="BlogDetailsMain-category-line">
+                  <span className="BlogDetailsMain-category-icon">✦</span>
+                  <span>{article.category}</span>
+                </div>
+              )}
 
               <h1 className="BlogDetailsMain-title">
                 {article.title}
               </h1>
 
-              <div className="BlogDetailsMain-published">
-                <span>{article.date}</span>
-                <span className="BlogDetailsMain-published-dot"></span>
-                <span>{article.readTime}</span>
+              {/* Byline with Author, Date, Read Time, and Views */}
+              <div className="BlogDetailsMain-byline-bar">
+                <div className="BlogDetailsMain-author-inline">
+                  {article.authorAvatar ? (
+                    <img
+                      src={article.authorAvatar}
+                      alt={article.author}
+                      className="BlogDetailsMain-author-mini-avatar"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="BlogDetailsMain-author-mini-fallback">
+                      {authorInitial}
+                    </div>
+                  )}
+                  <div className="BlogDetailsMain-author-inline-info">
+                    <span className="BlogDetailsMain-author-inline-name">
+                      {article.author || "Rhinco Specialist"}
+                    </span>
+                    {article.authorRole && (
+                      <span className="BlogDetailsMain-author-inline-role">
+                        ({article.authorRole})
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="BlogDetailsMain-published">
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                    <Calendar size={13} color="#166534" />
+                    {formattedDate}
+                  </span>
+                  <span className="BlogDetailsMain-published-dot"></span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                    <Clock size={13} color="#166534" />
+                    {article.readTime || "5 min read"}
+                  </span>
+                  {article.views ? (
+                    <>
+                      <span className="BlogDetailsMain-published-dot"></span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                        <Eye size={13} color="#166534" />
+                        {Number(article.views).toLocaleString("en-IN")} views
+                      </span>
+                    </>
+                  ) : null}
+                </div>
               </div>
             </div>
           </header>
 
-          {/* Featured Image */}
+          {/* Featured Hero Image */}
           <div className="BlogDetailsMain-featured-image">
-            <img src={article.heroImage} alt="Agricultural landscape" />
+            <img src={heroImg} alt={article.title} />
             <span className="BlogDetailsMain-featured-label">
-              FARMTECH AGRO JOURNAL
+              RHINCO KNOWLEDGE HUB
             </span>
           </div>
 
           {/* Article Body */}
           <div className="BlogDetailsMain-article-body">
-            <p className="BlogDetailsMain-lead">
-              {article.intro}
-            </p>
-
-            <h2>Why modern agriculture matters</h2>
-
-            <p>
-              Farming is more than growing crops. It is a combination of
-              knowledge, planning, experience, and hard work. As farming
-              needs continue to evolve, farmers can benefit from adopting
-              practical methods and choosing the right tools for their land.
-            </p>
-
-            <p>
-              Modern agricultural solutions can help make everyday farm
-              activities more efficient. From preparing the soil to managing
-              irrigation and harvesting crops, the right approach can save
-              time and support more consistent results.
-            </p>
-
-            <h2>Benefits of choosing better farming solutions</h2>
-
-            <p>
-              Every farm has different requirements. Soil conditions, crop
-              varieties, weather, available resources, and farm size all play
-              an important role in selecting suitable farming methods.
-              Understanding these factors helps farmers make informed choices.
-            </p>
-
-            <p>
-              Investing in quality equipment and learning improved farming
-              practices can also help reduce unnecessary effort. The goal is
-              not simply to use more technology, but to use the right
-              technology in the right place.
-            </p>
-
-            {/* Quote */}
-            <blockquote className="BlogDetailsMain-quote">
-              <span className="BlogDetailsMain-quote-mark">“</span>
-              <p>
-                Healthy soil, thoughtful planning, and the right tools
-                create the foundation for productive and sustainable farming.
+            {article.excerpt && (
+              <p className="BlogDetailsMain-lead">
+                {article.excerpt}
               </p>
-              <div className="BlogDetailsMain-quote-line"></div>
-              <strong>Farmtech Agro Editorial Team</strong>
-              <span className="BlogDetailsMain-quote-role">
-                Agriculture Knowledge & Innovation
-              </span>
-            </blockquote>
+            )}
 
-            <h2>Building a smarter farming future</h2>
-
-            <p>
-              Sustainable agriculture begins with small, consistent
-              improvements. Responsible water use, suitable crop planning,
-              soil care, and timely farm maintenance can make a meaningful
-              difference over time.
-            </p>
-
-            <p>
-              Farmers should evaluate their needs before choosing products
-              or adopting a new process. Reliable information and practical
-              guidance can make the decision-making process easier.
-            </p>
-
-            {/* Image with Text */}
-            <div className="BlogDetailsMain-image-content">
-              <div className="BlogDetailsMain-inline-image">
-                <img
-                  src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=900&q=85"
-                  alt="Farmland and crop cultivation"
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="BlogDetailsMain-inline-text">
-                <h3>Growing with knowledge and innovation</h3>
-                <p>
-                  Understanding your farm's requirements is the first step
-                  toward better results. Farmers can explore suitable tools,
-                  crop management practices, and efficient irrigation
-                  techniques to support their daily work.
-                </p>
-                <p>
-                  With continuous learning and responsible decisions,
-                  agriculture can become more productive and resilient.
-                </p>
-              </div>
-            </div>
-
-            <h2>Final thoughts</h2>
-
-            <p>
-              A better agricultural future is built through informed
-              decisions, dependable products, and a commitment to improving
-              farming practices. Keep learning, keep exploring, and choose
-              solutions that genuinely support your farming goals.
-            </p>
+            {article.content ? (
+              <div
+                dangerouslySetInnerHTML={{ __html: article.content }}
+                style={{
+                  lineHeight: "1.85",
+                  color: "#334155",
+                  fontSize: "16px",
+                }}
+              />
+            ) : (
+              <p>No content provided for this article.</p>
+            )}
           </div>
 
-          {/* Article Engagement */}
+          {/* Article Engagement & Tags */}
           <div className="BlogDetailsMain-engagement">
-            <div className="BlogDetailsMain-engagement-actions">
+            <div className="BlogDetailsMain-engagement-actions" style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <button
                 type="button"
-                className={`BlogDetailsMain-like ${
-                  liked ? "BlogDetailsMain-like-active" : ""
-                }`}
+                className={`BlogDetailsMain-like ${liked ? "BlogDetailsMain-like-active" : ""}`}
                 onClick={handleLike}
                 aria-label={liked ? "Unlike article" : "Like article"}
-                aria-pressed={liked}
+                title="Like this article"
               >
-                <svg viewBox="0 0 24 24">
-                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />
-                </svg>
-                <span>{likes}</span>
+                <Heart size={16} fill={liked ? "#166534" : "none"} color={liked ? "#166534" : "currentColor"} />
+                <span>{likes} Helpful</span>
               </button>
 
-              <a
-                href="#BlogDetailsMain-comments"
-                className="BlogDetailsMain-comment-link"
+              <button
+                type="button"
+                className="BlogDetailsMain-like"
+                onClick={handleCopyLink}
+                title="Share or copy article link"
               >
-                <svg viewBox="0 0 24 24">
-                  <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5Z" />
-                </svg>
-                <span>6</span>
-              </a>
+                {copied ? <Check size={16} color="#166534" /> : <Share2 size={16} />}
+                <span>{copied ? "Link Copied!" : "Share Guide"}</span>
+              </button>
             </div>
 
-            <div className="BlogDetailsMain-article-tags">
-              <strong>Tags:</strong>
-              {articleTags.map((tag) => (
-                <button
-                  type="button"
-                  key={tag}
-                  onClick={() => setActiveTag(tag)}
-                  className={
-                    activeTag === tag
-                      ? "BlogDetailsMain-article-tag-active"
-                      : ""
-                  }
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
+            {tags.length > 0 && (
+              <div className="BlogDetailsMain-article-tags">
+                <Tag size={14} color="#166534" />
+                <strong>Tags:</strong>
+                {tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    to={`/blog`}
+                    style={{
+                      padding: "4px 10px",
+                      background: "#f1f5f9",
+                      borderRadius: "6px",
+                      color: "#334155",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      textDecoration: "none",
+                      display: "inline-block",
+                    }}
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Previous / Next Article Navigation */}
+          {(prevArticle || nextArticle) && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: prevArticle && nextArticle ? "1fr 1fr" : "1fr",
+                gap: "16px",
+                margin: "40px 0 20px",
+                padding: "20px 0",
+                borderTop: "1px solid #e2e8f0",
+                borderBottom: "1px solid #e2e8f0",
+              }}
+            >
+              {prevArticle && (
+                <Link
+                  to={`/blog/${prevArticle.slug || prevArticle._id}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    padding: "14px 18px",
+                    background: "#f8fafc",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    textDecoration: "none",
+                    color: "inherit",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <ArrowLeft size={20} color="#166534" style={{ flexShrink: 0 }} />
+                  <div>
+                    <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 700, textTransform: "uppercase" }}>
+                      Previous Guide
+                    </span>
+                    <h4 style={{ margin: "2px 0 0", fontSize: "13.5px", color: "#0f172a", fontWeight: 700, lineHeight: 1.3 }}>
+                      {prevArticle.title}
+                    </h4>
+                  </div>
+                </Link>
+              )}
+
+              {nextArticle && (
+                <Link
+                  to={`/blog/${nextArticle.slug || nextArticle._id}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    textAlign: "right",
+                    gap: "12px",
+                    padding: "14px 18px",
+                    background: "#f8fafc",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    textDecoration: "none",
+                    color: "inherit",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <div>
+                    <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 700, textTransform: "uppercase" }}>
+                      Next Guide
+                    </span>
+                    <h4 style={{ margin: "2px 0 0", fontSize: "13.5px", color: "#0f172a", fontWeight: 700, lineHeight: 1.3 }}>
+                      {nextArticle.title}
+                    </h4>
+                  </div>
+                  <ArrowRight size={20} color="#166534" style={{ flexShrink: 0 }} />
+                </Link>
+              )}
+            </div>
+          )}
 
           {/* About Author */}
           <section className="BlogDetailsMain-about-author">
             <div className="BlogDetailsMain-section-heading">
-              <span>ABOUT THE AUTHOR</span>
-              <h2>Meet the Writer</h2>
+              <span>CONTRIBUTOR PROFILE</span>
+              <h2>About the Specialist</h2>
             </div>
 
             <div className="BlogDetailsMain-author-card">
-              <img
-                src={article.authorImage}
-                alt={article.author}
-                className="BlogDetailsMain-about-avatar"
-              />
+              {article.authorAvatar ? (
+                <img
+                  src={article.authorAvatar}
+                  alt={article.author}
+                  className="BlogDetailsMain-about-avatar"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    backgroundColor: "#166534",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 800,
+                    fontSize: "28px",
+                    flexShrink: 0,
+                  }}
+                >
+                  {authorInitial}
+                </div>
+              )}
 
               <div className="BlogDetailsMain-about-info">
                 <span className="BlogDetailsMain-about-label">
-                  {article.authorRole}
+                  {article.authorRole || "Agronomist & Farm Equipment Specialist"}
                 </span>
-                <h3>{article.author}</h3>
+                <h3>{article.author || "Rhinco Specialist Team"}</h3>
                 <p>
-                  Passionate about agriculture, farming knowledge, and
-                  practical solutions that help farmers make informed
-                  decisions and grow with confidence.
+                  Specializing in agricultural mechanization, harvest loss reduction, and tractor implement engineering. Dedicated to empowering Indian farmers with verified field insights and modern machinery best practices.
                 </p>
-                <a href="mailto:rahul@farmtechagro.com">
-                  Contact Author
-                  <span>↗</span>
-                </a>
+                <Link to="/contact">
+                  Consult With Our Specialists ↗
+                </Link>
               </div>
             </div>
           </section>
 
-          {/* Comments Anchor */}
+          {/* Question / Contact Banner */}
           <div
             id="BlogDetailsMain-comments"
             className="BlogDetailsMain-comments-note"
           >
-            <h3>Join the Conversation</h3>
+            <h3>Need Guidance on Farm Machinery?</h3>
             <p>
-              Have a question or an idea about this article? Contact our team
-              and share your thoughts.
+              Looking for exact tractor compatibility, government subsidies, or machinery specifications discussed in this article? Our team of agricultural specialists is here to assist you.
             </p>
-            <a href="/contact">Share Your Thoughts</a>
+            <Link to="/contact">Get Expert Assistance</Link>
           </div>
         </main>
 
         {/* Sidebar */}
         <aside className="BlogDetailsMain-sidebar">
 
-          {/* Search */}
+          {/* Search Articles */}
           <div className="BlogDetailsMain-widget BlogDetailsMain-search-widget">
-            <h3 className="BlogDetailsMain-widget-title">Search Articles</h3>
+            <h3 className="BlogDetailsMain-widget-title">Search Guides</h3>
 
             <form
               className="BlogDetailsMain-search"
-              onSubmit={(event) => event.preventDefault()}
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (search.trim()) {
+                  navigate(`/blog?search=${encodeURIComponent(search.trim())}`);
+                }
+              }}
             >
               <input
                 type="search"
-                placeholder="Enter search keywords..."
+                placeholder="Search articles & topics..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                aria-label="Search latest articles"
+                aria-label="Search articles"
               />
               <button type="submit" aria-label="Search">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="11" cy="11" r="7" />
-                  <path d="m16 16 5 5" />
-                </svg>
+                <Search size={16} />
               </button>
             </form>
           </div>
 
-          {/* Categories */}
+          {/* Real Blog Categories from Database */}
+          {activeCategories.length > 0 && (
+            <div className="BlogDetailsMain-widget">
+              <div className="BlogDetailsMain-widget-heading">
+                <span>TOPICS</span>
+                <h3>Article Categories</h3>
+              </div>
+
+              <div className="BlogDetailsMain-category-list">
+                {activeCategories.map((category) => (
+                  <Link
+                    to={`/blog`}
+                    key={category._id || category.name}
+                    className="BlogDetailsMain-category-item"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <span>{category.name}</span>
+                    {category.postCount !== undefined && category.postCount > 0 && (
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 700,
+                          background: "#e2e8f0",
+                          color: "#475569",
+                          padding: "2px 7px",
+                          borderRadius: "999px",
+                        }}
+                      >
+                        {category.postCount}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Real Latest Stories from Database (excluding current) */}
           <div className="BlogDetailsMain-widget">
             <div className="BlogDetailsMain-widget-heading">
-              <span>EXPLORE</span>
-              <h3>Categories</h3>
-            </div>
-
-            <div className="BlogDetailsMain-category-list">
-              {categories.map((category) => (
-                <button
-                  type="button"
-                  key={category.name}
-                  className={`BlogDetailsMain-category-item ${
-                    activeCategory === category.name
-                      ? "BlogDetailsMain-category-active"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    setActiveCategory(
-                      activeCategory === category.name ? "" : category.name
-                    )
-                  }
-                >
-                  <span>{category.name}</span>
-                  <span className="BlogDetailsMain-category-count">
-                    {category.count}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Latest Blog */}
-          <div className="BlogDetailsMain-widget">
-            <div className="BlogDetailsMain-widget-heading">
-              <span>RECENT STORIES</span>
-              <h3>Latest From Blog</h3>
+              <span>EXPLORE MORE</span>
+              <h3>Related Articles</h3>
             </div>
 
             <div className="BlogDetailsMain-latest-list">
-              {filteredPosts.length > 0 ? (
-                filteredPosts.map((post) => (
-                  <a
-                    href={`/blog/${post.slug}`}
-                    className="BlogDetailsMain-latest-item"
-                    key={post.slug}
-                  >
-                    <img src={post.image} alt={post.title} loading="lazy" />
-                    <div>
-                      <span>{post.date}</span>
-                      <h4>{post.title}</h4>
-                    </div>
-                  </a>
-                ))
+              {relatedStories.length > 0 ? (
+                relatedStories.map((post) => {
+                  const pDate = post.publishDate || post.createdAt;
+                  const dateLabel = pDate
+                    ? new Date(pDate).toLocaleDateString("en-IN", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                    : "Recent";
+
+                  return (
+                    <Link
+                      to={`/blog/${post.slug || post._id}`}
+                      className="BlogDetailsMain-latest-item"
+                      key={post._id || post.slug}
+                    >
+                      <img
+                        src={post.image || fallbackHero}
+                        alt={post.title}
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.src = fallbackHero;
+                        }}
+                      />
+                      <div>
+                        <span>{dateLabel.toUpperCase()}</span>
+                        <h4>{post.title}</h4>
+                      </div>
+                    </Link>
+                  );
+                })
               ) : (
                 <p className="BlogDetailsMain-no-results">
-                  No matching articles found.
+                  No other articles found.
                 </p>
               )}
             </div>
           </div>
-
-          {/* Gallery */}
-          <div className="BlogDetailsMain-widget">
-            <div className="BlogDetailsMain-widget-heading">
-              <span>VISUAL STORIES</span>
-              <h3>Farm Gallery</h3>
-            </div>
-
-            <div className="BlogDetailsMain-gallery">
-              {galleryImages.map((image, index) => (
-                <button
-                  type="button"
-                  key={image}
-                  onClick={() => setSelectedImage(image)}
-                  aria-label={`Open gallery image ${index + 1}`}
-                >
-                  <img src={image} alt={`Agriculture gallery ${index + 1}`} loading="lazy" />
-                  <span>↗</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Tag Cloud */}
-          <div className="BlogDetailsMain-widget">
-            <div className="BlogDetailsMain-widget-heading">
-              <span>DISCOVER MORE</span>
-              <h3>Popular Tags</h3>
-            </div>
-
-            <div className="BlogDetailsMain-tag-cloud">
-              {tags.map((tag) => (
-                <button
-                  type="button"
-                  key={tag}
-                  onClick={() => setActiveTag(tag)}
-                  className={
-                    activeTag === tag
-                      ? "BlogDetailsMain-tag-active"
-                      : ""
-                  }
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Sidebar CTA */}
-          <div className="BlogDetailsMain-sidebar-cta">
-            <span>FARMTECH AGRO</span>
-            <h3>Let's grow a better tomorrow.</h3>
-            <p>
-              Explore practical products and solutions for your farming needs.
-            </p>
-            <a href="/products">
-              Explore Products <span>↗</span>
-            </a>
-          </div>
         </aside>
       </div>
-
-      {/* Gallery Lightbox */}
-      {selectedImage && (
-        <div
-          className="BlogDetailsMain-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Gallery image preview"
-          onClick={() => setSelectedImage(null)}
-        >
-          <button
-            type="button"
-            className="BlogDetailsMain-lightbox-close"
-            onClick={() => setSelectedImage(null)}
-            aria-label="Close image preview"
-          >
-            ×
-          </button>
-          <img
-            src={selectedImage}
-            alt="Selected agriculture gallery"
-            onClick={(event) => event.stopPropagation()}
-          />
-        </div>
-      )}
     </section>
   );
 };

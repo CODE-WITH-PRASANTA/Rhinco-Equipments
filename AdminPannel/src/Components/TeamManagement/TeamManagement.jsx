@@ -1,42 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./TeamManagement.css";
 
-const STORAGE_KEY = "rhino_team_members";
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
-const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
-
-const initialTeam = [
-  {
-    id: 1,
-    name: "Rahul Sharma",
-    designation: "Managing Director",
-    contact: "9876543210",
-    email: "rahul@rhinoequipment.com",
-    description:
-      "Leads business operations, company strategy, and overall organizational growth.",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400",
-  },
-  {
-    id: 2,
-    name: "Priya Das",
-    designation: "Sales Manager",
-    contact: "9876543211",
-    email: "priya@rhinoequipment.com",
-    description:
-      "Manages sales operations, customer relationships, and equipment enquiries.",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400",
-  },
-  {
-    id: 3,
-    name: "Amit Kumar",
-    designation: "Technical Head",
-    contact: "9876543212",
-    email: "amit@rhinoequipment.com",
-    description:
-      "Oversees technical operations, machinery inspection, and maintenance services.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400",
-  },
-];
+const TEAM_API = "http://localhost:5000/api/team";
 
 const emptyForm = {
   name: "",
@@ -47,600 +12,286 @@ const emptyForm = {
   description: "",
 };
 
-/* =========================================
-   ICONS
-========================================= */
-
-const Icon = ({ children, size = 20, stroke = 1.8 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={stroke}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    {children}
-  </svg>
-);
-
-const UsersIcon = (p) => (
-  <Icon {...p}>
-    <circle cx="9" cy="8" r="3.5" />
-    <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
-    <path d="M16 4.6a3.5 3.5 0 0 1 0 6.8" />
-    <path d="M18 14.2a6.5 6.5 0 0 1 3.5 5.8" />
-  </Icon>
-);
-
-const PlusIcon = (p) => (
-  <Icon {...p}>
-    <path d="M12 5v14M5 12h14" />
-  </Icon>
-);
-
-const UploadIcon = (p) => (
-  <Icon {...p}>
-    <path d="M12 16V4" />
-    <path d="m7 9 5-5 5 5" />
-    <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
-  </Icon>
-);
-
-const CameraIcon = (p) => (
-  <Icon {...p}>
-    <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
-    <circle cx="12" cy="13" r="3.4" />
-  </Icon>
-);
-
-const SearchIcon = (p) => (
-  <Icon {...p}>
-    <circle cx="11" cy="11" r="7" />
-    <path d="m20 20-3.5-3.5" />
-  </Icon>
-);
-
-const EditIcon = (p) => (
-  <Icon {...p}>
-    <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" />
-    <path d="m13.5 6.5 4 4" />
-  </Icon>
-);
-
-const TrashIcon = (p) => (
-  <Icon {...p}>
-    <path d="M4 7h16" />
-    <path d="M9 7V4h6v3" />
-    <path d="M6 7l1 13h10l1-13" />
-    <path d="M10 11v5M14 11v5" />
-  </Icon>
-);
-
-const CloseIcon = (p) => (
-  <Icon {...p}>
-    <path d="M6 6l12 12M18 6 6 18" />
-  </Icon>
-);
-
-const PhoneIcon = (p) => (
-  <Icon {...p}>
-    <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z" />
-  </Icon>
-);
-
-const MailIcon = (p) => (
-  <Icon {...p}>
-    <rect x="3" y="5" width="18" height="14" rx="2.5" />
-    <path d="m3.5 7 8.5 6 8.5-6" />
-  </Icon>
-);
-
-const AlertIcon = (p) => (
-  <Icon {...p}>
-    <path d="M12 8v5" />
-    <path d="M12 16.5v.01" />
-    <path d="M10.3 3.9 2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
-  </Icon>
-);
-
-const CheckIcon = (p) => (
-  <Icon {...p}>
-    <path d="m5 12.5 4.5 4.5L19 7.5" />
-  </Icon>
-);
-
-const UserIcon = (p) => (
-  <Icon {...p}>
-    <circle cx="12" cy="8" r="4" />
-    <path d="M4 21a8 8 0 0 1 16 0" />
-  </Icon>
-);
-
-/* =========================================
-   HELPERS
-========================================= */
-
-const validateFile = (file) => {
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return "Please select a JPG, PNG or WEBP image.";
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    return "Image size must be less than 2MB.";
-  }
-  return "";
-};
-
-// Resizes the photo and returns a data URL so it survives page refresh
-const readAndCompress = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onerror = () => reject(new Error("read"));
-    reader.onload = () => {
-      const img = new Image();
-
-      img.onerror = () => reject(new Error("decode"));
-      img.onload = () => {
-        const MAX_SIDE = 480;
-        const scale = Math.min(1, MAX_SIDE / Math.max(img.width, img.height));
-        const canvas = document.createElement("canvas");
-
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-
-        canvas
-          .getContext("2d")
-          .drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        resolve(canvas.toDataURL("image/webp", 0.85));
-      };
-
-      img.src = reader.result;
-    };
-
-    reader.readAsDataURL(file);
-  });
-
-const validateMember = (values, team, ignoreId = null) => {
-  const errors = {};
-
-  if (!values.name.trim()) errors.name = "Please enter team member name.";
-
-  if (!values.designation.trim())
-    errors.designation = "Please enter designation.";
-
-  if (!values.contact.trim()) {
-    errors.contact = "Please enter contact number.";
-  } else if (!/^[0-9+\-\s()]{7,16}$/.test(values.contact.trim())) {
-    errors.contact = "Please enter a valid contact number.";
-  }
-
-  if (!values.email.trim()) {
-    errors.email = "Please enter email address.";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-    errors.email = "Please enter a valid email address.";
-  } else if (
-    team.some(
-      (m) =>
-        m.id !== ignoreId &&
-        m.email.trim().toLowerCase() === values.email.trim().toLowerCase()
-    )
-  ) {
-    errors.email = "This email is already used by another member.";
-  }
-
-  if (!values.description.trim())
-    errors.description = "Please enter a short description.";
-
-  if (!values.image) errors.image = "Please upload a profile picture.";
-
-  return errors;
-};
-
-/* =========================================
-   MEMBER FIELDS (shared by form + edit popup)
-========================================= */
-
-const MemberFields = ({ values, errors, onChange, onImage, onRemoveImage, idPrefix }) => {
-  const fileInputRef = useRef(null);
-
-  const handleFile = (e) => {
-    const file = e.target.files?.[0];
-    if (file) onImage(file);
-    e.target.value = "";
-  };
-
-  return (
-    <>
-      {/* IMAGE UPLOAD */}
-      <div className="TeamManagement-imageUpload">
-        <div
-          className={`TeamManagement-imagePreview ${
-            errors.image ? "has-error" : ""
-          } ${values.image ? "has-image" : ""}`}
-          onClick={() => fileInputRef.current?.click()}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              fileInputRef.current?.click();
-            }
-          }}
-          aria-label="Choose profile picture"
-        >
-          {values.image ? (
-            <>
-              <img src={values.image} alt="Team member preview" />
-              <span className="TeamManagement-imageHover">
-                <CameraIcon size={20} />
-              </span>
-            </>
-          ) : (
-            <span className="TeamManagement-imagePlaceholder">
-              <CameraIcon size={26} />
-              <small>Photo</small>
-            </span>
-          )}
-        </div>
-
-        <div className="TeamManagement-imageDetails">
-          <h4>Profile Picture</h4>
-          <p>Upload a professional profile image.</p>
-
-          <div className="TeamManagement-imageButtons">
-            <button
-              type="button"
-              className="TeamManagement-uploadButton"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <UploadIcon size={15} stroke={2.2} />
-              {values.image ? "Change Image" : "Upload Image"}
-            </button>
-
-            {values.image && (
-              <button
-                type="button"
-                className="TeamManagement-removePhoto"
-                onClick={onRemoveImage}
-              >
-                Remove
-              </button>
-            )}
-          </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={handleFile}
-            hidden
-          />
-
-          <small>JPG, PNG or WEBP · Maximum 2MB</small>
-
-          {errors.image && (
-            <span className="TeamManagement-error">{errors.image}</span>
-          )}
-        </div>
-      </div>
-
-      <div className="TeamManagement-formDivider" />
-
-      {/* NAME */}
-      <div className="TeamManagement-field">
-        <label htmlFor={`${idPrefix}-name`}>
-          Full Name <span>*</span>
-        </label>
-        <input
-          id={`${idPrefix}-name`}
-          type="text"
-          name="name"
-          placeholder="Enter full name"
-          value={values.name}
-          onChange={onChange}
-          className={errors.name ? "has-error" : ""}
-        />
-        {errors.name && <small className="TeamManagement-error">{errors.name}</small>}
-      </div>
-
-      {/* DESIGNATION */}
-      <div className="TeamManagement-field">
-        <label htmlFor={`${idPrefix}-designation`}>
-          Designation <span>*</span>
-        </label>
-        <input
-          id={`${idPrefix}-designation`}
-          type="text"
-          name="designation"
-          placeholder="e.g. Sales Manager"
-          value={values.designation}
-          onChange={onChange}
-          className={errors.designation ? "has-error" : ""}
-        />
-        {errors.designation && (
-          <small className="TeamManagement-error">{errors.designation}</small>
-        )}
-      </div>
-
-      {/* CONTACT + EMAIL */}
-      <div className="TeamManagement-formRow">
-        <div className="TeamManagement-field">
-          <label htmlFor={`${idPrefix}-contact`}>
-            Contact Number <span>*</span>
-          </label>
-          <input
-            id={`${idPrefix}-contact`}
-            type="tel"
-            name="contact"
-            placeholder="Enter phone number"
-            value={values.contact}
-            onChange={onChange}
-            className={errors.contact ? "has-error" : ""}
-          />
-          {errors.contact && (
-            <small className="TeamManagement-error">{errors.contact}</small>
-          )}
-        </div>
-
-        <div className="TeamManagement-field">
-          <label htmlFor={`${idPrefix}-email`}>
-            Email Address <span>*</span>
-          </label>
-          <input
-            id={`${idPrefix}-email`}
-            type="email"
-            name="email"
-            placeholder="Enter email address"
-            value={values.email}
-            onChange={onChange}
-            className={errors.email ? "has-error" : ""}
-          />
-          {errors.email && (
-            <small className="TeamManagement-error">{errors.email}</small>
-          )}
-        </div>
-      </div>
-
-      {/* DESCRIPTION */}
-      <div className="TeamManagement-field">
-        <label htmlFor={`${idPrefix}-description`}>
-          Description <span>*</span>
-        </label>
-        <textarea
-          id={`${idPrefix}-description`}
-          name="description"
-          rows="4"
-          placeholder="Write a short description about this team member..."
-          value={values.description}
-          onChange={onChange}
-          className={errors.description ? "has-error" : ""}
-        />
-        {errors.description && (
-          <small className="TeamManagement-error">{errors.description}</small>
-        )}
-      </div>
-    </>
-  );
-};
-
-/* =========================================
-   MAIN COMPONENT
-========================================= */
-
 const TeamManagement = () => {
-  const [team, setTeam] = useState(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : initialTeam;
-    } catch {
-      return initialTeam;
-    }
-  });
-
+  const [team, setTeam] = useState([]);
   const [formData, setFormData] = useState(emptyForm);
-  const [errors, setErrors] = useState({});
+  const [preview, setPreview] = useState("");
+  const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
-
-  const [editItem, setEditItem] = useState(null);
-  const [editErrors, setEditErrors] = useState({});
-  const [deleteItem, setDeleteItem] = useState(null);
-
+  const [errors, setErrors] = useState({});
+  const [showDeleteId, setShowDeleteId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
 
-  /* ---------- persistence ---------- */
+  const fileInputRef = useRef(null);
 
-  useEffect(() => {
+  // Toast Notification Helper
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3500);
+  };
+
+  // FETCH REAL TEAM MEMBERS FROM DATABASE
+  const loadTeamMembers = async () => {
+    setLoading(true);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(team));
-    } catch {
-      setToast({
-        type: "error",
-        message: "Storage is full. Please remove some members.",
-      });
-    }
-  }, [team]);
-
-  /* ---------- toast auto hide ---------- */
-
-  useEffect(() => {
-    if (!toast) return undefined;
-    const timer = setTimeout(() => setToast(null), 2800);
-    return () => clearTimeout(timer);
-  }, [toast]);
-
-  /* ---------- modal: Esc key + body scroll lock ---------- */
-
-  const modalOpen = Boolean(editItem || deleteItem);
-
-  useEffect(() => {
-    if (!modalOpen) return undefined;
-
-    const onKey = (e) => {
-      if (e.key === "Escape") {
-        setEditItem(null);
-        setDeleteItem(null);
+      const res = await fetch(TEAM_API);
+      const result = await res.json();
+      if (res.ok && result.success && Array.isArray(result.data)) {
+        setTeam(result.data);
       }
-    };
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [modalOpen]);
-
-  /* ---------- search ---------- */
-
-  const filteredTeam = useMemo(() => {
-    const text = search.trim().toLowerCase();
-    if (!text) return team;
-
-    return team.filter(
-      (member) =>
-        member.name.toLowerCase().includes(text) ||
-        member.designation.toLowerCase().includes(text) ||
-        member.email.toLowerCase().includes(text) ||
-        member.contact.includes(text)
-    );
-  }, [team, search]);
-
-  /* ---------- image handler ---------- */
-
-  const handleImage = async (file, setValues, setErrs) => {
-    const problem = validateFile(file);
-
-    if (problem) {
-      setErrs((prev) => ({ ...prev, image: problem }));
-      return;
-    }
-
-    try {
-      const dataUrl = await readAndCompress(file);
-      setValues((prev) => ({ ...prev, image: dataUrl }));
-      setErrs((prev) => ({ ...prev, image: "" }));
-    } catch {
-      setErrs((prev) => ({
-        ...prev,
-        image: "Could not process this image. Try another one.",
-      }));
+    } catch (err) {
+      console.error("Error loading team members from database:", err);
+      showToast("Could not connect to database. Make sure backend is running.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  /* ---------- add ---------- */
+  useEffect(() => {
+    loadTeamMembers();
+  }, []);
+
+  const filteredTeam = team.filter((member) => {
+    const searchText = search.toLowerCase();
+    return (
+      (member.name || "").toLowerCase().includes(searchText) ||
+      (member.designation || "").toLowerCase().includes(searchText) ||
+      (member.email || "").toLowerCase().includes(searchText) ||
+      (member.contact || "").includes(searchText)
+    );
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  };
+
+  // Convert uploaded image to Base64 for permanent MongoDB storage
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        image: "Please select a valid image.",
+      }));
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        image: "Image size must be less than 5MB.",
+      }));
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64Url = reader.result;
+      setFormData((prev) => ({
+        ...prev,
+        image: base64Url,
+      }));
+      setPreview(base64Url);
+      setErrors((prev) => ({
+        ...prev,
+        image: "",
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Please enter team member name.";
+    }
+
+    if (!formData.designation.trim()) {
+      newErrors.designation = "Please enter designation.";
+    }
+
+    if (!formData.contact.trim()) {
+      newErrors.contact = "Please enter contact number.";
+    } else if (!/^[0-9+\-\s()]{7,16}$/.test(formData.contact.trim())) {
+      newErrors.contact = "Please enter a valid contact number.";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Please enter email address.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Please enter a short description.";
+    }
+
+    if (!formData.image) {
+      newErrors.image = "Please upload a profile picture.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const resetForm = () => {
     setFormData(emptyForm);
+    setEditingId(null);
     setErrors({});
+    setPreview("");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
-  const handleSubmit = (e) => {
+  // SUBMIT FORM TO DATABASE (CREATE OR UPDATE)
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const newErrors = validateMember(formData, team);
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    if (!validateForm()) return;
 
-    setTeam((prev) => [
-      {
-        ...formData,
-        name: formData.name.trim(),
-        designation: formData.designation.trim(),
-        contact: formData.contact.trim(),
-        email: formData.email.trim(),
-        description: formData.description.trim(),
-        id: Date.now(),
-      },
-      ...prev,
-    ]);
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        const res = await fetch(`${TEAM_API}/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
 
-    resetForm();
-    setToast({ type: "success", message: "Team member added successfully." });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Failed to update team member.");
+        }
+
+        showToast(`Team member "${formData.name}" updated successfully in database!`);
+      } else {
+        const res = await fetch(TEAM_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Failed to add team member.");
+        }
+
+        showToast(`Team member "${formData.name}" saved to database successfully!`);
+      }
+
+      resetForm();
+      await loadTeamMembers();
+    } catch (err) {
+      console.error("Submit error:", err);
+      showToast(err.message || "Could not save team member.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  /* ---------- edit ---------- */
+  // EDIT TEAM MEMBER
+  const handleEdit = (member) => {
+    setEditingId(member._id || member.id);
 
-  const openEdit = (member) => {
-    setEditErrors({});
-    setEditItem({ ...member });
+    setFormData({
+      name: member.name || "",
+      image: member.image || "",
+      designation: member.designation || "",
+      contact: member.contact || "",
+      email: member.email || "",
+      description: member.description || "",
+    });
+
+    setPreview(member.image || "");
+    setErrors({});
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+    document
+      .querySelector(".TeamManagement-formPanel")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditItem((prev) => ({ ...prev, [name]: value }));
-    setEditErrors((prev) => ({ ...prev, [name]: "" }));
+  // DELETE TEAM MEMBER FROM DATABASE
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`${TEAM_API}/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete team member.");
+      }
+
+      showToast("Team member deleted successfully from database!");
+
+      if (editingId === id) {
+        resetForm();
+      }
+
+      await loadTeamMembers();
+    } catch (err) {
+      console.error("Delete error:", err);
+      showToast(err.message || "Could not delete team member.");
+    } finally {
+      setShowDeleteId(null);
+    }
   };
-
-  const handleUpdate = (e) => {
-    e.preventDefault();
-
-    const newErrors = validateMember(editItem, team, editItem.id);
-    setEditErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
-
-    setTeam((prev) =>
-      prev.map((member) =>
-        member.id === editItem.id
-          ? {
-              ...editItem,
-              name: editItem.name.trim(),
-              designation: editItem.designation.trim(),
-              contact: editItem.contact.trim(),
-              email: editItem.email.trim(),
-              description: editItem.description.trim(),
-            }
-          : member
-      )
-    );
-
-    setEditItem(null);
-    setToast({ type: "success", message: "Team member updated successfully." });
-  };
-
-  /* ---------- delete ---------- */
-
-  const handleDelete = () => {
-    setTeam((prev) => prev.filter((member) => member.id !== deleteItem.id));
-    setDeleteItem(null);
-    setToast({ type: "success", message: "Team member deleted." });
-  };
-
-  /* =========================================
-     RENDER
-  ========================================= */
 
   return (
     <div className="TeamManagement">
+      {/* TOAST NOTIFICATION */}
+      {toast && (
+        <div className="TeamManagement-toast">
+          <span>✓</span>
+          <span>{toast}</span>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="TeamManagement-header">
-        <div className="TeamManagement-headerLeft">
-          <span className="TeamManagement-headerIcon">
-            <UsersIcon size={26} />
+        <div>
+          <span className="TeamManagement-subtitle">
+            RHINO'S EQUIPMENT
           </span>
-
-          <div>
-            <span className="TeamManagement-subtitle">RHINO'S EQUIPMENT</span>
-            <h2>Team Management</h2>
-            <p>Manage your team members and their information.</p>
-          </div>
+          <h2>Team Management</h2>
+          <p>Manage your team members and their information in MongoDB database.</p>
         </div>
 
-        <div className="TeamManagement-headerCount">
-          <span>Total Members</span>
-          <strong>{team.length}</strong>
+        <div className="TeamManagement-headerActions">
+          <button
+            type="button"
+            className="TeamManagement-syncButton"
+            onClick={loadTeamMembers}
+            title="Sync team with database"
+          >
+            <span className={loading ? "spin" : ""}>↻</span>
+            <span>Sync</span>
+          </button>
+
+          <div className="TeamManagement-headerCount">
+            <span>Total Members</span>
+            <strong>{team.length}</strong>
+          </div>
         </div>
       </div>
 
@@ -653,37 +304,186 @@ const TeamManagement = () => {
               <span className="TeamManagement-sectionLabel">
                 TEAM INFORMATION
               </span>
-              <h3>Add New Member</h3>
-              <p>Fill in the details to add a team member.</p>
+              <h3>{editingId ? "Edit Team Member" : "Add New Member"}</h3>
             </div>
 
             <span className="TeamManagement-headingIcon">
-              <PlusIcon size={20} stroke={2.2} />
+              {editingId ? "✎" : "+"}
             </span>
           </div>
 
-          <form className="TeamManagement-form" onSubmit={handleSubmit} noValidate>
-            <MemberFields
-              idPrefix="add"
-              values={formData}
-              errors={errors}
-              onChange={handleInputChange}
-              onImage={(file) => handleImage(file, setFormData, setErrors)}
-              onRemoveImage={() => setFormData((prev) => ({ ...prev, image: "" }))}
-            />
+          <form
+            className="TeamManagement-form"
+            onSubmit={handleSubmit}
+            noValidate
+          >
+            {/* IMAGE UPLOAD */}
+            <div className="TeamManagement-imageUpload">
+              <div className="TeamManagement-imagePreview">
+                {preview ? (
+                  <img src={preview} alt="Team member preview" />
+                ) : (
+                  <span className="TeamManagement-imagePlaceholder">
+                    <span>+</span>
+                    <small>Photo</small>
+                  </span>
+                )}
+              </div>
 
+              <div className="TeamManagement-imageDetails">
+                <h4>Profile Picture</h4>
+                <p>Upload a professional profile image.</p>
+
+                <button
+                  type="button"
+                  className="TeamManagement-uploadButton"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <span>↑</span> Upload Image
+                </button>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  hidden
+                />
+
+                <small>JPG, PNG or WEBP · Maximum 5MB</small>
+                {errors.image && (
+                  <span className="TeamManagement-error">
+                    {errors.image}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="TeamManagement-formDivider" />
+
+            {/* NAME */}
+            <div className="TeamManagement-field">
+              <label>
+                Full Name <span>*</span>
+              </label>
+
+              <input
+                type="text"
+                name="name"
+                placeholder="Enter full name"
+                value={formData.name}
+                onChange={handleInputChange}
+              />
+
+              {errors.name && (
+                <small className="TeamManagement-error">
+                  {errors.name}
+                </small>
+              )}
+            </div>
+
+            {/* DESIGNATION */}
+            <div className="TeamManagement-field">
+              <label>
+                Designation <span>*</span>
+              </label>
+
+              <input
+                type="text"
+                name="designation"
+                placeholder="e.g. Sales Manager"
+                value={formData.designation}
+                onChange={handleInputChange}
+              />
+
+              {errors.designation && (
+                <small className="TeamManagement-error">
+                  {errors.designation}
+                </small>
+              )}
+            </div>
+
+            {/* CONTACT AND EMAIL */}
+            <div className="TeamManagement-formRow">
+              <div className="TeamManagement-field">
+                <label>
+                  Contact Number <span>*</span>
+                </label>
+
+                <input
+                  type="tel"
+                  name="contact"
+                  placeholder="Enter phone number"
+                  value={formData.contact}
+                  onChange={handleInputChange}
+                />
+
+                {errors.contact && (
+                  <small className="TeamManagement-error">
+                    {errors.contact}
+                  </small>
+                )}
+              </div>
+
+              <div className="TeamManagement-field">
+                <label>
+                  Email Address <span>*</span>
+                </label>
+
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter email address"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+
+                {errors.email && (
+                  <small className="TeamManagement-error">
+                    {errors.email}
+                  </small>
+                )}
+              </div>
+            </div>
+
+            {/* DESCRIPTION */}
+            <div className="TeamManagement-field">
+              <label>
+                Description <span>*</span>
+              </label>
+
+              <textarea
+                name="description"
+                rows="5"
+                placeholder="Write a short description about this team member..."
+                value={formData.description}
+                onChange={handleInputChange}
+              />
+
+              {errors.description && (
+                <small className="TeamManagement-error">
+                  {errors.description}
+                </small>
+              )}
+            </div>
+
+            {/* FORM ACTIONS */}
             <div className="TeamManagement-formActions">
               <button
                 type="button"
                 className="TeamManagement-resetButton"
                 onClick={resetForm}
+                disabled={submitting}
               >
                 Reset
               </button>
 
-              <button type="submit" className="TeamManagement-submitButton">
-                <PlusIcon size={17} stroke={2.4} />
-                Add Member
+              <button
+                type="submit"
+                className="TeamManagement-submitButton"
+                disabled={submitting}
+              >
+                {submitting ? "Saving..." : editingId ? "Update Member" : "+ Add Member"}
               </button>
             </div>
           </form>
@@ -691,19 +491,23 @@ const TeamManagement = () => {
 
         {/* RIGHT TABLE */}
         <section className="TeamManagement-tablePanel">
-          <div className="TeamManagement-panelHeading">
+          <div className="TeamManagement-panelHeading TeamManagement-tableHeading">
             <div>
-              <span className="TeamManagement-sectionLabel">TEAM DIRECTORY</span>
+              <span className="TeamManagement-sectionLabel">
+                TEAM DIRECTORY
+              </span>
               <h3>All Team Members</h3>
-              <p>{team.length} members registered</p>
+              <p>{team.length} members registered in database</p>
             </div>
 
-            <span className="TeamManagement-tableCount">{team.length} Total</span>
+            <span className="TeamManagement-tableCount">
+              {team.length} Total
+            </span>
           </div>
 
           {/* SEARCH */}
           <div className="TeamManagement-searchBox">
-            <SearchIcon size={18} />
+            <span>⌕</span>
             <input
               type="text"
               placeholder="Search name, designation, email..."
@@ -717,7 +521,7 @@ const TeamManagement = () => {
                 onClick={() => setSearch("")}
                 aria-label="Clear search"
               >
-                <CloseIcon size={15} />
+                ×
               </button>
             )}
           </div>
@@ -730,14 +534,24 @@ const TeamManagement = () => {
                   <th>TEAM MEMBER</th>
                   <th>CONTACT DETAILS</th>
                   <th>DESIGNATION</th>
-                  <th className="is-right">ACTIONS</th>
+                  <th>ACTIONS</th>
                 </tr>
               </thead>
 
               <tbody>
-                {filteredTeam.length > 0 ? (
+                {loading && team.length === 0 ? (
+                  <tr>
+                    <td colSpan="4">
+                      <div className="TeamManagement-emptyState">
+                        <span className="spin">↻</span>
+                        <h4>Loading Database Records...</h4>
+                        <p>Fetching team members from MongoDB.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : filteredTeam.length > 0 ? (
                   filteredTeam.map((member) => (
-                    <tr key={member.id}>
+                    <tr key={member._id || member.id}>
                       <td>
                         <div className="TeamManagement-memberInfo">
                           <img
@@ -752,7 +566,7 @@ const TeamManagement = () => {
                           <div>
                             <strong>{member.name}</strong>
                             <span>
-                              {member.description.length > 55
+                              {member.description && member.description.length > 55
                                 ? `${member.description.slice(0, 55)}...`
                                 : member.description}
                             </span>
@@ -762,12 +576,8 @@ const TeamManagement = () => {
 
                       <td>
                         <div className="TeamManagement-contactInfo">
-                          <span>
-                            <PhoneIcon size={14} /> {member.contact}
-                          </span>
-                          <span>
-                            <MailIcon size={14} /> {member.email}
-                          </span>
+                          <span>☎ {member.contact}</span>
+                          <span>✉ {member.email}</span>
                         </div>
                       </td>
 
@@ -782,21 +592,19 @@ const TeamManagement = () => {
                           <button
                             type="button"
                             className="TeamManagement-editButton"
-                            onClick={() => openEdit(member)}
+                            onClick={() => handleEdit(member)}
                             title="Edit member"
-                            aria-label={`Edit ${member.name}`}
                           >
-                            <EditIcon size={17} />
+                            ✎
                           </button>
 
                           <button
                             type="button"
                             className="TeamManagement-deleteButton"
-                            onClick={() => setDeleteItem(member)}
+                            onClick={() => setShowDeleteId(member._id || member.id)}
                             title="Delete member"
-                            aria-label={`Delete ${member.name}`}
                           >
-                            <TrashIcon size={17} />
+                            ×
                           </button>
                         </div>
                       </td>
@@ -806,14 +614,12 @@ const TeamManagement = () => {
                   <tr>
                     <td colSpan="4">
                       <div className="TeamManagement-emptyState">
-                        <span>
-                          <UserIcon size={26} />
-                        </span>
+                        <span>♙</span>
                         <h4>No team members found</h4>
                         <p>
                           {search
                             ? "Try searching with another keyword."
-                            : "Add your first team member using the form."}
+                            : "No team members in database yet. Add your first team member using the form."}
                         </p>
                       </div>
                     </td>
@@ -832,138 +638,41 @@ const TeamManagement = () => {
         </section>
       </div>
 
-      {/* EDIT POPUP */}
-      {editItem && (
+      {/* DELETE CONFIRMATION */}
+      {showDeleteId !== null && (
         <div
           className="TeamManagement-modalOverlay"
-          onClick={() => setEditItem(null)}
-        >
-          <form
-            className="TeamManagement-modal TeamManagement-editModal"
-            onClick={(e) => e.stopPropagation()}
-            onSubmit={handleUpdate}
-            noValidate
-            role="dialog"
-            aria-modal="true"
-            aria-label="Edit team member"
-          >
-            <div className="TeamManagement-modalHeader">
-              <div>
-                <span className="TeamManagement-sectionLabel">UPDATE MEMBER</span>
-                <h3>Edit Team Member</h3>
-              </div>
-
-              <button
-                type="button"
-                className="TeamManagement-modalClose"
-                aria-label="Close"
-                onClick={() => setEditItem(null)}
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-
-            <div className="TeamManagement-modalBody">
-              <MemberFields
-                idPrefix="edit"
-                values={editItem}
-                errors={editErrors}
-                onChange={handleEditChange}
-                onImage={(file) => handleImage(file, setEditItem, setEditErrors)}
-                onRemoveImage={() =>
-                  setEditItem((prev) => ({ ...prev, image: "" }))
-                }
-              />
-            </div>
-
-            <div className="TeamManagement-modalFooter">
-              <button
-                type="button"
-                className="TeamManagement-cancelButton"
-                onClick={() => setEditItem(null)}
-              >
-                Cancel
-              </button>
-
-              <button type="submit" className="TeamManagement-submitButton">
-                <CheckIcon size={17} stroke={2.4} />
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* DELETE POPUP */}
-      {deleteItem && (
-        <div
-          className="TeamManagement-modalOverlay"
-          onClick={() => setDeleteItem(null)}
+          onClick={() => setShowDeleteId(null)}
         >
           <div
-            className="TeamManagement-modal TeamManagement-deleteModal"
+            className="TeamManagement-deleteModal"
             onClick={(e) => e.stopPropagation()}
-            role="alertdialog"
-            aria-modal="true"
-            aria-label="Delete team member"
           >
-            <div className="TeamManagement-deleteIcon">
-              <AlertIcon size={26} />
-            </div>
-
+            <div className="TeamManagement-deleteIcon">!</div>
             <h3>Delete Team Member?</h3>
             <p>
-              You are about to delete this team member. This action cannot be
-              undone.
+              Are you sure you want to delete this team member from the database? This action
+              cannot be undone.
             </p>
-
-            <div className="TeamManagement-deletePreview">
-              <img
-                src={deleteItem.image}
-                alt={deleteItem.name}
-                onError={(e) => {
-                  e.currentTarget.src = "https://placehold.co/100x100?text=User";
-                }}
-              />
-              <div>
-                <strong>{deleteItem.name}</strong>
-                <span>{deleteItem.designation}</span>
-              </div>
-            </div>
 
             <div className="TeamManagement-modalActions">
               <button
                 type="button"
-                className="TeamManagement-cancelButton"
-                onClick={() => setDeleteItem(null)}
+                onClick={() => setShowDeleteId(null)}
+                className="TeamManagement-cancelDelete"
               >
                 Cancel
               </button>
 
               <button
                 type="button"
+                onClick={() => handleDelete(showDeleteId)}
                 className="TeamManagement-confirmDelete"
-                onClick={handleDelete}
               >
-                <TrashIcon size={16} />
                 Yes, Delete
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* TOAST */}
-      {toast && (
-        <div className={`TeamManagement-toast is-${toast.type}`} role="status">
-          <span className="TeamManagement-toastIcon">
-            {toast.type === "success" ? (
-              <CheckIcon size={15} stroke={2.6} />
-            ) : (
-              <AlertIcon size={15} />
-            )}
-          </span>
-          {toast.message}
         </div>
       )}
     </div>
