@@ -23,8 +23,9 @@ import {
   Clock,
 } from "lucide-react";
 import "./Profile.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const ENQUIRIES_API = "http://localhost:5000/api/enquiries";
+const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
 const ADDRESSES_STORAGE_KEY = "rhinco_saved_addresses";
 const DELIVERY_ADDRESS_KEY = "rhinco_delivery_address";
 
@@ -68,7 +69,7 @@ const Profile = () => {
   // Fetch real orders from database when orders tab is active
   const fetchUserOrders = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/orders");
+      const res = await fetch(API_ENDPOINTS.ORDERS);
       const data = await res.json();
       if (res.ok && data.success && Array.isArray(data.data)) {
         const userOrders = data.data.filter(

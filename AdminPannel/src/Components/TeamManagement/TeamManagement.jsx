@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./TeamManagement.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const TEAM_API = "http://localhost:5000/api/team";
+const TEAM_API = API_ENDPOINTS.TEAM;
 
 const emptyForm = {
   name: "",

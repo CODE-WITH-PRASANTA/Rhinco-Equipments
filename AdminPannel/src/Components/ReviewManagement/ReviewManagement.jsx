@@ -20,8 +20,9 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import "./ReviewManagement.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const REVIEWS_API = "http://localhost:5000/api/reviews";
+const REVIEWS_API = API_ENDPOINTS.REVIEWS;
 
 const emptyReviewForm = () => ({
   customerName: "",

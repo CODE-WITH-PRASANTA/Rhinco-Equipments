@@ -24,9 +24,10 @@ import {
 } from "react-icons/fi";
 
 import "./AddPost.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const PRODUCTS_API = "http://localhost:5000/api/products";
-const CATEGORIES_API = "http://localhost:5000/api/categories";
+const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
+const CATEGORIES_API = API_ENDPOINTS.CATEGORIES;
 
 const createEmptyForm = () => ({
   category: "",

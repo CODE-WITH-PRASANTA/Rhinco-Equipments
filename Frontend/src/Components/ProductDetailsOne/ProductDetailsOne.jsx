@@ -3,8 +3,9 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import "./ProductDetailsOne.css";
 import drillImage from "../../assets/machine.jpg";
 import { addToCart, toggleWishlist, isInWishlist } from "../../utils/cartWishlist";
+import { API_ENDPOINTS } from "../../config/api";
 
-const PRODUCTS_API = "http://localhost:5000/api/products";
+const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 
 const categories = [
   "Tillage & Cultivation",

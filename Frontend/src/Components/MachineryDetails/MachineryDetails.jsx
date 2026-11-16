@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import "./MachineryDetails.css";
 import fallbackMachineImg from "../../assets/machine.jpg";
+import { API_ENDPOINTS } from "../../config/api";
 
-const MACHINERY_API = "http://localhost:5000/api/machinery";
-const ENQUIRIES_API = "http://localhost:5000/api/enquiries";
+const MACHINERY_API = API_ENDPOINTS.MACHINERY;
+const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
 
 const tabs = [
   { id: "specifications", label: "Specifications", icon: "settings" },

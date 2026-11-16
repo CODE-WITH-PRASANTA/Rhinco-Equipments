@@ -17,8 +17,9 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import "./BlogCategory.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const API_BASE = "http://localhost:5000/api/blog-categories";
+const API_BASE = API_ENDPOINTS.BLOG_CATEGORIES;
 
 const emptyForm = {
   name: "",

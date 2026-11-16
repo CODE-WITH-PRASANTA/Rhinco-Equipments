@@ -20,8 +20,9 @@ import {
   FiMessageSquare,
 } from "react-icons/fi";
 import "./MachineryOrders.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const ENQUIRIES_API = "http://localhost:5000/api/enquiries";
+const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
 
 const MachineryOrders = () => {
   const [orders, setOrders] = useState([]);

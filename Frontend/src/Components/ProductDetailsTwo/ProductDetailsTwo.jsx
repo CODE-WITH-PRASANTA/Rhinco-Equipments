@@ -7,8 +7,9 @@ import {
   toggleWishlist as helperToggleWishlist,
   isInWishlist as helperIsInWishlist,
 } from "../../utils/cartWishlist";
+import { API_ENDPOINTS } from "../../config/api";
 
-const PRODUCTS_API = "http://localhost:5000/api/products";
+const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 const fallbackProductImg =
   "https://images.unsplash.com/photo-1589923188900-85dae523342b?w=600&auto=format&fit=crop&q=80";
 

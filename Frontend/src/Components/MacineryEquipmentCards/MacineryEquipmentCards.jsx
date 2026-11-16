@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MacineryEquipmentCards.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const MACHINERY_API = "http://localhost:5000/api/machinery";
-const ENQUIRIES_API = "http://localhost:5000/api/enquiries";
+const MACHINERY_API = API_ENDPOINTS.MACHINERY;
+const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
 
 const fallbackImg =
   "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80";

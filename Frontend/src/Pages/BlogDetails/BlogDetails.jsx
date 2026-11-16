@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import BlogDetailsBreadcrumb from "../../Components/BlogDetailsBreadcrumb/BlogDetailsBreadcrumb";
 import BlogDetailsMain from "../../Components/BlogDetailsMain/BlogDetailsMain";
+import { API_ENDPOINTS } from "../../config/api";
 
-const BLOGS_API = "http://localhost:5000/api/blogs";
+const BLOGS_API = API_ENDPOINTS.BLOGS;
 
 const BlogDetails = () => {
   const { slug } = useParams();

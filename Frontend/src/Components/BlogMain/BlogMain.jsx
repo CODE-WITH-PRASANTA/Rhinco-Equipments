@@ -12,8 +12,9 @@ import {
   Share2,
 } from "lucide-react";
 import "./BlogMain.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const BLOGS_API = "http://localhost:5000/api/blogs";
+const BLOGS_API = API_ENDPOINTS.BLOGS;
 
 const BlogMain = () => {
   const [blogPosts, setBlogPosts] = useState([]);

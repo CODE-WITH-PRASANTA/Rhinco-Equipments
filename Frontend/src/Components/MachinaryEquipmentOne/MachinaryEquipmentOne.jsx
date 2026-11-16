@@ -17,8 +17,9 @@ import {
   Check,
 } from "lucide-react";
 import "./MachinaryEquipmentOne.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const MACHINERY_API = "http://localhost:5000/api/machinery";
+const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
 const MachinaryEquipmentOne = ({
   dealerPhone = "",
@@ -223,7 +224,7 @@ const MachinaryEquipmentOne = ({
       const intentText = modalForm.intent ? `[${modalForm.intent}] ` : "";
       const fullMessage = (intentText + (modalForm.message || `Customer requested enquiry and price quote for ${prodName}`)).trim();
 
-      const res = await fetch("http://localhost:5000/api/enquiries", {
+      const res = await fetch(API_ENDPOINTS.ENQUIRIES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -13,8 +13,9 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 import "./Catagory.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const CATEGORIES_API = "http://localhost:5000/api/categories";
+const CATEGORIES_API = API_ENDPOINTS.CATEGORIES;
 
 const Catagory = () => {
   const fileInputRef = useRef(null);

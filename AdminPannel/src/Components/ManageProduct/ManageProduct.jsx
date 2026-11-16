@@ -26,8 +26,9 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import "./ManageProduct.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const PRODUCTS_API = "http://localhost:5000/api/products";
+const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 
 const getProductId = (p) => p?._id || p?.id;
 

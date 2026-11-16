@@ -9,8 +9,9 @@ import {
   FiDollarSign, FiBox, FiTool
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const MACHINERY_API = "http://localhost:5000/api/machinery";
+const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
 const categories = [
   "Excavators",

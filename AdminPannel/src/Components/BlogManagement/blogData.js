@@ -1,8 +1,9 @@
 // Blog API Endpoints & Dynamic Database Helpers
+import { API_ENDPOINTS, BACKEND_ORIGIN } from "../../config/api";
 
-export const API_BASE_URL = "http://localhost:5000";
-export const BLOGS_API = `${API_BASE_URL}/api/blogs`;
-export const CATEGORIES_API = `${API_BASE_URL}/api/blog-categories`;
+export const API_BASE_URL = BACKEND_ORIGIN;
+export const BLOGS_API = API_ENDPOINTS.BLOGS;
+export const CATEGORIES_API = API_ENDPOINTS.BLOG_CATEGORIES;
 
 // Dynamic Category Fetcher
 export const fetchDynamicCategories = async () => {

@@ -11,9 +11,10 @@ import {
   X,
 } from 'lucide-react';
 import './Topbar.css';
+import { BACKEND_ORIGIN, API_ENDPOINTS } from '../../config/api';
 
-const BACKEND_BASE_URL = 'http://localhost:5000';
-const API_BASE_URL = `${BACKEND_BASE_URL}/api/profiles`;
+const BACKEND_BASE_URL = BACKEND_ORIGIN;
+const API_BASE_URL = API_ENDPOINTS.PROFILES;
 const AUTH_KEY = 'isAdminAuthenticated';
 
 const DEFAULT_AVATAR =

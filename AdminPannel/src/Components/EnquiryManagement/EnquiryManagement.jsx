@@ -22,8 +22,9 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import "./EnquiryManagement.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const ENQUIRIES_API = "http://localhost:5000/api/enquiries";
+const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
 
 const emptyEnquiryForm = () => ({
   name: "",

@@ -21,6 +21,7 @@ import {
 
 import { useNavigate, Link } from "react-router-dom";
 import "./CartMain.css";
+import { API_ENDPOINTS } from "../../config/api";
 import {
   getCart,
   saveCart,
@@ -457,7 +458,7 @@ const CartMain = () => {
 
     try {
       // Create order on backend
-      const res = await fetch("http://localhost:5000/api/orders/razorpay-order", {
+      const res = await fetch(`${API_ENDPOINTS.ORDERS}/razorpay-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -489,7 +490,7 @@ const CartMain = () => {
             setPaymentLoading(true);
 
             // Verify payment signature on backend and save to MongoDB
-            const verifyRes = await fetch("http://localhost:5000/api/orders/verify-payment", {
+            const verifyRes = await fetch(`${API_ENDPOINTS.ORDERS}/verify-payment`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

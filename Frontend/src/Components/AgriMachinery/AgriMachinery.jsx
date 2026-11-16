@@ -9,8 +9,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import "./AgriMachinery.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const MACHINERY_API = "http://localhost:5000/api/machinery";
+const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
 const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
   const [machineryProducts, setMachineryProducts] = useState([]);

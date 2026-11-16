@@ -10,8 +10,9 @@ import {
   toggleWishlist,
   isInWishlist,
 } from "../../utils/cartWishlist";
+import { API_ENDPOINTS } from "../../config/api";
 
-const PRODUCTS_API = "http://localhost:5000/api/products";
+const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 
 const getProductId = (product) => product?._id || product?.id;
 

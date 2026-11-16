@@ -20,8 +20,9 @@ import {
   FiFileText,
 } from "react-icons/fi";
 import "./ProductOrders.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const ORDERS_API = "http://localhost:5000/api/orders";
+const ORDERS_API = API_ENDPOINTS.ORDERS;
 
 const formatINR = (num) => {
   return new Intl.NumberFormat("en-IN", {

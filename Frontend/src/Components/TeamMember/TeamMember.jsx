@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "./TeamMember.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const TEAM_API = "http://localhost:5000/api/team";
+const TEAM_API = API_ENDPOINTS.TEAM;
 
 const fallbackAvatar =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='450' viewBox='0 0 400 450'%3E%3Crect width='100%25' height='100%25' fill='%23f1f5f9'/%3E%3Ccircle cx='200' cy='170' r='70' fill='%23cbd5e1'/%3E%3Cpath d='M80 380 c0-70 55-120 120-120 s120 50 120 120 Z' fill='%23cbd5e1'/%3E%3C/svg%3E";

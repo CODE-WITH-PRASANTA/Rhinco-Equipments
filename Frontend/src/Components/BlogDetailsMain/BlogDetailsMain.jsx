@@ -17,9 +17,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import "./BlogDetailsMain.css";
+import { API_ENDPOINTS } from "../../config/api";
 
-const BLOGS_API = "http://localhost:5000/api/blogs";
-const BLOG_CATEGORIES_API = "http://localhost:5000/api/blog-categories";
+const BLOGS_API = API_ENDPOINTS.BLOGS;
+const BLOG_CATEGORIES_API = API_ENDPOINTS.BLOG_CATEGORIES;
 
 const fallbackHero =
   "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&q=90";

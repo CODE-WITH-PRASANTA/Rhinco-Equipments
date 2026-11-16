@@ -15,6 +15,7 @@ import {
 
 import Farmer from "../../assets/Farmer.png";
 import "./ContactTwo.css";
+import { API_ENDPOINTS } from "../../config/api";
 
 const ContactTwo = () => {
   const [formData, setFormData] = useState({
@@ -46,7 +47,7 @@ const ContactTwo = () => {
     setErrorMessage("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/enquiries", {
+      const res = await fetch(API_ENDPOINTS.ENQUIRIES, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
