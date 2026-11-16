@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -21,7 +20,7 @@ import ProtectedRoutes from "./Components/ProtectedRoutes/ProtectedRoutes";
 
 const App = () => {
   return (
-    <BrowserRouter basename="/admin">
+    <BrowserRouter>
       <Routes>
         {/* Public Login Route (No Sidebar/Topbar) */}
         <Route path="/login" element={<Login />} />
