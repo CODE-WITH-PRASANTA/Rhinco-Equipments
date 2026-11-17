@@ -797,7 +797,9 @@ const MachineryDetails = () => {
                   <div className="MachineryDetails-spec-card">
                     <span className="MachineryDetails-spec-label">Offer / Discount Price</span>
                     <strong className="MachineryDetails-spec-value highlighted-price">
-                      {discountPrice > 0 ? formatPrice(discountPrice) : "Contact for Best Quotation"}
+                      {machine.discountPrice && Number(machine.discountPrice) > 0
+                        ? formatPrice(machine.discountPrice)
+                        : "Contact for Best Quotation"}
                     </strong>
                   </div>
                 </div>

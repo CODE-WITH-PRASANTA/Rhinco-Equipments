@@ -21,8 +21,12 @@ import ProtectedRoutes from "./Components/ProtectedRoutes/ProtectedRoutes";
 
 const App = () => {
   return (
-    <BrowserRouter basename="/admin">
+    <BrowserRouter>
       <Routes>
+        {/* If user navigates to /admin or /admin/*, redirect to root */}
+        <Route path="/admin/*" element={<Navigate to="/" replace />} />
+        <Route path="/admin" element={<Navigate to="/" replace />} />
+
         {/* Public Login Route (No Sidebar/Topbar) */}
         <Route path="/login" element={<Login />} />
 
