@@ -23,10 +23,6 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* If user navigates to /admin or /admin/*, redirect to root */}
-        <Route path="/admin/*" element={<Navigate to="/" replace />} />
-        <Route path="/admin" element={<Navigate to="/" replace />} />
-
         {/* Public Login Route (No Sidebar/Topbar) */}
         <Route path="/login" element={<Login />} />
 
@@ -57,6 +53,10 @@ const App = () => {
             <Route path="blog/edit/:id" element={<BlogPosting />} />
           </Route>
         </Route>
+
+        {/* Redirect /admin paths directly to root */}
+        <Route path="/admin" element={<Navigate to="/" replace />} />
+        <Route path="/admin/*" element={<Navigate to="/" replace />} />
 
         {/* Catch-all unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />

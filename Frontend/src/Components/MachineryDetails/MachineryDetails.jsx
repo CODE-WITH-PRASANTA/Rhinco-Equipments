@@ -302,6 +302,7 @@ const MachineryDetails = () => {
   };
 
   const basePrice = Number(machine?.discountPrice || machine?.price || 0);
+  const discountPrice = Number(machine?.discountPrice || 0);
 
   const handleOpenEnquiry = (customMsg = "") => {
     const title = machine?.title || machine?.name || "Machinery";
@@ -797,9 +798,7 @@ const MachineryDetails = () => {
                   <div className="MachineryDetails-spec-card">
                     <span className="MachineryDetails-spec-label">Offer / Discount Price</span>
                     <strong className="MachineryDetails-spec-value highlighted-price">
-                      {machine.discountPrice && Number(machine.discountPrice) > 0
-                        ? formatPrice(machine.discountPrice)
-                        : "Contact for Best Quotation"}
+                      {discountPrice > 0 ? formatPrice(discountPrice) : "Contact for Best Quotation"}
                     </strong>
                   </div>
                 </div>
