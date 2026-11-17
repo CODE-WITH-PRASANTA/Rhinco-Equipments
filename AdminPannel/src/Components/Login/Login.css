@@ -1,6 +1,127 @@
 /* =========================================================
-   SHREEKHETRA GUEST HOUSE — LOGIN (WHITE & DEEP BLUE)
+   AUTO-FETCHED CREDENTIALS CARD
 ========================================================= */
+
+.Login-autofetch-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.08);
+}
+
+.Login-autofetch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.Login-autofetch-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.Login-autofetch-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #16a34a;
+  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+  animation: pulseGreen 1.8s infinite;
+}
+
+@keyframes pulseGreen {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(22, 163, 74, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+  }
+}
+
+.Login-autofetch-badge-text {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #15803d;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.Login-autofetch-quick-btn {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);
+}
+
+.Login-autofetch-quick-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(21, 128, 61, 0.35);
+}
+
+.Login-autofetch-quick-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.Login-autofetch-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.Login-autofetch-pill {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #dcfce7;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.Login-autofetch-pill:hover {
+  background: #f7fee7;
+  border-color: #86efac;
+  transform: translateY(-1px);
+}
+
+.Login-autofetch-pill small {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.72rem;
+}
+
+.Login-autofetch-pill strong {
+  color: #0f172a;
+  font-weight: 700;
+  font-family: monospace;
+  font-size: 0.82rem;
+}
 
 :root {
   --primary-accent: #1d4ed8;

@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: `${API_BASE_URL}/auth/login`,
     REGISTER: `${API_BASE_URL}/auth/register`,
+    CREDENTIALS: `${API_BASE_URL}/auth/admin-credentials`,
   },
 };
 

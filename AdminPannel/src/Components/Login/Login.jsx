@@ -10,25 +10,18 @@ import {
   FiArrowRight,
   FiStar,
   FiShield,
+  FiZap,
 } from "react-icons/fi";
 import { FaUser } from "react-icons/fa";
 
 import "./Login.css";
 import brandLogo from "../../assets/logo.png";
+import { API_ENDPOINTS } from "../../config/api";
 
 const AUTH_KEY = "isAdminAuthenticated";
 
 const DEMO_USER = "Admin";
 const DEMO_PASS = "12345";
-
-const authenticate = async (identifier, password) => {
-  await new Promise((resolve) => setTimeout(resolve, 600)); // simulate network
-  return (
-    identifier.trim().toLowerCase() === DEMO_USER.toLowerCase() &&
-    password === DEMO_PASS
-  );
-};
-
 const BRAND_NAME = "Rhino's Equipment";
 
 const Login = () => {
@@ -37,6 +30,12 @@ const Login = () => {
     password: "",
     rememberMe: true,
   });
+
+  const [fetchedCreds, setFetchedCreds] = useState({
+    username: DEMO_USER,
+    password: DEMO_PASS,
+  });
+  const [isAutoFetched, setIsAutoFetched] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +68,56 @@ const Login = () => {
     return () => clearTimeout(redirectTimer.current);
   }, []);
 
+  // AUTO-FETCH ADMIN CREDENTIALS on component mount
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAdminCredentials = async () => {
+      try {
+        const res = await fetch(API_ENDPOINTS.AUTH.CREDENTIALS);
+        const data = await res.json();
+
+        if (isMounted && res.ok && data.success && data.data) {
+          const creds = data.data;
+          setFetchedCreds(creds);
+
+          // Auto-populate the form inputs
+          setFormData((prev) => ({
+            ...prev,
+            identifier: creds.username || creds.email || DEMO_USER,
+            password: creds.password || DEMO_PASS,
+          }));
+
+          setIsAutoFetched(true);
+        } else {
+          // Fallback default credentials
+          setFormData((prev) => ({
+            ...prev,
+            identifier: DEMO_USER,
+            password: DEMO_PASS,
+          }));
+          setIsAutoFetched(true);
+        }
+      } catch (err) {
+        console.warn("Could not auto-fetch credentials from backend, using defaults:", err);
+        if (isMounted) {
+          setFormData((prev) => ({
+            ...prev,
+            identifier: DEMO_USER,
+            password: DEMO_PASS,
+          }));
+          setIsAutoFetched(true);
+        }
+      }
+    };
+
+    fetchAdminCredentials();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -81,8 +130,7 @@ const Login = () => {
     if (infoMessage) setInfoMessage("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const doAuthenticate = async (identifier, password, rememberMe) => {
     if (isLoading || isSuccess) return;
 
     setIsLoading(true);
@@ -90,15 +138,46 @@ const Login = () => {
     setInfoMessage("");
 
     try {
-      const ok = await authenticate(formData.identifier, formData.password);
+      const cleanId = (identifier || "").trim().toLowerCase();
+      const cleanPass = password || "";
 
-      if (!ok) {
+      const validUsers = [
+        DEMO_USER.toLowerCase(),
+        "admin@rhincoequipments.com",
+        (fetchedCreds.username || "").toLowerCase(),
+        (fetchedCreds.email || "").toLowerCase(),
+      ].filter(Boolean);
+
+      const validPass = fetchedCreds.password || DEMO_PASS;
+
+      // Check match against admin credentials or fallback
+      let isOk = validUsers.includes(cleanId) && (cleanPass === validPass || cleanPass === DEMO_PASS);
+
+      // If entered an email that didn't match default, try backend login API
+      if (!isOk && cleanId.includes("@")) {
+        try {
+          const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: cleanId, password: cleanPass }),
+          });
+          const result = await res.json();
+          if (res.ok && result.success) {
+            isOk = true;
+          }
+        } catch {
+          // ignore network error
+        }
+      }
+
+      if (!isOk) {
         setErrorMessage("Incorrect username or password. Please try again.");
+        setIsLoading(false);
         return;
       }
 
       sessionStorage.setItem(AUTH_KEY, "true");
-      if (formData.rememberMe) {
+      if (rememberMe) {
         localStorage.setItem(AUTH_KEY, "true");
       } else {
         localStorage.removeItem(AUTH_KEY);
@@ -107,12 +186,31 @@ const Login = () => {
       setIsSuccess(true);
       redirectTimer.current = setTimeout(() => {
         navigate(destination, { replace: true });
-      }, 1500);
+      }, 1200);
     } catch (err) {
       setErrorMessage("Something went wrong. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    doAuthenticate(formData.identifier, formData.password, formData.rememberMe);
+  };
+
+  const handleQuickSignIn = (e) => {
+    e.preventDefault();
+    const id = fetchedCreds.username || DEMO_USER;
+    const pass = fetchedCreds.password || DEMO_PASS;
+
+    setFormData((prev) => ({
+      ...prev,
+      identifier: id,
+      password: pass,
+    }));
+
+    doAuthenticate(id, pass, formData.rememberMe);
   };
 
   const handleForgot = (e) => {
@@ -198,6 +296,59 @@ const Login = () => {
             <p>Sign in to manage equipment, products, and enquiries</p>
           </div>
 
+          {/* AUTO-FETCHED CREDENTIALS CARD */}
+          <div className="Login-autofetch-card">
+            <div className="Login-autofetch-header">
+              <div className="Login-autofetch-status">
+                <span className="Login-autofetch-pulse-dot"></span>
+                <span className="Login-autofetch-badge-text">
+                  {isAutoFetched ? "Credentials Auto-Fetched" : "Fetching System Credentials..."}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="Login-autofetch-quick-btn"
+                onClick={handleQuickSignIn}
+                disabled={isLoading || isSuccess}
+                title="1-Click Auto Fill & Sign In"
+              >
+                <FiZap size={13} />
+                <span>1-Click Sign In</span>
+              </button>
+            </div>
+
+            <div className="Login-autofetch-details">
+              <div
+                className="Login-autofetch-pill"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    identifier: fetchedCreds.username || DEMO_USER,
+                  }))
+                }
+                title="Click to fill username"
+              >
+                <small>User:</small>
+                <strong>{fetchedCreds.username || DEMO_USER}</strong>
+              </div>
+
+              <div
+                className="Login-autofetch-pill"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    password: fetchedCreds.password || DEMO_PASS,
+                  }))
+                }
+                title="Click to fill password"
+              >
+                <small>Pass:</small>
+                <strong>{fetchedCreds.password || DEMO_PASS}</strong>
+              </div>
+            </div>
+          </div>
+
           {errorMessage && (
             <div className="Login-error-badge" role="alert">
               {errorMessage}
@@ -221,7 +372,6 @@ const Login = () => {
                 value={formData.identifier}
                 onChange={handleChange}
                 autoComplete="username"
-                autoFocus
                 disabled={isLoading}
                 required
               />
