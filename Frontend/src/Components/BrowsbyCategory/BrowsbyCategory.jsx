@@ -8,9 +8,10 @@ import {
 } from "lucide-react";
 
 import "./BrowsbyCategory.css";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
+import { resolveImageUrl } from "../../utils/helpers";
 
-const CATEGORIES_API = API_ENDPOINTS.CATEGORIES;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const CATEGORIES_API = `${API_URL}/categories`;
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=500&q=80";

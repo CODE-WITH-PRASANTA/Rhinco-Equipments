@@ -16,9 +16,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import "../Login/Login.css";
-import { API_ENDPOINTS } from "../../config/api";
 
-const REGISTER_API = API_ENDPOINTS.AUTH.REGISTER;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const REGISTER_API = `${API_URL}/auth/register`;
 
 const Register = () => {
   const navigate = useNavigate();

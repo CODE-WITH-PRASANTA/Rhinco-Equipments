@@ -12,6 +12,7 @@ import {
   FiFileText,
   FiPlusSquare,
   FiMail,
+  FiStar,
   FiX,
   FiSettings,
 } from "react-icons/fi";
@@ -90,6 +91,11 @@ const menuItems = [
     text: "Enquiry",
     path: "/enquiry",
     icon: <FiMail size={20} />,
+  },
+  {
+    text: "Reviews",
+    path: "/review",
+    icon: <FiStar size={20} />,
   },
   {
     text: "Settings",

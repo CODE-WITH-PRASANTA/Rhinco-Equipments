@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import BlogDetailsBreadcrumb from "../../Components/BlogDetailsBreadcrumb/BlogDetailsBreadcrumb";
 import BlogDetailsMain from "../../Components/BlogDetailsMain/BlogDetailsMain";
-import { API_ENDPOINTS } from "../../config/api";
 
-const BLOGS_API = API_ENDPOINTS.BLOGS;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BLOGS_API = `${API_URL}/blogs`;
 
 const BlogDetails = () => {
   const { slug } = useParams();

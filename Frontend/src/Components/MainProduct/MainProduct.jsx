@@ -10,9 +10,10 @@ import {
   toggleWishlist,
   isInWishlist,
 } from "../../utils/cartWishlist";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
+import { resolveImageUrl } from "../../utils/helpers";
 
-const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const PRODUCTS_API = `${API_URL}/products`;
 
 const getProductId = (product) => product?._id || product?.id;
 

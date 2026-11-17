@@ -17,10 +17,11 @@ import {
   Sparkles,
 } from "lucide-react";
 import "./BlogDetailsMain.css";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
+import { resolveImageUrl } from "../../utils/helpers";
 
-const BLOGS_API = API_ENDPOINTS.BLOGS;
-const BLOG_CATEGORIES_API = API_ENDPOINTS.BLOG_CATEGORIES;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BLOGS_API = `${API_URL}/blogs`;
+const BLOG_CATEGORIES_API = `${API_URL}/blog-categories`;
 
 const fallbackHero =
   "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&q=90";

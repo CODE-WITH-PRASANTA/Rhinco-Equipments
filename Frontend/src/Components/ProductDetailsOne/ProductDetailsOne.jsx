@@ -3,9 +3,11 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import "./ProductDetailsOne.css";
 import drillImage from "../../assets/machine.jpg";
 import { addToCart, toggleWishlist, isInWishlist } from "../../utils/cartWishlist";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
+import { resolveImageUrl } from "../../utils/helpers";
 
-const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const PRODUCTS_API = `${API_URL}/products`;
+const REVIEWS_API = `${API_URL}/reviews`;
 
 const categories = [
   "Tillage & Cultivation",
@@ -35,6 +37,21 @@ const ProductDetailsOne = () => {
   const [justAdded, setJustAdded] = useState(false);
   const [minPrice, setMinPrice] = useState(5000);
   const [maxPrice, setMaxPrice] = useState(500000);
+
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    rating: 5,
+    title: "",
+    comment: "",
+  });
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState("");
 
   // FETCH REAL PRODUCT BY NAME OR ID
   useEffect(() => {
@@ -86,6 +103,81 @@ const ProductDetailsOne = () => {
 
     fetchProduct();
   }, [paramName, idParam, queryName]);
+
+  // Fetch approved customer reviews for this product
+  useEffect(() => {
+    if (!product) return;
+    const pName = product.title || product.name || "";
+    if (!pName) return;
+
+    const fetchReviews = async () => {
+      setReviewsLoading(true);
+      try {
+        const res = await fetch(`${REVIEWS_API}?status=Approved&productOrItem=${encodeURIComponent(pName)}`);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          setReviews(data.data);
+        }
+      } catch (err) {
+        console.error("Could not fetch reviews:", err);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [product]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewForm.customerName.trim() || !reviewForm.comment.trim()) {
+      alert("Please fill in your name and comment.");
+      return;
+    }
+
+    try {
+      setReviewSubmitting(true);
+      const res = await fetch(REVIEWS_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: reviewForm.customerName.trim(),
+          customerEmail: reviewForm.customerEmail.trim(),
+          customerPhone: reviewForm.customerPhone.trim(),
+          productOrItem: product.title || product.name || "Product",
+          itemType: "Product",
+          rating: Number(reviewForm.rating) || 5,
+          title: reviewForm.title.trim(),
+          comment: reviewForm.comment.trim(),
+          status: "Pending",
+          verifiedPurchase: true,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setReviewSuccessMessage(
+          "Thank you! Your review has been submitted for approval and will appear once published by our admin team."
+        );
+        setShowReviewModal(false);
+        setReviewForm({
+          customerName: "",
+          customerEmail: "",
+          customerPhone: "",
+          rating: 5,
+          title: "",
+          comment: "",
+        });
+      } else {
+        alert(data.message || "Could not submit review.");
+      }
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      alert("Could not submit review. Please try again.");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   const formatPrice = (price) =>
     `₹${Number(price || 0).toLocaleString("en-IN")}`;
@@ -464,6 +556,219 @@ const ProductDetailsOne = () => {
           </div>
         </div>
       </div>
+
+      {/* CUSTOMER REVIEWS & RATINGS SECTION */}
+      <div className="ProductReviews-section">
+        <div className="ProductReviews-container">
+          <div className="ProductReviews-header">
+            <div>
+              <span className="ProductReviews-eyebrow">VERIFIED FEEDBACK</span>
+              <h2 className="ProductReviews-title">Customer Reviews & Ratings</h2>
+              <p className="ProductReviews-subtitle">
+                Real feedback from verified farmers and equipment owners.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="ProductReviews-writeBtn"
+              onClick={() => {
+                setReviewSuccessMessage("");
+                setShowReviewModal(true);
+              }}
+            >
+              ★ Write a Review
+            </button>
+          </div>
+
+          {reviewSuccessMessage && (
+            <div className="ProductReviews-successNotice">
+              <span className="ProductReviews-successIcon">✓</span>
+              <span>{reviewSuccessMessage}</span>
+            </div>
+          )}
+
+          {reviewsLoading ? (
+            <div className="ProductReviews-loading">Loading reviews...</div>
+          ) : reviews.length === 0 ? (
+            <div className="ProductReviews-empty">
+              <div className="ProductReviews-emptyStars">★★★★★</div>
+              <h3>No reviews published yet</h3>
+              <p>Be the first to share your experience with {productName}!</p>
+              <button
+                type="button"
+                className="ProductReviews-writeBtn outline"
+                onClick={() => {
+                  setReviewSuccessMessage("");
+                  setShowReviewModal(true);
+                }}
+              >
+                Be the first to review
+              </button>
+            </div>
+          ) : (
+            <div className="ProductReviews-grid">
+              {reviews.map((rev) => (
+                <div key={rev._id || rev.id} className="ProductReviews-card">
+                  <div className="ProductReviews-cardHeader">
+                    <div className="ProductReviews-avatar">
+                      {(rev.customerName || "U").slice(0, 1).toUpperCase()}
+                    </div>
+                    <div className="ProductReviews-customerInfo">
+                      <h4>{rev.customerName}</h4>
+                      <div className="ProductReviews-starsRow">
+                        {"★".repeat(Math.round(rev.rating || 5))}
+                        {"☆".repeat(5 - Math.round(rev.rating || 5))}
+                        <span className="ProductReviews-ratingScore">{rev.rating || 5}.0</span>
+                      </div>
+                    </div>
+                    {rev.verifiedPurchase && (
+                      <span className="ProductReviews-verifiedBadge">✓ Verified Purchase</span>
+                    )}
+                  </div>
+
+                  {rev.title && <h5 className="ProductReviews-reviewTitle">{rev.title}</h5>}
+                  <p className="ProductReviews-comment">{rev.comment}</p>
+
+                  <div className="ProductReviews-date">
+                    {new Date(rev.createdAt || Date.now()).toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* WRITE A REVIEW MODAL */}
+      {showReviewModal && (
+        <div className="ProductReviews-modalOverlay" onClick={() => setShowReviewModal(false)}>
+          <div className="ProductReviews-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="ProductReviews-modalHeader">
+              <div>
+                <h3>Write a Review</h3>
+                <p>Reviewing: <strong>{productName}</strong></p>
+              </div>
+              <button
+                type="button"
+                className="ProductReviews-modalClose"
+                onClick={() => setShowReviewModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleReviewSubmit} className="ProductReviews-modalForm">
+              <div className="ProductReviews-ratingSelect">
+                <label>Your Overall Rating *</label>
+                <div className="ProductReviews-interactiveStars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      className={`ProductReviews-starBtn ${star <= reviewForm.rating ? "active" : ""}`}
+                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                    >
+                      ★
+                    </button>
+                  ))}
+                  <span className="ProductReviews-ratingLabel">
+                    {reviewForm.rating} / 5 Stars
+                  </span>
+                </div>
+              </div>
+
+              <div className="ProductReviews-inputGroup">
+                <label>Your Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ramesh Kumar"
+                  value={reviewForm.customerName}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, customerName: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="ProductReviews-formRow">
+                <div className="ProductReviews-inputGroup">
+                  <label>Email (Optional)</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. ramesh@gmail.com"
+                    value={reviewForm.customerEmail}
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, customerEmail: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="ProductReviews-inputGroup">
+                  <label>Phone (Optional)</label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. +91 98765 43210"
+                    value={reviewForm.customerPhone}
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, customerPhone: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="ProductReviews-inputGroup">
+                <label>Review Headline / Title</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Excellent build quality, performs very well!"
+                  value={reviewForm.title}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, title: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="ProductReviews-inputGroup">
+                <label>Your Review *</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Share details about performance, durability, fuel efficiency, etc."
+                  value={reviewForm.comment}
+                  onChange={(e) =>
+                    setReviewForm({ ...reviewForm, comment: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="ProductReviews-modalNotice">
+                ℹ Reviews are moderated by our admin team before being published on the website.
+              </div>
+
+              <div className="ProductReviews-modalActions">
+                <button
+                  type="button"
+                  className="ProductReviews-cancelBtn"
+                  onClick={() => setShowReviewModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={reviewSubmitting}
+                  className="ProductReviews-submitBtn"
+                >
+                  {reviewSubmitting ? "Submitting..." : "Submit Review for Approval"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

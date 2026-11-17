@@ -12,9 +12,10 @@ import {
   Share2,
 } from "lucide-react";
 import "./BlogMain.css";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
+import { resolveImageUrl } from "../../utils/helpers";
 
-const BLOGS_API = API_ENDPOINTS.BLOGS;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BLOGS_API = `${API_URL}/blogs`;
 
 const BlogMain = () => {
   const [blogPosts, setBlogPosts] = useState([]);

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MacineryEquipmentCards.css";
-import { API_ENDPOINTS, toMachinerySlug } from "../../config/api";
+import { toMachinerySlug } from "../../utils/helpers";
 
-const MACHINERY_API = API_ENDPOINTS.MACHINERY;
-const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const MACHINERY_API = `${API_URL}/machinery`;
+const ENQUIRIES_API = `${API_URL}/enquiries`;
 
 const fallbackImg =
   "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=600&q=80";

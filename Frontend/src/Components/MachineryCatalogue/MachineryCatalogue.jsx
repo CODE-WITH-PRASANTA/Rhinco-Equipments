@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MachinaryEquipmentOne.css";
-import { API_ENDPOINTS, resolveImageUrl, toMachinerySlug } from "../../config/api";
+import { resolveImageUrl, toMachinerySlug } from "../../utils/helpers";
 
-const MACHINERY_API = API_ENDPOINTS.MACHINERY;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const MACHINERY_API = `${API_URL}/machinery`;
 
 const fallbackImage =
   "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80";

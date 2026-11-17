@@ -28,7 +28,9 @@ import {
 import logo from "../../assets/Rhino-logo-removebg-preview.png";
 import "./Navbar.css";
 import { getCartCount, getWishlistCount } from "../../utils/cartWishlist";
-import { API_ENDPOINTS } from "../../config/api";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const CATEGORIES_API = `${API_URL}/categories`;
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -148,7 +150,7 @@ const Navbar = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(API_ENDPOINTS.CATEGORIES);
+      const res = await fetch(CATEGORIES_API);
       const result = await res.json();
       if (res.ok && result.success && Array.isArray(result.data)) {
         const sorted = [...result.data].sort((a, b) => {

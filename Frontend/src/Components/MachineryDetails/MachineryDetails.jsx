@@ -2,18 +2,35 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Tractor, FileText, CheckCircle2, ShieldCheck, Download, AlertCircle } from "lucide-react";
 import "./MachineryDetails.css";
-import { API_ENDPOINTS, resolveImageUrl, toMachinerySlug } from "../../config/api";
+import { resolveImageUrl, toMachinerySlug } from "../../utils/helpers";
 
-const MACHINERY_API = API_ENDPOINTS.MACHINERY;
-const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const MACHINERY_API = `${API_URL}/machinery`;
+const ENQUIRIES_API = `${API_URL}/enquiries`;
+const REVIEWS_API = `${API_URL}/reviews`;
 
 const tabs = [
   { id: "specifications", label: "Specifications", icon: "settings" },
   { id: "description", label: "Overview & Features", icon: "layers" },
   { id: "documents", label: "Required Documents", icon: "document" },
+  { id: "reviews", label: "Customer Reviews", icon: "star" },
 ];
 
 const TabIcon = ({ type }) => {
+  if (type === "star") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none">
+        <polygon
+          points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
   if (type === "settings") {
     return (
       <svg viewBox="0 0 24 24" fill="none">
@@ -75,6 +92,21 @@ const MachineryDetails = () => {
   const [activeImage, setActiveImage] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [activeTab, setActiveTab] = useState("specifications");
+
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
+    rating: 5,
+    title: "",
+    comment: "",
+  });
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState("");
 
   // Enquiry / Apply modal state
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
@@ -177,6 +209,81 @@ const MachineryDetails = () => {
       isMounted = false;
     };
   }, [paramName, idParam, queryName]);
+
+  // Fetch approved customer reviews for this machinery
+  useEffect(() => {
+    if (!machine) return;
+    const mTitle = machine.title || machine.name || "";
+    if (!mTitle) return;
+
+    const fetchReviews = async () => {
+      setReviewsLoading(true);
+      try {
+        const res = await fetch(`${REVIEWS_API}?status=Approved&productOrItem=${encodeURIComponent(mTitle)}`);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          setReviews(data.data);
+        }
+      } catch (err) {
+        console.error("Could not fetch machinery reviews:", err);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [machine]);
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!reviewForm.customerName.trim() || !reviewForm.comment.trim()) {
+      alert("Please fill in your name and comment.");
+      return;
+    }
+
+    try {
+      setReviewSubmitting(true);
+      const res = await fetch(REVIEWS_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: reviewForm.customerName.trim(),
+          customerEmail: reviewForm.customerEmail.trim(),
+          customerPhone: reviewForm.customerPhone.trim(),
+          productOrItem: machine.title || machine.name || "Machinery",
+          itemType: "Machinery",
+          rating: Number(reviewForm.rating) || 5,
+          title: reviewForm.title.trim(),
+          comment: reviewForm.comment.trim(),
+          status: "Pending",
+          verifiedPurchase: true,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setReviewSuccessMessage(
+          "Thank you! Your review has been submitted for approval and will appear once published by our admin team."
+        );
+        setShowReviewModal(false);
+        setReviewForm({
+          customerName: "",
+          customerEmail: "",
+          customerPhone: "",
+          rating: 5,
+          title: "",
+          comment: "",
+        });
+      } else {
+        alert(data.message || "Could not submit review.");
+      }
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      alert("Could not submit review. Please try again.");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   const scrollCategories = () => {
     if (categoryRef.current) {
@@ -848,6 +955,180 @@ const MachineryDetails = () => {
                 </div>
               </div>
             )}
+
+            {activeTab === "reviews" && (
+              <div className="MachineryDetails-tab-content">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+                  <div>
+                    <h3 style={{ fontSize: "18px", color: "#166534", margin: "0 0 4px" }}>
+                      Customer Reviews & Field Ratings
+                    </h3>
+                    <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                      Verified feedback from farmers and operators using {machine.title || machine.name}.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReviewSuccessMessage("");
+                      setShowReviewModal(true);
+                    }}
+                    style={{
+                      background: "#166534",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "8px",
+                      padding: "10px 18px",
+                      fontWeight: "700",
+                      fontSize: "14px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ★ Write a Review
+                  </button>
+                </div>
+
+                {reviewSuccessMessage && (
+                  <div
+                    style={{
+                      background: "#f0fdf4",
+                      border: "1px solid #86efac",
+                      borderRadius: "8px",
+                      padding: "14px 18px",
+                      color: "#15803d",
+                      fontWeight: "600",
+                      fontSize: "14px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    ✓ {reviewSuccessMessage}
+                  </div>
+                )}
+
+                {reviewsLoading ? (
+                  <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                    Loading reviews...
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div
+                    style={{
+                      padding: "40px 20px",
+                      textAlign: "center",
+                      background: "#f8fafc",
+                      borderRadius: "12px",
+                      border: "1.5px dashed #cbd5e1",
+                    }}
+                  >
+                    <div style={{ fontSize: "28px", color: "#fbbf24", marginBottom: "8px" }}>★★★★★</div>
+                    <h4 style={{ margin: "0 0 6px", fontSize: "16px", color: "#1e293b" }}>No published reviews yet</h4>
+                    <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#64748b" }}>
+                      Be the first farmer to share your experience with this equipment.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReviewSuccessMessage("");
+                        setShowReviewModal(true);
+                      }}
+                      style={{
+                        background: "#fff",
+                        color: "#166534",
+                        border: "1.5px solid #166534",
+                        borderRadius: "8px",
+                        padding: "8px 18px",
+                        fontWeight: "700",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Write First Review
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "16px" }}>
+                    {reviews.map((rev) => (
+                      <div
+                        key={rev._id || rev.id}
+                        style={{
+                          background: "#fff",
+                          border: "1px solid #e2e8f0",
+                          borderRadius: "10px",
+                          padding: "18px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div
+                            style={{
+                              width: "36px",
+                              height: "36px",
+                              borderRadius: "50%",
+                              background: "#166534",
+                              color: "#fff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontWeight: "700",
+                              fontSize: "14px",
+                            }}
+                          >
+                            {(rev.customerName || "U").slice(0, 1).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: "700", fontSize: "14px", color: "#0f172a" }}>
+                              {rev.customerName}
+                            </div>
+                            <div style={{ color: "#f59e0b", fontSize: "13px" }}>
+                              {"★".repeat(Math.round(rev.rating || 5))}
+                              {"☆".repeat(5 - Math.round(rev.rating || 5))}
+                              <span style={{ color: "#64748b", fontSize: "11px", marginLeft: "4px" }}>
+                                {rev.rating || 5}.0
+                              </span>
+                            </div>
+                          </div>
+                          {rev.verifiedPurchase && (
+                            <span
+                              style={{
+                                background: "#f0fdf4",
+                                color: "#166534",
+                                fontSize: "11px",
+                                fontWeight: "700",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                border: "1px solid #bbf7d0",
+                              }}
+                            >
+                              ✓ Verified
+                            </span>
+                          )}
+                        </div>
+
+                        {rev.title && (
+                          <div style={{ fontWeight: "700", fontSize: "14px", color: "#1e293b" }}>
+                            {rev.title}
+                          </div>
+                        )}
+
+                        <p style={{ margin: 0, fontSize: "13px", color: "#475569", lineHeight: "1.6" }}>
+                          {rev.comment}
+                        </p>
+
+                        <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "auto", paddingTop: "6px" }}>
+                          {new Date(rev.createdAt || Date.now()).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1069,6 +1350,259 @@ const MachineryDetails = () => {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* WRITE A REVIEW MODAL */}
+      {showReviewModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "20px",
+          }}
+          onClick={() => setShowReviewModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "16px",
+              maxWidth: "540px",
+              width: "100%",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              overflow: "hidden",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: "20px 24px",
+                borderBottom: "1px solid #f1f5f9",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#f8fafc",
+              }}
+            >
+              <div>
+                <h3 style={{ margin: 0, fontSize: "18px", color: "#0f172a", fontWeight: 700 }}>
+                  Review Equipment
+                </h3>
+                <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#64748b" }}>
+                  {machine?.title || "Machinery"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  fontSize: "18px",
+                  cursor: "pointer",
+                  color: "#94a3b8",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleReviewSubmit} style={{ padding: "24px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>
+                    Your Rating *
+                  </label>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        type="button"
+                        key={star}
+                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          fontSize: "26px",
+                          cursor: "pointer",
+                          color: star <= reviewForm.rating ? "#f59e0b" : "#cbd5e1",
+                          padding: 0,
+                          lineHeight: 1,
+                        }}
+                      >
+                        ★
+                      </button>
+                    ))}
+                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#1e293b", marginLeft: "8px" }}>
+                      {reviewForm.rating} / 5 Stars
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                    Your Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Ramesh Kumar Patel"
+                    value={reviewForm.customerName}
+                    onChange={(e) => setReviewForm({ ...reviewForm, customerName: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: "8px",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "14px",
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                      Phone (Optional)
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="10-digit mobile"
+                      value={reviewForm.customerPhone}
+                      onChange={(e) => setReviewForm({ ...reviewForm, customerPhone: e.target.value })}
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        fontSize: "14px",
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                      Email (Optional)
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="name@gmail.com"
+                      value={reviewForm.customerEmail}
+                      onChange={(e) => setReviewForm({ ...reviewForm, customerEmail: e.target.value })}
+                      style={{
+                        width: "100%",
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        fontSize: "14px",
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                    Review Title
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Robust structure and very low tractor load"
+                    value={reviewForm.title}
+                    onChange={(e) => setReviewForm({ ...reviewForm, title: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: "8px",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "14px",
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                    Your Detailed Review *
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="How does this machine perform in your field? Share maintenance tips, fuel efficiency, etc."
+                    value={reviewForm.comment}
+                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: "8px",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "14px",
+                      outline: "none",
+                      resize: "vertical",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    backgroundColor: "#f8fafc",
+                    borderRadius: "8px",
+                    padding: "10px 14px",
+                    fontSize: "12px",
+                    color: "#64748b",
+                  }}
+                >
+                  ℹ Reviews undergo verification by our admin team before being published on the platform.
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "4px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowReviewModal(false)}
+                    style={{
+                      padding: "10px 18px",
+                      borderRadius: "8px",
+                      border: "1px solid #cbd5e1",
+                      backgroundColor: "#fff",
+                      color: "#475569",
+                      fontSize: "14px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={reviewSubmitting}
+                    style={{
+                      padding: "10px 22px",
+                      borderRadius: "8px",
+                      border: "none",
+                      backgroundColor: "#166534",
+                      color: "#fff",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      cursor: reviewSubmitting ? "not-allowed" : "pointer",
+                      opacity: reviewSubmitting ? 0.7 : 1,
+                    }}
+                  >
+                    {reviewSubmitting ? "Submitting..." : "Submit Review for Approval"}
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}

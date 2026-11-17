@@ -73,11 +73,17 @@ exports.getReviews = async (req, res) => {
       await Review.insertMany(initialReviews);
     }
 
-    const { status, rating, itemType, search, sort } = req.query;
+    const { status, rating, itemType, search, sort, productOrItem } = req.query;
     let query = {};
 
     if (status && status !== 'All Status' && status !== 'All') {
       query.status = status;
+    }
+
+    if (productOrItem && productOrItem.trim()) {
+      // Escape special regex characters
+      const escaped = productOrItem.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.productOrItem = { $regex: new RegExp(escaped, 'i') };
     }
 
     if (rating && rating !== 'All Ratings' && rating !== 'All' && !isNaN(Number(rating))) {
@@ -175,7 +181,7 @@ exports.createReview = async (req, res) => {
       rating: Math.min(5, Math.max(1, numRating)),
       title: (title || '').trim(),
       comment: comment.trim(),
-      status: status || 'Approved',
+      status: status || 'Pending',
       verifiedPurchase: verifiedPurchase !== undefined ? Boolean(verifiedPurchase) : true,
       avatar: avatar || '',
     });

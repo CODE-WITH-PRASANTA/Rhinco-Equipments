@@ -15,7 +15,9 @@ import {
 
 import Farmer from "../../assets/farmer.png";
 import "./ContactTwo.css";
-import { API_ENDPOINTS } from "../../config/api";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const ENQUIRIES_API = `${API_URL}/enquiries`;
 
 const ContactTwo = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +49,7 @@ const ContactTwo = () => {
     setErrorMessage("");
 
     try {
-      const res = await fetch(API_ENDPOINTS.ENQUIRIES, {
+      const res = await fetch(ENQUIRIES_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

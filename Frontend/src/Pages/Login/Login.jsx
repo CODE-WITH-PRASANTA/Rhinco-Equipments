@@ -14,9 +14,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import "./Login.css";
-import { API_ENDPOINTS } from "../../config/api";
 
-const LOGIN_API = API_ENDPOINTS.AUTH.LOGIN;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const LOGIN_API = `${API_URL}/auth/login`;
 
 const Login = () => {
   const navigate = useNavigate();
