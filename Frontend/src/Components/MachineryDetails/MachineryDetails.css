@@ -343,7 +343,7 @@
 
 .MachineryDetails-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   align-items: center;
   gap: 10px;
   min-height: 69px;
@@ -763,4 +763,379 @@
   .MachineryDetails-tab {
     font-size: 9px;
   }
+}
+
+/* ============================================================
+   ENHANCED SPECIFICATIONS, OVERVIEW & DOCUMENTS TABS
+   ============================================================ */
+
+.MachineryDetails-tab-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.MachineryDetails-tab-heading {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+
+.MachineryDetails-tab-subheading {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+.MachineryDetails-tab-action-btn {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.MachineryDetails-tab-action-btn:hover {
+  background: #166534;
+  color: #fff;
+  border-color: #166534;
+}
+
+/* Specifications Grid */
+.MachineryDetails-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.MachineryDetails-spec-card {
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.MachineryDetails-spec-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+.MachineryDetails-spec-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+}
+
+.MachineryDetails-spec-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.MachineryDetails-spec-value.highlighted {
+  color: #166534;
+}
+
+.MachineryDetails-spec-value.highlighted-price {
+  color: #15803d;
+  font-size: 16px;
+}
+
+/* Rich Specification Box */
+.MachineryDetails-rich-box {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #166534;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.MachineryDetails-rich-box-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #166534;
+}
+
+.MachineryDetails-rich-box-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.MachineryDetails-rich-box-content {
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.7;
+}
+
+.MachineryDetails-rich-box-content p {
+  margin: 0 0 8px;
+}
+
+.MachineryDetails-rich-box-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Overview Summary Pills */
+.MachineryDetails-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.MachineryDetails-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid #e2e8f0;
+}
+
+.MachineryDetails-pill.success {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.MachineryDetails-description-body {
+  font-size: 15px;
+  color: #334155;
+  line-height: 1.8;
+  margin-bottom: 28px;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.MachineryDetails-empty-desc {
+  padding: 24px;
+  background: #f8fafc;
+  border-radius: 12px;
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* Highlights Grid */
+.MachineryDetails-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.MachineryDetails-highlight-card {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.MachineryDetails-highlight-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.MachineryDetails-highlight-card h5 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.MachineryDetails-highlight-card p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Document Cards */
+.MachineryDetails-doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.MachineryDetails-doc-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+.MachineryDetails-doc-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.MachineryDetails-doc-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.MachineryDetails-doc-badge.pdf {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.MachineryDetails-doc-badge.doc {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.MachineryDetails-doc-badge.sheet {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.MachineryDetails-doc-badge.other {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.MachineryDetails-doc-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.MachineryDetails-doc-title {
+  margin: 0 0 3px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.MachineryDetails-doc-size {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.MachineryDetails-doc-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.MachineryDetails-doc-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.MachineryDetails-doc-btn.view {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.MachineryDetails-doc-btn.view:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.MachineryDetails-doc-btn.download {
+  background: #166534;
+  color: #fff;
+}
+
+.MachineryDetails-doc-btn.download:hover {
+  background: #14532d;
+}
+
+.MachineryDetails-doc-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 16px;
+}
+
+.MachineryDetails-doc-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.MachineryDetails-doc-empty h4 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.MachineryDetails-doc-empty p {
+  margin: 0 auto;
+  font-size: 14px;
+  color: #64748b;
+  max-width: 500px;
+  line-height: 1.6;
 }

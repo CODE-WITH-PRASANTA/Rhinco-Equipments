@@ -78,6 +78,26 @@ const TabIcon = ({ type }) => {
   );
 };
 
+const getDocumentInfo = (doc, idx) => {
+  if (!doc) return null;
+  if (typeof doc === "string") {
+    const filename = doc.split("/").pop() || `Document ${idx + 1}`;
+    const ext = (filename.split(".").pop() || "pdf").toLowerCase();
+    return {
+      name: filename,
+      url: resolveImageUrl(doc),
+      ext,
+      size: null,
+    };
+  }
+  const rawUrl = doc.url || doc.data || doc.path || "";
+  const url = resolveImageUrl(rawUrl);
+  const name = doc.name || doc.title || rawUrl.split("/").pop() || `Document ${idx + 1}`;
+  const ext = (doc.type?.split("/").pop() || name.split(".").pop() || "pdf").toLowerCase();
+  const size = doc.size ? `${(doc.size / (1024 * 1024)).toFixed(2)} MB` : null;
+  return { name, url, ext, size };
+};
+
 const MachineryDetails = () => {
   const navigate = useNavigate();
   const { name: paramName } = useParams();
@@ -85,12 +105,9 @@ const MachineryDetails = () => {
   const idParam = searchParams.get("id");
   const queryName = searchParams.get("name");
 
-  const categoryRef = useRef(null);
-
   const [machine, setMachine] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [activeTab, setActiveTab] = useState("specifications");
 
   // Reviews state
@@ -108,14 +125,13 @@ const MachineryDetails = () => {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState("");
 
-  // Enquiry / Apply modal state
+  // Enquiry / Quotation modal state
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
   const [enquiryForm, setEnquiryForm] = useState({
     name: "",
     phone: "",
     email: "",
     district: "",
-    farmerType: "Male (General/OBC)",
     message: "",
   });
   const [enquirySubmitting, setEnquirySubmitting] = useState(false);
@@ -285,55 +301,16 @@ const MachineryDetails = () => {
     }
   };
 
-  const scrollCategories = () => {
-    if (categoryRef.current) {
-      categoryRef.current.scrollBy({
-        left: 170,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  // Dynamic farmer subsidy calculations based on real machine price from DB
   const basePrice = Number(machine?.discountPrice || machine?.price || 0);
 
-  const farmerCategories = [
-    {
-      id: 1,
-      name: "Male (General/OBC)",
-      subsidyPercent: 35,
-      subsidyAmount: Math.round(basePrice * 0.35),
-      farmerContribution: Math.round(basePrice * 0.65),
-    },
-    {
-      id: 2,
-      name: "Male (SC/ST)",
-      subsidyPercent: 50,
-      subsidyAmount: Math.round(basePrice * 0.5),
-      farmerContribution: Math.round(basePrice * 0.5),
-    },
-    {
-      id: 3,
-      name: "Female (General/OBC)",
-      subsidyPercent: 45,
-      subsidyAmount: Math.round(basePrice * 0.45),
-      farmerContribution: Math.round(basePrice * 0.55),
-    },
-    {
-      id: 4,
-      name: "Female (SC/ST)",
-      subsidyPercent: 50,
-      subsidyAmount: Math.round(basePrice * 0.5),
-      farmerContribution: Math.round(basePrice * 0.5),
-    },
-  ];
-
-  const handleApply = () => {
-    const cat = farmerCategories.find((c) => c.id === selectedCategory);
+  const handleOpenEnquiry = (customMsg = "") => {
+    const title = machine?.title || machine?.name || "Machinery";
+    const brand = machine?.brandName || machine?.brand || "Rhinco";
     setEnquiryForm((prev) => ({
       ...prev,
-      farmerType: cat ? cat.name : "Male (General/OBC)",
-      message: `Enquiry / Subsidy application for ${machine?.title || machine?.name || "Machinery"}. Selected Subsidy: ${cat ? cat.name : "General"}.`,
+      message:
+        customMsg ||
+        `I am interested in getting quotation, pricing, and purchase details for ${title} (${brand}).`,
     }));
     setShowEnquiryModal(true);
   };
@@ -352,11 +329,11 @@ const MachineryDetails = () => {
         phone: enquiryForm.phone,
         email: enquiryForm.email || "",
         district: enquiryForm.district || "",
-        subject: `Subsidy Application for ${machine?.title || machine?.name}`,
+        subject: `Quotation & Machinery Enquiry for ${machine?.title || machine?.name}`,
         message: enquiryForm.message,
         machineName: machine?.title || machine?.name,
         machineId: machine?._id || machine?.id,
-        category: enquiryForm.farmerType,
+        category: machine?.category || "Machinery",
       };
 
       const res = await fetch(ENQUIRIES_API, {
@@ -376,7 +353,6 @@ const MachineryDetails = () => {
             phone: "",
             email: "",
             district: "",
-            farmerType: "Male (General/OBC)",
             message: "",
           });
         }, 2200);
@@ -657,66 +633,17 @@ const MachineryDetails = () => {
               </div>
             </div>
 
-            {/* Category selection */}
-            {basePrice > 0 && (
-              <div className="MachineryDetails-category-section">
-                <label className="MachineryDetails-category-label">
-                  Select your Farmer Category to view Subsidy:
-                </label>
-
-                <div className="MachineryDetails-category-wrapper">
-                  <div className="MachineryDetails-category-list" ref={categoryRef}>
-                    {farmerCategories.map((cat) => (
-                      <button
-                        type="button"
-                        key={cat.id}
-                        className={`MachineryDetails-category-card ${
-                          selectedCategory === cat.id ? "MachineryDetails-category-active" : ""
-                        }`}
-                        onClick={() => setSelectedCategory(cat.id)}
-                      >
-                        <span className="MachineryDetails-category-name">{cat.name}</span>
-                        <strong className="MachineryDetails-category-amount">
-                          Subsidy: {formatPrice(cat.subsidyAmount)}
-                        </strong>
-                        <span style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
-                          Pay: {formatPrice(cat.farmerContribution)}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    className="MachineryDetails-category-next"
-                    onClick={scrollCategories}
-                    aria-label="Show more categories"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="m9 18 6-6-6-6"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Action Buttons: Apply Now & Contact Dealer */}
-            <div style={{ display: "flex", gap: "12px", marginTop: "18px", flexWrap: "wrap" }}>
+            {/* Action Buttons: Get Quotation & Contact Dealer */}
+            <div style={{ display: "flex", gap: "14px", marginTop: "24px", flexWrap: "wrap" }}>
               <button
                 type="button"
-                className={`MachineryDetails-apply-button ${
-                  selectedCategory ? "MachineryDetails-apply-enabled" : ""
-                }`}
-                style={{ flex: 1, minWidth: "180px" }}
-                onClick={handleApply}
+                className="MachineryDetails-apply-button MachineryDetails-apply-enabled"
+                style={{ flex: 1, minWidth: "200px" }}
+                onClick={() =>
+                  handleOpenEnquiry(`Quotation and purchase enquiry requested for ${title} (${brand}).`)
+                }
               >
-                Apply for Subsidy
+                Get Best Quotation / Enquire
                 <svg viewBox="0 0 24 24" fill="none" style={{ marginLeft: "8px" }}>
                   <path
                     d="M5 12h14m-6-6 6 6-6 6"
@@ -730,15 +657,11 @@ const MachineryDetails = () => {
 
               <button
                 type="button"
-                onClick={() => {
-                  setEnquiryForm((prev) => ({
-                    ...prev,
-                    message: `Price inquiry and dealer quotation requested for ${title} (${brand}).`,
-                  }));
-                  setShowEnquiryModal(true);
-                }}
+                onClick={() =>
+                  handleOpenEnquiry(`Price inquiry and dealer contact requested for ${title} (${brand}).`)
+                }
                 style={{
-                  padding: "0 22px",
+                  padding: "0 24px",
                   borderRadius: "14px",
                   border: "2px solid #166534",
                   background: "#fff",
@@ -756,16 +679,6 @@ const MachineryDetails = () => {
                 Contact Dealer
               </button>
             </div>
-
-            {basePrice > 0 && (
-              <div className="MachineryDetails-apply-hint">
-                {selectedCategory
-                  ? `Selected: ${farmerCategories.find((item) => item.id === selectedCategory).name} (Approx. ${
-                      farmerCategories.find((item) => item.id === selectedCategory).subsidyPercent
-                    }% Gov Subsidy)`
-                  : "Select your farmer category above to calculate exact subsidy benefit"}
-              </div>
-            )}
 
             <div className="MachineryDetails-info-divider" />
 
@@ -813,146 +726,260 @@ const MachineryDetails = () => {
           </div>
 
           <div className="MachineryDetails-tab-panel">
+            {/* SPECIFICATIONS TAB */}
             {activeTab === "specifications" && (
-              <div className="MachineryDetails-tab-message">
-                <h3 style={{ fontSize: "18px", color: "#166534", marginBottom: "14px" }}>
-                  Detailed Technical Specifications
-                </h3>
+              <div className="MachineryDetails-tab-content">
+                <div className="MachineryDetails-tab-header-row">
+                  <div>
+                    <h3 className="MachineryDetails-tab-heading">
+                      Technical Specifications & Parameters
+                    </h3>
+                    <p className="MachineryDetails-tab-subheading">
+                      Real engineering metrics and operational parameters for {title}.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="MachineryDetails-tab-action-btn"
+                    onClick={() => handleOpenEnquiry(`Technical specification enquiry for ${title}.`)}
+                  >
+                    Request Full Spec Sheet
+                  </button>
+                </div>
 
-                {machine.specification && (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: machine.specification }}
-                    style={{ lineHeight: "1.7", color: "#334155", marginBottom: "20px" }}
-                  />
-                )}
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-                    gap: "14px",
-                  }}
-                >
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Brand / Manufacturer</strong>
-                    <p style={{ margin: "4px 0 0", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>{brand}</p>
+                {/* Primary Specifications Grid */}
+                <div className="MachineryDetails-spec-grid">
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Brand / Manufacturer</span>
+                    <strong className="MachineryDetails-spec-value">{brand}</strong>
                   </div>
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Model Name</strong>
-                    <p style={{ margin: "4px 0 0", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>{modelName || "Standard"}</p>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Model / Series</span>
+                    <strong className="MachineryDetails-spec-value">{modelName || "Standard Edition"}</strong>
                   </div>
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Required Power</strong>
-                    <p style={{ margin: "4px 0 0", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>{power}</p>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Implement / Machine Type</span>
+                    <strong className="MachineryDetails-spec-value">{machine.implementType || category}</strong>
                   </div>
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Implement Type</strong>
-                    <p style={{ margin: "4px 0 0", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>{machine.implementType || category}</p>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Equipment Category</span>
+                    <strong className="MachineryDetails-spec-value">{category}</strong>
                   </div>
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Equipment Category</strong>
-                    <p style={{ margin: "4px 0 0", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>{category}</p>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Tractor Power Required</span>
+                    <strong className="MachineryDetails-spec-value highlighted">{power}</strong>
                   </div>
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Machine Code</strong>
-                    <p style={{ margin: "4px 0 0", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>{machine.code || "N/A"}</p>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Machine Code / ID</span>
+                    <strong className="MachineryDetails-spec-value">
+                      {machine.code || `EQP-${String(machine._id || machine.id).slice(-4).toUpperCase()}`}
+                    </strong>
                   </div>
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Store Availability</strong>
-                    <p style={{ margin: "4px 0 0", color: "#0f172a", fontWeight: "600", fontSize: "15px" }}>{machine.availableAtStore || "Yes"}</p>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Store Availability</span>
+                    <strong className="MachineryDetails-spec-value">
+                      {machine.availableAtStore === "No" ? "Available on Order" : "In Stock at Showrooms"}
+                    </strong>
                   </div>
-                  <div style={{ padding: "14px", background: "#f8fafc", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                    <strong style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase" }}>Status</strong>
-                    <p style={{ margin: "4px 0 0", color: machine.status === "Available" ? "#166534" : "#e11d48", fontWeight: "600", fontSize: "15px" }}>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Operational Status</span>
+                    <strong
+                      className="MachineryDetails-spec-value"
+                      style={{ color: machine.status === "Available" ? "#166534" : "#e11d48" }}
+                    >
                       {machine.status || "Available"}
+                    </strong>
+                  </div>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Ex-Showroom Price</span>
+                    <strong className="MachineryDetails-spec-value">{formatPrice(machine.price || basePrice)}</strong>
+                  </div>
+                  <div className="MachineryDetails-spec-card">
+                    <span className="MachineryDetails-spec-label">Offer / Discount Price</span>
+                    <strong className="MachineryDetails-spec-value highlighted-price">
+                      {discountPrice > 0 ? formatPrice(discountPrice) : "Contact for Best Quotation"}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Real Rich Specifications from DB */}
+                {machine.specification && (
+                  <div className="MachineryDetails-rich-box">
+                    <div className="MachineryDetails-rich-box-header">
+                      <svg viewBox="0 0 24 24" fill="none" width="18" height="18" stroke="#166534">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                      <h4>Engineering Build & Detailed Parameters</h4>
+                    </div>
+                    <div
+                      className="MachineryDetails-rich-box-content"
+                      dangerouslySetInnerHTML={{ __html: machine.specification }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* OVERVIEW & FEATURES TAB */}
+            {activeTab === "description" && (
+              <div className="MachineryDetails-tab-content">
+                <div className="MachineryDetails-tab-header-row">
+                  <div>
+                    <h3 className="MachineryDetails-tab-heading">
+                      Product Overview & Field Capabilities
+                    </h3>
+                    <p className="MachineryDetails-tab-subheading">
+                      Verified features, operational performance, and application guide.
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {activeTab === "description" && (
-              <div className="MachineryDetails-tab-content">
-                <h3 style={{ fontSize: "18px", color: "#166534", marginBottom: "14px" }}>
-                  Product Overview & Key Features
-                </h3>
+                {/* Machine Summary Pills */}
+                <div className="MachineryDetails-summary-pills">
+                  <span className="MachineryDetails-pill">OEM: {brand}</span>
+                  <span className="MachineryDetails-pill">Type: {machine.implementType || category}</span>
+                  <span className="MachineryDetails-pill">Power: {power}</span>
+                  <span className="MachineryDetails-pill success">
+                    Status: {machine.status || "Verified Equipment"}
+                  </span>
+                </div>
+
+                {/* Real Rich Description from DB */}
                 {machine.description ? (
                   <div
+                    className="MachineryDetails-description-body"
                     dangerouslySetInnerHTML={{ __html: machine.description }}
-                    style={{ lineHeight: "1.7", color: "#334155" }}
                   />
                 ) : (
-                  <p style={{ lineHeight: "1.7", color: "#64748b" }}>
-                    Detailed overview and operational specifications will be provided upon dealer enquiry.
-                  </p>
-                )}
-              </div>
-            )}
-
-            {activeTab === "documents" && (
-              <div className="MachineryDetails-tab-content">
-                <h3 style={{ fontSize: "18px", color: "#166534", marginBottom: "14px" }}>
-                  Documents & Verification Requirements
-                </h3>
-
-                {Array.isArray(machine.documents) && machine.documents.length > 0 && (
-                  <div style={{ marginBottom: "24px" }}>
-                    <h4 style={{ fontSize: "14px", color: "#334155", marginBottom: "10px", fontWeight: "700" }}>
-                      Machine Specification Documents & Manuals
-                    </h4>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {machine.documents.map((doc, dIdx) => {
-                        const docUrl = typeof doc === "string" ? doc : doc?.url || doc?.path || "";
-                        const docName = typeof doc === "object" ? doc?.name || `Document ${dIdx + 1}` : `Document ${dIdx + 1}`;
-                        return (
-                          <a
-                            key={dIdx}
-                            href={resolveImageUrl(docUrl)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "10px 16px",
-                              background: "#f0fdf4",
-                              border: "1px solid #bbf7d0",
-                              borderRadius: "8px",
-                              color: "#166534",
-                              fontWeight: "600",
-                              fontSize: "13px",
-                              textDecoration: "none",
-                              width: "fit-content",
-                            }}
-                          >
-                            <FileText size={16} />
-                            <span>{docName}</span>
-                            <Download size={14} style={{ marginLeft: "4px" }} />
-                          </a>
-                        );
-                      })}
-                    </div>
+                  <div className="MachineryDetails-empty-desc">
+                    <p>
+                      Official product overview, setup instructions, and field trial performance details
+                      are available from our technical specialists.
+                    </p>
                   </div>
                 )}
 
-                <h4 style={{ fontSize: "14px", color: "#334155", marginBottom: "10px", fontWeight: "700" }}>
-                  Government DBT Subsidy Verification Checklist
-                </h4>
-                <div className="MachineryDetails-document-list">
-                  {[
-                    "Farmer Aadhaar Card (Linked to Mobile & DBT Portal)",
-                    "Active Bank Passbook / Cancelled Cheque with IFSC",
-                    "Land Record Certificate (7/12 & 8A / RoR Khatauni)",
-                    "Recent Passport Size Photograph of the Beneficiary",
-                    "Caste Certificate (Applicable for SC/ST subsidy categories)",
-                    "Farmer Registration ID from the State Agriculture Portal",
-                  ].map((document, index) => (
-                    <div className="MachineryDetails-document-item" key={index}>
-                      <span className="MachineryDetails-document-check">✓</span>
-                      {document}
+                {/* Feature Highlights Grid */}
+                <div className="MachineryDetails-highlights-grid">
+                  <div className="MachineryDetails-highlight-card">
+                    <div className="MachineryDetails-highlight-icon">
+                      <CheckCircle2 size={20} />
                     </div>
-                  ))}
+                    <div>
+                      <h5>Heavy-Duty Construction</h5>
+                      <p>Built with robust structural steel for rigorous operations in wet and dry soils.</p>
+                    </div>
+                  </div>
+                  <div className="MachineryDetails-highlight-card">
+                    <div className="MachineryDetails-highlight-icon">
+                      <Tractor size={20} />
+                    </div>
+                    <div>
+                      <h5>Tractor Optimized</h5>
+                      <p>Engineered for minimal engine wear, low fuel consumption, and smooth PTO power transfer.</p>
+                    </div>
+                  </div>
+                  <div className="MachineryDetails-highlight-card">
+                    <div className="MachineryDetails-highlight-icon">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                      <h5>Genuine Spare Parts & Support</h5>
+                      <p>Fully backed by Rhinco Equipment authorized dealers with warranty coverage.</p>
+                    </div>
+                  </div>
                 </div>
+              </div>
+            )}
+
+            {/* REQUIRED DOCUMENTS TAB */}
+            {activeTab === "documents" && (
+              <div className="MachineryDetails-tab-content">
+                <div className="MachineryDetails-tab-header-row">
+                  <div>
+                    <h3 className="MachineryDetails-tab-heading">
+                      Required Documents & Official Manuals
+                    </h3>
+                    <p className="MachineryDetails-tab-subheading">
+                      Official brochures, operator manuals, and technical certificates uploaded for {title}.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="MachineryDetails-tab-action-btn"
+                    onClick={() => handleOpenEnquiry(`Requesting official documents and brochures for ${title}.`)}
+                  >
+                    Request Additional Documents
+                  </button>
+                </div>
+
+                {Array.isArray(machine.documents) && machine.documents.length > 0 ? (
+                  <div className="MachineryDetails-doc-grid">
+                    {machine.documents.map((doc, dIdx) => {
+                      const docInfo = getDocumentInfo(doc, dIdx);
+                      if (!docInfo) return null;
+
+                      const isPdf = docInfo.ext === "pdf";
+                      const isDoc = ["doc", "docx"].includes(docInfo.ext);
+                      const isSheet = ["xls", "xlsx", "csv"].includes(docInfo.ext);
+
+                      return (
+                        <div key={dIdx} className="MachineryDetails-doc-card">
+                          <div className={`MachineryDetails-doc-badge ${isPdf ? "pdf" : isDoc ? "doc" : isSheet ? "sheet" : "other"}`}>
+                            <FileText size={22} />
+                            <span>{docInfo.ext.toUpperCase()}</span>
+                          </div>
+
+                          <div className="MachineryDetails-doc-meta">
+                            <h4 className="MachineryDetails-doc-title">{docInfo.name}</h4>
+                            <p className="MachineryDetails-doc-size">
+                              {isPdf ? "Official PDF Document" : isDoc ? "Word Document" : isSheet ? "Spreadsheet Data" : "Uploaded Attachment"}
+                              {docInfo.size ? ` • ${docInfo.size}` : ""}
+                            </p>
+                          </div>
+
+                          <div className="MachineryDetails-doc-actions">
+                            <a
+                              href={docInfo.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="MachineryDetails-doc-btn view"
+                            >
+                              View
+                            </a>
+                            <a
+                              href={docInfo.url}
+                              download={docInfo.name}
+                              className="MachineryDetails-doc-btn download"
+                            >
+                              <Download size={15} />
+                              Download
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="MachineryDetails-doc-empty">
+                    <div className="MachineryDetails-doc-empty-icon">
+                      <FileText size={32} />
+                    </div>
+                    <h4>No Documents Uploaded Yet</h4>
+                    <p>
+                      Official manufacturer brochures, parts catalogues, and warranty paperwork
+                      have not been published for this equipment yet. You can request a digital copy directly from our team.
+                    </p>
+                    <button
+                      type="button"
+                      className="MachineryDetails-tab-action-btn"
+                      style={{ marginTop: "14px" }}
+                      onClick={() => handleOpenEnquiry(`Please provide the official brochure and user manual for ${title} (${brand}).`)}
+                    >
+                      Request Brochure & Manual via Email / WhatsApp
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1208,7 +1235,7 @@ const MachineryDetails = () => {
             ) : (
               <form onSubmit={handleEnquirySubmit}>
                 <h3 style={{ fontSize: "20px", color: "#0f172a", marginBottom: "4px" }}>
-                  Enquire & Apply for Subsidy
+                  Get Price Quotation
                 </h3>
                 <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "20px" }}>
                   Machine: <strong>{title}</strong> ({brand})
@@ -1265,7 +1292,7 @@ const MachineryDetails = () => {
                       </label>
                       <input
                         type="text"
-                        placeholder="e.g. Pune, Maharashtra"
+                        placeholder="e.g. Cuttack, Odisha"
                         value={enquiryForm.district}
                         onChange={(e) => setEnquiryForm({ ...enquiryForm, district: e.target.value })}
                         style={{
@@ -1283,36 +1310,11 @@ const MachineryDetails = () => {
 
                   <div>
                     <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
-                      Farmer Category
-                    </label>
-                    <select
-                      value={enquiryForm.farmerType}
-                      onChange={(e) => setEnquiryForm({ ...enquiryForm, farmerType: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "10px 14px",
-                        borderRadius: "8px",
-                        border: "1px solid #cbd5e1",
-                        fontSize: "14px",
-                        outline: "none",
-                        backgroundColor: "#fff",
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      <option value="Male (General/OBC)">Male (General/OBC)</option>
-                      <option value="Male (SC/ST)">Male (SC/ST)</option>
-                      <option value="Female (General/OBC)">Female (General/OBC)</option>
-                      <option value="Female (SC/ST)">Female (SC/ST)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
                       Message or Specific Requirements
                     </label>
                     <textarea
                       rows={3}
-                      placeholder="Ask about price quotation, delivery, or subsidy paperwork..."
+                      placeholder="Ask about price quotation, delivery schedule, attachments, or financing..."
                       value={enquiryForm.message}
                       onChange={(e) => setEnquiryForm({ ...enquiryForm, message: e.target.value })}
                       style={{
@@ -1345,7 +1347,7 @@ const MachineryDetails = () => {
                       opacity: enquirySubmitting ? 0.7 : 1,
                     }}
                   >
-                    {enquirySubmitting ? "Submitting Enquiry..." : "Submit Enquiry & Apply"}
+                    {enquirySubmitting ? "Submitting Quotation Request..." : "Submit Quotation Request"}
                   </button>
                 </div>
               </form>
