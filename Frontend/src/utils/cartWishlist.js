@@ -39,10 +39,14 @@ export const getCart = () => {
 export const saveCart = (cart) => {
   try {
     const normalized = Array.isArray(cart) ? cart : [];
-    localStorage.setItem(CART_KEY, JSON.stringify(normalized));
-    localStorage.setItem(LEGACY_CART_KEY, JSON.stringify(normalized));
+    const prevRaw = localStorage.getItem(CART_KEY);
+    const newRaw = JSON.stringify(normalized);
+    if (prevRaw === newRaw) {
+      return;
+    }
+    localStorage.setItem(CART_KEY, newRaw);
+    localStorage.setItem(LEGACY_CART_KEY, newRaw);
     window.dispatchEvent(new CustomEvent("rhinco_cart_updated", { detail: normalized }));
-    window.dispatchEvent(new Event("storage"));
   } catch (err) {
     console.error("Error saving cart to localStorage:", err);
   }
@@ -159,10 +163,14 @@ export const getWishlist = () => {
 export const saveWishlist = (wishlist) => {
   try {
     const normalized = Array.isArray(wishlist) ? wishlist : [];
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(normalized));
-    localStorage.setItem(LEGACY_WISHLIST_KEY, JSON.stringify(normalized));
+    const prevRaw = localStorage.getItem(WISHLIST_KEY);
+    const newRaw = JSON.stringify(normalized);
+    if (prevRaw === newRaw) {
+      return;
+    }
+    localStorage.setItem(WISHLIST_KEY, newRaw);
+    localStorage.setItem(LEGACY_WISHLIST_KEY, newRaw);
     window.dispatchEvent(new CustomEvent("rhinco_wishlist_updated", { detail: normalized }));
-    window.dispatchEvent(new Event("storage"));
   } catch (err) {
     console.error("Error saving wishlist:", err);
   }

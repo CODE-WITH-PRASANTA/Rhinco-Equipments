@@ -59,7 +59,15 @@ const WishlistMain = () => {
   // Sync with other components
   useEffect(() => {
     const handleSync = () => {
-      setWishlistItems(getWishlist());
+      const fresh = getWishlist();
+      setWishlistItems((prev) => {
+        const prevIds = prev.map((item) => getProductId(item)).join(",");
+        const freshIds = fresh.map((item) => getProductId(item)).join(",");
+        if (prevIds === freshIds && prev.length === fresh.length) {
+          return prev;
+        }
+        return fresh;
+      });
     };
 
     window.addEventListener("rhinco_wishlist_updated", handleSync);
@@ -70,11 +78,6 @@ const WishlistMain = () => {
       window.removeEventListener("storage", handleSync);
     };
   }, []);
-
-  // Save changes to localStorage and notify
-  useEffect(() => {
-    saveWishlist(wishlistItems);
-  }, [wishlistItems]);
 
   // Toast
   const showToast = (message) => {
@@ -124,16 +127,16 @@ const WishlistMain = () => {
 
   // Remove product
   const removeFromWishlist = (id) => {
-    setWishlistItems((previous) =>
-      previous.filter((item) => getProductId(item) !== id)
-    );
-
+    const updated = wishlistItems.filter((item) => getProductId(item) !== id);
+    setWishlistItems(updated);
+    saveWishlist(updated);
     showToast("Product removed from wishlist");
   };
 
   // Clear wishlist
   const clearWishlist = () => {
     setWishlistItems([]);
+    saveWishlist([]);
     setShowClearModal(false);
     showToast("Your wishlist has been cleared");
   };
@@ -148,7 +151,9 @@ const WishlistMain = () => {
   const moveToCart = (product) => {
     helperAddToCart(product, 1);
     const pId = getProductId(product);
-    setWishlistItems((prev) => prev.filter((item) => getProductId(item) !== pId));
+    const updated = wishlistItems.filter((item) => getProductId(item) !== pId);
+    setWishlistItems(updated);
+    saveWishlist(updated);
     showToast("Moved product to cart");
   };
 
@@ -159,6 +164,7 @@ const WishlistMain = () => {
       helperAddToCart(product, 1);
     });
     setWishlistItems([]);
+    saveWishlist([]);
     showToast("All wishlist products added to cart");
   };
 
