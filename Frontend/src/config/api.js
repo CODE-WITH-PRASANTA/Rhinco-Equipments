@@ -1,3 +1,4 @@
+
 /**
  * Rhinco Equipments - Dynamic API Configuration
  * Single source of truth for all frontend API calls.
@@ -146,9 +147,24 @@ export const apiFetch = async (endpointOrPath, options = {}) => {
   return fetch(url, config);
 };
 
+/**
+ * Generates a clean URL slug (e.g. "shaktiman-regular-plus-rotavator")
+ * Replaces spaces, percent encodings, and special characters with hyphens.
+ */
+export const toMachinerySlug = (text) => {
+  if (!text) return "";
+  return String(text)
+    .toLowerCase()
+    .trim()
+    .replace(/%20/g, " ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
 export default {
   BASE_URL: API_BASE_URL,
   ORIGIN: BACKEND_ORIGIN,
   ENDPOINTS: API_ENDPOINTS,
   fetch: apiFetch,
+  toMachinerySlug,
 };

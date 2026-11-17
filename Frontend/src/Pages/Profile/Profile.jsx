@@ -23,7 +23,7 @@ import {
   Clock,
 } from "lucide-react";
 import "./Profile.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, toMachinerySlug } from "../../config/api";
 
 const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
 const ADDRESSES_STORAGE_KEY = "rhinco_saved_addresses";
@@ -1087,7 +1087,7 @@ const Profile = () => {
                             Ref ID: {enq._id ? `#${enq._id.slice(-6).toUpperCase()}` : "#ENQ"}
                           </span>
                           <Link
-                            to={`/machinery/${encodeURIComponent(enq.productOrEquipment || enq.machineName || "")}`}
+                            to={`/machinery/${toMachinerySlug(enq.productOrEquipment || enq.machineName || "")}`}
                             style={{
                               fontSize: "13px",
                               fontWeight: 700,

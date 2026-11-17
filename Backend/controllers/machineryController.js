@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Machinery = require('../models/Machinery');
 const { saveMultipleBase64Images } = require('../utils/saveBase64Image');
 
@@ -100,11 +101,47 @@ exports.getMachineries = async (req, res) => {
   }
 };
 
-// @desc    Get single machinery item
+// @desc    Get single machinery item by id, slug, or title
 // @route   GET /api/machinery/:id
 exports.getMachineryById = async (req, res) => {
   try {
-    const item = await Machinery.findById(req.params.id);
+    const param = (req.params.id || '').trim();
+    let item = null;
+
+    // 1. Try finding by MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(param)) {
+      item = await Machinery.findById(param);
+    }
+
+    // 2. Try finding by title, modelName, code, or slug
+    if (!item) {
+      const decoded = decodeURIComponent(param);
+      const cleanPattern = decoded.replace(/-/g, ' ').trim();
+      const regexExact = new RegExp(`^${cleanPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+
+      item = await Machinery.findOne({
+        $or: [
+          { title: regexExact },
+          { modelName: regexExact },
+          { code: regexExact },
+        ],
+      });
+
+      // 3. Fallback to flexible slug search
+      if (!item) {
+        const words = cleanPattern.split(/\s+/).filter(Boolean);
+        if (words.length > 0) {
+          const flexibleRegex = new RegExp(words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*'), 'i');
+          item = await Machinery.findOne({
+            $or: [
+              { title: flexibleRegex },
+              { modelName: flexibleRegex },
+            ],
+          });
+        }
+      }
+    }
+
     if (!item) {
       return res.status(404).json({ success: false, message: 'Machinery not found' });
     }

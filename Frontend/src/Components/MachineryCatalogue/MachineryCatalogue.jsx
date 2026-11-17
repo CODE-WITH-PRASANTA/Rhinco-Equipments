@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MachinaryEquipmentOne.css";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl, toMachinerySlug } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
@@ -535,7 +535,7 @@ const MachineryCatalogue = () => {
 
                 return (
                   <Link
-                    to={`/machinery/${encodeURIComponent(name)}`}
+                    to={`/machinery/${toMachinerySlug(name)}`}
                     className="MachineryCatalogue-product-card"
                     key={product._id || product.id}
                   >

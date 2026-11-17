@@ -9,7 +9,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import "./AgriMachinery.css";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl, toMachinerySlug } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
@@ -141,7 +141,7 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
                 >
                   {/* IMAGE */}
                   <Link
-                    to={`/machinery/${encodeURIComponent(name)}`}
+                    to={`/machinery/${toMachinerySlug(name)}`}
                     className="agriMachineryImage"
                     style={{ textDecoration: "none", display: "block" }}
                   >
@@ -178,7 +178,7 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
 
                     <h3>
                       <Link
-                        to={`/machinery/${encodeURIComponent(name)}`}
+                        to={`/machinery/${toMachinerySlug(name)}`}
                         style={{ textDecoration: "none", color: "inherit" }}
                       >
                         {name}

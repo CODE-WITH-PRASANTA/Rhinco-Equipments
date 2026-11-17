@@ -17,7 +17,7 @@ import {
   Check,
 } from "lucide-react";
 import "./MachinaryEquipmentOne.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, toMachinerySlug } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
@@ -420,7 +420,7 @@ const MachinaryEquipmentOne = ({
                     key={item._id || item.id}
                   >
                     <Link
-                      to={`/machinery/${encodeURIComponent(title)}`}
+                      to={`/machinery/${toMachinerySlug(title)}`}
                       className="MachinaryEquipmentOne-imageArea"
                       style={{ textDecoration: "none", display: "block" }}
                     >
@@ -449,7 +449,7 @@ const MachinaryEquipmentOne = ({
                     <div className="MachinaryEquipmentOne-cardContent">
                       <h3 className="MachinaryEquipmentOne-productName">
                         <Link
-                          to={`/machinery/${encodeURIComponent(title)}`}
+                          to={`/machinery/${toMachinerySlug(title)}`}
                           style={{ color: "inherit", textDecoration: "none" }}
                         >
                           {title}
@@ -489,7 +489,7 @@ const MachinaryEquipmentOne = ({
 
                       <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
                         <Link
-                          to={`/machinery/${encodeURIComponent(title)}`}
+                          to={`/machinery/${toMachinerySlug(title)}`}
                           style={{
                             flex: 1,
                             padding: "9px 12px",

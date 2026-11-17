@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MacineryEquipmentCards.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, toMachinerySlug } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
@@ -178,7 +178,7 @@ const MacineryEquipmentCards = () => {
     return (
       <article className="mec-card" key={product._id || product.id || index}>
         <div className="mec-card-image">
-          <Link to={`/machinery/${encodeURIComponent(name)}`}>
+          <Link to={`/machinery/${toMachinerySlug(name)}`}>
             <img
               src={image}
               alt={name}
@@ -191,7 +191,7 @@ const MacineryEquipmentCards = () => {
         </div>
 
         <h3 className="mec-product-name" title={name}>
-          <Link to={`/machinery/${encodeURIComponent(name)}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <Link to={`/machinery/${toMachinerySlug(name)}`} style={{ textDecoration: "none", color: "inherit" }}>
             {name}
           </Link>
         </h3>
