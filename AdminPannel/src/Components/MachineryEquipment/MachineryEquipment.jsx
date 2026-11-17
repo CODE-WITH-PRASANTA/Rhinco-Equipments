@@ -9,7 +9,7 @@ import {
   FiDollarSign, FiBox, FiTool
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, uploadImage, resolveImageUrl } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
@@ -78,8 +78,8 @@ const plainText = (html = "") =>
 
 const imageSrc = (image) => {
   if (!image) return "";
-  if (typeof image === "string") return image;
-  return image.data || image.preview || image.url || "";
+  const raw = typeof image === "string" ? image : image.data || image.preview || image.url || "";
+  return resolveImageUrl(raw);
 };
 
 const MachineryEquipment = () => {
@@ -172,28 +172,39 @@ const MachineryEquipment = () => {
     const valid = files.filter(
       (file) =>
         file.type.startsWith("image/") &&
-        file.size <= 5 * 1024 * 1024
+        file.size <= 15 * 1024 * 1024
     );
 
     if (valid.length !== files.length) {
-      setNotice("Some files were skipped. Select images up to 5 MB each.");
+      setNotice("Some files were skipped. Select images up to 15 MB each.");
     }
 
     const selected = valid.slice(0, remaining);
 
     try {
-      const uploaded = await Promise.all(selected.map(readFile));
+      setNotice("Uploading image(s) to server...");
+      const uploaded = await Promise.all(
+        selected.map(async (file) => {
+          const serverUrl = await uploadImage(file);
+          return {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: serverUrl,
+            url: serverUrl,
+          };
+        })
+      );
 
       setForm((prev) => ({
         ...prev,
         machineImages: [...prev.machineImages, ...uploaded]
       }));
 
-      if (files.length > remaining) {
-        setNotice("Only the remaining image slots were filled.");
-      }
-    } catch {
-      setNotice("Unable to read one or more images.");
+      setNotice(files.length > remaining ? "Only the remaining image slots were filled." : "");
+    } catch (err) {
+      console.error("Machine image upload error:", err);
+      setNotice("Unable to upload one or more images: " + err.message);
     }
 
     event.target.value = "";

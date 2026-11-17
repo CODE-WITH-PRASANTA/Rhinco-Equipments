@@ -24,7 +24,7 @@ import {
 } from "react-icons/fi";
 
 import "./AddPost.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, uploadImage, resolveImageUrl } from "../../config/api";
 
 const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 const CATEGORIES_API = API_ENDPOINTS.CATEGORIES;
@@ -203,24 +203,37 @@ const AddPost = ({ onSubmit }) => {
     );
 
     if (validFiles.length !== files.length) {
-      setNotice("Invalid images skipped. Maximum size is 5MB per image.");
+      setNotice("Invalid images skipped. Maximum size is 15MB per image.");
     } else {
       setNotice("");
     }
 
-    validFiles.slice(0, remaining).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImages((prev) => [
-          ...prev,
-          {
-            id: `${Date.now()}-${Math.random()}`,
-            preview: reader.result,
-            name: file.name,
-          },
-        ]);
-      };
-      reader.readAsDataURL(file);
+    validFiles.slice(0, remaining).forEach(async (file) => {
+      const tempId = `${Date.now()}-${Math.random()}`;
+      const localPreview = URL.createObjectURL(file);
+
+      setImages((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          preview: localPreview,
+          name: file.name,
+        },
+      ]);
+
+      try {
+        const serverUrl = await uploadImage(file);
+        setImages((prev) =>
+          prev.map((img) =>
+            img.id === tempId
+              ? { ...img, preview: serverUrl, url: serverUrl }
+              : img
+          )
+        );
+      } catch (err) {
+        console.error("Product image upload failed:", err);
+        setNotice("Failed to upload " + file.name + ": " + err.message);
+      }
     });
 
     e.target.value = "";
@@ -290,7 +303,7 @@ const AddPost = ({ onSubmit }) => {
       finalPrice,
       stockQuantity: stock,
       bestSeller: Boolean(form.bestSeller),
-      images: images.map((img) => img.preview).filter(Boolean),
+      images: images.map((img) => img.url || img.preview).filter(Boolean),
     };
 
     try {
@@ -623,7 +636,7 @@ const AddPost = ({ onSubmit }) => {
             <div className="AddPost-imageGrid">
               {images.map((image, index) => (
                 <div className="AddPost-imageCard" key={image.id}>
-                  <img src={image.preview} alt={`Upload ${index + 1}`} />
+                  <img src={resolveImageUrl(image.preview)} alt={`Upload ${index + 1}`} />
                   <div className="AddPost-imageBadge">
                     {index === 0 ? "Main Photo" : `#${index + 1}`}
                   </div>
@@ -802,7 +815,7 @@ const AddPost = ({ onSubmit }) => {
                       <td>
                         <div className="AddPost-tableImage">
                           <img
-                            src={displayImg}
+                            src={resolveImageUrl(displayImg)}
                             alt={product.title || product.name}
                             onError={(e) => {
                               e.currentTarget.src = "https://placehold.co/100x80?text=Product";

@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const { saveMultipleBase64Images } = require('../utils/saveBase64Image');
 
 // @desc    Get all products
 // @route   GET /api/products
@@ -167,7 +168,7 @@ exports.createProduct = async (req, res) => {
       badge: badge || (isBestSeller ? 'Best Seller' : ''),
       rating: rating !== undefined ? Number(rating) : 4.8,
       reviews: reviews !== undefined ? Number(reviews) : 12,
-      images: normalizedImages,
+      images: saveMultipleBase64Images(normalizedImages, 'product'),
     });
 
     const obj = newProduct.toObject();
@@ -239,13 +240,15 @@ exports.updateProduct = async (req, res) => {
     if (reviews !== undefined) product.reviews = Number(reviews);
 
     if (images !== undefined) {
+      let updatedImages = [];
       if (Array.isArray(images)) {
-        product.images = images.map((img) =>
+        updatedImages = images.map((img) =>
           typeof img === 'string' ? img : img.preview || img.url || ''
         ).filter(Boolean);
       } else if (typeof images === 'string') {
-        product.images = [images];
+        updatedImages = [images];
       }
+      product.images = saveMultipleBase64Images(updatedImages, 'product');
     }
 
     await product.save();

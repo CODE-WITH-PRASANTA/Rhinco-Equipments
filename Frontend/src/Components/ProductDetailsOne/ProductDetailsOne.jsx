@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import "./ProductDetailsOne.css";
 import drillImage from "../../assets/machine.jpg";
 import { addToCart, toggleWishlist, isInWishlist } from "../../utils/cartWishlist";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 
@@ -249,7 +249,7 @@ const ProductDetailsOne = () => {
         {/* Main product image gallery */}
         <div className="ProductDetailsOne-gallery">
           <div className="ProductDetailsOne-main-image">
-            <img src={activeImage || drillImage} alt={productName} />
+            <img src={resolveImageUrl(activeImage, drillImage)} alt={productName} />
             {(product.badge || product.bestSeller) && (
               <span className="ProductDetailsOne-image-badge">
                 {product.badge || "Best Seller"}
@@ -271,7 +271,7 @@ const ProductDetailsOne = () => {
                     onClick={() => setActiveImage(src)}
                     aria-label={`Show product image ${idx + 1}`}
                   >
-                    <img src={src} alt={`${productName} view ${idx + 1}`} />
+                    <img src={resolveImageUrl(src, drillImage)} alt={`${productName} view ${idx + 1}`} />
                   </button>
                 );
               })}

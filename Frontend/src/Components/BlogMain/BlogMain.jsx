@@ -12,7 +12,7 @@ import {
   Share2,
 } from "lucide-react";
 import "./BlogMain.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const BLOGS_API = API_ENDPOINTS.BLOGS;
 
@@ -206,7 +206,7 @@ const BlogMain = () => {
                   <div className="BlogMain-card-media">
                     <Link to={`/blog/${postSlug}`} tabIndex={-1}>
                       <img
-                        src={post.image || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"}
+                        src={resolveImageUrl(post.image, "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80")}
                         alt={post.title}
                         className="BlogMain-card-img"
                         loading="lazy"
@@ -245,7 +245,7 @@ const BlogMain = () => {
                       <div className="BlogMain-card-author">
                         {post.authorAvatar ? (
                           <img
-                            src={post.authorAvatar}
+                            src={resolveImageUrl(post.authorAvatar)}
                             alt={post.author}
                             className="BlogMain-card-avatar"
                           />

@@ -1,4 +1,5 @@
 const Machinery = require('../models/Machinery');
+const { saveMultipleBase64Images } = require('../utils/saveBase64Image');
 
 const formatMachinery = (item) => {
   const obj = item.toObject ? item.toObject() : item;
@@ -183,7 +184,9 @@ exports.createMachinery = async (req, res) => {
       status: status || 'Available',
       sponsored: Boolean(sponsored),
       code: code ? code.trim() : undefined,
-      machineImages: Array.isArray(machineImages) ? machineImages : [],
+      machineImages: Array.isArray(machineImages)
+        ? saveMultipleBase64Images(machineImages, 'machinery')
+        : [],
       documents: Array.isArray(documents) ? documents : [],
     });
 
@@ -247,7 +250,7 @@ exports.updateMachinery = async (req, res) => {
     if (status !== undefined) item.status = status;
     if (sponsored !== undefined) item.sponsored = Boolean(sponsored);
     if (code !== undefined) item.code = code.trim();
-    if (Array.isArray(machineImages)) item.machineImages = machineImages;
+    if (Array.isArray(machineImages)) item.machineImages = saveMultipleBase64Images(machineImages, 'machinery');
     if (Array.isArray(documents)) item.documents = documents;
 
     const updated = await item.save();

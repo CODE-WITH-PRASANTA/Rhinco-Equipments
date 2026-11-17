@@ -38,12 +38,21 @@ app.use(cors({
 // Explicit OPTIONS preflight handling
 app.options('*', cors());
 
-// Body parsers with generous limits for image uploads
+// Body parsers
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-// Serve uploaded static files
-app.use('/uploads', express.static(uploadsDir));
+// Serve uploaded static files with open CORS and caching
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    next();
+  },
+  express.static(uploadsDir)
+);
 
 // Root route
 app.get('/', (req, res) => {
@@ -58,6 +67,8 @@ app.get('/', (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime() });
 });
+
+const { saveBase64Image } = require('./utils/saveBase64Image');
 
 // Sample Profile Endpoints
 let profiles = [
@@ -75,25 +86,34 @@ app.get('/api/profiles', (req, res) => {
 });
 
 app.post('/api/profiles', (req, res) => {
-  const newProfile = { _id: String(Date.now()), ...req.body };
+  const body = { ...req.body };
+  if (body.avatar) {
+    body.avatar = saveBase64Image(body.avatar, 'avatar');
+  }
+  const newProfile = { _id: String(Date.now()), ...body };
   profiles.push(newProfile);
   res.status(201).json({ success: true, data: newProfile });
 });
 
 app.put('/api/profiles/:id?', (req, res) => {
   const id = req.params.id || '1';
+  const body = { ...req.body };
+  if (body.avatar) {
+    body.avatar = saveBase64Image(body.avatar, 'avatar');
+  }
   const index = profiles.findIndex((p) => p._id === id);
   if (index !== -1) {
-    profiles[index] = { ...profiles[index], ...req.body };
+    profiles[index] = { ...profiles[index], ...body };
     res.json({ success: true, data: profiles[index] });
   } else {
-    const updated = { _id: id, ...req.body };
+    const updated = { _id: id, ...body };
     profiles.push(updated);
     res.json({ success: true, data: updated });
   }
 });
 
 // Mount Routes
+const uploadRoutes = require('./routes/uploadRoutes');
 const blogCategoryRoutes = require('./routes/blogCategoryRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const teamRoutes = require('./routes/teamRoutes');
@@ -104,6 +124,7 @@ const enquiryRoutes = require('./routes/enquiryRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 
+app.use('/api/upload', uploadRoutes);
 app.use('/api/blog-categories', blogCategoryRoutes);
 app.use('/api/categories', blogCategoryRoutes);
 app.use('/api/blogs', blogRoutes);

@@ -13,7 +13,7 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 import "./Catagory.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, uploadImage, resolveImageUrl } from "../../config/api";
 
 const CATEGORIES_API = API_ENDPOINTS.CATEGORIES;
 
@@ -57,8 +57,10 @@ const Catagory = () => {
     loadCategories();
   }, []);
 
-  // IMAGE UPLOAD (Converts to Base64 data URL for persistent database storage)
-  const handleImageChange = (e) => {
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  // IMAGE UPLOAD - Directly uploads file to backend /uploads folder
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -68,17 +70,27 @@ const Catagory = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Image size should be less than 5MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Image size should be less than 15MB.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewImage(reader.result);
-      setCategoryImage(reader.result);
-    };
-    reader.readAsDataURL(file);
+    // Instant local preview
+    const localPreview = URL.createObjectURL(file);
+    setPreviewImage(localPreview);
+    setUploadingImage(true);
+
+    try {
+      // Upload physical file to server's uploads folder
+      const serverPath = await uploadImage(file);
+      setCategoryImage(serverPath);
+      setPreviewImage(serverPath);
+    } catch (err) {
+      console.error("Image upload error:", err);
+      showToast("Image upload failed: " + err.message);
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // RESET FORM
@@ -102,12 +114,19 @@ const Catagory = () => {
       return;
     }
 
-    if (!editingId && !previewImage) {
+    if (!editingId && !categoryImage && !previewImage) {
       showToast("Please upload category image.");
       return;
     }
 
+    if (uploadingImage) {
+      showToast("Image is still uploading, please wait a moment.");
+      return;
+    }
+
     setSubmitting(true);
+    const finalImage = categoryImage || previewImage || "";
+
     try {
       if (editingId) {
         const res = await fetch(`${CATEGORIES_API}/${editingId}`, {
@@ -115,7 +134,7 @@ const Catagory = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: categoryName.trim(),
-            image: previewImage || "",
+            image: finalImage,
           }),
         });
 
@@ -131,7 +150,7 @@ const Catagory = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: categoryName.trim(),
-            image: previewImage || "",
+            image: finalImage,
             status: "Active",
           }),
         });
@@ -294,7 +313,7 @@ const Catagory = () => {
                 {previewImage ? (
                   <div className="Catagory-image-preview">
                     <img
-                      src={previewImage}
+                      src={resolveImageUrl(previewImage)}
                       alt="Category Preview"
                     />
 
@@ -450,7 +469,7 @@ const Catagory = () => {
                         <div className="Catagory-table-image">
                           {item.image ? (
                             <img
-                              src={item.image}
+                              src={resolveImageUrl(item.image)}
                               alt={item.name}
                             />
                           ) : (

@@ -19,6 +19,7 @@ import {
   CATEGORIES_API,
   fetchDynamicCategories,
 } from "../BlogManagement/blogData";
+import { uploadImage, resolveImageUrl } from "../../config/api";
 import "./BlogPosting.css";
 
 const generateSlug = (text) => {
@@ -228,20 +229,29 @@ const BlogPosting = () => {
     }
   };
 
-  // Image Upload handler
-  const handleFileChange = (e) => {
+  // Image Upload handler - uploads directly to backend uploads folder
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size exceeds 5MB limit.");
+      if (!file.type.startsWith("image/")) {
+        alert("Please select a valid image file.");
         return;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
-        setForm((prev) => ({ ...prev, image: reader.result }));
+      if (file.size > 15 * 1024 * 1024) {
+        alert("File size exceeds 15MB limit.");
+        return;
+      }
+      try {
+        const localPreview = URL.createObjectURL(file);
+        setForm((prev) => ({ ...prev, image: localPreview }));
         if (errors.image) setErrors((prev) => ({ ...prev, image: null }));
-      };
-      reader.readAsDataURL(file);
+
+        const serverUrl = await uploadImage(file);
+        setForm((prev) => ({ ...prev, image: serverUrl }));
+      } catch (err) {
+        console.error("Blog banner upload error:", err);
+        alert("Failed to upload image: " + err.message);
+      }
     }
   };
 
@@ -727,7 +737,7 @@ const BlogPosting = () => {
 
             {form.image ? (
               <div className="BlogPosting-imagePreviewContainer">
-                <img src={form.image} alt="Featured Banner" />
+                <img src={resolveImageUrl(form.image)} alt="Featured Banner" />
                 <div className="BlogPosting-imageOverlay">
                   <button
                     type="button"

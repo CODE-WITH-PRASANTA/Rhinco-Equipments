@@ -1,5 +1,6 @@
 const BlogCategory = require('../models/BlogCategory');
 const Blog = require('../models/Blog');
+const { saveBase64Image } = require('../utils/saveBase64Image');
 
 // @desc    Get all blog categories
 // @route   GET /api/blog-categories
@@ -83,7 +84,7 @@ exports.createBlogCategory = async (req, res) => {
       name: trimmedName,
       slug,
       description: description ? description.trim() : '',
-      image: image || '',
+      image: saveBase64Image(image, 'category'),
       status: status || 'Active',
     });
 
@@ -134,7 +135,7 @@ exports.updateBlogCategory = async (req, res) => {
     }
 
     if (description !== undefined) category.description = description.trim();
-    if (image !== undefined) category.image = image;
+    if (image !== undefined) category.image = saveBase64Image(image, 'category');
     if (status) category.status = status;
 
     await category.save();

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MachinaryEquipmentOne.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
@@ -526,11 +526,12 @@ const MachineryCatalogue = () => {
                 const brand = product.brandName || product.brand || "Rhinco";
                 const price = Number(product.discountPrice || product.price || 0);
                 const subsidy = Math.round(price * 0.4);
-                const image =
+                const rawImage =
                   (Array.isArray(product.machineImages) && product.machineImages[0]) ||
                   product.image ||
                   product.featuredImage?.data ||
-                  fallbackImage;
+                  "";
+                const image = resolveImageUrl(rawImage, fallbackImage);
 
                 return (
                   <Link

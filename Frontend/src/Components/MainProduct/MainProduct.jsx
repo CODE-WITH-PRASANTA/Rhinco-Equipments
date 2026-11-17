@@ -10,7 +10,7 @@ import {
   toggleWishlist,
   isInWishlist,
 } from "../../utils/cartWishlist";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 
@@ -461,12 +461,13 @@ const MainProduct = () => {
                 const pId = getProductId(product);
                 const cartQty = getCartItemQuantity(pId);
                 const inWishlist = isInWishlist(pId);
-                const displayImg =
+                const rawDisplayImg =
                   product.images && product.images.length > 0
                     ? typeof product.images[0] === "string"
                       ? product.images[0]
                       : product.images[0].preview || product.images[0].url
-                    : product.image || "https://placehold.co/700x500?text=Product";
+                    : product.image || "";
+                const displayImg = resolveImageUrl(rawDisplayImg, "https://placehold.co/700x500?text=Product");
 
                 const regularPrice = Number(product.price || product.oldPrice || 0);
                 const salesPrice = Number(product.finalPrice || product.price || 0);

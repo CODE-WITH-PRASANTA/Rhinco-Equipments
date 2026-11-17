@@ -17,7 +17,7 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import "./BlogCategory.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, uploadImage, resolveImageUrl } from "../../config/api";
 
 const API_BASE = API_ENDPOINTS.BLOG_CATEGORIES;
 
@@ -79,18 +79,26 @@ const BlogCategory = () => {
     }));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Image file size should not exceed 5MB.");
+      if (!file.type.startsWith("image/")) {
+        alert("Please select a valid image file.");
         return;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
-        setForm((prev) => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      if (file.size > 15 * 1024 * 1024) {
+        alert("Image file size should not exceed 15MB.");
+        return;
+      }
+      try {
+        const localPreview = URL.createObjectURL(file);
+        setForm((prev) => ({ ...prev, image: localPreview }));
+        const serverPath = await uploadImage(file);
+        setForm((prev) => ({ ...prev, image: serverPath }));
+      } catch (err) {
+        console.error("Category image upload error:", err);
+        showToast("Image upload failed: " + err.message);
+      }
     }
   };
 
@@ -294,7 +302,7 @@ const BlogCategory = () => {
               <label>Category Icon / Image</label>
               {form.image ? (
                 <div className="BlogCategory-imagePreview">
-                  <img src={form.image} alt="Preview" />
+                  <img src={resolveImageUrl(form.image)} alt="Preview" />
                   <button
                     type="button"
                     className="BlogCategory-imageRemove"
@@ -446,7 +454,7 @@ const BlogCategory = () => {
                         <div className="BlogCategory-catInfo">
                           {cat.image ? (
                             <img
-                              src={cat.image}
+                              src={resolveImageUrl(cat.image)}
                               alt=""
                               className="BlogCategory-catThumb"
                             />

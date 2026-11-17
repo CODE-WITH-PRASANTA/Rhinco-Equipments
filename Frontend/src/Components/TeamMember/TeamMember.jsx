@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./TeamMember.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const TEAM_API = API_ENDPOINTS.TEAM;
 
@@ -130,7 +130,7 @@ const TeamMember = () => {
                 <div className="TeamMember-image-box">
                   <img
                     className="TeamMember-image"
-                    src={member.image || fallbackAvatar}
+                    src={resolveImageUrl(member.image, fallbackAvatar)}
                     alt={member.name}
                     loading="lazy"
                     onError={(event) => {

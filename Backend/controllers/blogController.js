@@ -1,5 +1,6 @@
 const Blog = require('../models/Blog');
 const BlogCategory = require('../models/BlogCategory');
+const { saveBase64Image } = require('../utils/saveBase64Image');
 
 // @desc    Get all blogs
 // @route   GET /api/blogs
@@ -142,8 +143,8 @@ exports.createBlog = async (req, res) => {
       content,
       author: author ? author.trim() : 'Admin User',
       authorRole: authorRole ? authorRole.trim() : 'Author',
-      authorAvatar: authorAvatar || '',
-      image,
+      authorAvatar: saveBase64Image(authorAvatar, 'avatar'),
+      image: saveBase64Image(image, 'blog'),
       readTime: readTime || '5 min read',
       status: status || 'Published',
       featured: Boolean(featured),
@@ -173,7 +174,11 @@ exports.updateBlog = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Blog post not found' });
     }
 
-    Object.assign(blog, req.body);
+    const updateData = { ...req.body };
+    if (updateData.image) updateData.image = saveBase64Image(updateData.image, 'blog');
+    if (updateData.authorAvatar) updateData.authorAvatar = saveBase64Image(updateData.authorAvatar, 'avatar');
+
+    Object.assign(blog, updateData);
     await blog.save();
 
     res.json({

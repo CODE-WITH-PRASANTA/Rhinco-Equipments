@@ -26,7 +26,7 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import "./ManageProduct.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
 
@@ -38,9 +38,8 @@ const getProductImage = (product) => {
 
   if (!firstImage) return "";
 
-  if (typeof firstImage === "string") return firstImage;
-
-  return firstImage.data || firstImage.preview || firstImage.url || "";
+  const raw = typeof firstImage === "string" ? firstImage : firstImage.data || firstImage.preview || firstImage.url || "";
+  return resolveImageUrl(raw);
 };
 
 const getProductDescription = (product) =>

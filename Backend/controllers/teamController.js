@@ -1,4 +1,5 @@
 const Team = require('../models/Team');
+const { saveBase64Image } = require('../utils/saveBase64Image');
 
 // @desc    Get all team members
 // @route   GET /api/team
@@ -65,7 +66,7 @@ exports.createTeamMember = async (req, res) => {
       contact: contact.trim(),
       email: email.trim().toLowerCase(),
       description: description.trim(),
-      image,
+      image: saveBase64Image(image, 'team'),
     });
 
     res.status(201).json({
@@ -95,7 +96,7 @@ exports.updateTeamMember = async (req, res) => {
     if (contact) member.contact = contact.trim();
     if (email) member.email = email.trim().toLowerCase();
     if (description) member.description = description.trim();
-    if (image) member.image = image;
+    if (image) member.image = saveBase64Image(image, 'team');
 
     await member.save();
 

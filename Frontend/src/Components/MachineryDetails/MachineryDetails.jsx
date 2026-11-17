@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import "./MachineryDetails.css";
 import fallbackMachineImg from "../../assets/machine.jpg";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
@@ -351,7 +351,7 @@ const MachineryDetails = () => {
           <div className="MachineryDetails-image-card" style={{ flexDirection: "column" }}>
             <div className="MachineryDetails-image-background">
               <img
-                src={activeImage || fallbackMachineImg}
+                src={resolveImageUrl(activeImage, fallbackMachineImg)}
                 alt={title}
                 className="MachineryDetails-product-image"
                 onError={(e) => {
@@ -395,7 +395,7 @@ const MachineryDetails = () => {
                       aria-label={`Thumbnail ${idx + 1}`}
                     >
                       <img
-                        src={src}
+                        src={resolveImageUrl(src, fallbackMachineImg)}
                         alt={`thumb-${idx}`}
                         style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }}
                       />

@@ -17,7 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import "./BlogDetailsMain.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const BLOGS_API = API_ENDPOINTS.BLOGS;
 const BLOG_CATEGORIES_API = API_ENDPOINTS.BLOG_CATEGORIES;
@@ -238,7 +238,7 @@ const BlogDetailsMain = ({
     : "Recent";
 
   const tags = Array.isArray(article.tags) ? article.tags : [];
-  const heroImg = article.image || fallbackHero;
+  const heroImg = resolveImageUrl(article.image, fallbackHero);
   const authorInitial = (article.author || "R").charAt(0).toUpperCase();
 
   return (
@@ -284,7 +284,7 @@ const BlogDetailsMain = ({
                 <div className="BlogDetailsMain-author-inline">
                   {article.authorAvatar ? (
                     <img
-                      src={article.authorAvatar}
+                      src={resolveImageUrl(article.authorAvatar)}
                       alt={article.author}
                       className="BlogDetailsMain-author-mini-avatar"
                       onError={(e) => {
@@ -496,7 +496,7 @@ const BlogDetailsMain = ({
             <div className="BlogDetailsMain-author-card">
               {article.authorAvatar ? (
                 <img
-                  src={article.authorAvatar}
+                  src={resolveImageUrl(article.authorAvatar)}
                   alt={article.author}
                   className="BlogDetailsMain-about-avatar"
                   onError={(e) => {
@@ -643,7 +643,7 @@ const BlogDetailsMain = ({
                       key={post._id || post.slug}
                     >
                       <img
-                        src={post.image || fallbackHero}
+                        src={resolveImageUrl(post.image, fallbackHero)}
                         alt={post.title}
                         loading="lazy"
                         onError={(e) => {

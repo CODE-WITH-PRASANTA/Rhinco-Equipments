@@ -9,7 +9,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import "./AgriMachinery.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const MACHINERY_API = API_ENDPOINTS.MACHINERY;
 
@@ -147,7 +147,7 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
                   >
                     {!imageErrors.includes(productId) && image ? (
                       <img
-                        src={image}
+                        src={resolveImageUrl(image)}
                         alt={name}
                         loading="lazy"
                         onError={() => handleImageError(productId)}

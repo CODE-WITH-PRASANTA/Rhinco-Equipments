@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 import "./BrowsbyCategory.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
 const CATEGORIES_API = API_ENDPOINTS.CATEGORIES;
 
@@ -292,7 +292,7 @@ const BrowsbyCategory = () => {
           ) : (
             categories.map((category) => {
               const catKey = category._id || category.slug || category.name;
-              const catImage = category.image || FALLBACK_IMAGE;
+              const catImage = resolveImageUrl(category.image, FALLBACK_IMAGE);
 
               return (
                 <button

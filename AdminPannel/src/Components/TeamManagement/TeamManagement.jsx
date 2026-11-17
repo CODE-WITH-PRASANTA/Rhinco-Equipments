@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./TeamManagement.css";
-import { API_ENDPOINTS } from "../../config/api";
+import { API_ENDPOINTS, uploadImage, resolveImageUrl } from "../../config/api";
 
 const TEAM_API = API_ENDPOINTS.TEAM;
 
@@ -77,7 +77,7 @@ const TeamManagement = () => {
   };
 
   // Convert uploaded image to Base64 for permanent MongoDB storage
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -90,29 +90,36 @@ const TeamManagement = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 15 * 1024 * 1024) {
       setErrors((prev) => ({
         ...prev,
-        image: "Image size must be less than 5MB.",
+        image: "Image size must be less than 15MB.",
       }));
       e.target.value = "";
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64Url = reader.result;
-      setFormData((prev) => ({
-        ...prev,
-        image: base64Url,
-      }));
-      setPreview(base64Url);
+    try {
+      const localPreview = URL.createObjectURL(file);
+      setPreview(localPreview);
       setErrors((prev) => ({
         ...prev,
         image: "",
       }));
-    };
-    reader.readAsDataURL(file);
+
+      const serverUrl = await uploadImage(file);
+      setFormData((prev) => ({
+        ...prev,
+        image: serverUrl,
+      }));
+      setPreview(serverUrl);
+    } catch (err) {
+      console.error("Team member image upload error:", err);
+      setErrors((prev) => ({
+        ...prev,
+        image: "Failed to upload image: " + err.message,
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -322,7 +329,7 @@ const TeamManagement = () => {
             <div className="TeamManagement-imageUpload">
               <div className="TeamManagement-imagePreview">
                 {preview ? (
-                  <img src={preview} alt="Team member preview" />
+                  <img src={resolveImageUrl(preview)} alt="Team member preview" />
                 ) : (
                   <span className="TeamManagement-imagePlaceholder">
                     <span>+</span>
@@ -556,7 +563,7 @@ const TeamManagement = () => {
                       <td>
                         <div className="TeamManagement-memberInfo">
                           <img
-                            src={member.image}
+                            src={resolveImageUrl(member.image)}
                             alt={member.name}
                             onError={(e) => {
                               e.currentTarget.src =

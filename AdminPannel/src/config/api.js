@@ -29,6 +29,8 @@ export const BACKEND_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, "");
 export const API_ENDPOINTS = {
   BASE: API_BASE_URL,
   ORIGIN: BACKEND_ORIGIN,
+  UPLOAD: `${API_BASE_URL}/upload`,
+  UPLOAD_MULTIPLE: `${API_BASE_URL}/upload/multiple`,
   PRODUCTS: `${API_BASE_URL}/products`,
   CATEGORIES: `${API_BASE_URL}/categories`,
   MACHINERY: `${API_BASE_URL}/machinery`,
@@ -43,6 +45,75 @@ export const API_ENDPOINTS = {
     LOGIN: `${API_BASE_URL}/auth/login`,
     REGISTER: `${API_BASE_URL}/auth/register`,
   },
+};
+
+/**
+ * Resolves an image URL:
+ * - If image path starts with /uploads, prepends the backend origin
+ * - If image is an external URL (http/https/blob/data), returns as is
+ * - If empty, returns fallback
+ */
+export const resolveImageUrl = (path, fallback = "") => {
+  if (!path) return fallback;
+  if (typeof path !== "string") return fallback;
+  if (
+    path.startsWith("http://") ||
+    path.startsWith("https://") ||
+    path.startsWith("blob:") ||
+    path.startsWith("data:")
+  ) {
+    return path;
+  }
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${BACKEND_ORIGIN}${cleanPath}`;
+};
+
+/**
+ * Uploads a single image file directly to the backend /uploads folder.
+ * Returns the relative server path: "/uploads/<filename>".
+ */
+export const uploadImage = async (file) => {
+  if (!file) throw new Error("No file provided for upload");
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const res = await fetch(API_ENDPOINTS.UPLOAD, {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to upload image");
+  }
+
+  return data.url; // e.g. "/uploads/img-1740000000.jpg"
+};
+
+/**
+ * Uploads multiple image files directly to the backend /uploads folder.
+ * Returns an array of relative server paths: ["/uploads/img1.jpg", ...]
+ */
+export const uploadMultipleImages = async (files) => {
+  if (!files || files.length === 0) return [];
+
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append("images", file);
+  }
+
+  const res = await fetch(API_ENDPOINTS.UPLOAD_MULTIPLE, {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to upload images");
+  }
+
+  return data.urls || [];
 };
 
 /**
