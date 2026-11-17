@@ -7,27 +7,13 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Storage engine configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    // Generate safe clean filename: fieldname-timestamp-random.ext
-    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
-    const cleanBase = path
-      .basename(file.originalname, ext)
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .slice(0, 30);
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${cleanBase || 'upload'}-${uniqueSuffix}${ext}`);
-  },
-});
+// Memory storage to process and convert images directly with sharp
+const storage = multer.memoryStorage();
 
-// File filter for images
+// File filter: accept images and common documents
 const fileFilter = (req, file, cb) => {
   const allowedMimeTypes = [
+    // Images
     'image/jpeg',
     'image/png',
     'image/webp',
@@ -35,12 +21,48 @@ const fileFilter = (req, file, cb) => {
     'image/svg+xml',
     'image/avif',
     'image/bmp',
+    'image/tiff',
+    // Documents
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain',
+    'text/csv',
   ];
 
-  if (allowedMimeTypes.includes(file.mimetype.toLowerCase())) {
+  const allowedExtensions = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+    '.gif',
+    '.svg',
+    '.avif',
+    '.bmp',
+    '.tiff',
+    '.pdf',
+    '.doc',
+    '.docx',
+    '.xls',
+    '.xlsx',
+    '.txt',
+    '.csv',
+  ];
+
+  const ext = path.extname(file.originalname).toLowerCase();
+  const mime = (file.mimetype || '').toLowerCase();
+
+  if (allowedMimeTypes.includes(mime) || allowedExtensions.includes(ext)) {
     cb(null, true);
   } else {
-    cb(new Error(`Unsupported file type: ${file.mimetype}. Only images are allowed.`), false);
+    cb(
+      new Error(
+        `Unsupported file type (${file.mimetype || ext}). Allowed formats: images (JPG, PNG, WebP, etc.) and documents (PDF, DOC, XLS).`
+      ),
+      false
+    );
   }
 };
 

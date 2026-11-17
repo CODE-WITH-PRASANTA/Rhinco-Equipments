@@ -54,22 +54,6 @@ const emptyForm = () => ({
   availableAtStore: ""
 });
 
-const readFile = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () =>
-      resolve({
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        data: reader.result
-      });
-
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
 const formatCurrency = (value) =>
   Number(value || 0).toLocaleString("en-IN", {
     style: "currency",
@@ -308,18 +292,31 @@ const MachineryEquipment = () => {
       setDocError(errorMsg);
       setNotice(errorMsg);
     }
-      );
-    }
 
     try {
-      const docs = await Promise.all(valid.map(readFile));
+      setNotice("Uploading document(s) to server...");
+      const docs = await Promise.all(
+        valid.map(async (file) => {
+          const serverUrl = await uploadImage(file);
+          return {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: serverUrl,
+            url: serverUrl,
+          };
+        })
+      );
 
       setForm((prev) => ({
         ...prev,
-        documents: [...prev.documents, ...docs]
+        documents: [...prev.documents, ...docs],
       }));
-    } catch {
-      setNotice("Unable to read one or more documents.");
+      setNotice("Documents uploaded successfully to server!");
+    } catch (err) {
+      console.error("Document upload error:", err);
+      setDocError(err.message || "Failed to upload document(s).");
+      setNotice("Unable to upload one or more documents.");
     }
 
     event.target.value = "";
