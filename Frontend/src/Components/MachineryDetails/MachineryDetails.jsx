@@ -371,8 +371,8 @@ const MachineryDetails = () => {
   const imagesList = (Array.isArray(machine?.machineImages) && machine.machineImages.length > 0)
     ? machine.machineImages
     : machine?.image
-    ? [machine.image]
-    : [];
+      ? [machine.image]
+      : [];
 
   const formatPrice = (val) => {
     const num = Number(val || 0);
@@ -387,19 +387,9 @@ const MachineryDetails = () => {
   if (loading) {
     return (
       <section className="MachineryDetails">
-        <div className="MachineryDetails-container" style={{ textAlign: "center", padding: "100px 20px" }}>
-          <div
-            style={{
-              width: "48px",
-              height: "48px",
-              border: "4px solid #e2e8f0",
-              borderTopColor: "#166534",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto 16px",
-            }}
-          />
-          <h2 style={{ color: "#166534", fontSize: "20px", fontWeight: "600" }}>
+        <div className="MachineryDetails-container MachineryDetails-state-container">
+          <div className="MachineryDetails-spinner" />
+          <h2 className="MachineryDetails-loading-title">
             Loading machinery equipment details...
           </h2>
         </div>
@@ -410,43 +400,17 @@ const MachineryDetails = () => {
   if (!machine) {
     return (
       <section className="MachineryDetails">
-        <div className="MachineryDetails-container" style={{ textAlign: "center", padding: "90px 20px" }}>
-          <div
-            style={{
-              width: "64px",
-              height: "64px",
-              borderRadius: "50%",
-              background: "#fee2e2",
-              color: "#dc2626",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 16px",
-            }}
-          >
+        <div className="MachineryDetails-container MachineryDetails-state-container">
+          <div className="MachineryDetails-state-icon">
             <AlertCircle size={32} />
           </div>
-          <h2 style={{ color: "#0f172a", fontSize: "24px", marginBottom: "8px" }}>
+          <h2 className="MachineryDetails-state-title">
             Machinery equipment not found
           </h2>
-          <p style={{ color: "#64748b", margin: "0 auto 24px", maxWidth: "480px", lineHeight: "1.6" }}>
+          <p className="MachineryDetails-state-desc">
             No equipment found matching &ldquo;{paramName || "this product"}&rdquo;. Please verify the machine model or explore our complete machinery catalogue.
           </p>
-          <Link
-            to="/machinery"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "12px 28px",
-              backgroundColor: "#166534",
-              color: "#fff",
-              borderRadius: "10px",
-              textDecoration: "none",
-              fontWeight: 600,
-              fontSize: "14px",
-            }}
-          >
+          <Link to="/machinery" className="MachineryDetails-state-btn">
             <Tractor size={18} />
             Back to Machinery Catalogue
           </Link>
@@ -486,7 +450,7 @@ const MachineryDetails = () => {
         {/* Main product section */}
         <div className="MachineryDetails-main">
           {/* Product image & thumbnails */}
-          <div className="MachineryDetails-image-card" style={{ flexDirection: "column" }}>
+          <div className="MachineryDetails-image-card">
             <div className="MachineryDetails-image-background">
               {activeImage ? (
                 <img
@@ -498,24 +462,15 @@ const MachineryDetails = () => {
                   }}
                 />
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", color: "#94a3b8" }}>
+                <div className="MachineryDetails-image-placeholder">
                   <Tractor size={70} strokeWidth={1.2} />
-                  <span style={{ marginTop: "12px", fontSize: "14px", fontWeight: "600" }}>{title}</span>
+                  <span>{title}</span>
                 </div>
               )}
             </div>
 
             {imagesList.length > 1 && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  marginTop: "16px",
-                  overflowX: "auto",
-                  maxWidth: "100%",
-                  padding: "4px 2px",
-                }}
-              >
+              <div className="MachineryDetails-thumbnails-strip">
                 {imagesList.map((img, idx) => {
                   const src = typeof img === "string" ? img : img?.data || img?.preview || img?.url || "";
                   const isActive = activeImage === src;
@@ -524,25 +479,13 @@ const MachineryDetails = () => {
                       type="button"
                       key={idx}
                       onClick={() => setActiveImage(src)}
-                      style={{
-                        width: "60px",
-                        height: "60px",
-                        borderRadius: "8px",
-                        border: isActive ? "2.5px solid #166534" : "1px solid #cbd5e1",
-                        background: "#fff",
-                        padding: "2px",
-                        cursor: "pointer",
-                        overflow: "hidden",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
+                      className={`MachineryDetails-thumb-btn ${isActive ? "active" : ""}`}
                       aria-label={`Thumbnail ${idx + 1}`}
                     >
                       <img
                         src={resolveImageUrl(src)}
                         alt={`thumb-${idx}`}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }}
+                        className="MachineryDetails-thumb-img"
                       />
                     </button>
                   );
@@ -553,20 +496,10 @@ const MachineryDetails = () => {
 
           {/* Product information */}
           <div className="MachineryDetails-info-card">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+            <div className="MachineryDetails-header-row">
               <div className="MachineryDetails-brand">{brand.toUpperCase()}</div>
               {modelName && (
-                <span
-                  style={{
-                    backgroundColor: "#f0fdf4",
-                    color: "#166534",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    padding: "3px 10px",
-                    borderRadius: "20px",
-                    border: "1px solid #bbf7d0",
-                  }}
-                >
+                <span className="MachineryDetails-model-badge">
                   Model: {modelName}
                 </span>
               )}
@@ -574,23 +507,14 @@ const MachineryDetails = () => {
 
             <h1 className="MachineryDetails-product-title">{title}</h1>
 
-            <div style={{ display: "flex", alignItems: "baseline", gap: "12px", margin: "14px 0", flexWrap: "wrap" }}>
+            <div className="MachineryDetails-price-wrap">
               <div className="MachineryDetails-price">{formatPrice(currentPrice)}</div>
               {discountPercent > 0 && originalPrice > 0 && (
                 <>
-                  <del style={{ color: "#94a3b8", fontSize: "18px" }}>
+                  <del className="MachineryDetails-old-price">
                     {formatPrice(originalPrice)}
                   </del>
-                  <span
-                    style={{
-                      background: "#fee2e2",
-                      color: "#dc2626",
-                      fontSize: "13px",
-                      fontWeight: "700",
-                      padding: "3px 8px",
-                      borderRadius: "6px",
-                    }}
-                  >
+                  <span className="MachineryDetails-discount-pill">
                     {discountPercent}% OFF
                   </span>
                 </>
@@ -598,54 +522,34 @@ const MachineryDetails = () => {
             </div>
 
             {/* Quick Specs Bar */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "10px",
-                padding: "12px",
-                background: "#f8fafc",
-                borderRadius: "12px",
-                border: "1px solid #e2e8f0",
-                margin: "12px 0 20px",
-              }}
-            >
-              <div>
-                <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", display: "block" }}>
-                  Power / HP
-                </span>
-                <strong style={{ fontSize: "14px", color: "#0f172a" }}>{power}</strong>
+            <div className="MachineryDetails-quick-specs">
+              <div className="MachineryDetails-quick-spec-item">
+                <span>Power / HP</span>
+                <strong>{power}</strong>
               </div>
-              <div>
-                <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", display: "block" }}>
-                  Implement Type
-                </span>
-                <strong style={{ fontSize: "14px", color: "#0f172a" }}>
-                  {machine.implementType || category}
-                </strong>
+              <div className="MachineryDetails-quick-spec-item">
+                <span>Implement Type</span>
+                <strong>{machine.implementType || category}</strong>
               </div>
-              <div>
-                <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", display: "block" }}>
-                  Availability
-                </span>
-                <strong style={{ fontSize: "14px", color: machine.status === "Available" ? "#166534" : "#e11d48" }}>
+              <div className="MachineryDetails-quick-spec-item">
+                <span>Availability</span>
+                <strong className={machine.status === "Available" ? "status-available" : "status-unavailable"}>
                   {machine.status || (machine.availableAtStore === "Yes" ? "In Stock" : "Out of Stock")}
                 </strong>
               </div>
             </div>
 
             {/* Action Buttons: Get Quotation & Contact Dealer */}
-            <div style={{ display: "flex", gap: "14px", marginTop: "24px", flexWrap: "wrap" }}>
+            <div className="MachineryDetails-actions-row">
               <button
                 type="button"
-                className="MachineryDetails-apply-button MachineryDetails-apply-enabled"
-                style={{ flex: 1, minWidth: "200px" }}
+                className="MachineryDetails-apply-button MachineryDetails-apply-enabled MachineryDetails-btn-quotation"
                 onClick={() =>
                   handleOpenEnquiry(`Quotation and purchase enquiry requested for ${title} (${brand}).`)
                 }
               >
                 Get Best Quotation / Enquire
-                <svg viewBox="0 0 24 24" fill="none" style={{ marginLeft: "8px" }}>
+                <svg viewBox="0 0 24 24" fill="none">
                   <path
                     d="M5 12h14m-6-6 6 6-6 6"
                     stroke="currentColor"
@@ -661,21 +565,7 @@ const MachineryDetails = () => {
                 onClick={() =>
                   handleOpenEnquiry(`Price inquiry and dealer contact requested for ${title} (${brand}).`)
                 }
-                style={{
-                  padding: "0 24px",
-                  borderRadius: "14px",
-                  border: "2px solid #166534",
-                  background: "#fff",
-                  color: "#166534",
-                  fontWeight: "700",
-                  fontSize: "15px",
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minHeight: "48px",
-                  transition: "all 0.2s ease",
-                }}
+                className="MachineryDetails-btn-contact-dealer"
               >
                 Contact Dealer
               </button>
@@ -715,9 +605,8 @@ const MachineryDetails = () => {
               <button
                 type="button"
                 key={tab.id}
-                className={`MachineryDetails-tab ${
-                  activeTab === tab.id ? "MachineryDetails-tab-active" : ""
-                }`}
+                className={`MachineryDetails-tab ${activeTab === tab.id ? "MachineryDetails-tab-active" : ""
+                  }`}
                 onClick={() => setActiveTab(tab.id)}
               >
                 <TabIcon type={tab.icon} />
@@ -785,8 +674,7 @@ const MachineryDetails = () => {
                   <div className="MachineryDetails-spec-card">
                     <span className="MachineryDetails-spec-label">Operational Status</span>
                     <strong
-                      className="MachineryDetails-spec-value"
-                      style={{ color: machine.status === "Available" ? "#166534" : "#e11d48" }}
+                      className={`MachineryDetails-spec-value ${machine.status === "Available" ? "status-available" : "status-unavailable"}`}
                     >
                       {machine.status || "Available"}
                     </strong>
@@ -808,7 +696,7 @@ const MachineryDetails = () => {
                   <div className="MachineryDetails-rich-box">
                     <div className="MachineryDetails-rich-box-header">
                       <svg viewBox="0 0 24 24" fill="none" width="18" height="18" stroke="#166534">
-                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" strokeWidth="2" strokeLinecap="round"/>
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" strokeWidth="2" strokeLinecap="round" />
                       </svg>
                       <h4>Engineering Build & Detailed Parameters</h4>
                     </div>
@@ -973,8 +861,7 @@ const MachineryDetails = () => {
                     </p>
                     <button
                       type="button"
-                      className="MachineryDetails-tab-action-btn"
-                      style={{ marginTop: "14px" }}
+                      className="MachineryDetails-tab-action-btn MachineryDetails-doc-request-btn"
                       onClick={() => handleOpenEnquiry(`Please provide the official brochure and user manual for ${title} (${brand}).`)}
                     >
                       Request Brochure & Manual via Email / WhatsApp
@@ -986,12 +873,12 @@ const MachineryDetails = () => {
 
             {activeTab === "reviews" && (
               <div className="MachineryDetails-tab-content">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+                <div className="MachineryReviews-header">
                   <div>
-                    <h3 style={{ fontSize: "18px", color: "#166534", margin: "0 0 4px" }}>
+                    <h3 className="MachineryReviews-title">
                       Customer Reviews & Field Ratings
                     </h3>
-                    <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                    <p className="MachineryReviews-subtitle">
                       Verified feedback from farmers and operators using {machine.title || machine.name}.
                     </p>
                   </div>
@@ -1001,55 +888,27 @@ const MachineryDetails = () => {
                       setReviewSuccessMessage("");
                       setShowReviewModal(true);
                     }}
-                    style={{
-                      background: "#166534",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "8px",
-                      padding: "10px 18px",
-                      fontWeight: "700",
-                      fontSize: "14px",
-                      cursor: "pointer",
-                    }}
+                    className="MachineryReviews-write-btn"
                   >
                     ★ Write a Review
                   </button>
                 </div>
 
                 {reviewSuccessMessage && (
-                  <div
-                    style={{
-                      background: "#f0fdf4",
-                      border: "1px solid #86efac",
-                      borderRadius: "8px",
-                      padding: "14px 18px",
-                      color: "#15803d",
-                      fontWeight: "600",
-                      fontSize: "14px",
-                      marginBottom: "16px",
-                    }}
-                  >
+                  <div className="MachineryReviews-alert-success">
                     ✓ {reviewSuccessMessage}
                   </div>
                 )}
 
                 {reviewsLoading ? (
-                  <div style={{ padding: "30px", textAlign: "center", color: "#64748b" }}>
+                  <div className="MachineryReviews-loading">
                     Loading reviews...
                   </div>
                 ) : reviews.length === 0 ? (
-                  <div
-                    style={{
-                      padding: "40px 20px",
-                      textAlign: "center",
-                      background: "#f8fafc",
-                      borderRadius: "12px",
-                      border: "1.5px dashed #cbd5e1",
-                    }}
-                  >
-                    <div style={{ fontSize: "28px", color: "#fbbf24", marginBottom: "8px" }}>★★★★★</div>
-                    <h4 style={{ margin: "0 0 6px", fontSize: "16px", color: "#1e293b" }}>No published reviews yet</h4>
-                    <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#64748b" }}>
+                  <div className="MachineryReviews-empty">
+                    <div className="MachineryReviews-empty-stars">★★★★★</div>
+                    <h4 className="MachineryReviews-empty-title">No published reviews yet</h4>
+                    <p className="MachineryReviews-empty-desc">
                       Be the first farmer to share your experience with this equipment.
                     </p>
                     <button
@@ -1058,93 +917,49 @@ const MachineryDetails = () => {
                         setReviewSuccessMessage("");
                         setShowReviewModal(true);
                       }}
-                      style={{
-                        background: "#fff",
-                        color: "#166534",
-                        border: "1.5px solid #166534",
-                        borderRadius: "8px",
-                        padding: "8px 18px",
-                        fontWeight: "700",
-                        fontSize: "13px",
-                        cursor: "pointer",
-                      }}
+                      className="MachineryReviews-empty-btn"
                     >
                       Write First Review
                     </button>
                   </div>
                 ) : (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "16px" }}>
+                  <div className="MachineryReviews-grid">
                     {reviews.map((rev) => (
-                      <div
-                        key={rev._id || rev.id}
-                        style={{
-                          background: "#fff",
-                          border: "1px solid #e2e8f0",
-                          borderRadius: "10px",
-                          padding: "18px",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <div
-                            style={{
-                              width: "36px",
-                              height: "36px",
-                              borderRadius: "50%",
-                              background: "#166534",
-                              color: "#fff",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontWeight: "700",
-                              fontSize: "14px",
-                            }}
-                          >
+                      <div key={rev._id || rev.id} className="MachineryReviews-card">
+                        <div className="MachineryReviews-user-row">
+                          <div className="MachineryReviews-avatar">
                             {(rev.customerName || "U").slice(0, 1).toUpperCase()}
                           </div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: "700", fontSize: "14px", color: "#0f172a" }}>
+                          <div className="MachineryReviews-user-info">
+                            <div className="MachineryReviews-name">
                               {rev.customerName}
                             </div>
-                            <div style={{ color: "#f59e0b", fontSize: "13px" }}>
+                            <div className="MachineryReviews-rating-stars">
                               {"★".repeat(Math.round(rev.rating || 5))}
                               {"☆".repeat(5 - Math.round(rev.rating || 5))}
-                              <span style={{ color: "#64748b", fontSize: "11px", marginLeft: "4px" }}>
+                              <span className="MachineryReviews-rating-score">
                                 {rev.rating || 5}.0
                               </span>
                             </div>
                           </div>
                           {rev.verifiedPurchase && (
-                            <span
-                              style={{
-                                background: "#f0fdf4",
-                                color: "#166534",
-                                fontSize: "11px",
-                                fontWeight: "700",
-                                padding: "2px 6px",
-                                borderRadius: "4px",
-                                border: "1px solid #bbf7d0",
-                              }}
-                            >
+                            <span className="MachineryReviews-verified-badge">
                               ✓ Verified
                             </span>
                           )}
                         </div>
 
                         {rev.title && (
-                          <div style={{ fontWeight: "700", fontSize: "14px", color: "#1e293b" }}>
+                          <div className="MachineryReviews-card-title">
                             {rev.title}
                           </div>
                         )}
 
-                        <p style={{ margin: 0, fontSize: "13px", color: "#475569", lineHeight: "1.6" }}>
+                        <p className="MachineryReviews-comment">
                           {rev.comment}
                         </p>
 
-                        <div style={{ fontSize: "11px", color: "#94a3b8", marginTop: "auto", paddingTop: "6px" }}>
+                        <div className="MachineryReviews-date">
                           {new Date(rev.createdAt || Date.now()).toLocaleDateString("en-IN", {
                             day: "2-digit",
                             month: "short",
@@ -1161,90 +976,48 @@ const MachineryDetails = () => {
         </div>
       </div>
 
-      {/* ENQUIRY & SUBSIDY APPLICATION MODAL */}
+      {/* ENQUIRY & QUOTATION MODAL */}
       {showEnquiryModal && (
         <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.55)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
+          className="MachineryModal-overlay"
           onClick={() => !enquirySubmitting && setShowEnquiryModal(false)}
         >
           <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "20px",
-              width: "100%",
-              maxWidth: "520px",
-              padding: "32px",
-              boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
-              position: "relative",
-            }}
+            className="MachineryModal-card"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setShowEnquiryModal(false)}
-              style={{
-                position: "absolute",
-                top: "16px",
-                right: "16px",
-                background: "transparent",
-                border: "none",
-                fontSize: "22px",
-                cursor: "pointer",
-                color: "#64748b",
-              }}
+              className="MachineryModal-close"
               aria-label="Close"
             >
               ×
             </button>
 
             {enquirySuccess ? (
-              <div style={{ textAlign: "center", padding: "20px 0" }}>
-                <div
-                  style={{
-                    width: "56px",
-                    height: "56px",
-                    borderRadius: "50%",
-                    background: "#f0fdf4",
-                    color: "#166534",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "28px",
-                    margin: "0 auto 16px",
-                  }}
-                >
+              <div className="MachineryModal-success">
+                <div className="MachineryModal-success-icon">
                   ✓
                 </div>
-                <h3 style={{ fontSize: "20px", color: "#166534", marginBottom: "8px" }}>
-                  Enquiry Submitted Successfully!
-                </h3>
-                <p style={{ color: "#475569", fontSize: "14px", lineHeight: "1.5" }}>
+                <h3>Enquiry Submitted Successfully!</h3>
+                <p>
                   Thank you! An authorized dealer in your district will contact you shortly
                   regarding <strong>{title}</strong>.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleEnquirySubmit}>
-                <h3 style={{ fontSize: "20px", color: "#0f172a", marginBottom: "4px" }}>
+                <h3 className="MachineryModal-title">
                   Get Price Quotation
                 </h3>
-                <p style={{ fontSize: "13px", color: "#64748b", marginBottom: "20px" }}>
+                <p className="MachineryModal-subtitle">
                   Machine: <strong>{title}</strong> ({brand})
                 </p>
 
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div className="MachineryModal-form-body">
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                    <label className="MachineryModal-label">
                       Farmer / Customer Name *
                     </label>
                     <input
@@ -1253,21 +1026,13 @@ const MachineryDetails = () => {
                       placeholder="e.g. Ramesh Patil"
                       value={enquiryForm.name}
                       onChange={(e) => setEnquiryForm({ ...enquiryForm, name: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "10px 14px",
-                        borderRadius: "8px",
-                        border: "1px solid #cbd5e1",
-                        fontSize: "14px",
-                        outline: "none",
-                        boxSizing: "border-box",
-                      }}
+                      className="MachineryModal-input"
                     />
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                  <div className="MachineryModal-grid-2">
                     <div>
-                      <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                      <label className="MachineryModal-label">
                         Phone Number *
                       </label>
                       <input
@@ -1276,19 +1041,11 @@ const MachineryDetails = () => {
                         placeholder="10-digit mobile"
                         value={enquiryForm.phone}
                         onChange={(e) => setEnquiryForm({ ...enquiryForm, phone: e.target.value })}
-                        style={{
-                          width: "100%",
-                          padding: "10px 14px",
-                          borderRadius: "8px",
-                          border: "1px solid #cbd5e1",
-                          fontSize: "14px",
-                          outline: "none",
-                          boxSizing: "border-box",
-                        }}
+                        className="MachineryModal-input"
                       />
                     </div>
                     <div>
-                      <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                      <label className="MachineryModal-label">
                         District / City
                       </label>
                       <input
@@ -1296,21 +1053,13 @@ const MachineryDetails = () => {
                         placeholder="e.g. Cuttack, Odisha"
                         value={enquiryForm.district}
                         onChange={(e) => setEnquiryForm({ ...enquiryForm, district: e.target.value })}
-                        style={{
-                          width: "100%",
-                          padding: "10px 14px",
-                          borderRadius: "8px",
-                          border: "1px solid #cbd5e1",
-                          fontSize: "14px",
-                          outline: "none",
-                          boxSizing: "border-box",
-                        }}
+                        className="MachineryModal-input"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                    <label className="MachineryModal-label">
                       Message or Specific Requirements
                     </label>
                     <textarea
@@ -1318,35 +1067,14 @@ const MachineryDetails = () => {
                       placeholder="Ask about price quotation, delivery schedule, attachments, or financing..."
                       value={enquiryForm.message}
                       onChange={(e) => setEnquiryForm({ ...enquiryForm, message: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "10px 14px",
-                        borderRadius: "8px",
-                        border: "1px solid #cbd5e1",
-                        fontSize: "14px",
-                        outline: "none",
-                        resize: "vertical",
-                        boxSizing: "border-box",
-                      }}
+                      className="MachineryModal-textarea"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={enquirySubmitting}
-                    style={{
-                      marginTop: "8px",
-                      width: "100%",
-                      padding: "12px",
-                      borderRadius: "10px",
-                      border: "none",
-                      backgroundColor: "#166534",
-                      color: "#fff",
-                      fontSize: "15px",
-                      fontWeight: 600,
-                      cursor: enquirySubmitting ? "not-allowed" : "pointer",
-                      opacity: enquirySubmitting ? 0.7 : 1,
-                    }}
+                    className="MachineryModal-submit"
                   >
                     {enquirySubmitting ? "Submitting Quotation Request..." : "Submit Quotation Request"}
                   </button>
@@ -1360,96 +1088,52 @@ const MachineryDetails = () => {
       {/* WRITE A REVIEW MODAL */}
       {showReviewModal && (
         <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.6)",
-            backdropFilter: "blur(4px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            padding: "20px",
-          }}
+          className="ReviewModal-overlay"
           onClick={() => setShowReviewModal(false)}
         >
           <div
-            style={{
-              backgroundColor: "#fff",
-              borderRadius: "16px",
-              maxWidth: "540px",
-              width: "100%",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-              overflow: "hidden",
-            }}
+            className="ReviewModal-card"
             onClick={(e) => e.stopPropagation()}
           >
-            <div
-              style={{
-                padding: "20px 24px",
-                borderBottom: "1px solid #f1f5f9",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                backgroundColor: "#f8fafc",
-              }}
-            >
+            <div className="ReviewModal-header">
               <div>
-                <h3 style={{ margin: 0, fontSize: "18px", color: "#0f172a", fontWeight: 700 }}>
-                  Review Equipment
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#64748b" }}>
-                  {machine?.title || "Machinery"}
-                </p>
+                <h3>Review Equipment</h3>
+                <p>{machine?.title || "Machinery"}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowReviewModal(false)}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  fontSize: "18px",
-                  cursor: "pointer",
-                  color: "#94a3b8",
-                }}
+                className="ReviewModal-close"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleReviewSubmit} style={{ padding: "24px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <form onSubmit={handleReviewSubmit} className="ReviewModal-form">
+              <div className="ReviewModal-form-body">
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "6px" }}>
+                  <label className="MachineryModal-label">
                     Your Rating *
                   </label>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div className="ReviewModal-stars-wrap">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         type="button"
                         key={star}
                         onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          fontSize: "26px",
-                          cursor: "pointer",
-                          color: star <= reviewForm.rating ? "#f59e0b" : "#cbd5e1",
-                          padding: 0,
-                          lineHeight: 1,
-                        }}
+                        className={`ReviewModal-star-btn ${star <= reviewForm.rating ? "active" : "inactive"}`}
                       >
                         ★
                       </button>
                     ))}
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "#1e293b", marginLeft: "8px" }}>
+                    <span className="ReviewModal-score-label">
                       {reviewForm.rating} / 5 Stars
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                  <label className="MachineryModal-label">
                     Your Full Name *
                   </label>
                   <input
@@ -1458,21 +1142,13 @@ const MachineryDetails = () => {
                     placeholder="e.g. Ramesh Kumar Patel"
                     value={reviewForm.customerName}
                     onChange={(e) => setReviewForm({ ...reviewForm, customerName: e.target.value })}
-                    style={{
-                      width: "100%",
-                      padding: "10px 14px",
-                      borderRadius: "8px",
-                      border: "1px solid #cbd5e1",
-                      fontSize: "14px",
-                      outline: "none",
-                      boxSizing: "border-box",
-                    }}
+                    className="MachineryModal-input"
                   />
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div className="MachineryModal-grid-2">
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                    <label className="MachineryModal-label">
                       Phone (Optional)
                     </label>
                     <input
@@ -1480,19 +1156,11 @@ const MachineryDetails = () => {
                       placeholder="10-digit mobile"
                       value={reviewForm.customerPhone}
                       onChange={(e) => setReviewForm({ ...reviewForm, customerPhone: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "10px 14px",
-                        borderRadius: "8px",
-                        border: "1px solid #cbd5e1",
-                        fontSize: "14px",
-                        outline: "none",
-                        boxSizing: "border-box",
-                      }}
+                      className="MachineryModal-input"
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                    <label className="MachineryModal-label">
                       Email (Optional)
                     </label>
                     <input
@@ -1500,21 +1168,13 @@ const MachineryDetails = () => {
                       placeholder="name@gmail.com"
                       value={reviewForm.customerEmail}
                       onChange={(e) => setReviewForm({ ...reviewForm, customerEmail: e.target.value })}
-                      style={{
-                        width: "100%",
-                        padding: "10px 14px",
-                        borderRadius: "8px",
-                        border: "1px solid #cbd5e1",
-                        fontSize: "14px",
-                        outline: "none",
-                        boxSizing: "border-box",
-                      }}
+                      className="MachineryModal-input"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                  <label className="MachineryModal-label">
                     Review Title
                   </label>
                   <input
@@ -1522,20 +1182,12 @@ const MachineryDetails = () => {
                     placeholder="e.g. Robust structure and very low tractor load"
                     value={reviewForm.title}
                     onChange={(e) => setReviewForm({ ...reviewForm, title: e.target.value })}
-                    style={{
-                      width: "100%",
-                      padding: "10px 14px",
-                      borderRadius: "8px",
-                      border: "1px solid #cbd5e1",
-                      fontSize: "14px",
-                      outline: "none",
-                      boxSizing: "border-box",
-                    }}
+                    className="MachineryModal-input"
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: 600, color: "#334155", marginBottom: "5px" }}>
+                  <label className="MachineryModal-label">
                     Your Detailed Review *
                   </label>
                   <textarea
@@ -1544,62 +1196,26 @@ const MachineryDetails = () => {
                     placeholder="How does this machine perform in your field? Share maintenance tips, fuel efficiency, etc."
                     value={reviewForm.comment}
                     onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    style={{
-                      width: "100%",
-                      padding: "10px 14px",
-                      borderRadius: "8px",
-                      border: "1px solid #cbd5e1",
-                      fontSize: "14px",
-                      outline: "none",
-                      resize: "vertical",
-                      boxSizing: "border-box",
-                    }}
+                    className="MachineryModal-textarea"
                   />
                 </div>
 
-                <div
-                  style={{
-                    backgroundColor: "#f8fafc",
-                    borderRadius: "8px",
-                    padding: "10px 14px",
-                    fontSize: "12px",
-                    color: "#64748b",
-                  }}
-                >
+                <div className="ReviewModal-notice">
                   ℹ Reviews undergo verification by our admin team before being published on the platform.
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "4px" }}>
+                <div className="ReviewModal-actions">
                   <button
                     type="button"
                     onClick={() => setShowReviewModal(false)}
-                    style={{
-                      padding: "10px 18px",
-                      borderRadius: "8px",
-                      border: "1px solid #cbd5e1",
-                      backgroundColor: "#fff",
-                      color: "#475569",
-                      fontSize: "14px",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
+                    className="ReviewModal-cancel-btn"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={reviewSubmitting}
-                    style={{
-                      padding: "10px 22px",
-                      borderRadius: "8px",
-                      border: "none",
-                      backgroundColor: "#166534",
-                      color: "#fff",
-                      fontSize: "14px",
-                      fontWeight: 700,
-                      cursor: reviewSubmitting ? "not-allowed" : "pointer",
-                      opacity: reviewSubmitting ? 0.7 : 1,
-                    }}
+                    className="ReviewModal-submit-btn"
                   >
                     {reviewSubmitting ? "Submitting..." : "Submit Review for Approval"}
                   </button>
