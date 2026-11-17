@@ -6,13 +6,19 @@ import {
   FiImage, FiGrid, FiCheckCircle, FiFilter, FiChevronLeft,
   FiChevronRight, FiSave, FiRotateCcw, FiLayers, FiFileText,
   FiTag, FiFolder, FiFile, FiExternalLink, FiPackage, FiMapPin,
-  FiDollarSign, FiBox, FiTool
+  FiDollarSign, FiBox, FiTool, FiAlertCircle
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const MACHINERY_API = `${API_URL}/machinery`;
+const CATEGORIES_API = `${API_URL}/categories`;
+
+const MAX_IMAGE_MB = 5;
+const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
+const MAX_DOC_MB = 10;
+const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
 
 const resolveImageUrl = (path) => {
   if (!path) return "";
@@ -21,25 +27,16 @@ const resolveImageUrl = (path) => {
 };
 
 const uploadImage = async (file) => {
+  if (file.size > MAX_IMAGE_BYTES) {
+    throw new Error(`File "${file.name}" exceeds the ${MAX_IMAGE_MB} MB limit.`);
+  }
   const formData = new FormData();
   formData.append("image", file);
   const res = await fetch(`${API_URL}/upload`, { method: "POST", body: formData });
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.success) throw new Error(data.message || "Failed to upload image");
   return data.url;
 };
-
-const categories = [
-  "Excavators",
-  "Loaders",
-  "Cranes",
-  "Earthmoving Equipment",
-  "Material Handling",
-  "Road Construction",
-  "Generators",
-  "Agricultural Equipment",
-  "Other"
-];
 
 const emptyForm = () => ({
   machineImages: [],
@@ -113,10 +110,35 @@ const MachineryEquipment = () => {
   const [deleteId, setDeleteId] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  // Dynamic categories and upload error states
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [imageError, setImageError] = useState("");
+  const [docError, setDocError] = useState("");
+
   const imageInputRef = useRef(null);
   const documentInputRef = useRef(null);
 
   const itemsPerPage = 6;
+
+  // FETCH DYNAMIC CATEGORIES FROM DATABASE
+  const loadCategories = async () => {
+    try {
+      setCategoriesLoading(true);
+      const res = await fetch(CATEGORIES_API);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        const names = data.data
+          .map((c) => (typeof c === "string" ? c : c.name))
+          .filter(Boolean);
+        setCategories((prev) => Array.from(new Set([...prev, ...names])).sort());
+      }
+    } catch (err) {
+      console.warn("Could not load categories from database:", err);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
 
   // LOAD REAL EQUIPMENT FROM DATABASE
   const loadEquipments = async () => {
@@ -126,6 +148,8 @@ const MachineryEquipment = () => {
       const data = await res.json();
       if (res.ok && data.success && Array.isArray(data.data)) {
         setEquipments(data.data);
+        const equipCats = data.data.map((item) => item.category).filter(Boolean);
+        setCategories((prev) => Array.from(new Set([...prev, ...equipCats])).sort());
       }
     } catch (err) {
       console.error("Error loading machinery equipment:", err);
@@ -136,6 +160,7 @@ const MachineryEquipment = () => {
   };
 
   useEffect(() => {
+    loadCategories();
     loadEquipments();
   }, []);
 
@@ -171,31 +196,45 @@ const MachineryEquipment = () => {
 
   // IMAGE UPLOAD
   const handleImages = async (event) => {
+    setImageError("");
     const files = Array.from(event.target.files || []);
 
     if (!files.length) return;
 
-    const remaining = 6 - form.machineImages.length;
-
-    if (remaining <= 0) {
-      setNotice(
-        "You can upload a maximum of 6 images (1 main image + 5 additional images)."
-      );
+    // 1. Check if any file exceeds maximum MB limit
+    const oversized = files.filter((file) => file.size > MAX_IMAGE_BYTES);
+    if (oversized.length > 0) {
+      const details = oversized
+        .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
+        .join(", ");
+      const errorMsg = `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB per image. Exceeded: ${details}`;
+      setImageError(errorMsg);
+      setNotice(errorMsg);
       event.target.value = "";
       return;
     }
 
-    const valid = files.filter(
-      (file) =>
-        file.type.startsWith("image/") &&
-        file.size <= 15 * 1024 * 1024
-    );
-
-    if (valid.length !== files.length) {
-      setNotice("Some files were skipped. Select images up to 15 MB each.");
+    // 2. Validate image file formats
+    const nonImages = files.filter((file) => !file.type.startsWith("image/"));
+    if (nonImages.length > 0) {
+      const errorMsg = "Invalid file type. Only image files (PNG, JPG, JPEG, WEBP, GIF, SVG) are allowed.";
+      setImageError(errorMsg);
+      setNotice(errorMsg);
+      event.target.value = "";
+      return;
     }
 
-    const selected = valid.slice(0, remaining);
+    // 3. Check remaining image slots
+    const remaining = 6 - form.machineImages.length;
+    if (remaining <= 0) {
+      const errorMsg = "You can upload a maximum of 6 images (1 main image + 5 additional images).";
+      setImageError(errorMsg);
+      setNotice(errorMsg);
+      event.target.value = "";
+      return;
+    }
+
+    const selected = files.slice(0, remaining);
 
     try {
       setNotice("Uploading image(s) to server...");
@@ -214,19 +253,23 @@ const MachineryEquipment = () => {
 
       setForm((prev) => ({
         ...prev,
-        machineImages: [...prev.machineImages, ...uploaded]
+        machineImages: [...prev.machineImages, ...uploaded],
       }));
 
-      setNotice(files.length > remaining ? "Only the remaining image slots were filled." : "");
+      setImageError("");
+      setNotice(files.length > remaining ? "Filled remaining available image slots (Max 6)." : "Images uploaded successfully!");
     } catch (err) {
       console.error("Machine image upload error:", err);
-      setNotice("Unable to upload one or more images: " + err.message);
+      const errorMsg = err.message || "Failed to upload image. Please try again.";
+      setImageError(errorMsg);
+      setNotice(errorMsg);
     }
 
     event.target.value = "";
   };
 
   const removeImage = (index) => {
+    setImageError("");
     setForm((prev) => ({
       ...prev,
       machineImages: prev.machineImages.filter(
@@ -237,22 +280,34 @@ const MachineryEquipment = () => {
 
   // DOCUMENT UPLOAD
   const handleDocuments = async (event) => {
+    setDocError("");
     const files = Array.from(event.target.files || []);
 
     if (!files.length) return;
 
+    // Check if any document exceeds 10 MB
+    const oversized = files.filter((file) => file.size > MAX_DOC_BYTES);
+    if (oversized.length > 0) {
+      const details = oversized
+        .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
+        .join(", ");
+      const errorMsg = `Document size limit exceeded! Maximum allowed size is ${MAX_DOC_MB} MB. Exceeded: ${details}`;
+      setDocError(errorMsg);
+      setNotice(errorMsg);
+      event.target.value = "";
+      return;
+    }
+
     const valid = files.filter((file) => {
       const ext = file.name.split(".").pop().toLowerCase();
-
-      return (
-        ["pdf", "doc", "docx", "xls", "xlsx"].includes(ext) &&
-        file.size <= 10 * 1024 * 1024
-      );
+      return ["pdf", "doc", "docx", "xls", "xlsx"].includes(ext);
     });
 
     if (valid.length !== files.length) {
-      setNotice(
-        "Only PDF, DOC, DOCX, XLS and XLSX files up to 10 MB are allowed."
+      const errorMsg = "Only PDF, DOC, DOCX, XLS and XLSX documents are allowed.";
+      setDocError(errorMsg);
+      setNotice(errorMsg);
+    }
       );
     }
 
@@ -671,10 +726,47 @@ const MachineryEquipment = () => {
               <div>
                 <h3>Machine Images</h3>
                 <p>
-                  Upload up to 6 images: 1 main image and 5 additional images.
+                  Upload up to 6 images: 1 main image and 5 additional images (Max 5 MB each).
                 </p>
               </div>
             </div>
+
+            {imageError && (
+              <div
+                style={{
+                  backgroundColor: "#fef2f2",
+                  color: "#b91c1c",
+                  border: "1px solid #fecaca",
+                  borderRadius: "10px",
+                  padding: "12px 16px",
+                  marginBottom: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                }}
+              >
+                <FiAlertCircle size={20} style={{ flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{imageError}</span>
+                <button
+                  type="button"
+                  onClick={() => setImageError("")}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#b91c1c",
+                    cursor: "pointer",
+                    padding: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                  aria-label="Dismiss"
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+            )}
 
             <div className="MachineryEquipment-uploadGrid">
               {form.machineImages.map((image, index) => (
@@ -811,7 +903,9 @@ const MachineryEquipment = () => {
                   }
                   required
                 >
-                  <option value="">Select Category</option>
+                  <option value="">
+                    {categoriesLoading ? "Loading categories from database..." : "Select Category"}
+                  </option>
                   {categories.map((category) => (
                     <option
                       value={category}
@@ -966,10 +1060,47 @@ const MachineryEquipment = () => {
               <div>
                 <h3>Required Documents</h3>
                 <p>
-                  Upload brochures, manuals, datasheets or other documents.
+                  Upload brochures, manuals, datasheets or other documents (Max 10 MB each).
                 </p>
               </div>
             </div>
+
+            {docError && (
+              <div
+                style={{
+                  backgroundColor: "#fef2f2",
+                  color: "#b91c1c",
+                  border: "1px solid #fecaca",
+                  borderRadius: "10px",
+                  padding: "12px 16px",
+                  marginBottom: "16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                }}
+              >
+                <FiAlertCircle size={20} style={{ flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{docError}</span>
+                <button
+                  type="button"
+                  onClick={() => setDocError("")}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#b91c1c",
+                    cursor: "pointer",
+                    padding: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                  aria-label="Dismiss"
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+            )}
 
             <button
               type="button"
