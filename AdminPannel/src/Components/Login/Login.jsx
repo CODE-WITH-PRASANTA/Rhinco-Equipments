@@ -16,7 +16,8 @@ import { FaUser } from "react-icons/fa";
 
 import "./Login.css";
 import brandLogo from "../../assets/logo.png";
-import { API_ENDPOINTS } from "../../config/api";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const AUTH_KEY = "isAdminAuthenticated";
 
@@ -74,7 +75,7 @@ const Login = () => {
 
     const fetchAdminCredentials = async () => {
       try {
-        const res = await fetch(API_ENDPOINTS.AUTH.CREDENTIALS);
+        const res = await fetch(`${API_URL}/auth/admin-credentials`);
         const data = await res.json();
 
         if (isMounted && res.ok && data.success && data.data) {
@@ -156,7 +157,7 @@ const Login = () => {
       // If entered an email that didn't match default, try backend login API
       if (!isOk && cleanId.includes("@")) {
         try {
-          const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+          const res = await fetch(`${API_URL}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: cleanId, password: cleanPass }),

@@ -1,9 +1,10 @@
 // Blog API Endpoints & Dynamic Database Helpers
-import { API_ENDPOINTS, BACKEND_ORIGIN } from "../../config/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-export const API_BASE_URL = BACKEND_ORIGIN;
-export const BLOGS_API = API_ENDPOINTS.BLOGS;
-export const CATEGORIES_API = API_ENDPOINTS.BLOG_CATEGORIES;
+export const API_BASE_URL = BACKEND_URL;
+export const BLOGS_API = `${API_URL}/blogs`;
+export const CATEGORIES_API = `${API_URL}/blog-categories`;
 
 // Dynamic Category Fetcher
 export const fetchDynamicCategories = async () => {

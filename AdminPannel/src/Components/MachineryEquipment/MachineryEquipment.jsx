@@ -9,9 +9,25 @@ import {
   FiDollarSign, FiBox, FiTool
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
-import { API_ENDPOINTS, uploadImage, resolveImageUrl } from "../../config/api";
 
-const MACHINERY_API = API_ENDPOINTS.MACHINERY;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const MACHINERY_API = `${API_URL}/machinery`;
+
+const resolveImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:") || path.startsWith("data:")) return path;
+  return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
+};
+
+const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch(`${API_URL}/upload`, { method: "POST", body: formData });
+  const data = await res.json();
+  if (!res.ok || !data.success) throw new Error(data.message || "Failed to upload image");
+  return data.url;
+};
 
 const categories = [
   "Excavators",

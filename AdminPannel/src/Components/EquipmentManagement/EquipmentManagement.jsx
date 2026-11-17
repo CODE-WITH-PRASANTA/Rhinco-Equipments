@@ -28,9 +28,9 @@ import {
 } from "react-icons/fi";
 
 import "./EquipmentManagement.css";
-import { API_ENDPOINTS } from "../../config/api";
 
-const MACHINERY_API = API_ENDPOINTS.MACHINERY;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const MACHINERY_API = `${API_URL}/machinery`;
 
 const getItemId = (item) => item?._id || item?.id;
 

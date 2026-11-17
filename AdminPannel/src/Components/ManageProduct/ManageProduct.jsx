@@ -26,9 +26,16 @@ import {
   FiRotateCcw,
 } from "react-icons/fi";
 import "./ManageProduct.css";
-import { API_ENDPOINTS, resolveImageUrl } from "../../config/api";
 
-const PRODUCTS_API = API_ENDPOINTS.PRODUCTS;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const PRODUCTS_API = `${API_URL}/products`;
+
+const resolveImageUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:") || path.startsWith("data:")) return path;
+  return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
+};
 
 const getProductId = (p) => p?._id || p?.id;
 

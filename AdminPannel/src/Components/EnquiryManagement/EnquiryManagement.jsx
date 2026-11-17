@@ -22,9 +22,9 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import "./EnquiryManagement.css";
-import { API_ENDPOINTS } from "../../config/api";
 
-const ENQUIRIES_API = API_ENDPOINTS.ENQUIRIES;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const ENQUIRIES_API = `${API_URL}/enquiries`;
 
 const emptyEnquiryForm = () => ({
   name: "",
