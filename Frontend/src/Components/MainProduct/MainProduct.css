@@ -807,6 +807,53 @@
   background: #047857;
 }
 
+/* Quantity Stepper Control when item is added */
+.FkProducts-qtyControl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  background: #059669;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.28);
+  overflow: hidden;
+  user-select: none;
+}
+
+.FkProducts-qtyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  padding: 0;
+}
+
+.FkProducts-qtyBtn:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.FkProducts-qtyBtn:active {
+  transform: scale(0.88);
+}
+
+.FkProducts-qtyCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  padding: 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
 /* Loading & Empty States */
 .FkProducts-loadingState,
 .FkProducts-emptyState {

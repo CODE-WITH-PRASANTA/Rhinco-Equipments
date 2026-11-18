@@ -15,6 +15,8 @@ import {
   Filter,
   Phone,
   Package,
+  Plus,
+  Minus,
 } from "lucide-react";
 import "./MainProduct.css";
 import { useCart, useWishlist } from "../../context/CartWishlistContext";
@@ -63,7 +65,7 @@ const MainProduct = () => {
   };
 
   const [brandSearch, setBrandSearch] = useState("");
-  const { addToCart, getCartItemQuantity } = useCart();
+  const { addToCart, updateCartQuantity, getCartItemQuantity } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [addedItemNotice, setAddedItemNotice] = useState("");
 
@@ -271,6 +273,13 @@ const MainProduct = () => {
     const title = product.name || product.title || "Item";
     setAddedItemNotice(`Added "${title}" to your cart`);
     setTimeout(() => setAddedItemNotice(""), 3000);
+  };
+
+  // Quantity increment/decrement handler
+  const handleUpdateQuantity = (productId, delta, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateCartQuantity(productId, delta);
   };
 
   // Toggle wishlist handler
@@ -898,17 +907,45 @@ const MainProduct = () => {
                           </span>
                         </div>
 
-                        <button
-                          type="button"
-                          className={`FkProducts-addBtn ${
-                            cartQty > 0 ? "in-cart" : ""
-                          }`}
-                          onClick={(e) => handleAddToCart(product, e)}
-                          title="Add to cart"
-                        >
-                          <ShoppingCart size={15} />
-                          <span>{cartQty > 0 ? `Added (${cartQty})` : "Add"}</span>
-                        </button>
+                        {cartQty > 0 ? (
+                          <div
+                            className="FkProducts-qtyControl"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                          >
+                            <button
+                              type="button"
+                              className="FkProducts-qtyBtn FkProducts-qtyMinus"
+                              onClick={(e) => handleUpdateQuantity(id, -1, e)}
+                              aria-label="Decrease quantity"
+                              title="Decrease quantity"
+                            >
+                              <Minus size={13} strokeWidth={2.5} />
+                            </button>
+                            <span className="FkProducts-qtyCount">{cartQty}</span>
+                            <button
+                              type="button"
+                              className="FkProducts-qtyBtn FkProducts-qtyPlus"
+                              onClick={(e) => handleUpdateQuantity(id, 1, e)}
+                              aria-label="Increase quantity"
+                              title="Increase quantity"
+                            >
+                              <Plus size={13} strokeWidth={2.5} />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="FkProducts-addBtn"
+                            onClick={(e) => handleAddToCart(product, e)}
+                            title="Add to cart"
+                          >
+                            <ShoppingCart size={15} />
+                            <span>Add</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </article>
