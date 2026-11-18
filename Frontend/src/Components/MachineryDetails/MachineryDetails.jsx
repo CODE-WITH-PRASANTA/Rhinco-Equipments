@@ -1,7 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Tractor, FileText, CheckCircle2, ShieldCheck, Download, AlertCircle } from "lucide-react";
+import {
+  Tractor,
+  FileText,
+  CheckCircle2,
+  ShieldCheck,
+  Download,
+  AlertCircle,
+  X,
+  User,
+  Phone,
+  Mail,
+  MapPin,
+  Tag,
+  BadgePercent,
+} from "lucide-react";
 import "./MachineryDetails.css";
+import "../MachinaryEquipmentOne/MachinaryEquipmentOne.css";
 import { resolveImageUrl, toMachinerySlug } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -132,10 +147,12 @@ const MachineryDetails = () => {
     phone: "",
     email: "",
     district: "",
+    intent: "Price Quotation",
     message: "",
   });
   const [enquirySubmitting, setEnquirySubmitting] = useState(false);
   const [enquirySuccess, setEnquirySuccess] = useState(false);
+  const [enquiryError, setEnquiryError] = useState("");
 
   // Normalize URL - remove % or %20 or spaces and replace with -
   useEffect(() => {
@@ -306,34 +323,47 @@ const MachineryDetails = () => {
 
   const handleOpenEnquiry = (customMsg = "") => {
     let loggedUser = null;
+    let initialLocation = "";
     try {
       const u = localStorage.getItem("rhinco_user");
-      if (u) loggedUser = JSON.parse(u);
+      if (u) {
+        loggedUser = JSON.parse(u);
+        initialLocation = loggedUser.district || loggedUser.city || "";
+      }
+      const storedAddresses = localStorage.getItem("rhinco_addresses");
+      if (storedAddresses) {
+        const addrs = JSON.parse(storedAddresses);
+        if (Array.isArray(addrs) && addrs.length > 0) {
+          const def = addrs.find((a) => a.isDefault) || addrs[0];
+          initialLocation = [def.village, def.district, def.state].filter(Boolean).join(", ");
+        }
+      }
     } catch (err) {}
 
     const title = machine?.title || machine?.name || "Machinery";
     const brand = machine?.brandName || machine?.brand || "Rhinco";
-    setEnquiryForm((prev) => ({
-      ...prev,
-      name: prev.name || loggedUser?.name || "",
-      phone: prev.phone || loggedUser?.phone || "",
-      email: prev.email || loggedUser?.email || "",
-      district: prev.district || loggedUser?.district || loggedUser?.city || "",
-      message:
-        customMsg ||
-        `I am interested in getting quotation, pricing, and purchase details for ${title} (${brand}).`,
-    }));
+    setEnquiryForm({
+      name: loggedUser?.name || "",
+      phone: loggedUser?.phone || "",
+      email: loggedUser?.email || "",
+      district: initialLocation,
+      intent: "Price Quotation",
+      message: customMsg || "",
+    });
+    setEnquiryError("");
+    setEnquirySuccess(false);
     setShowEnquiryModal(true);
   };
 
   const handleEnquirySubmit = async (e) => {
     e.preventDefault();
     if (!enquiryForm.name || !enquiryForm.phone) {
-      alert("Please enter your name and contact phone number.");
+      setEnquiryError("Please enter your name and contact phone number.");
       return;
     }
 
     setEnquirySubmitting(true);
+    setEnquiryError("");
     try {
       let loggedUser = null;
       try {
@@ -342,15 +372,26 @@ const MachineryDetails = () => {
       } catch (err) {}
 
       const machineTitle = machine?.title || machine?.name || "Agricultural Machinery";
-      const primaryImage =
+      const rawPrimary =
         (Array.isArray(machine?.machineImages) && machine.machineImages[0]) ||
         machine?.image ||
         "";
+      const primaryImage =
+        typeof rawPrimary === "string"
+          ? rawPrimary
+          : rawPrimary?.url || rawPrimary?.data || rawPrimary?.preview || "";
+
       const formattedPrice = machine?.discountPrice
         ? `₹${Number(machine.discountPrice).toLocaleString("en-IN")}`
         : machine?.price
         ? `₹${Number(machine.price).toLocaleString("en-IN")}`
-        : "";
+        : "Price on Request";
+
+      const intentText = enquiryForm.intent ? `[${enquiryForm.intent}] ` : "";
+      const fullMessage = (
+        intentText +
+        (enquiryForm.message || `Customer requested enquiry and price quote for ${machineTitle}`)
+      ).trim();
 
       const payload = {
         name: enquiryForm.name.trim(),
@@ -364,8 +405,8 @@ const MachineryDetails = () => {
         machineImage: primaryImage,
         price: formattedPrice,
         enquiryType: "Machinery Enquiry",
-        subject: `Quotation Request for ${machineTitle}`,
-        message: enquiryForm.message.trim(),
+        subject: `${enquiryForm.intent || "Dealer Inquiry"} - ${machineTitle}`,
+        message: fullMessage,
         category: machine?.category || "Machinery",
         userId: loggedUser?._id || loggedUser?.id || "",
       };
@@ -401,15 +442,16 @@ const MachineryDetails = () => {
             phone: "",
             email: "",
             district: "",
+            intent: "Price Quotation",
             message: "",
           });
         }, 2200);
       } else {
-        alert(resData.message || "Failed to submit enquiry. Please try again.");
+        setEnquiryError(resData.message || "Failed to submit enquiry. Please try again.");
       }
     } catch (err) {
       console.error("Enquiry submission error:", err);
-      alert("Network error submitting enquiry. Please check your connection.");
+      setEnquiryError("Network error: Could not reach the server.");
     } finally {
       setEnquirySubmitting(false);
     }
@@ -586,35 +628,24 @@ const MachineryDetails = () => {
               </div>
             </div>
 
-            {/* Action Buttons: Get Quotation & Contact Dealer */}
+            {/* Action Button: Contact Dealer */}
             <div className="MachineryDetails-actions-row">
               <button
                 type="button"
+                onClick={() => handleOpenEnquiry()}
                 className="MachineryDetails-apply-button MachineryDetails-apply-enabled MachineryDetails-btn-quotation"
-                onClick={() =>
-                  handleOpenEnquiry(`Quotation and purchase enquiry requested for ${title} (${brand}).`)
-                }
+                style={{ width: "100%", justifyContent: "center" }}
               >
-                Get Best Quotation / Enquire
-                <svg viewBox="0 0 24 24" fill="none">
+                Contact Dealer
+                <svg viewBox="0 0 24 24" fill="none" style={{ width: 18, height: 18 }}>
                   <path
-                    d="M5 12h14m-6-6 6 6-6 6"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                 </svg>
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  handleOpenEnquiry(`Price inquiry and dealer contact requested for ${title} (${brand}).`)
-                }
-                className="MachineryDetails-btn-contact-dealer"
-              >
-                Contact Dealer
               </button>
             </div>
 
@@ -1023,111 +1054,218 @@ const MachineryDetails = () => {
         </div>
       </div>
 
-      {/* ENQUIRY & QUOTATION MODAL */}
+      {/* PREMIUM CONTACT DEALER MODAL */}
       {showEnquiryModal && (
         <div
-          className="MachineryModal-overlay"
+          className="MachinaryEquipmentOne-modalOverlay"
           onClick={() => !enquirySubmitting && setShowEnquiryModal(false)}
         >
           <div
-            className="MachineryModal-card"
+            className="MachinaryEquipmentOne-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              type="button"
-              onClick={() => setShowEnquiryModal(false)}
-              className="MachineryModal-close"
-              aria-label="Close"
-            >
-              ×
-            </button>
-
-            {enquirySuccess ? (
-              <div className="MachineryModal-success">
-                <div className="MachineryModal-success-icon">
-                  ✓
-                </div>
-                <h3>Enquiry Submitted Successfully!</h3>
+            {/* Modal Header */}
+            <div className="MachinaryEquipmentOne-modalHead">
+              <div>
+                <span className="MachinaryEquipmentOne-modalBadge">
+                  <Tractor size={13} />
+                  <span>OFFICIAL DEALER INQUIRY</span>
+                </span>
+                <h3>Connect with Authorized Dealer</h3>
                 <p>
-                  Thank you! An authorized dealer in your district will contact you shortly
-                  regarding <strong>{title}</strong>.
+                  Get direct factory quotations, tractor compatibility verification & government subsidy support.
                 </p>
               </div>
-            ) : (
-              <form onSubmit={handleEnquirySubmit}>
-                <h3 className="MachineryModal-title">
-                  Get Price Quotation
-                </h3>
-                <p className="MachineryModal-subtitle">
-                  Machine: <strong>{title}</strong> ({brand})
-                </p>
 
-                <div className="MachineryModal-form-body">
-                  <div>
-                    <label className="MachineryModal-label">
-                      Farmer / Customer Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Ramesh Patil"
-                      value={enquiryForm.name}
-                      onChange={(e) => setEnquiryForm({ ...enquiryForm, name: e.target.value })}
-                      className="MachineryModal-input"
-                    />
+              <button
+                type="button"
+                className="MachinaryEquipmentOne-modalCloseBtn"
+                onClick={() => setShowEnquiryModal(false)}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="MachinaryEquipmentOne-modalBody">
+              {enquirySuccess ? (
+                <div className="MachinaryEquipmentOne-successCard">
+                  <div className="MachinaryEquipmentOne-successIconWrap">
+                    <CheckCircle2 size={36} />
                   </div>
-
-                  <div className="MachineryModal-grid-2">
-                    <div>
-                      <label className="MachineryModal-label">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="10-digit mobile"
-                        value={enquiryForm.phone}
-                        onChange={(e) => setEnquiryForm({ ...enquiryForm, phone: e.target.value })}
-                        className="MachineryModal-input"
-                      />
-                    </div>
-                    <div>
-                      <label className="MachineryModal-label">
-                        District / City
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Cuttack, Odisha"
-                        value={enquiryForm.district}
-                        onChange={(e) => setEnquiryForm({ ...enquiryForm, district: e.target.value })}
-                        className="MachineryModal-input"
-                      />
-                    </div>
+                  <h4>Inquiry Sent Successfully!</h4>
+                  <p>
+                    Thank you, <strong>{enquiryForm.name || "Customer"}</strong>. Our authorized equipment dealer has received your inquiry for <strong>{title}</strong> and will contact you at <strong>{enquiryForm.phone}</strong> shortly.
+                  </p>
+                  <div className="MachinaryEquipmentOne-successMeta">
+                    ✓ Tracked in your Profile under <strong>Machinery Enquiries</strong>
                   </div>
-
-                  <div>
-                    <label className="MachineryModal-label">
-                      Message or Specific Requirements
-                    </label>
-                    <textarea
-                      rows={3}
-                      placeholder="Ask about price quotation, delivery schedule, attachments, or financing..."
-                      value={enquiryForm.message}
-                      onChange={(e) => setEnquiryForm({ ...enquiryForm, message: e.target.value })}
-                      className="MachineryModal-textarea"
-                    />
-                  </div>
-
                   <button
-                    type="submit"
-                    disabled={enquirySubmitting}
-                    className="MachineryModal-submit"
+                    type="button"
+                    className="MachinaryEquipmentOne-submitBtn"
+                    style={{ maxWidth: "200px" }}
+                    onClick={() => setShowEnquiryModal(false)}
                   >
-                    {enquirySubmitting ? "Submitting Quotation Request..." : "Submit Quotation Request"}
+                    Done
                   </button>
                 </div>
-              </form>
-            )}
+              ) : (
+                <>
+                  {/* Spotlight Machine Card */}
+                  <div className="MachinaryEquipmentOne-spotlightCard">
+                    {images[0] ? (
+                      <img
+                        src={resolveImageUrl(images[0], "/placeholder.png")}
+                        alt={title}
+                        className="MachinaryEquipmentOne-spotlightImg"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="MachinaryEquipmentOne-spotlightImgFallback">
+                        <Tractor size={28} />
+                      </div>
+                    )}
+
+                    <div className="MachinaryEquipmentOne-spotlightInfo">
+                      <h4 className="MachinaryEquipmentOne-spotlightTitle">
+                        {title}
+                      </h4>
+                      <div className="MachinaryEquipmentOne-spotlightMeta">
+                        {brand && <span>Brand: {brand}</span>}
+                        {category && <span>• {category}</span>}
+                        {power && <span>• {power}</span>}
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                        <span className="MachinaryEquipmentOne-spotlightPrice">
+                          {price > 0 ? (discountPrice > 0 ? formatPrice(discountPrice) : formatPrice(price)) : "Price on Request"}
+                        </span>
+                        <span className="MachinaryEquipmentOne-verifiedTag">
+                          <ShieldCheck size={14} />
+                          <span>Verified Rhinco Partner</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Intent Selection Chips */}
+                  <div className="MachinaryEquipmentOne-intentSection">
+                    <span className="MachinaryEquipmentOne-intentLabel">What would you like assistance with?</span>
+                    <div className="MachinaryEquipmentOne-intentChips">
+                      {[
+                        { id: "Price Quotation", label: "Request Best Price", icon: <Tag size={13} /> },
+                        { id: "Govt Subsidy Check", label: "Subsidy Eligibility", icon: <BadgePercent size={13} /> },
+                        { id: "Book Farm Demo", label: "Book Farm Demo", icon: <Tractor size={13} /> },
+                        { id: "Financing / EMI", label: "EMI & Finance", icon: <FileText size={13} /> },
+                      ].map((chip) => (
+                        <button
+                          key={chip.id}
+                          type="button"
+                          className={`MachinaryEquipmentOne-intentChip ${
+                            enquiryForm.intent === chip.id ? "active" : ""
+                          }`}
+                          onClick={() => setEnquiryForm((prev) => ({ ...prev, intent: chip.id }))}
+                        >
+                          {chip.icon}
+                          <span>{chip.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {enquiryError && (
+                    <div
+                      style={{
+                        background: "#fef2f2",
+                        color: "#b91c1c",
+                        padding: "10px 14px",
+                        borderRadius: "8px",
+                        fontSize: "13px",
+                        border: "1px solid #fecaca",
+                      }}
+                    >
+                      {enquiryError}
+                    </div>
+                  )}
+
+                  {/* Inquiry Form */}
+                  <form onSubmit={handleEnquirySubmit} className="MachinaryEquipmentOne-formGrid">
+                    <div className="MachinaryEquipmentOne-formRow">
+                      <div className="MachinaryEquipmentOne-inputWrap">
+                        <User size={16} className="MachinaryEquipmentOne-inputIcon" />
+                        <input
+                          type="text"
+                          placeholder="Your Full Name *"
+                          value={enquiryForm.name}
+                          onChange={(e) => setEnquiryForm({ ...enquiryForm, name: e.target.value })}
+                          required
+                        />
+                      </div>
+
+                      <div className="MachinaryEquipmentOne-inputWrap">
+                        <Phone size={16} className="MachinaryEquipmentOne-inputIcon" />
+                        <input
+                          type="tel"
+                          placeholder="Phone / WhatsApp Number *"
+                          value={enquiryForm.phone}
+                          onChange={(e) => setEnquiryForm({ ...enquiryForm, phone: e.target.value })}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="MachinaryEquipmentOne-formRow">
+                      <div className="MachinaryEquipmentOne-inputWrap">
+                        <Mail size={16} className="MachinaryEquipmentOne-inputIcon" />
+                        <input
+                          type="email"
+                          placeholder="Email Address (Optional)"
+                          value={enquiryForm.email}
+                          onChange={(e) => setEnquiryForm({ ...enquiryForm, email: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="MachinaryEquipmentOne-inputWrap">
+                        <MapPin size={16} className="MachinaryEquipmentOne-inputIcon" />
+                        <input
+                          type="text"
+                          placeholder="Farm District / City (e.g. Pune, MH)"
+                          value={enquiryForm.district}
+                          onChange={(e) => setEnquiryForm({ ...enquiryForm, district: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="MachinaryEquipmentOne-textareaWrap">
+                      <FileText size={16} className="MachinaryEquipmentOne-inputIcon" style={{ marginTop: "2px" }} />
+                      <textarea
+                        rows={2}
+                        placeholder="Any specific requirement or tractor model? (e.g., 45 HP Swaraj tractor, need 7ft rotavator...)"
+                        value={enquiryForm.message}
+                        onChange={(e) => setEnquiryForm({ ...enquiryForm, message: e.target.value })}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={enquirySubmitting}
+                      className="MachinaryEquipmentOne-submitBtn"
+                    >
+                      {enquirySubmitting ? (
+                        <span>Submitting Inquiry...</span>
+                      ) : (
+                        <>
+                          <span>Send Inquiry to Authorized Dealer</span>
+                          <span style={{ fontSize: "16px" }}>→</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

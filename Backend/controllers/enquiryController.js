@@ -87,14 +87,14 @@ exports.createEnquiry = async (req, res) => {
       userId,
     } = req.body;
 
-    if (!name || !name.trim()) {
+    if (!name || !String(name).trim()) {
       return res.status(400).json({ success: false, message: 'Name is required' });
     }
-    if (!phone || !phone.trim()) {
+    if (!phone || !String(phone).trim()) {
       return res.status(400).json({ success: false, message: 'Phone number is required' });
     }
 
-    const resolvedProduct = (
+    const resolvedProduct = String(
       productOrEquipment ||
       machineName ||
       product ||
@@ -103,24 +103,39 @@ exports.createEnquiry = async (req, res) => {
       'Agricultural Equipment'
     ).trim();
 
-    const resolvedLocation = (location || district || '').trim();
-    const resolvedImage = (machineImage || image || '').trim();
-    const resolvedMessage = (message || subject || `Enquiry for ${resolvedProduct}`).trim();
+    const resolvedLocation = String(location || district || '').trim();
+
+    let resolvedImage = '';
+    const rawImg = machineImage || image;
+    if (typeof rawImg === 'string') {
+      resolvedImage = rawImg.trim();
+    } else if (Array.isArray(rawImg) && rawImg.length > 0) {
+      const first = rawImg[0];
+      resolvedImage = (typeof first === 'string' ? first : first?.url || first?.data || first?.preview || '').toString().trim();
+    } else if (rawImg && typeof rawImg === 'object') {
+      resolvedImage = (rawImg.url || rawImg.data || rawImg.preview || rawImg.path || '').toString().trim();
+    }
+
+    const resolvedMessage = String(message || subject || `Enquiry for ${resolvedProduct}`).trim();
+    const resolvedPrice = String(price || '').trim();
+    const resolvedEmail = String(email || '').trim();
+    const resolvedNotes = String(notes || '').trim();
+    const resolvedUserId = String(userId || '').trim();
 
     const newEnquiry = await Enquiry.create({
-      name: name.trim(),
-      email: (email || '').trim(),
-      phone: phone.trim(),
+      name: String(name).trim(),
+      email: resolvedEmail,
+      phone: String(phone).trim(),
       productOrEquipment: resolvedProduct,
       machineImage: resolvedImage,
-      price: (price || '').trim(),
+      price: resolvedPrice,
       enquiryType: enquiryType || 'Machinery Enquiry',
       location: resolvedLocation,
-      subject: (subject || `Quotation Request for ${resolvedProduct}`).trim(),
+      subject: String(subject || `Quotation Request for ${resolvedProduct}`).trim(),
       message: resolvedMessage,
       status: 'New',
-      notes: (notes || '').trim(),
-      userId: (userId || '').trim(),
+      notes: resolvedNotes,
+      userId: resolvedUserId,
     });
 
     res.status(201).json({

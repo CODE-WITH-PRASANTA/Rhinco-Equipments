@@ -219,8 +219,15 @@ const MachinaryEquipmentOne = ({
     setModalError("");
     try {
       const prodName = selectedProduct?.name || selectedProduct?.title || "Machinery Equipment";
-      const prodImg = selectedProduct?.image || selectedProduct?.images?.[0] || "";
+      const rawImg = selectedProduct?.image || selectedProduct?.machineImages?.[0] || selectedProduct?.images?.[0] || "";
+      const prodImg = typeof rawImg === "string" ? rawImg : rawImg?.url || rawImg?.data || rawImg?.preview || "";
       const prodPrice = selectedProduct?.formattedPrice || (selectedProduct?.price ? `₹${Number(selectedProduct.price).toLocaleString("en-IN")}` : "Price on Request");
+
+      let loggedUser = null;
+      try {
+        const u = localStorage.getItem("rhinco_user");
+        if (u) loggedUser = JSON.parse(u);
+      } catch (err) {}
 
       const intentText = modalForm.intent ? `[${modalForm.intent}] ` : "";
       const fullMessage = (intentText + (modalForm.message || `Customer requested enquiry and price quote for ${prodName}`)).trim();
@@ -229,20 +236,31 @@ const MachinaryEquipmentOne = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: modalForm.name,
-          phone: modalForm.phone,
-          email: modalForm.email || "",
+          name: modalForm.name.trim(),
+          phone: modalForm.phone.trim(),
+          email: (modalForm.email || loggedUser?.email || "").trim(),
           productOrEquipment: prodName,
+          machineName: prodName,
           machineImage: prodImg,
           price: prodPrice,
-          location: modalForm.location || "",
+          location: (modalForm.location || "").trim(),
+          district: (modalForm.location || "").trim(),
           enquiryType: "Machinery Enquiry",
           subject: `${modalForm.intent || "Dealer Inquiry"} - ${prodName}`,
           message: fullMessage,
+          userId: loggedUser?._id || loggedUser?.id || "",
         }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        try {
+          const stored = JSON.parse(
+            localStorage.getItem("rhinco_user_enquiries") || "[]"
+          );
+          stored.unshift(data.data);
+          localStorage.setItem("rhinco_user_enquiries", JSON.stringify(stored));
+        } catch (e) {}
+
         setModalSuccess(true);
         window.dispatchEvent(new Event("rhinco_enquiry_submitted"));
         setTimeout(() => {
