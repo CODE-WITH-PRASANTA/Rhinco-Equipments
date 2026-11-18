@@ -1402,9 +1402,9 @@ const MachineryDetails = () => {
                 <>
                   {/* Spotlight Machine Card */}
                   <div className="MachinaryEquipmentOne-spotlightCard">
-                    {images[0] ? (
+                    {(activeImage || imagesList[0]) ? (
                       <img
-                        src={resolveImageUrl(images[0], "/placeholder.png")}
+                        src={resolveImageUrl(activeImage || imagesList[0], "/placeholder.png")}
                         alt={title}
                         className="MachinaryEquipmentOne-spotlightImg"
                         onError={(e) => {
