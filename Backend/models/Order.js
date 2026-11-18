@@ -55,12 +55,12 @@ const orderSchema = new mongoose.Schema(
     },
     razorpayOrderId: {
       type: String,
-      required: true,
+      default: '',
       trim: true,
     },
     razorpayPaymentId: {
       type: String,
-      required: true,
+      default: '',
       trim: true,
     },
     razorpaySignature: {
@@ -79,6 +79,8 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       enum: [
+        'Order Placed',
+        'Pending',
         'Confirmed',
         'Processing',
         'Dispatched',

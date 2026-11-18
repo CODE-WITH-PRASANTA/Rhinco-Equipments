@@ -11,11 +11,24 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure uploads directory exists
+// Ensure all upload directories exist synchronously at startup
+const uploadSubdirs = [
+  'uploads',
+  'uploads/machinery',
+  'uploads/product',
+  'uploads/blog',
+  'uploads/category',
+  'uploads/team',
+  'uploads/documents',
+  'uploads/avatar',
+];
+uploadSubdirs.forEach((dir) => {
+  const p = path.join(__dirname, dir);
+  if (!fs.existsSync(p)) {
+    fs.mkdirSync(p, { recursive: true });
+  }
+});
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -145,7 +158,19 @@ app.use((req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
-  res.status(500).json({ success: false, message: 'Internal server error', error: err.message });
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ success: false, message: 'Invalid JSON payload received' });
+  }
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({
+      success: false,
+      message: 'File size limit exceeded! Maximum allowed size is 10 MB for images, 25 MB for documents.',
+    });
+  }
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || 'Internal server error',
+  });
 });
 
 // Start listening

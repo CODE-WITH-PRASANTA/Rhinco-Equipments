@@ -67,9 +67,17 @@ const formatPrice = (price) => {
   });
 };
 
-// Get image URL
-const getImageUrl = (image) => {
-  return resolveImageUrl(image, "/placeholder.png");
+// Get image URL safely from single or array property
+const getImageUrl = (image, item) => {
+  const raw =
+    image ||
+    (item &&
+      ((Array.isArray(item.images) && item.images[0]) ||
+        item.featuredImage?.data ||
+        (Array.isArray(item.machineImages) && item.machineImages[0]) ||
+        item.img)) ||
+    "";
+  return resolveImageUrl(raw, "/placeholder.png");
 };
 
 // Load Razorpay Checkout SDK dynamically
@@ -977,7 +985,7 @@ const CartMain = () => {
                   {/* IMAGE */}
                   <div className="cartProductImage">
                     <img
-                      src={getImageUrl(item.image)}
+                      src={getImageUrl(item.image, item)}
                       alt={item.name}
                       onError={(event) => {
                         event.currentTarget.src = "/placeholder.png";

@@ -203,14 +203,109 @@ exports.verifyPaymentAndPlaceOrder = async (req, res) => {
   }
 };
 
+// @desc    Create direct order (COD / Standard Checkout)
+// @route   POST /api/orders
+exports.createDirectOrder = async (req, res) => {
+  try {
+    const {
+      items,
+      deliveryAddress,
+      subtotal,
+      discount = 0,
+      coupon = null,
+      totalAmount,
+      user,
+      paymentMethod = 'Cash On Delivery',
+    } = req.body;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order items are required',
+      });
+    }
+
+    if (!deliveryAddress || !deliveryAddress.name || !deliveryAddress.phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Valid delivery address with name and phone is required',
+      });
+    }
+
+    const formattedItems = items.map((item) => ({
+      productId: item.productId || item._id || item.id || `PRD-${Date.now()}`,
+      title: item.title || item.name || 'Agri Equipment',
+      price: Number(item.price) || 0,
+      quantity: Number(item.quantity) || 1,
+      image: item.image || (item.images && item.images[0]) || '',
+      category: item.category || 'General Equipment',
+    }));
+
+    const cleanAddress = {
+      name: String(deliveryAddress.name || '').trim(),
+      phone: String(deliveryAddress.phone || '').trim(),
+      village: String(deliveryAddress.village || '').trim(),
+      district: String(deliveryAddress.district || '').trim(),
+      state: String(deliveryAddress.state || '').trim(),
+      pincode: String(deliveryAddress.pincode || '').trim(),
+      type: deliveryAddress.type || 'Farm Delivery',
+    };
+
+    const calculatedSubtotal =
+      Number(subtotal) ||
+      formattedItems.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);
+
+    const calculatedTotal = Number(totalAmount) || Math.max(0, calculatedSubtotal - (Number(discount) || 0));
+
+    const orderId = `ORD-RH-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
+
+    const isPaid = paymentMethod && !paymentMethod.toLowerCase().includes('cash') && paymentMethod.toLowerCase() !== 'cod';
+
+    const newOrder = await Order.create({
+      orderId,
+      items: formattedItems,
+      deliveryAddress: cleanAddress,
+      subtotal: calculatedSubtotal,
+      discount: Number(discount) || 0,
+      coupon: coupon || null,
+      totalAmount: calculatedTotal,
+      currency: 'INR',
+      paymentMethod: paymentMethod || 'Cash On Delivery',
+      paymentStatus: isPaid ? 'paid' : 'pending',
+      orderStatus: 'Order Placed',
+      user: {
+        userId: user?.id || user?._id || user?.userId || 'guest',
+        name: user?.name || cleanAddress.name || 'Valued Farmer',
+        email: user?.email || '',
+        phone: user?.phone || cleanAddress.phone || '',
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully',
+      data: newOrder,
+    });
+  } catch (error) {
+    console.error('Error creating direct order:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Server error processing order placement',
+    });
+  }
+};
+
 // @desc    Get all orders (ONLY paid / successful payment orders) for Admin Panel & User Profile
 // @route   GET /api/orders
 exports.getAllOrders = async (req, res) => {
   try {
-    const { status, search, userId, email, phone, limit = 100 } = req.query;
+    const { status, paymentStatus, search, userId, email, phone, limit = 100 } = req.query;
 
-    // Strict filter: ONLY successful paid orders
-    let query = { paymentStatus: 'paid' };
+    let query = {};
+
+    if (paymentStatus && paymentStatus !== 'All' && paymentStatus !== 'ALL') {
+      query.paymentStatus = paymentStatus;
+    }
 
     if (status && status !== 'All' && status !== 'ALL') {
       query.orderStatus = status;

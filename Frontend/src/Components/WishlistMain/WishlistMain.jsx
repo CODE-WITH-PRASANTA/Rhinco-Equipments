@@ -23,6 +23,7 @@ import {
   removeFromWishlist as helperRemoveFromWishlist,
   getProductId as getHelperProductId,
 } from "../../utils/cartWishlist";
+import { resolveImageUrl } from "../../utils/helpers";
 
 const getProductId = (item) => getHelperProductId(item);
 
@@ -33,18 +34,16 @@ const formatPrice = (price) =>
     maximumFractionDigits: 2,
   });
 
-const getImageUrl = (image) => {
-  if (!image) return "/images/product-placeholder.png";
-
-  if (
-    image.startsWith("http://") ||
-    image.startsWith("https://") ||
-    image.startsWith("data:")
-  ) {
-    return image;
-  }
-
-  return image.startsWith("/") ? image : `/${image}`;
+const getImageUrl = (image, item) => {
+  const raw =
+    image ||
+    (item &&
+      ((Array.isArray(item.images) && item.images[0]) ||
+        item.featuredImage?.data ||
+        (Array.isArray(item.machineImages) && item.machineImages[0]) ||
+        item.img)) ||
+    "";
+  return resolveImageUrl(raw, "/placeholder.png");
 };
 
 const WishlistMain = () => {
@@ -355,12 +354,11 @@ const WishlistMain = () => {
                   <article className="wishlistMainCard" key={id}>
                     <div className="wishlistMainCardImage">
                       <img
-                        src={getImageUrl(product.image)}
+                        src={getImageUrl(product.image, product)}
                         alt={product.name}
                         loading="lazy"
                         onError={(event) => {
-                          event.currentTarget.src =
-                            "/images/product-placeholder.png";
+                          event.currentTarget.src = "/placeholder.png";
                         }}
                       />
 

@@ -54,6 +54,25 @@ const processAndSaveFile = async (file, folder = '') => {
       ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff', '.avif'].includes(ext)) &&
     !isSvg;
 
+  // Strict file size limits: Images 10 MB, Documents 25 MB
+  const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+  const MAX_DOC_BYTES = 25 * 1024 * 1024;
+  const fileSize = file.size || (file.buffer ? file.buffer.length : 0);
+
+  if (isImage && fileSize > MAX_IMAGE_BYTES) {
+    const mb = (fileSize / (1024 * 1024)).toFixed(2);
+    const err = new Error(`Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${file.originalname}" (${mb} MB)`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (!isImage && fileSize > MAX_DOC_BYTES) {
+    const mb = (fileSize / (1024 * 1024)).toFixed(2);
+    const err = new Error(`Document size limit exceeded! Maximum allowed size is 25 MB. Exceeded: "${file.originalname}" (${mb} MB)`);
+    err.statusCode = 400;
+    throw err;
+  }
+
   const urlPrefix = cleanFolder ? `/uploads/${cleanFolder}` : '/uploads';
 
   // 1. Process raster image -> Convert to WebP
@@ -132,7 +151,7 @@ router.post('/', (req, res) => {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({
           success: false,
-          message: 'File size limit exceeded! Maximum allowed size is 10 MB per file.',
+          message: 'File size limit exceeded! Maximum allowed size is 10 MB for images and 25 MB for documents.',
         });
       }
       return res.status(400).json({
@@ -168,9 +187,9 @@ router.post('/', (req, res) => {
       });
     } catch (saveError) {
       console.error('File processing error:', saveError);
-      res.status(500).json({
+      res.status(saveError.statusCode || 500).json({
         success: false,
-        message: 'Failed to process and save file on server',
+        message: saveError.message || 'Failed to process and save file on server',
         error: saveError.message,
       });
     }
@@ -192,7 +211,7 @@ router.post('/multiple', (req, res) => {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({
           success: false,
-          message: 'File size limit exceeded! Maximum allowed size is 10 MB per file.',
+          message: 'File size limit exceeded! Maximum allowed size is 10 MB for images and 25 MB for documents.',
         });
       }
       return res.status(400).json({
@@ -228,9 +247,9 @@ router.post('/multiple', (req, res) => {
       });
     } catch (saveError) {
       console.error('Multiple file processing error:', saveError);
-      res.status(500).json({
+      res.status(saveError.statusCode || 500).json({
         success: false,
-        message: 'Failed to process files on server',
+        message: saveError.message || 'Failed to process files on server',
         error: saveError.message,
       });
     }

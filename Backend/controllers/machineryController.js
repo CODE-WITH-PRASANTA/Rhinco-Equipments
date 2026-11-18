@@ -2,6 +2,27 @@ const mongoose = require('mongoose');
 const Machinery = require('../models/Machinery');
 const { saveMultipleBase64Images } = require('../utils/saveBase64Image');
 
+const sanitizeDocuments = (docs) => {
+  if (!Array.isArray(docs)) return [];
+  return docs
+    .map((d) => {
+      if (!d) return null;
+      if (typeof d === 'string') {
+        if (d.startsWith('blob:')) return null;
+        return { name: 'Document', url: d };
+      }
+      const url = d.url || d.path || '';
+      if (typeof url === 'string' && url.startsWith('blob:')) return null;
+      return {
+        name: d.name || 'Document',
+        url: url,
+        size: d.size || 0,
+        type: d.type || 'application/pdf',
+      };
+    })
+    .filter(Boolean);
+};
+
 const formatMachinery = (item) => {
   const obj = item.toObject ? item.toObject() : item;
 
@@ -201,18 +222,19 @@ exports.createMachinery = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid price is required' });
     }
 
-    const MAX_ALLOWED_FILE_BYTES = 10 * 1024 * 1024;
+    const MAX_ALLOWED_IMAGE_BYTES = 10 * 1024 * 1024;
+    const MAX_ALLOWED_DOC_BYTES = 25 * 1024 * 1024;
     if (Array.isArray(documents)) {
-      const oversizedDoc = documents.find((d) => d && d.size && d.size > MAX_ALLOWED_FILE_BYTES);
+      const oversizedDoc = documents.find((d) => d && d.size && d.size > MAX_ALLOWED_DOC_BYTES);
       if (oversizedDoc) {
         return res.status(400).json({
           success: false,
-          message: `Document size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversizedDoc.name || 'document'}"`,
+          message: `Document size limit exceeded! Maximum allowed size is 25 MB. Exceeded: "${oversizedDoc.name || 'document'}"`,
         });
       }
     }
     if (Array.isArray(machineImages)) {
-      const oversizedImg = machineImages.find((img) => img && img.size && img.size > MAX_ALLOWED_FILE_BYTES);
+      const oversizedImg = machineImages.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_IMAGE_BYTES);
       if (oversizedImg) {
         return res.status(400).json({
           success: false,
@@ -249,7 +271,7 @@ exports.createMachinery = async (req, res) => {
       machineImages: Array.isArray(machineImages)
         ? await saveMultipleBase64Images(machineImages, 'machinery', 'machinery')
         : [],
-      documents: Array.isArray(documents) ? documents : [],
+      documents: sanitizeDocuments(documents),
     });
 
     res.status(201).json({
@@ -296,18 +318,19 @@ exports.updateMachinery = async (req, res) => {
       documents,
     } = req.body;
 
-    const MAX_ALLOWED_FILE_BYTES = 10 * 1024 * 1024;
+    const MAX_ALLOWED_IMAGE_BYTES = 10 * 1024 * 1024;
+    const MAX_ALLOWED_DOC_BYTES = 25 * 1024 * 1024;
     if (Array.isArray(documents)) {
-      const oversizedDoc = documents.find((d) => d && d.size && d.size > MAX_ALLOWED_FILE_BYTES);
+      const oversizedDoc = documents.find((d) => d && d.size && d.size > MAX_ALLOWED_DOC_BYTES);
       if (oversizedDoc) {
         return res.status(400).json({
           success: false,
-          message: `Document size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversizedDoc.name || 'document'}"`,
+          message: `Document size limit exceeded! Maximum allowed size is 25 MB. Exceeded: "${oversizedDoc.name || 'document'}"`,
         });
       }
     }
     if (Array.isArray(machineImages)) {
-      const oversizedImg = machineImages.find((img) => img && img.size && img.size > MAX_ALLOWED_FILE_BYTES);
+      const oversizedImg = machineImages.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_IMAGE_BYTES);
       if (oversizedImg) {
         return res.status(400).json({
           success: false,
@@ -337,7 +360,7 @@ exports.updateMachinery = async (req, res) => {
     if (sponsored !== undefined) item.sponsored = Boolean(sponsored);
     if (code !== undefined) item.code = code.trim();
     if (Array.isArray(machineImages)) item.machineImages = await saveMultipleBase64Images(machineImages, 'machinery', 'machinery');
-    if (Array.isArray(documents)) item.documents = documents;
+    if (Array.isArray(documents)) item.documents = sanitizeDocuments(documents);
 
     const updated = await item.save();
 
