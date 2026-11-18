@@ -113,28 +113,31 @@ const WishlistMain = () => {
     showToast("Your wishlist has been cleared");
   };
 
-  // Add product to cart
+  // Add product to cart AND remove from wishlist
   const addToCart = (product) => {
     contextAddToCart(product, 1);
-    showToast("Product added to cart");
+    const pId = getProductId(product);
+    contextRemoveFromWishlist(pId);
+    showToast(`"${product.name || 'Product'}" moved to Cart`);
   };
 
-  // Move to cart and remove from wishlist
+  // Move to cart, remove from wishlist, and navigate to cart
   const moveToCart = (product) => {
     contextAddToCart(product, 1);
     const pId = getProductId(product);
     contextRemoveFromWishlist(pId);
-    showToast("Moved product to cart");
+    showToast(`"${product.name || 'Product'}" moved to Cart`);
+    navigate("/cart");
   };
 
-  // Add all products to cart
+  // Add all products to cart and clear wishlist
   const addAllToCart = () => {
     if (!wishlistItems.length) return;
     wishlistItems.forEach((product) => {
       contextAddToCart(product, 1);
     });
     contextClearWishlist();
-    showToast("All wishlist products added to cart");
+    showToast("All wishlist products moved to Cart");
   };
 
   // Navigation
