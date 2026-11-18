@@ -8,7 +8,6 @@ import {
   RotateCcw,
   ShieldCheck,
   CreditCard,
-  MapPin,
   CheckCircle2,
   Star,
   Layers,
@@ -47,9 +46,6 @@ const ProductDetailsOne = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [pincode, setPincode] = useState("");
-  const [deliveryMessage, setDeliveryMessage] = useState("Enter your pincode to check farm delivery timeline");
-  const [deliveryStatus, setDeliveryStatus] = useState("default");
   const [activeImage, setActiveImage] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [justAdded, setJustAdded] = useState(false);
@@ -204,18 +200,6 @@ const ProductDetailsOne = () => {
 
   const increaseQuantity = () => setQuantity((prev) => Math.min(prev + 1, 99));
   const decreaseQuantity = () => setQuantity((prev) => Math.max(prev - 1, 1));
-
-  const handleDeliveryCheck = (event) => {
-    event.preventDefault();
-    const cleanPin = pincode.trim();
-    if (cleanPin.length === 6 && /^\d{6}$/.test(cleanPin)) {
-      setDeliveryMessage(`✓ Delivery available to PIN ${cleanPin} within 3–5 business days • Free Farm Shipping`);
-      setDeliveryStatus("success");
-    } else {
-      setDeliveryMessage("Please enter a valid 6-digit postal PIN code.");
-      setDeliveryStatus("error");
-    }
-  };
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -425,28 +409,6 @@ const ProductDetailsOne = () => {
             <div className="ProductDetailsOne-stockBadge">
               <span className="stock-dot" />
               <span>In Stock • Ready for Immediate Farm Dispatch</span>
-            </div>
-
-            {/* PINCODE CHECKER */}
-            <div className="ProductDetailsOne-pincodeBox">
-              <div className="ProductDetailsOne-pincodeTitle">
-                <MapPin size={16} />
-                <span>Check Delivery Options & Est. Arrival:</span>
-              </div>
-              <form className="ProductDetailsOne-pincodeForm" onSubmit={handleDeliveryCheck}>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder="Enter 6-digit Pincode"
-                  value={pincode}
-                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
-                />
-                <button type="submit">CHECK</button>
-              </form>
-              <p className={`ProductDetailsOne-pincodeMessage ${deliveryStatus}`}>
-                {deliveryMessage}
-              </p>
             </div>
 
             {/* ACTION CONTROLS */}
