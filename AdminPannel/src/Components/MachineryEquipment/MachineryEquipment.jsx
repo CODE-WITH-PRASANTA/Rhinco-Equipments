@@ -6,7 +6,7 @@ import {
   FiImage, FiGrid, FiCheckCircle, FiFilter, FiChevronLeft,
   FiChevronRight, FiSave, FiRotateCcw, FiLayers, FiFileText,
   FiTag, FiFolder, FiFile, FiExternalLink, FiPackage, FiMapPin,
-  FiDollarSign, FiBox, FiTool, FiAlertCircle
+  FiDollarSign, FiBox, FiTool, FiAlertCircle, FiPercent
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
 
@@ -48,12 +48,20 @@ const emptyForm = () => ({
   category: "",
   implementPower: "",
   price: "",
+  discount: 0,
   discountPrice: "",
   description: "",
   specification: "",
   documents: [],
   availableAtStore: ""
 });
+
+const formatPrice = (value) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(Number(value) || 0);
 
 const formatCurrency = (value) =>
   Number(value || 0).toLocaleString("en-IN", {
@@ -100,6 +108,13 @@ const MachineryEquipment = () => {
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [imageError, setImageError] = useState("");
   const [docError, setDocError] = useState("");
+
+  const finalPrice = useMemo(() => {
+    const p = parseFloat(form.price) || 0;
+    const d = parseFloat(form.discount) || 0;
+    if (d <= 0) return p;
+    return Math.max(0, p - (p * d) / 100);
+  }, [form.price, form.discount]);
 
   const imageInputRef = useRef(null);
   const documentInputRef = useRef(null);
@@ -345,6 +360,18 @@ const MachineryEquipment = () => {
 
   // EDIT EQUIPMENT
   const openEditForm = (item) => {
+    const rawPrice = item.price !== undefined && item.price !== null ? Number(item.price) : 0;
+    const rawDiscPrice =
+      item.discountPrice !== undefined && item.discountPrice !== null
+        ? Number(item.discountPrice)
+        : null;
+
+    let computedDiscount =
+      item.discount !== undefined && item.discount !== null ? Number(item.discount) : 0;
+    if (!computedDiscount && rawPrice > 0 && rawDiscPrice !== null && rawDiscPrice < rawPrice) {
+      computedDiscount = Math.round(((rawPrice - rawDiscPrice) / rawPrice) * 100);
+    }
+
     setForm({
       ...emptyForm(),
       title: item.title || item.name || "",
@@ -354,6 +381,7 @@ const MachineryEquipment = () => {
       category: item.category || "",
       implementPower: item.implementPower || item.power || "",
       price: item.price !== undefined && item.price !== null ? String(item.price) : "",
+      discount: computedDiscount,
       discountPrice:
         item.discountPrice !== undefined && item.discountPrice !== null
           ? String(item.discountPrice)
@@ -414,23 +442,19 @@ const MachineryEquipment = () => {
     }
 
     if (
-      form.discountPrice !== "" &&
-      Number(form.discountPrice) < 0
+      form.discount !== "" &&
+      form.discount !== undefined &&
+      (Number(form.discount) < 0 || Number(form.discount) > 100)
     ) {
-      return setNotice("Discount price cannot be negative.");
-    }
-
-    if (
-      form.discountPrice !== "" &&
-      Number(form.discountPrice) > Number(form.price)
-    ) {
-      return setNotice(
-        "Discount price cannot be greater than the original price."
-      );
+      return setNotice("Discount percentage must be between 0 and 100.");
     }
 
     try {
       setSaving(true);
+
+      const numBasePrice = Number(form.price);
+      const numDiscPercent = Number(form.discount) || 0;
+      const computedCustPrice = numDiscPercent > 0 ? Number(finalPrice) : null;
 
       const payload = {
         title: form.title.trim(),
@@ -439,9 +463,9 @@ const MachineryEquipment = () => {
         implementType: form.implementType.trim(),
         category: form.category,
         implementPower: form.implementPower.trim(),
-        price: Number(form.price),
-        discountPrice:
-          form.discountPrice === "" ? null : Number(form.discountPrice),
+        price: numBasePrice,
+        discount: numDiscPercent,
+        discountPrice: computedCustPrice,
         description: form.description,
         specification: form.specification,
         availableAtStore: form.availableAtStore || "Yes",
@@ -929,17 +953,18 @@ const MachineryEquipment = () => {
             </div>
           </section>
 
-          {/* PRICING */}
+          {/* PRICING & DISCOUNTS */}
           <section className="MachineryEquipment-section">
             <div className="MachineryEquipment-sectionTitle">
+              <span className="MachineryEquipment-sectionNumber">2</span>
               <div className="MachineryEquipment-sectionIcon">
                 <FiDollarSign />
               </div>
 
               <div>
-                <h3>Pricing Information</h3>
+                <h3>Pricing & Discounts</h3>
                 <p>
-                  Set the original price and discounted selling price.
+                  Set base price and promotional discounts.
                 </p>
               </div>
             </div>
@@ -949,12 +974,13 @@ const MachineryEquipment = () => {
                 <label>
                   Price (₹) <span>*</span>
                 </label>
-                <div className="MachineryEquipment-inputWithIcon">
-                  <span>₹</span>
+                <div className="MachineryEquipment-inputWrap">
+                  <FiDollarSign />
                   <input
                     type="number"
-                    min="0"
-                    placeholder="Enter original price"
+                    min="1"
+                    step="0.01"
+                    placeholder="Enter base price"
                     value={form.price}
                     onChange={(e) =>
                       updateField("price", e.target.value)
@@ -965,18 +991,40 @@ const MachineryEquipment = () => {
               </div>
 
               <div className="MachineryEquipment-field">
-                <label>Discount Price (₹)</label>
-                <div className="MachineryEquipment-inputWithIcon">
-                  <span>₹</span>
+                <label>Discount (%)</label>
+                <div className="MachineryEquipment-inputWrap">
+                  <FiPercent />
                   <input
                     type="number"
                     min="0"
-                    placeholder="Enter discount price"
-                    value={form.discountPrice}
+                    max="100"
+                    placeholder="0"
+                    value={form.discount !== undefined ? form.discount : 0}
                     onChange={(e) =>
-                      updateField("discountPrice", e.target.value)
+                      updateField("discount", e.target.value)
                     }
                   />
+                </div>
+              </div>
+
+              <div className="MachineryEquipment-field full">
+                <div className="MachineryEquipment-pricePreview">
+                  <div className="MachineryEquipment-priceItem">
+                    <span>Base Price</span>
+                    <strong>{formatPrice(form.price)}</strong>
+                  </div>
+
+                  <div className="MachineryEquipment-priceItem">
+                    <span>Discount</span>
+                    <span className="discount">
+                      {Number(form.discount) || 0}% OFF
+                    </span>
+                  </div>
+
+                  <div className="MachineryEquipment-priceItem total">
+                    <span>Customer Final Price</span>
+                    <strong>{formatPrice(finalPrice)}</strong>
+                  </div>
                 </div>
               </div>
             </div>

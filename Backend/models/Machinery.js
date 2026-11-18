@@ -37,6 +37,12 @@ const machinerySchema = new mongoose.Schema(
       required: [true, 'Price is required'],
       min: [0, 'Price must be positive'],
     },
+    discount: {
+      type: Number,
+      default: 0,
+      min: [0, 'Discount must be positive'],
+      max: [100, 'Discount cannot exceed 100%'],
+    },
     discountPrice: {
       type: Number,
       default: null,

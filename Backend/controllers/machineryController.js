@@ -172,6 +172,7 @@ exports.createMachinery = async (req, res) => {
       implementPower,
       power,
       price,
+      discount,
       discountPrice,
       description,
       specification,
@@ -201,10 +202,13 @@ exports.createMachinery = async (req, res) => {
     }
 
     const numPrice = Number(price);
-    const numDiscount =
-      discountPrice !== undefined && discountPrice !== null && discountPrice !== ''
-        ? Number(discountPrice)
-        : null;
+    const numDiscountPercent = Number(discount) || 0;
+    let resolvedDiscountPrice = null;
+    if (discountPrice !== undefined && discountPrice !== null && discountPrice !== '') {
+      resolvedDiscountPrice = Number(discountPrice);
+    } else if (numDiscountPercent > 0) {
+      resolvedDiscountPrice = Math.max(0, numPrice - (numPrice * numDiscountPercent) / 100);
+    }
 
     const newMachinery = await Machinery.create({
       title: resolvedTitle,
@@ -214,7 +218,8 @@ exports.createMachinery = async (req, res) => {
       category: resolvedCategory,
       implementPower: (implementPower || power || '').trim(),
       price: numPrice,
-      discountPrice: numDiscount,
+      discount: numDiscountPercent,
+      discountPrice: resolvedDiscountPrice,
       description: (description || '').trim(),
       specification: (specification || '').trim(),
       availableAtStore: availableAtStore || 'Yes',
@@ -259,6 +264,7 @@ exports.updateMachinery = async (req, res) => {
       implementPower,
       power,
       price,
+      discount,
       discountPrice,
       description,
       specification,
@@ -277,9 +283,12 @@ exports.updateMachinery = async (req, res) => {
     if (category) item.category = category.trim();
     if (implementPower !== undefined || power !== undefined) item.implementPower = (implementPower || power || '').trim();
     if (price !== undefined && !isNaN(Number(price))) item.price = Number(price);
+    if (discount !== undefined) item.discount = Number(discount) || 0;
     if (discountPrice !== undefined) {
       item.discountPrice =
         discountPrice === '' || discountPrice === null ? null : Number(discountPrice);
+    } else if (discount !== undefined && item.discount > 0 && item.price > 0) {
+      item.discountPrice = Math.max(0, item.price - (item.price * item.discount) / 100);
     }
     if (description !== undefined) item.description = description.trim();
     if (specification !== undefined) item.specification = specification.trim();
