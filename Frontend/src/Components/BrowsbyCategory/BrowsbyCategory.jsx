@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import {
   ChevronRight,
   X,
-  Sparkles,
-  Check,
+  Package,
+  Tractor,
+  Layers,
+  ArrowUpRight,
 } from "lucide-react";
 
 import "./BrowsbyCategory.css";
@@ -12,144 +14,29 @@ import { resolveImageUrl } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const CATEGORIES_API = `${API_URL}/categories`;
+const PRODUCTS_API = `${API_URL}/products`;
+const MACHINERY_API = `${API_URL}/machinery`;
 
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=500&q=80";
 
-// Wikimedia Commons helper for high-quality implement visuals
-const commonsImage = (filename) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(
-    filename
-  )}?width=500`;
+const toSlug = (text) =>
+  (text || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
 
-// Rich subcategories mapping for implements when database item doesn't specify explicit subcategories
-const SUBCATEGORY_DEFAULTS = {
-  tractor: [
-    { name: "Mini Tractor", image: commonsImage("A tractor.jpg") },
-    { name: "Utility Tractor", image: commonsImage("John Deere 8320.jpg") },
-    { name: "4WD Tractor", image: commonsImage("Mc Cormick-by-RaBoe-07.jpg") },
-    { name: "Farm Tractor", image: commonsImage("Photo A working machine tractor 1963 - Touring Club Italiano 2 6042.jpg") },
-  ],
-  "power-tiller": [
-    { name: "Diesel Power Tiller", image: commonsImage("Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg") },
-    { name: "Petrol Power Tiller", image: commonsImage("Maly neseny prekopavac.jpg") },
-    { name: "Mini Power Tiller", image: commonsImage("Samojizdny mostovy prekopavac.jpg") },
-  ],
-  weeder: [
-    { name: "Electric Weeder", image: commonsImage("Agricultural Equipment (1).jpg") },
-    { name: "Back Rotary Weeder", image: commonsImage("Maly neseny prekopavac.jpg") },
-    { name: "Front Rotary Weeder", image: commonsImage("Agricultural Equipment (2).jpg") },
-    { name: "Weeder", image: commonsImage("Agricultural Equipment (3).jpg") },
-  ],
-  transplanter: [
-    { name: "Rice Transplanter", image: commonsImage("Rotor poplar and willow cuttings planter, planting a new nursery of poplar for biomass with short rotation..JPG") },
-    { name: "Vegetable Transplanter", image: commonsImage("Agricultural Equipment (4).jpg") },
-    { name: "Manual Transplanter", image: commonsImage("Agricultural Equipment (3).jpg") },
-  ],
-  reaper: [
-    { name: "Self Propelled Reaper", image: commonsImage("Ridley's reapers at work.jpg") },
-    { name: "Tractor Mounted Reaper", image: commonsImage("Carrot Digger on a tractor.jpg") },
-    { name: "Mini Reaper", image: commonsImage("A Twenty-Four Horse Power Harvester (NBY 9002).jpg") },
-  ],
-  harvester: [
-    { name: "Combine Harvester", image: commonsImage("Agriculture Machinery Harvester.jpg") },
-    { name: "Mini Harvester", image: commonsImage("A Twenty-Four Horse Power Harvester (NBY 9002).jpg") },
-    { name: "Paddy Harvester", image: commonsImage("Maehdrescher1 hg.jpg") },
-  ],
-  rotavator: [
-    { name: "Mini Rotavator", image: commonsImage("Maly neseny prekopavac.jpg") },
-    { name: "Heavy Duty Rotavator", image: commonsImage("Agricultural tiller at Feeringbury Manor, Feering Essex England 2.jpg") },
-    { name: "Tractor Rotavator", image: commonsImage("Agricultural Equipment (2).jpg") },
-  ],
-  thresher: [
-    { name: "Multi Crop Thresher", image: commonsImage("Somewhere in Bihar 06 threshing (32126379105).jpg") },
-    { name: "Wheat Thresher", image: commonsImage("Somewhere in Bihar 07 threshing (31285110604).jpg") },
-    { name: "Paddy Thresher", image: commonsImage("Threshing machines.jpg") },
-  ],
-  pumpset: [
-    { name: "Diesel Pump Set", image: commonsImage("Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India.jpg") },
-    { name: "Electric Pump Set", image: commonsImage("Agricultural irrigation pump set with borewell, Vrindavan, Uttar Pradesh, India 02.jpg") },
-    { name: "Portable Pump", image: commonsImage("New pump for the well (4679681019).jpg") },
-  ],
-  "brush-cutter": [
-    { name: "Petrol Brush Cutter", image: commonsImage("Aerosolni generator 33.jpg") },
-    { name: "Electric Brush Cutter", image: commonsImage("Aerosolni generator egipat.jpg") },
-    { name: "Backpack Brush Cutter", image: commonsImage("Aerosolni generator1.jpg") },
-  ],
-  sprayer: [
-    { name: "Battery Sprayer", image: commonsImage("Atomizador agrícola.jpg") },
-    { name: "Power Sprayer", image: commonsImage("Aerosolni generator egipat.jpg") },
-    { name: "Knapsack Sprayer", image: commonsImage("Aerosolni generator 33.jpg") },
-  ],
-  "chaff-cutter": [
-    { name: "Electric Chaff Cutter", image: commonsImage("Chaff cutter machine at work.jpg") },
-    { name: "Manual Chaff Cutter", image: commonsImage("Січкарня у стодолі 03.jpg") },
-    { name: "Heavy Duty Chaff Cutter", image: commonsImage("Food cuter machine.jpg") },
-  ],
-  pulverizer: [
-    { name: "Mini Pulverizer", image: commonsImage("Agricultural Equipment (3).jpg") },
-    { name: "Commercial Pulverizer", image: commonsImage("Agricultural Equipment (4).jpg") },
-    { name: "Impact Pulverizer", image: commonsImage("Noe mobile grinder.jpg") },
-  ],
-  "rice-mill": [
-    { name: "Mini Rice Mill", image: commonsImage("Machines agricoles 01.jpg") },
-    { name: "Commercial Rice Mill", image: commonsImage("Machines agricoles 02.jpg") },
-    { name: "Rice Huller", image: commonsImage("Machines agricoles 03.jpg") },
-  ],
-  "dal-mill": [
-    { name: "Mini Dal Mill", image: commonsImage("Machines agricoles 04.jpg") },
-    { name: "Commercial Dal Mill", image: commonsImage("Machines agricoles 05.jpg") },
-    { name: "Automatic Dal Mill", image: commonsImage("Machines agricoles 06.jpg") },
-  ],
-  "oil-mill": [
-    { name: "Mini Oil Mill", image: commonsImage("Machine for making mustard oil, Jaura 2.jpg") },
-    { name: "Commercial Oil Mill", image: commonsImage("Machine for making mustard oil, Jaura 3.jpg") },
-    { name: "Automatic Oil Mill", image: commonsImage("Machine for making mustard oil, Jaura, 2.jpg") },
-  ],
-  "cleaner-cum-grader": [
-    { name: "Seed Cleaner", image: commonsImage("Electronic seed colour separator.jpg") },
-    { name: "Grain Grader", image: commonsImage("Saatgut-Reinigungsanlage 3786.JPG") },
-    { name: "Multi Crop Cleaner", image: commonsImage("Saatgut-Reinigungsanlage 3787.jpg") },
-  ],
-  "ragi-thresher": [
-    { name: "Mini Ragi Thresher", image: commonsImage("Somewhere in Bihar 06 threshing (32126379105).jpg") },
-    { name: "Power Ragi Thresher", image: commonsImage("Somewhere in Bihar 07 threshing (31285110604).jpg") },
-    { name: "Multi Crop Ragi Thresher", image: commonsImage("Agriculture Machinery Harvester.jpg") },
-  ],
-};
+const cleanText = (str) => (str || "").trim().toLowerCase();
 
-const normalizeKey = (str) =>
-  (str || "").toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-");
-
-const resolveSubcategories = (cat) => {
-  if (Array.isArray(cat.subcategories) && cat.subcategories.length > 0) {
-    return cat.subcategories.map((sub) => {
-      if (typeof sub === "string") {
-        return {
-          name: sub,
-          slug: normalizeKey(sub),
-          image: cat.image || FALLBACK_IMAGE,
-        };
-      }
-      return {
-        name: sub.name || "Subcategory",
-        slug: sub.slug || normalizeKey(sub.name),
-        image: sub.image || cat.image || FALLBACK_IMAGE,
-      };
-    });
-  }
-
-  const key = normalizeKey(cat.slug || cat.name);
-  const defaults = SUBCATEGORY_DEFAULTS[key];
-  if (defaults && defaults.length > 0) {
-    return defaults.map((item) => ({
-      name: item.name,
-      slug: normalizeKey(item.name),
-      image: item.image || cat.image || FALLBACK_IMAGE,
-    }));
-  }
-
-  return [];
+const formatPrice = (val) => {
+  const num = Number(val || 0);
+  if (!num) return "Price on Request";
+  return num.toLocaleString("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  });
 };
 
 const BrowsbyCategory = () => {
@@ -158,33 +45,101 @@ const BrowsbyCategory = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [activeTab, setActiveTab] = useState("all"); // 'all' | 'products' | 'machinery'
   const [isClosing, setIsClosing] = useState(false);
 
-  // Dynamically fetch categories from the database API
+  // Fetch categories, products, and machinery to only show categories having items
   useEffect(() => {
     let isMounted = true;
 
-    const fetchCategories = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(CATEGORIES_API);
-        const result = await res.json();
 
-        if (isMounted && res.ok && result.success && Array.isArray(result.data)) {
-          // Filter out Inactive categories if marked as such
-          const activeCategories = result.data.filter(
-            (c) => c.status !== "Inactive"
-          );
-          setCategories(activeCategories);
-        }
+        const [catRes, prodRes, machRes] = await Promise.all([
+          fetch(CATEGORIES_API).then((r) => r.json()).catch(() => ({ data: [] })),
+          fetch(PRODUCTS_API).then((r) => r.json()).catch(() => ({ data: [] })),
+          fetch(MACHINERY_API).then((r) => r.json()).catch(() => ({ data: [] })),
+        ]);
+
+        if (!isMounted) return;
+
+        const rawCats = Array.isArray(catRes?.data) ? catRes.data : [];
+        const rawProds = Array.isArray(prodRes?.data) ? prodRes.data : [];
+        const rawMachs = Array.isArray(machRes?.data) ? machRes.data : [];
+
+        // Build list of all unique category names
+        const categoryMap = new Map();
+
+        // 1. Seed with registered categories from DB
+        rawCats.forEach((cat) => {
+          if (cat.status !== "Inactive" && cat.name) {
+            const key = cleanText(cat.name);
+            categoryMap.set(key, {
+              _id: cat._id,
+              name: cat.name,
+              slug: cat.slug || toSlug(cat.name),
+              image: cat.image || "",
+              products: [],
+              machinery: [],
+            });
+          }
+        });
+
+        // 2. Associate products with their categories
+        rawProds.forEach((prod) => {
+          if (!prod.category) return;
+          const key = cleanText(prod.category);
+          if (!categoryMap.has(key)) {
+            categoryMap.set(key, {
+              _id: `prod-cat-${key}`,
+              name: prod.category,
+              slug: toSlug(prod.category),
+              image: prod.image || "",
+              products: [],
+              machinery: [],
+            });
+          }
+          categoryMap.get(key).products.push({
+            ...prod,
+            itemType: "product",
+          });
+        });
+
+        // 3. Associate machinery with their categories
+        rawMachs.forEach((mach) => {
+          if (!mach.category) return;
+          const key = cleanText(mach.category);
+          if (!categoryMap.has(key)) {
+            categoryMap.set(key, {
+              _id: `mach-cat-${key}`,
+              name: mach.category,
+              slug: toSlug(mach.category),
+              image: mach.image || mach.machineImages?.[0] || "",
+              products: [],
+              machinery: [],
+            });
+          }
+          categoryMap.get(key).machinery.push({
+            ...mach,
+            itemType: "machinery",
+          });
+        });
+
+        // 4. Filter categories to ONLY those that have products OR machinery
+        const populatedCategories = Array.from(categoryMap.values()).filter(
+          (cat) => cat.products.length > 0 || cat.machinery.length > 0
+        );
+
+        setCategories(populatedCategories);
       } catch (err) {
-        console.error("Error loading categories from database:", err);
+        console.error("Error loading categories, products, or machinery:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
 
-    fetchCategories();
+    loadData();
 
     return () => {
       isMounted = false;
@@ -198,8 +153,9 @@ const BrowsbyCategory = () => {
 
     window.setTimeout(() => {
       setSelectedCategory(null);
+      setActiveTab("all");
       setIsClosing(false);
-    }, 250);
+    }, 220);
   };
 
   useEffect(() => {
@@ -219,49 +175,44 @@ const BrowsbyCategory = () => {
   }, [selectedCategory, isClosing]);
 
   const openCategory = (category) => {
-    const subcategories = resolveSubcategories(category);
-
-    // If category has no subcategories, navigate directly to that category
-    if (!subcategories || subcategories.length === 0) {
-      goToCategory(category);
-      return;
-    }
-
     setIsClosing(false);
-    setSelectedCategory({
-      ...category,
-      subcategories,
-    });
+    setActiveTab("all");
+    setSelectedCategory(category);
   };
 
-  const goToCategory = (category, subcategory = null) => {
+  const handleOpenItem = (item) => {
     closePopup();
 
-    const categoryParam = encodeURIComponent(category.name);
+    const title = item.title || item.name || "";
+    const slug = toSlug(title);
 
-    if (subcategory) {
-      const subcategoryParam = encodeURIComponent(subcategory.name);
-      navigate(
-        `/machinery?category=${categoryParam}&subcategory=${subcategoryParam}`
-      );
-      return;
+    if (item.itemType === "machinery") {
+      navigate(`/machinery/${slug}`);
+    } else {
+      navigate(`/product/${slug}`);
     }
-
-    navigate(`/machinery?category=${categoryParam}`);
   };
+
+  // Compute items to display in modal based on activeTab
+  const modalItems = selectedCategory
+    ? [
+        ...(activeTab === "all" || activeTab === "products"
+          ? selectedCategory.products
+          : []),
+        ...(activeTab === "all" || activeTab === "machinery"
+          ? selectedCategory.machinery
+          : []),
+      ]
+    : [];
 
   return (
     <section className="BrowsbyCategory">
       <div className="BrowsbyCategory-container">
-
         <div className="BrowsbyCategory-header">
           <div className="BrowsbyCategory-heading-group">
-            <h2 className="BrowsbyCategory-title">
-              Browse by Category
-            </h2>
-
+            <h2 className="BrowsbyCategory-title">Browse by Category</h2>
             <p className="BrowsbyCategory-subtitle">
-              Find the right implement for your farm
+              Explore genuine equipment and farming products by category
             </p>
           </div>
 
@@ -277,7 +228,7 @@ const BrowsbyCategory = () => {
 
         <div className="BrowsbyCategory-grid">
           {loading ? (
-            Array.from({ length: 9 }).map((_, i) => (
+            Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
                 className="BrowsbyCategory-card BrowsbyCategory-card-skeleton"
@@ -288,12 +239,13 @@ const BrowsbyCategory = () => {
             ))
           ) : categories.length === 0 ? (
             <p className="BrowsbyCategory-empty">
-              No categories available at the moment.
+              No categories with available products or machinery at the moment.
             </p>
           ) : (
             categories.map((category) => {
               const catKey = category._id || category.slug || category.name;
               const catImage = resolveImageUrl(category.image, FALLBACK_IMAGE);
+              const totalItems = category.products.length + category.machinery.length;
 
               return (
                 <button
@@ -301,7 +253,7 @@ const BrowsbyCategory = () => {
                   key={catKey}
                   className="BrowsbyCategory-card"
                   onClick={() => openCategory(category)}
-                  aria-label={`View ${category.name} subcategories`}
+                  aria-label={`View ${category.name} (${totalItems} items)`}
                 >
                   <div className="BrowsbyCategory-image-wrap">
                     <img
@@ -320,6 +272,10 @@ const BrowsbyCategory = () => {
                   <span className="BrowsbyCategory-card-name">
                     {category.name}
                   </span>
+
+                  <span className="BrowsbyCategory-count-badge">
+                    {totalItems} {totalItems === 1 ? "Item" : "Items"}
+                  </span>
                 </button>
               );
             })
@@ -327,6 +283,7 @@ const BrowsbyCategory = () => {
         </div>
       </div>
 
+      {/* MODAL FOR PRODUCTS & MACHINERY IN SELECTED CATEGORY */}
       {selectedCategory && (
         <div
           className={`BrowsbyCategory-modal-overlay ${
@@ -344,6 +301,7 @@ const BrowsbyCategory = () => {
             aria-modal="true"
             aria-labelledby="BrowsbyCategory-modal-title"
           >
+            {/* Modal Header */}
             <div className="BrowsbyCategory-modal-header">
               <div>
                 <div className="BrowsbyCategory-modal-title-row">
@@ -351,16 +309,21 @@ const BrowsbyCategory = () => {
                     className="BrowsbyCategory-modal-title"
                     id="BrowsbyCategory-modal-title"
                   >
-                    Select Subcategory
+                    {selectedCategory.name}
                   </h3>
 
                   <span className="BrowsbyCategory-count">
-                    {selectedCategory.subcategories ? selectedCategory.subcategories.length : 0}
+                    {selectedCategory.products.length +
+                      selectedCategory.machinery.length}
                   </span>
                 </div>
 
                 <p className="BrowsbyCategory-modal-subtitle">
-                  Choose a type of {selectedCategory.name}
+                  {selectedCategory.products.length > 0 && selectedCategory.machinery.length > 0
+                    ? `Contains ${selectedCategory.products.length} Products and ${selectedCategory.machinery.length} Machinery Equipment`
+                    : selectedCategory.products.length > 0
+                    ? `Contains ${selectedCategory.products.length} Products`
+                    : `Contains ${selectedCategory.machinery.length} Machinery Equipment`}
                 </p>
               </div>
 
@@ -374,64 +337,135 @@ const BrowsbyCategory = () => {
               </button>
             </div>
 
-            <div className="BrowsbyCategory-modal-body">
+            {/* Modal Tabs: All / Products / Machinery */}
+            <div className="BrowsbyCategory-modal-tabs">
               <button
                 type="button"
-                className="BrowsbyCategory-all-subcategories"
-                onClick={() => goToCategory(selectedCategory)}
+                className={`BrowsbyCategory-tab-pill ${
+                  activeTab === "all" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("all")}
               >
-                <span className="BrowsbyCategory-all-icon">
-                  <Sparkles size={22} />
-                </span>
-
-                <span className="BrowsbyCategory-all-text">
-                  <strong>All Subcategories</strong>
-                  <small>
-                    Show every model under {selectedCategory.name}
-                  </small>
-                </span>
-
-                <Check
-                  className="BrowsbyCategory-all-check"
-                  size={21}
-                />
+                <Layers size={15} />
+                All Items (
+                {selectedCategory.products.length +
+                  selectedCategory.machinery.length}
+                )
               </button>
 
-              <div className="BrowsbyCategory-subcategory-grid">
-                {(selectedCategory.subcategories || []).map((subcategory) => (
-                  <button
-                    type="button"
-                    key={subcategory.slug || subcategory.name}
-                    className="BrowsbyCategory-subcategory-card"
-                    onClick={() =>
-                      goToCategory(selectedCategory, subcategory)
-                    }
-                  >
-                    <div className="BrowsbyCategory-subcategory-image-wrap">
-                      <img
-                        src={subcategory.image || FALLBACK_IMAGE}
-                        alt={subcategory.name}
-                        className="BrowsbyCategory-subcategory-image"
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = FALLBACK_IMAGE;
-                        }}
-                      />
-                    </div>
+              {selectedCategory.products.length > 0 && (
+                <button
+                  type="button"
+                  className={`BrowsbyCategory-tab-pill ${
+                    activeTab === "products" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab("products")}
+                >
+                  <Package size={15} />
+                  Products ({selectedCategory.products.length})
+                </button>
+              )}
 
-                    <span className="BrowsbyCategory-subcategory-name">
-                      {subcategory.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              {selectedCategory.machinery.length > 0 && (
+                <button
+                  type="button"
+                  className={`BrowsbyCategory-tab-pill ${
+                    activeTab === "machinery" ? "active" : ""
+                  }`}
+                  onClick={() => setActiveTab("machinery")}
+                >
+                  <Tractor size={15} />
+                  Machinery ({selectedCategory.machinery.length})
+                </button>
+              )}
             </div>
 
+            {/* Modal Body: Products & Machinery Cards */}
+            <div className="BrowsbyCategory-modal-body">
+              {modalItems.length === 0 ? (
+                <div className="BrowsbyCategory-modal-empty">
+                  No items found under this filter.
+                </div>
+              ) : (
+                <div className="BrowsbyCategory-item-grid">
+                  {modalItems.map((item) => {
+                    const isMachinery = item.itemType === "machinery";
+                    const title = item.title || item.name || "Equipment";
+                    const brand = item.brandName || item.companyName || item.brand || "";
+                    const price = item.finalPrice || item.discountPrice || item.price;
+                    const itemImage = resolveImageUrl(
+                      item.image ||
+                        (Array.isArray(item.machineImages) && item.machineImages[0]) ||
+                        (Array.isArray(item.images) && item.images[0]),
+                      FALLBACK_IMAGE
+                    );
+
+                    return (
+                      <div
+                        key={item._id || item.id || title}
+                        className="BrowsbyCategory-item-card"
+                        onClick={() => handleOpenItem(item)}
+                      >
+                        <div className="BrowsbyCategory-item-image-wrap">
+                          <img
+                            src={itemImage}
+                            alt={title}
+                            className="BrowsbyCategory-item-image"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = FALLBACK_IMAGE;
+                            }}
+                          />
+                          <span
+                            className={`BrowsbyCategory-item-type-badge ${
+                              isMachinery ? "badge-machinery" : "badge-product"
+                            }`}
+                          >
+                            {isMachinery ? (
+                              <>
+                                <Tractor size={12} /> Machinery
+                              </>
+                            ) : (
+                              <>
+                                <Package size={12} /> Product
+                              </>
+                            )}
+                          </span>
+                        </div>
+
+                        <div className="BrowsbyCategory-item-info">
+                          {brand && (
+                            <span className="BrowsbyCategory-item-brand">
+                              {brand}
+                            </span>
+                          )}
+                          <h4 className="BrowsbyCategory-item-title" title={title}>
+                            {title}
+                          </h4>
+                          <div className="BrowsbyCategory-item-price-row">
+                            <span className="BrowsbyCategory-item-price">
+                              {formatPrice(price)}
+                            </span>
+                            <span className="BrowsbyCategory-item-view-btn">
+                              View <ArrowUpRight size={14} />
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
             <div className="BrowsbyCategory-modal-footer">
               <span>
-                {selectedCategory.subcategories ? selectedCategory.subcategories.length : 0} options
+                Showing {modalItems.length} of{" "}
+                {selectedCategory.products.length +
+                  selectedCategory.machinery.length}{" "}
+                items
               </span>
 
               <button
@@ -439,7 +473,7 @@ const BrowsbyCategory = () => {
                 className="BrowsbyCategory-cancel"
                 onClick={closePopup}
               >
-                Cancel
+                Close
               </button>
             </div>
           </div>

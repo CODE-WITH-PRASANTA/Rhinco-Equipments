@@ -15,6 +15,8 @@ import {
   FiStar,
   FiX,
   FiSettings,
+  FiShoppingCart,
+  FiTruck,
 } from "react-icons/fi";
 
 import logo from "../../assets/logo.png";
@@ -46,6 +48,11 @@ const menuItems = [
         path: "/products",
         icon: <FiFileText size={16} />,
       },
+      {
+        text: "Product Order",
+        path: "/product-orders",
+        icon: <FiShoppingCart size={16} />,
+      },
     ],
   },
   {
@@ -63,7 +70,22 @@ const menuItems = [
         path: "/machinery-equipment",
         icon: <FiFileText size={16} />,
       },
+      {
+        text: "Enquires Machinery",
+        path: "/machinery-orders",
+        icon: <FiTruck size={16} />,
+      },
     ],
+  },
+  {
+    text: "Product Order",
+    path: "/product-orders",
+    icon: <FiShoppingCart size={20} />,
+  },
+  {
+    text: "Enquires Machinery",
+    path: "/machinery-orders",
+    icon: <FiTruck size={20} />,
   },
   {
     text: "Team",
