@@ -485,6 +485,46 @@ const MachineryEquipment = () => {
       const numDiscPercent = Number(form.discount) || 0;
       const computedCustPrice = numDiscPercent > 0 ? Number(finalPrice) : null;
 
+      const cleanMachineImages = form.machineImages
+        .map((img) => {
+          const src = img.url || img.data || (typeof img === "string" ? img : "");
+          return {
+            name: img.name || "image",
+            type: img.type || "image/webp",
+            size: img.size || 0,
+            url: src,
+            data: src,
+          };
+        })
+        .filter(
+          (img) =>
+            img.url &&
+            !img.url.startsWith("blob:") &&
+            !img.url.startsWith("data:")
+        );
+
+      if (!cleanMachineImages.length) {
+        return setNotice("Please upload at least one valid machine image to the server.");
+      }
+
+      const cleanDocuments = form.documents
+        .map((doc) => {
+          const src = doc.url || doc.data || (typeof doc === "string" ? doc : "");
+          return {
+            name: doc.name || "document",
+            type: doc.type || "application/pdf",
+            size: doc.size || 0,
+            url: src,
+            data: src,
+          };
+        })
+        .filter(
+          (doc) =>
+            doc.url &&
+            !doc.url.startsWith("blob:") &&
+            !doc.url.startsWith("data:")
+        );
+
       const payload = {
         title: form.title.trim(),
         brandName: form.brandName.trim(),
@@ -498,8 +538,8 @@ const MachineryEquipment = () => {
         description: form.description,
         specification: form.specification,
         availableAtStore: form.availableAtStore || "Yes",
-        machineImages: form.machineImages,
-        documents: form.documents,
+        machineImages: cleanMachineImages,
+        documents: cleanDocuments,
       };
 
       const url = editingId ? `${MACHINERY_API}/${editingId}` : MACHINERY_API;

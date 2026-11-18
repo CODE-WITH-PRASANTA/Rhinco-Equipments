@@ -56,6 +56,11 @@ const saveBase64Image = async (input, prefix = 'img', folder = '') => {
 
   if (typeof input !== 'string') return '';
 
+  // Never allow client blob: URLs in database
+  if (input.startsWith('blob:')) {
+    return '';
+  }
+
   // If already an HTTP/HTTPS URL or /uploads/ path, return as is
   if (!isBase64DataUrl(input)) {
     return input;
@@ -119,22 +124,26 @@ const saveMultipleBase64Images = async (images, prefix = 'img', folder = '') => 
 
   const promises = images.map(async (img, index) => {
     if (typeof img === 'string') {
-      return saveBase64Image(img, `${prefix}-${index + 1}`, folder);
+      const saved = await saveBase64Image(img, `${prefix}-${index + 1}`, folder);
+      return saved && !saved.startsWith('blob:') ? saved : null;
     }
     if (img && typeof img === 'object') {
-      const target = img.data || img.url || img.preview || '';
+      const target = img.url || img.data || img.preview || '';
       const savedUrl = await saveBase64Image(target, `${prefix}-${index + 1}`, folder);
+      if (!savedUrl || savedUrl.startsWith('blob:')) return null;
       return {
-        ...img,
+        name: img.name || 'image',
+        type: img.type || 'image/webp',
+        size: img.size || 0,
         url: savedUrl,
         data: savedUrl,
-        preview: savedUrl,
       };
     }
-    return img;
+    return null;
   });
 
-  return Promise.all(promises);
+  const resolved = await Promise.all(promises);
+  return resolved.filter(Boolean);
 };
 
 module.exports = {

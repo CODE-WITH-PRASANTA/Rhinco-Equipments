@@ -49,6 +49,7 @@ const BlogCategory = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
 
+  const [previewImage, setPreviewImage] = useState("");
   const fileInputRef = useRef(null);
 
   const showToast = (msg) => {
@@ -101,10 +102,10 @@ const BlogCategory = () => {
         return;
       }
       try {
-        const localPreview = URL.createObjectURL(file);
-        setForm((prev) => ({ ...prev, image: localPreview }));
+        setPreviewImage(URL.createObjectURL(file));
         const serverPath = await uploadImage(file);
         setForm((prev) => ({ ...prev, image: serverPath }));
+        setPreviewImage(serverPath);
       } catch (err) {
         console.error("Category image upload error:", err);
         showToast("Image upload failed: " + err.message);
@@ -114,6 +115,7 @@ const BlogCategory = () => {
 
   const resetForm = () => {
     setForm(emptyForm);
+    setPreviewImage("");
     setEditingId(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -126,6 +128,7 @@ const BlogCategory = () => {
       image: cat.image || "",
       status: cat.status || "Active",
     });
+    setPreviewImage(cat.image || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -133,6 +136,11 @@ const BlogCategory = () => {
     e.preventDefault();
     if (!form.name.trim()) {
       showToast("Please enter a category name.");
+      return;
+    }
+
+    if (form.image && (form.image.startsWith("blob:") || form.image.startsWith("data:"))) {
+      showToast("Please wait for the image to finish uploading to the server.");
       return;
     }
 

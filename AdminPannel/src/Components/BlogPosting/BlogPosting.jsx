@@ -78,6 +78,7 @@ const BlogPosting = () => {
   const [isCustomSlug, setIsCustomSlug] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState("");
   const [errors, setErrors] = useState({});
   const [toastMessage, setToastMessage] = useState("");
 
@@ -253,14 +254,15 @@ const BlogPosting = () => {
       }
       try {
         const localPreview = URL.createObjectURL(file);
-        setForm((prev) => ({ ...prev, image: localPreview }));
-        if (errors.image) setErrors((prev) => ({ ...prev, image: null }));
-
+        setImagePreview(localPreview);
         const serverUrl = await uploadImage(file);
         setForm((prev) => ({ ...prev, image: serverUrl }));
+        setImagePreview(serverUrl);
+        if (errors.image) setErrors((prev) => ({ ...prev, image: null }));
       } catch (err) {
         console.error("Blog banner upload error:", err);
         alert("Failed to upload image: " + err.message);
+        setImagePreview("");
       }
     }
   };
@@ -272,7 +274,9 @@ const BlogPosting = () => {
     if (!form.category) newErrors.category = "Please select or add a category.";
     if (!form.excerpt.trim()) newErrors.excerpt = "Short summary is required.";
     if (!form.content.trim()) newErrors.content = "Article content is required.";
-    if (!form.image) newErrors.image = "Featured banner image is required.";
+    if (!form.image || form.image.startsWith("blob:") || form.image.startsWith("data:")) {
+      newErrors.image = "Featured banner image is required (please wait for upload to complete).";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -745,9 +749,9 @@ const BlogPosting = () => {
               <FiImage size={17} className="BlogPosting-iconMuted" />
             </div>
 
-            {form.image ? (
+            {imagePreview || form.image ? (
               <div className="BlogPosting-imagePreviewContainer">
-                <img src={resolveImageUrl(form.image)} alt="Featured Banner" />
+                <img src={resolveImageUrl(imagePreview || form.image)} alt="Featured Banner" />
                 <div className="BlogPosting-imageOverlay">
                   <button
                     type="button"

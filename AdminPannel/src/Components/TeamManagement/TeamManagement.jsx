@@ -159,8 +159,8 @@ const TeamManagement = () => {
       newErrors.description = "Please enter a short description.";
     }
 
-    if (!formData.image) {
-      newErrors.image = "Please upload a profile picture.";
+    if (!formData.image || formData.image.startsWith("blob:") || formData.image.startsWith("data:")) {
+      newErrors.image = "Please upload a valid profile picture (wait for upload to finish).";
     }
 
     setErrors(newErrors);

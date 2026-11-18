@@ -124,8 +124,8 @@ const Catagory = () => {
       return;
     }
 
-    if (!editingId && !categoryImage && !previewImage) {
-      showToast("Please upload category image.");
+    if (!categoryImage && !editingId) {
+      showToast("Please upload a category image.");
       return;
     }
 
@@ -134,8 +134,13 @@ const Catagory = () => {
       return;
     }
 
+    if (categoryImage && (categoryImage.startsWith("blob:") || categoryImage.startsWith("data:"))) {
+      showToast("Please wait for image to finish uploading to the server.");
+      return;
+    }
+
     setSubmitting(true);
-    const finalImage = categoryImage || previewImage || "";
+    const finalImage = categoryImage || "";
 
     try {
       if (editingId) {

@@ -316,16 +316,18 @@ const AddPost = ({ onSubmit }) => {
       return;
     }
 
-    const oversizedImg = images.find((img) => img.size && img.size > MAX_IMAGE_BYTES);
-    if (oversizedImg) {
-      const err = `Image "${oversizedImg.name}" exceeds the maximum allowed size of ${MAX_IMAGE_MB} MB.`;
-      setImageError(err);
-      setNotice(err);
-      return;
-    }
+    const readyImages = images
+      .map((img) => img.url)
+      .filter(
+        (url) =>
+          typeof url === "string" &&
+          !url.startsWith("blob:") &&
+          !url.startsWith("data:") &&
+          url.trim().length > 0
+      );
 
-    if (!images.length) {
-      setNotice("Please upload at least one product image.");
+    if (!readyImages.length) {
+      setNotice("Please upload at least one valid product image to the server.");
       return;
     }
 
@@ -368,7 +370,7 @@ const AddPost = ({ onSubmit }) => {
       finalPrice,
       stockQuantity: stock,
       bestSeller: Boolean(form.bestSeller),
-      images: images.map((img) => img.url || img.preview).filter(Boolean),
+      images: readyImages,
     };
 
     try {
