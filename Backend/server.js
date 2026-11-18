@@ -39,8 +39,8 @@ app.use(cors({
 app.options('*', cors());
 
 // Body parsers
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Serve uploaded static files with open CORS and caching
 app.use(

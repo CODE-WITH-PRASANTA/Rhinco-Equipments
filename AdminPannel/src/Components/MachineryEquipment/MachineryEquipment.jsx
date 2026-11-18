@@ -9,15 +9,16 @@ import {
   FiDollarSign, FiBox, FiTool, FiAlertCircle, FiPercent
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
+import { optimizeImageFile } from "../../utils/imageOptimizer";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const MACHINERY_API = `${API_URL}/machinery`;
 const CATEGORIES_API = `${API_URL}/categories`;
 
-const MAX_IMAGE_MB = 5;
+const MAX_IMAGE_MB = 50;
 const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
-const MAX_DOC_MB = 10;
+const MAX_DOC_MB = 25;
 const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
 
 const resolveImageUrl = (path) => {
@@ -27,11 +28,9 @@ const resolveImageUrl = (path) => {
 };
 
 const uploadImage = async (file, folder = "machinery") => {
-  if (file.size > MAX_IMAGE_BYTES) {
-    throw new Error(`File "${file.name}" exceeds the ${MAX_IMAGE_MB} MB limit.`);
-  }
+  const readyFile = await optimizeImageFile(file);
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("image", readyFile);
   formData.append("folder", folder);
   const res = await fetch(`${API_URL}/upload?folder=${encodeURIComponent(folder)}`, { method: "POST", body: formData });
   const data = await res.json().catch(() => ({}));
@@ -107,6 +106,7 @@ const MachineryEquipment = () => {
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [imageError, setImageError] = useState("");
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [docError, setDocError] = useState("");
 
   const finalPrice = useMemo(() => {
@@ -201,20 +201,7 @@ const MachineryEquipment = () => {
 
     if (!files.length) return;
 
-    // 1. Check if any file exceeds maximum MB limit
-    const oversized = files.filter((file) => file.size > MAX_IMAGE_BYTES);
-    if (oversized.length > 0) {
-      const details = oversized
-        .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
-        .join(", ");
-      const errorMsg = `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB per image. Exceeded: ${details}`;
-      setImageError(errorMsg);
-      setNotice(errorMsg);
-      event.target.value = "";
-      return;
-    }
-
-    // 2. Validate image file formats
+    // 1. Validate image file formats
     const nonImages = files.filter((file) => !file.type.startsWith("image/"));
     if (nonImages.length > 0) {
       const errorMsg = "Invalid file type. Only image files (PNG, JPG, JPEG, WEBP, GIF, SVG) are allowed.";
@@ -224,7 +211,7 @@ const MachineryEquipment = () => {
       return;
     }
 
-    // 3. Check remaining image slots
+    // 2. Check remaining image slots
     const remaining = 6 - form.machineImages.length;
     if (remaining <= 0) {
       const errorMsg = "You can upload a maximum of 6 images (1 main image + 5 additional images).";
@@ -235,16 +222,18 @@ const MachineryEquipment = () => {
     }
 
     const selected = files.slice(0, remaining);
+    setUploadingImages(true);
+    setNotice("Optimizing and uploading image(s)...");
 
     try {
-      setNotice("Uploading image(s) to server...");
       const uploaded = await Promise.all(
         selected.map(async (file) => {
-          const serverUrl = await uploadImage(file, "machinery");
+          const optimized = await optimizeImageFile(file);
+          const serverUrl = await uploadImage(optimized, "machinery");
           return {
             name: file.name,
-            type: file.type,
-            size: file.size,
+            type: optimized.type || file.type,
+            size: optimized.size || file.size,
             data: serverUrl,
             url: serverUrl,
           };
@@ -257,15 +246,16 @@ const MachineryEquipment = () => {
       }));
 
       setImageError("");
-      setNotice(files.length > remaining ? "Filled remaining available image slots (Max 6)." : "Images uploaded successfully!");
+      setNotice(files.length > remaining ? "Filled remaining available image slots (Max 6)." : "Images uploaded and optimized successfully!");
     } catch (err) {
       console.error("Machine image upload error:", err);
       const errorMsg = err.message || "Failed to upload image. Please try again.";
       setImageError(errorMsg);
       setNotice(errorMsg);
+    } finally {
+      setUploadingImages(false);
+      event.target.value = "";
     }
-
-    event.target.value = "";
   };
 
   const removeImage = (index) => {
@@ -412,6 +402,10 @@ const MachineryEquipment = () => {
   // SUBMIT FORM TO DATABASE
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (uploadingImages) {
+      return setNotice("Images are currently being uploaded and optimized. Please wait a moment.");
+    }
 
     if (!form.machineImages.length) {
       return setNotice("Please upload at least one machine image.");
@@ -748,7 +742,7 @@ const MachineryEquipment = () => {
               <div>
                 <h3>Machine Images</h3>
                 <p>
-                  Upload up to 6 images: 1 main image and 5 additional images (Max 5 MB each).
+                  Upload up to 6 images: 1 main image and 5 additional images (Auto-optimized to WebP).
                 </p>
               </div>
             </div>
@@ -1266,10 +1260,12 @@ const MachineryEquipment = () => {
             <button
               type="submit"
               className="MachineryEquipment-submitBtn"
-              disabled={saving}
+              disabled={saving || uploadingImages}
             >
               <FiSave />
-              {saving
+              {uploadingImages
+                ? "Uploading Images..."
+                : saving
                 ? "Saving..."
                 : editingId
                 ? "Update Equipment"

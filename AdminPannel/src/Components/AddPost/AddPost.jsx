@@ -24,6 +24,7 @@ import {
 } from "react-icons/fi";
 
 import "./AddPost.css";
+import { optimizeImageFile } from "../../utils/imageOptimizer";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
@@ -37,11 +38,12 @@ const resolveImageUrl = (path) => {
 };
 
 const uploadImage = async (file) => {
+  const readyFile = await optimizeImageFile(file);
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("image", readyFile);
   formData.append("folder", "product");
   const res = await fetch(`${API_URL}/upload?folder=product`, { method: "POST", body: formData });
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.success) throw new Error(data.message || "Failed to upload image");
   return data.url;
 };
@@ -72,6 +74,7 @@ const AddPost = ({ onSubmit }) => {
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // LOAD REAL CATEGORIES FROM DATABASE
@@ -203,8 +206,8 @@ const AddPost = ({ onSubmit }) => {
     }));
   };
 
-  // IMAGE UPLOAD - Convert to Base64 for persistent database storage
-  const handleImageUpload = (e) => {
+  // IMAGE UPLOAD - Auto-optimizes multi-MB camera images to lightweight WebP
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
@@ -215,17 +218,18 @@ const AddPost = ({ onSubmit }) => {
       return;
     }
 
-    const validFiles = files.filter(
-      (file) => file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024
-    );
-
-    if (validFiles.length !== files.length) {
-      setNotice("Invalid images skipped. Maximum size is 15MB per image.");
-    } else {
-      setNotice("");
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    if (!imageFiles.length) {
+      setNotice("Please select valid image files (JPG, PNG, WEBP, etc.).");
+      e.target.value = "";
+      return;
     }
 
-    validFiles.slice(0, remaining).forEach(async (file) => {
+    const selected = imageFiles.slice(0, remaining);
+    setUploadingImages(true);
+    setNotice("Optimizing and uploading product image(s)...");
+
+    for (const file of selected) {
       const tempId = `${Date.now()}-${Math.random()}`;
       const localPreview = URL.createObjectURL(file);
 
@@ -235,24 +239,29 @@ const AddPost = ({ onSubmit }) => {
           id: tempId,
           preview: localPreview,
           name: file.name,
+          uploading: true,
         },
       ]);
 
       try {
-        const serverUrl = await uploadImage(file);
+        const optimized = await optimizeImageFile(file);
+        const serverUrl = await uploadImage(optimized);
         setImages((prev) =>
           prev.map((img) =>
             img.id === tempId
-              ? { ...img, preview: serverUrl, url: serverUrl }
+              ? { ...img, preview: serverUrl, url: serverUrl, uploading: false }
               : img
           )
         );
       } catch (err) {
         console.error("Product image upload failed:", err);
         setNotice("Failed to upload " + file.name + ": " + err.message);
+        setImages((prev) => prev.filter((img) => img.id !== tempId));
       }
-    });
+    }
 
+    setUploadingImages(false);
+    setNotice("Product image(s) uploaded and optimized successfully!");
     e.target.value = "";
   };
 
@@ -275,6 +284,11 @@ const AddPost = ({ onSubmit }) => {
   // SUBMIT PRODUCT TO DATABASE
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (uploadingImages || images.some((img) => img.uploading)) {
+      setNotice("Please wait for images to finish uploading before submitting.");
+      return;
+    }
 
     if (!images.length) {
       setNotice("Please upload at least one product image.");
@@ -636,7 +650,7 @@ const AddPost = ({ onSubmit }) => {
             <FiUploadCloud className="AddPost-dropzoneIcon" />
             <h4>Drag & Drop product images here</h4>
             <p>or click to browse files from your computer</p>
-            <span>JPG, PNG, WEBP (Max 5MB per file, up to 5 images)</span>
+            <span>JPG, PNG, WEBP (Auto-optimized, up to 5 images)</span>
 
             <input
               ref={fileInputRef}
@@ -730,9 +744,13 @@ const AddPost = ({ onSubmit }) => {
           <button
             type="submit"
             className="AddPost-submitButton"
-            disabled={isSubmitting}
+            disabled={isSubmitting || uploadingImages}
           >
-            {isSubmitting ? (
+            {uploadingImages ? (
+              <>
+                <FiRefreshCw className="spin" /> Uploading & Optimizing Images...
+              </>
+            ) : isSubmitting ? (
               <>
                 <FiRefreshCw className="spin" /> Saving to Database...
               </>
