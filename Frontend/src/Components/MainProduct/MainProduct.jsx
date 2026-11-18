@@ -1,50 +1,56 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import {
+  ShoppingCart,
+  Heart,
+  Star,
+  Search,
+  RotateCcw,
+  Sparkles,
+  Truck,
+  ShieldCheck,
+  RotateCcw as ReturnIcon,
+  CreditCard,
+  SlidersHorizontal,
+  ChevronDown,
+  Check,
+} from "lucide-react";
 import "./MainProduct.css";
 import {
   getCart,
   addToCart,
-  updateCartQuantity,
   getCartItemQuantity,
   getWishlist,
   toggleWishlist,
   isInWishlist,
 } from "../../utils/cartWishlist";
 import { resolveImageUrl, toProductSlug } from "../../utils/helpers";
+import { API_URL } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const PRODUCTS_API = `${API_URL}/products`;
 
 const getProductId = (product) => product?._id || product?.id;
 
 const formatPrice = (price) =>
-  `₹${Number(price || 0).toLocaleString("en-IN")}`;
+  `₹ ${Number(price || 0).toLocaleString("en-IN")}`;
 
 const MainProduct = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All Products");
   const [search, setSearch] = useState("");
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(1000000);
-  const [appliedMin, setAppliedMin] = useState(0);
-  const [appliedMax, setAppliedMax] = useState(1000000);
   const [sortBy, setSortBy] = useState("featured");
   const [wishlist, setWishlist] = useState(getWishlist);
   const [cart, setCart] = useState(getCart);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [addedItemNotice, setAddedItemNotice] = useState("");
 
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const cat = searchParams.get("category");
     const q = searchParams.get("search");
-    if (cat) {
-      setActiveCategory(cat);
-    }
-    if (q) {
-      setSearch(q);
-    }
+    if (cat) setActiveCategory(cat);
+    if (q) setSearch(q);
   }, [searchParams]);
 
   // Sync cart & wishlist across tabs and components
@@ -65,570 +71,373 @@ const MainProduct = () => {
     };
   }, []);
 
-  // FETCH REAL PRODUCTS FROM DATABASE
-  const loadProducts = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(PRODUCTS_API);
-      const result = await res.json();
-      if (res.ok && result.success && Array.isArray(result.data)) {
-        setAllProducts(result.data);
-
-        // Adjust default max price slider to fit actual products
-        if (result.data.length > 0) {
-          const highest = Math.max(
-            ...result.data.map((p) => Number(p.finalPrice || p.price || 0))
-          );
-          const roundedMax = Math.max(10000, Math.ceil(highest / 5000) * 5000);
-          setMaxPrice(roundedMax);
-          setAppliedMax(roundedMax);
-        }
-      }
-    } catch (err) {
-      console.error("Could not fetch real products from backend:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Fetch real products from backend database
   useEffect(() => {
-    loadProducts();
+    let isMounted = true;
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(PRODUCTS_API);
+        const result = await res.json();
+        if (res.ok && result.success && Array.isArray(result.data)) {
+          if (isMounted) setAllProducts(result.data);
+        }
+      } catch (err) {
+        console.error("Error fetching store products:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchProducts();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // DYNAMIC CATEGORIES EXTRACTED FROM REAL PRODUCTS
-  const categories = useMemo(() => {
-    const categoryCountMap = {};
-
-    allProducts.forEach((product) => {
-      const cat = product.category || "General";
-      categoryCountMap[cat] = (categoryCountMap[cat] || 0) + 1;
+  // Extract categories dynamically from products
+  const categoriesList = useMemo(() => {
+    const set = new Set();
+    allProducts.forEach((p) => {
+      if (p.category) set.add(p.category.trim());
     });
-
-    const categoryList = Object.entries(categoryCountMap).map(
-      ([name, count]) => ({
-        name,
-        count,
-      })
-    );
-
-    return [
-      { name: "All Products", count: allProducts.length },
-      ...categoryList,
-    ];
+    return ["All Products", ...Array.from(set).sort()];
   }, [allProducts]);
 
-  // HIGHEST PRICE IN CURRENT DATA
-  const sliderMax = useMemo(() => {
-    if (!allProducts.length) return 500000;
-    const highest = Math.max(
-      ...allProducts.map((p) => Number(p.finalPrice || p.price || 0))
-    );
-    return Math.max(10000, Math.ceil(highest / 5000) * 5000);
-  }, [allProducts]);
-
-  // FILTERED & SORTED PRODUCTS
+  // Filter & sort products
   const filteredProducts = useMemo(() => {
-    let list = [...allProducts];
+    let list = allProducts.filter((product) => {
+      const title = String(product.title || product.name || "").toLowerCase();
+      const cat = String(product.category || "").toLowerCase();
+      const brand = String(product.companyName || product.brand || "").toLowerCase();
+      const desc = String(product.description || "").toLowerCase();
+      const q = search.trim().toLowerCase();
 
-    if (activeCategory !== "All Products") {
-      list = list.filter(
-        (product) =>
-          (product.category || "").toLowerCase() === activeCategory.toLowerCase()
-      );
-    }
+      const matchesSearch =
+        !q ||
+        title.includes(q) ||
+        cat.includes(q) ||
+        brand.includes(q) ||
+        desc.includes(q);
 
-    if (search.trim()) {
-      const searchTerm = search.toLowerCase().trim();
-      list = list.filter(
-        (product) =>
-          (product.title || product.name || "").toLowerCase().includes(searchTerm) ||
-          (product.category || "").toLowerCase().includes(searchTerm) ||
-          (product.companyName || "").toLowerCase().includes(searchTerm) ||
-          (product.description || "").toLowerCase().includes(searchTerm)
-      );
-    }
+      const matchesCat =
+        activeCategory === "All Products" ||
+        cat === activeCategory.toLowerCase();
 
-    list = list.filter((product) => {
-      const p = Number(product.finalPrice || product.price || 0);
-      return p >= appliedMin && p <= appliedMax;
+      return matchesSearch && matchesCat;
     });
 
     if (sortBy === "price-low") {
-      list.sort((a, b) => (a.finalPrice || a.price) - (b.finalPrice || b.price));
+      list.sort((a, b) => Number(a.finalPrice || a.price || 0) - Number(b.finalPrice || b.price || 0));
     } else if (sortBy === "price-high") {
-      list.sort((a, b) => (b.finalPrice || b.price) - (a.finalPrice || a.price));
+      list.sort((a, b) => Number(b.finalPrice || b.price || 0) - Number(a.finalPrice || a.price || 0));
     } else if (sortBy === "rating") {
-      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
     } else if (sortBy === "name") {
-      list.sort((a, b) =>
-        (a.title || a.name || "").localeCompare(b.title || b.name || "")
-      );
-    } else {
-      // "featured": bestSeller first, then newest
-      list.sort((a, b) => {
-        if (a.bestSeller && !b.bestSeller) return -1;
-        if (!a.bestSeller && b.bestSeller) return 1;
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      });
+      list.sort((a, b) => String(a.title || a.name || "").localeCompare(String(b.title || b.name || "")));
     }
 
     return list;
-  }, [allProducts, activeCategory, search, appliedMin, appliedMax, sortBy]);
+  }, [allProducts, search, activeCategory, sortBy]);
 
-  const handleToggleWishlist = (product) => {
+  const handleAddToCart = (product, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product, 1);
+    const title = product.title || product.name || "Product";
+    setAddedItemNotice(`✓ Added "${title}" to your cart!`);
+    setTimeout(() => setAddedItemNotice(""), 2800);
+  };
+
+  const handleToggleWishlist = (product, e) => {
+    e.preventDefault();
+    e.stopPropagation();
     toggleWishlist(product);
   };
 
-  const handleAddToCart = (product) => {
-    addToCart(product, 1);
-  };
-
-  const handleUpdateQty = (pId, delta) => {
-    updateCartQuantity(pId, delta);
-  };
-
-  const applyPriceFilter = () => {
-    setAppliedMin(Math.min(minPrice, maxPrice));
-    setAppliedMax(Math.max(minPrice, maxPrice));
-  };
-
   const clearFilters = () => {
-    setActiveCategory("All Products");
     setSearch("");
-    setMinPrice(0);
-    setMaxPrice(sliderMax);
-    setAppliedMin(0);
-    setAppliedMax(sliderMax);
+    setActiveCategory("All Products");
     setSortBy("featured");
   };
 
-  const closeMobileFilters = () => setMobileFiltersOpen(false);
-
   return (
-    <section className="MainProduct">
-      <div className="MainProduct-container">
-        {/* Mobile filter button */}
-        <div className="MainProduct-mobile-toolbar">
-          <button
-            type="button"
-            className="MainProduct-mobile-filter-button"
-            onClick={() => setMobileFiltersOpen(true)}
-          >
-            <svg viewBox="0 0 24 24" fill="none">
-              <path
-                d="M4 6h16M7 12h10m-7 6h4"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            Filters
-          </button>
-
-          <span>{filteredProducts.length} Products</span>
-        </div>
-
-        {/* Sidebar */}
-        <aside
-          className={`MainProduct-sidebar ${
-            mobileFiltersOpen ? "MainProduct-sidebar-open" : ""
-          }`}
-        >
-          <div className="MainProduct-mobile-sidebar-heading">
-            <h2>Filters</h2>
-            <button
-              type="button"
-              onClick={closeMobileFilters}
-              aria-label="Close filters"
-            >
-              ×
-            </button>
+    <section className="StoreShowcase">
+      {/* HERO BANNER */}
+      <div className="StoreShowcase-hero">
+        <div className="StoreShowcase-heroContainer">
+          <div className="StoreShowcase-heroBadge">
+            <Sparkles size={13} />
+            <span>OFFICIAL FACTORY STORE • LIVE INVENTORY</span>
           </div>
 
-          {/* Search */}
-          <div className="MainProduct-sidebar-search">
-            <svg viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="11"
-                cy="11"
-                r="7"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="M16.5 16.5L21 21"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
+          <h1 className="StoreShowcase-heroTitle">
+            Agricultural Equipment & Implements Store
+          </h1>
+
+          <p className="StoreShowcase-heroSubtitle">
+            Order verified tractor implements, soil preparation machinery, crop sprayers, and genuine spare parts direct from factory inventory with nationwide farm delivery.
+          </p>
+
+          {/* 4 STORE TRUST PILLARS */}
+          <div className="StoreShowcase-pillars">
+            <div className="StoreShowcase-pillar">
+              <Truck size={20} />
+              <div>
+                <strong>Free Farm Delivery</strong>
+                <span>Doorstep field delivery</span>
+              </div>
+            </div>
+            <div className="StoreShowcase-pillar">
+              <ShieldCheck size={20} />
+              <div>
+                <strong>1-Year Warranty</strong>
+                <span>100% Genuine OEM parts</span>
+              </div>
+            </div>
+            <div className="StoreShowcase-pillar">
+              <ReturnIcon size={20} />
+              <div>
+                <strong>7-Day Replacement</strong>
+                <span>Hassle-free guarantee</span>
+              </div>
+            </div>
+            <div className="StoreShowcase-pillar">
+              <CreditCard size={20} />
+              <div>
+                <strong>Cash on Delivery</strong>
+                <span>Pay upon arrival</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* TOAST ALERT */}
+      {addedItemNotice && (
+        <div className="StoreShowcase-toastNotice">
+          <span>{addedItemNotice}</span>
+          <Link to="/cart">View Cart & Checkout →</Link>
+        </div>
+      )}
+
+      {/* STORE CONTAINER */}
+      <div className="StoreShowcase-container">
+        {/* INTERACTIVE CONTROLS BAR */}
+        <div className="StoreShowcase-controlsBar">
+          <div className="StoreShowcase-searchBox">
+            <Search size={18} className="search-icon" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search store products by name, category, or brand..."
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              aria-label="Search products"
+              onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
-
-          {/* Categories */}
-          <div className="MainProduct-sidebar-section">
-            <div className="MainProduct-sidebar-title">
-              <h2>Categories</h2>
-              <span className="MainProduct-title-line" />
-            </div>
-
-            <div className="MainProduct-category-list">
-              {categories.map((category) => (
-                <button
-                  type="button"
-                  key={category.name}
-                  className={`MainProduct-category-item ${
-                    activeCategory === category.name
-                      ? "MainProduct-category-active"
-                      : ""
-                  }`}
-                  onClick={() => {
-                    setActiveCategory(category.name);
-                    closeMobileFilters();
-                  }}
-                >
-                  <span className="MainProduct-category-name">
-                    {activeCategory === category.name && (
-                      <span className="MainProduct-category-arrow">›</span>
-                    )}
-                    {category.name}
-                  </span>
-                  <span className="MainProduct-category-count">
-                    {category.count}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Price filter */}
-          <div className="MainProduct-sidebar-section MainProduct-price-section">
-            <div className="MainProduct-sidebar-title">
-              <h2>Filter By Price</h2>
-              <span className="MainProduct-title-line" />
-            </div>
-
-            <div className="MainProduct-price-range">
-              <div className="MainProduct-range-values">
-                <span>{formatPrice(minPrice)}</span>
-                <span>{formatPrice(maxPrice)}</span>
-              </div>
-
-              <div className="MainProduct-range-inputs">
-                <input
-                  type="range"
-                  min="0"
-                  max={sliderMax}
-                  step={sliderMax > 100000 ? "5000" : "500"}
-                  value={minPrice}
-                  onChange={(event) =>
-                    setMinPrice(
-                      Math.min(Number(event.target.value), maxPrice)
-                    )
-                  }
-                  aria-label="Minimum price"
-                  style={{
-                    "--MainProduct-range-progress": `${
-                      (minPrice / sliderMax) * 100
-                    }%`,
-                  }}
-                />
-
-                <input
-                  type="range"
-                  min="0"
-                  max={sliderMax}
-                  step={sliderMax > 100000 ? "5000" : "500"}
-                  value={maxPrice}
-                  onChange={(event) =>
-                    setMaxPrice(
-                      Math.max(Number(event.target.value), minPrice)
-                    )
-                  }
-                  aria-label="Maximum price"
-                />
-              </div>
-
-              <div className="MainProduct-price-filter-bottom">
-                <button
-                  type="button"
-                  className="MainProduct-filter-button"
-                  onClick={applyPriceFilter}
-                >
-                  Filter
-                </button>
-
-                <span>
-                  Price: {formatPrice(appliedMin)} – {formatPrice(appliedMax)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="MainProduct-clear-filters"
-            onClick={clearFilters}
-          >
-            Clear All Filters
-          </button>
-
-          <button
-            type="button"
-            className="MainProduct-mobile-apply"
-            onClick={closeMobileFilters}
-          >
-            Show {filteredProducts.length} Products
-          </button>
-        </aside>
-
-        {/* Overlay for mobile filters */}
-        {mobileFiltersOpen && (
-          <button
-            type="button"
-            className="MainProduct-sidebar-overlay"
-            onClick={closeMobileFilters}
-            aria-label="Close filter panel"
-          />
-        )}
-
-        {/* Main product content */}
-        <main className="MainProduct-content">
-          <div className="MainProduct-topbar">
-            <div className="MainProduct-topbar-left">
-              <span className="MainProduct-eyebrow">RHINCO EQUIPMENTS STORE</span>
-              <h1>Explore Our Products</h1>
-              <p>
-                Quality agricultural machinery and equipment direct from our live inventory.
-              </p>
-            </div>
-
-            <div className="MainProduct-topbar-right">
-              <label htmlFor="MainProduct-sort">Sort by:</label>
-              <select
-                id="MainProduct-sort"
-                value={sortBy}
-                onChange={(event) => setSortBy(event.target.value)}
-              >
-                <option value="featured">Featured (Best Sellers)</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Top Rated</option>
-                <option value="name">Name: A to Z</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Active category */}
-          <div className="MainProduct-results-bar">
-            <div>
-              <h2>
-                {activeCategory === "All Products"
-                  ? "All Products"
-                  : activeCategory}
-              </h2>
-              <p>
-                Showing {filteredProducts.length} products
-              </p>
-            </div>
-
-            {(activeCategory !== "All Products" || search) && (
+            {search && (
               <button
                 type="button"
-                onClick={clearFilters}
-                className="MainProduct-reset-link"
+                className="search-clear"
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
               >
-                Reset filters
+                ✕
               </button>
             )}
           </div>
 
-          {/* Product cards */}
-          <div className="MainProduct-grid">
-            {loading ? (
-              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "60px 20px" }}>
-                <div style={{ fontSize: "28px", marginBottom: "12px" }}>↻</div>
-                <h3 style={{ fontSize: "18px", color: "#1c2c20" }}>Loading Store Products...</h3>
-                <p style={{ color: "#64748b", fontSize: "14px" }}>Fetching live inventory from database.</p>
-              </div>
-            ) : filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => {
-                const pId = getProductId(product);
-                const cartQty = getCartItemQuantity(pId);
-                const inWishlist = isInWishlist(pId);
-                const rawDisplayImg =
-                  product.images && product.images.length > 0
-                    ? typeof product.images[0] === "string"
-                      ? product.images[0]
-                      : product.images[0].preview || product.images[0].url
-                    : product.image || "";
-                const displayImg = resolveImageUrl(rawDisplayImg, "https://placehold.co/700x500?text=Product");
+          <div className="StoreShowcase-dropdowns">
+            <div className="StoreShowcase-selectWrap">
+              <label>Sort By:</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="featured">Featured (Best Sellers)</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Top Customer Rated</option>
+                <option value="name">Name: A to Z</option>
+              </select>
+            </div>
 
-                const regularPrice = Number(product.price || product.oldPrice || 0);
-                const salesPrice = Number(product.finalPrice || product.price || 0);
-                const discountPct =
-                  product.discount ||
-                  (regularPrice > salesPrice
-                    ? Math.round(((regularPrice - salesPrice) / regularPrice) * 100)
-                    : 0);
+            {(search || activeCategory !== "All Products") && (
+              <button
+                type="button"
+                className="StoreShowcase-clearBtn"
+                onClick={clearFilters}
+              >
+                <RotateCcw size={14} />
+                <span>Reset</span>
+              </button>
+            )}
+          </div>
+        </div>
 
-                return (
-                  <article className="MainProduct-card" key={pId}>
-                    <div className="MainProduct-card-image">
-                      {(product.badge || product.bestSeller) && (
-                        <span className="MainProduct-product-badge">
-                          {product.badge || "Best Seller"}
-                        </span>
-                      )}
+        {/* CATEGORY PILLS ROW */}
+        <div className="StoreShowcase-pillsRow">
+          {categoriesList.map((cat) => {
+            const isActive = activeCategory === cat;
+            return (
+              <button
+                type="button"
+                key={cat}
+                className={`StoreShowcase-catPill ${isActive ? "active" : ""}`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* RESULTS HEADER */}
+        <div className="StoreShowcase-resultsHeader">
+          <div>
+            <h3>{activeCategory}</h3>
+            <p>
+              Showing <strong>{filteredProducts.length}</strong> products ready for farm delivery
+            </p>
+          </div>
+          <span className="StoreShowcase-resultsTag">
+            ● Quality Verified & Tested for Indian Soil Conditions
+          </span>
+        </div>
+
+        {/* PRODUCT GRID */}
+        {loading ? (
+          <div className="StoreShowcase-loading">
+            <div className="StoreShowcase-spinner" />
+            <p>Loading real store inventory...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="StoreShowcase-empty">
+            <ShoppingCart size={48} strokeWidth={1.3} />
+            <h3>No products found matching your criteria</h3>
+            <p>Try clearing your search query or choosing another category.</p>
+            <button
+              type="button"
+              className="StoreShowcase-resetBtn"
+              onClick={clearFilters}
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          <div className="StoreShowcase-grid">
+            {filteredProducts.map((product) => {
+              const pId = getProductId(product);
+              const inWish = isInWishlist(pId);
+              const cartQty = getCartItemQuantity(pId);
+              const title = product.title || product.name || "Product";
+              const brand = product.companyName || product.brand || "Rhinco Verified";
+              const category = product.category || "Equipment";
+
+              const rawImg =
+                (Array.isArray(product.images) && product.images[0]) ||
+                product.image ||
+                "";
+              const displayImg = resolveImageUrl(rawImg, "/placeholder.png");
+
+              const regularPrice = Number(product.price || product.oldPrice || 0);
+              const salesPrice = Number(product.finalPrice || product.price || 0);
+              const discountPct =
+                product.discount ||
+                (regularPrice > salesPrice && regularPrice > 0
+                  ? Math.round(((regularPrice - salesPrice) / regularPrice) * 100)
+                  : 0);
+
+              return (
+                <article key={pId} className="StoreCard">
+                  {/* CARD IMAGE */}
+                  <div className="StoreCard-imageArea">
+                    {(product.badge || product.bestSeller || discountPct > 0) && (
+                      <span className="StoreCard-badge">
+                        {product.badge || (discountPct > 0 ? `${discountPct}% OFF` : "Best Seller")}
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      className={`StoreCard-wishlistBtn ${inWish ? "active" : ""}`}
+                      onClick={(e) => handleToggleWishlist(product, e)}
+                      aria-label="Wishlist toggle"
+                    >
+                      <Heart size={16} fill={inWish ? "#dc2626" : "none"} color={inWish ? "#dc2626" : "#64748b"} />
+                    </button>
+
+                    <Link
+                      to={`/product/${toProductSlug(title)}`}
+                      className="StoreCard-imageLink"
+                    >
+                      <img
+                        src={displayImg}
+                        alt={title}
+                        loading="lazy"
+                        className="StoreCard-img"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.png";
+                        }}
+                      />
+                    </Link>
+                  </div>
+
+                  {/* CARD BODY */}
+                  <div className="StoreCard-body">
+                    <div className="StoreCard-metaRow">
+                      <span className="StoreCard-category">{category}</span>
+                      <span className="StoreCard-brand">{brand}</span>
+                    </div>
+
+                    <h3 className="StoreCard-title">
+                      <Link to={`/product/${toProductSlug(title)}`}>
+                        {title}
+                      </Link>
+                    </h3>
+
+                    {/* RATINGS */}
+                    <div className="StoreCard-ratingRow">
+                      <div className="StoreCard-stars">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            size={14}
+                            fill={star <= Math.floor(product.rating || 5) ? "#f59e0b" : "#e2e8f0"}
+                            color={star <= Math.floor(product.rating || 5) ? "#f59e0b" : "#cbd5e1"}
+                          />
+                        ))}
+                      </div>
+                      <span className="StoreCard-ratingScore">{product.rating || 4.8}</span>
+                      <span className="StoreCard-ratingCount">({product.reviews || 12})</span>
+                    </div>
+
+                    {/* PRICE & ADD TO CART */}
+                    <div className="StoreCard-footer">
+                      <div className="StoreCard-priceArea">
+                        <div className="StoreCard-prices">
+                          <span className="StoreCard-currentPrice">{formatPrice(salesPrice)}</span>
+                          {regularPrice > salesPrice && (
+                            <del className="StoreCard-oldPrice">{formatPrice(regularPrice)}</del>
+                          )}
+                        </div>
+                        <span className="StoreCard-taxTag">Incl. of GST & Delivery</span>
+                      </div>
 
                       <button
                         type="button"
-                        className={`MainProduct-wishlist ${
-                          inWishlist ? "MainProduct-wishlist-active" : ""
-                        }`}
-                        onClick={() => handleToggleWishlist(product)}
-                        aria-label={
-                          inWishlist
-                            ? "Remove from wishlist"
-                            : "Add to wishlist"
-                        }
+                        className={`StoreCard-addBtn ${cartQty > 0 ? "in-cart" : ""}`}
+                        onClick={(e) => handleAddToCart(product, e)}
+                        title="Add to cart"
                       >
-                        {inWishlist ? "♥" : "♡"}
+                        <ShoppingCart size={16} />
+                        <span>{cartQty > 0 ? `Added (${cartQty})` : "Add"}</span>
                       </button>
-
-                      <Link
-                        to={`/product/${toProductSlug(product.title || product.name)}`}
-                        className="MainProduct-image-link"
-                      >
-                        <img
-                          src={displayImg}
-                          alt={product.title || product.name}
-                          loading="lazy"
-                          className="MainProduct-image"
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "https://placehold.co/700x500?text=Product";
-                          }}
-                        />
-                      </Link>
                     </div>
-
-                    <div className="MainProduct-card-content">
-                      <span className="MainProduct-product-category">
-                        {product.category}
-                      </span>
-
-                      <Link
-                        to={`/product/${toProductSlug(product.title || product.name)}`}
-                        className="MainProduct-product-name"
-                      >
-                        {product.title || product.name}
-                      </Link>
-
-                      <div className="MainProduct-rating-row">
-                        <span className="MainProduct-stars">
-                          {"★".repeat(Math.floor(product.rating || 5))}
-                          {"☆".repeat(5 - Math.floor(product.rating || 5))}
-                        </span>
-                        <span className="MainProduct-rating-value">
-                          {product.rating || 4.8}
-                        </span>
-                        <span className="MainProduct-review-count">
-                          ({product.reviews || 12})
-                        </span>
-                      </div>
-
-                      <div className="MainProduct-price-row">
-                        <div className="MainProduct-product-prices">
-                          <strong>{formatPrice(salesPrice)}</strong>
-                          {regularPrice > salesPrice && (
-                            <del>{formatPrice(regularPrice)}</del>
-                          )}
-                        </div>
-
-                        {discountPct > 0 && (
-                          <span className="MainProduct-discount">
-                            {discountPct}% OFF
-                          </span>
-                        )}
-                      </div>
-
-                      {cartQty > 0 ? (
-                        <div
-                          className="MainProduct-qty-control"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <button
-                            type="button"
-                            className="MainProduct-qty-btn MainProduct-qty-minus"
-                            onClick={() => handleUpdateQty(pId, -1)}
-                            title="Decrease quantity"
-                            aria-label="Decrease quantity"
-                          >
-                            −
-                          </button>
-                          <span className="MainProduct-qty-number">
-                            <span>✓</span> {cartQty} in Cart
-                          </span>
-                          <button
-                            type="button"
-                            className="MainProduct-qty-btn MainProduct-qty-plus"
-                            onClick={() => handleUpdateQty(pId, 1)}
-                            title="Increase quantity"
-                            aria-label="Increase quantity"
-                          >
-                            +
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          className="MainProduct-add-cart"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          <svg viewBox="0 0 24 24" fill="none">
-                            <path
-                              d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"
-                              stroke="currentColor"
-                              strokeWidth="1.8"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <circle cx="10" cy="20" r="1.3" fill="currentColor" />
-                            <circle cx="18" cy="20" r="1.3" fill="currentColor" />
-                          </svg>
-                          Add to Cart
-                        </button>
-                      )}
-                    </div>
-                  </article>
-                );
-              })
-            ) : (
-              <div className="MainProduct-empty">
-                <div className="MainProduct-empty-icon">⌕</div>
-                <h3>No products found</h3>
-                <p>
-                  No products found in this category. Add products in the Admin Panel to display them here.
-                </p>
-                <button type="button" onClick={clearFilters}>
-                  View All Products
-                </button>
-              </div>
-            )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
-
-          <div className="MainProduct-bottom-note">
-            <span>✓</span>
-            Genuine Agricultural Machinery • Direct from Rhinco Equipments • Guaranteed Quality
-          </div>
-        </main>
+        )}
       </div>
     </section>
   );

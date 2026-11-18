@@ -14,137 +14,28 @@ import {
   ArrowRight,
   FileText,
   BadgePercent,
-  Check,
+  Search,
+  Filter,
+  RotateCcw,
+  SlidersHorizontal,
+  ChevronDown,
 } from "lucide-react";
 import "./MachinaryEquipmentOne.css";
 import { toMachinerySlug, resolveImageUrl, API_URL } from "../../utils/helpers";
 
 const MACHINERY_API = `${API_URL}/machinery`;
+const ENQUIRIES_API = `${API_URL}/enquiries`;
 
-const MachinaryEquipmentOne = ({
-  dealerPhone = "",
-  dealerEmail = "",
-  onContactDealer,
-}) => {
+const MachinaryEquipmentOne = () => {
   const [machinery, setMachinery] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState({
-    brand: [],
-    category: [],
-    type: [],
-  });
+  const [selectedBrand, setSelectedBrand] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("featured");
+
+  // Contact dealer modal states
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showFilters, setShowFilters] = useState(false);
-
-  // LOAD REAL MACHINERY DATA FROM DATABASE
-  const loadMachinery = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(MACHINERY_API);
-      const data = await res.json();
-      if (res.ok && data.success && Array.isArray(data.data)) {
-        setMachinery(data.data);
-      }
-    } catch (err) {
-      console.error("Error loading machinery from database:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadMachinery();
-  }, []);
-
-  // DYNAMICALLY GENERATE FILTER GROUPS BASED ON REAL DATABASE MACHINERY
-  const filterGroups = useMemo(() => {
-    const brandCounts = {};
-    const categoryCounts = {};
-    const typeCounts = {};
-
-    machinery.forEach((item) => {
-      const b = item.brand || item.brandName;
-      if (b) brandCounts[b] = (brandCounts[b] || 0) + 1;
-
-      const c = item.category;
-      if (c) categoryCounts[c] = (categoryCounts[c] || 0) + 1;
-
-      const t = item.type || item.implementType;
-      if (t) typeCounts[t] = (typeCounts[t] || 0) + 1;
-    });
-
-    const groups = [];
-    if (Object.keys(brandCounts).length > 0) {
-      groups.push({
-        title: "Brands",
-        key: "brand",
-        items: Object.entries(brandCounts),
-      });
-    }
-    if (Object.keys(categoryCounts).length > 0) {
-      groups.push({
-        title: "Categories",
-        key: "category",
-        items: Object.entries(categoryCounts),
-      });
-    }
-    if (Object.keys(typeCounts).length > 0) {
-      groups.push({
-        title: "Types",
-        key: "type",
-        items: Object.entries(typeCounts),
-      });
-    }
-
-    return groups;
-  }, [machinery]);
-
-  const filteredMachinery = useMemo(() => {
-    return machinery.filter((item) => {
-      const name = (item.name || item.title || "").toLowerCase();
-      const brand = (item.brand || item.brandName || "").toLowerCase();
-      const category = (item.category || "").toLowerCase();
-      const q = search.trim().toLowerCase();
-
-      const searchMatch =
-        !q ||
-        name.includes(q) ||
-        brand.includes(q) ||
-        category.includes(q);
-
-      const itemBrand = item.brand || item.brandName || "";
-      const itemCategory = item.category || "";
-      const itemType = item.type || item.implementType || "";
-
-      const brandMatch =
-        filters.brand.length === 0 || filters.brand.includes(itemBrand);
-
-      const categoryMatch =
-        filters.category.length === 0 ||
-        filters.category.includes(itemCategory);
-
-      const typeMatch =
-        filters.type.length === 0 || filters.type.includes(itemType);
-
-      return searchMatch && brandMatch && categoryMatch && typeMatch;
-    });
-  }, [machinery, search, filters]);
-
-  const toggleFilter = (key, value) => {
-    setFilters((previous) => ({
-      ...previous,
-      [key]: previous[key].includes(value)
-        ? previous[key].filter((item) => item !== value)
-        : [...previous[key], value],
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({ brand: [], category: [], type: [] });
-    setSearch("");
-  };
-
   const [modalForm, setModalForm] = useState({
     name: "",
     phone: "",
@@ -157,70 +48,126 @@ const MachinaryEquipmentOne = ({
   const [modalSuccess, setModalSuccess] = useState(false);
   const [modalError, setModalError] = useState("");
 
-  const handleContactDealer = (product) => {
-    if (onContactDealer) {
-      onContactDealer(product);
-      return;
-    }
-
-    // Auto-prefill logged-in user information if present
-    let initialName = "";
-    let initialPhone = "";
-    let initialEmail = "";
-    let initialLocation = "";
-
-    try {
-      const storedUser = localStorage.getItem("rhinco_user");
-      if (storedUser) {
-        const u = JSON.parse(storedUser);
-        initialName = u.name || "";
-        initialPhone = u.phone || "";
-        initialEmail = u.email || "";
-      }
-      const storedAddresses = localStorage.getItem("rhinco_addresses");
-      if (storedAddresses) {
-        const addrs = JSON.parse(storedAddresses);
-        if (Array.isArray(addrs) && addrs.length > 0) {
-          const def = addrs.find((a) => a.isDefault) || addrs[0];
-          initialLocation = [def.village, def.district, def.state].filter(Boolean).join(", ");
+  // Load real machinery from database
+  useEffect(() => {
+    let isMounted = true;
+    const loadMachinery = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(MACHINERY_API);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          if (isMounted) setMachinery(data.data);
         }
+      } catch (err) {
+        console.error("Error loading machinery from database:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    } catch (e) {
-      console.error("Error reading stored user:", e);
+    };
+
+    loadMachinery();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Compute brand and category filter lists
+  const { brands, categories } = useMemo(() => {
+    const bSet = new Set();
+    const cSet = new Set();
+
+    machinery.forEach((item) => {
+      const b = item.brand || item.brandName;
+      if (b) bSet.add(b.trim());
+
+      const c = item.category || item.implementType;
+      if (c) cSet.add(c.trim());
+    });
+
+    return {
+      brands: ["All", ...Array.from(bSet).sort()],
+      categories: ["All", ...Array.from(cSet).sort()],
+    };
+  }, [machinery]);
+
+  // Filter & sort machinery
+  const filteredMachinery = useMemo(() => {
+    let list = machinery.filter((item) => {
+      const title = String(item.name || item.title || "").toLowerCase();
+      const brand = String(item.brand || item.brandName || "").toLowerCase();
+      const category = String(item.category || item.implementType || "").toLowerCase();
+      const code = String(item.code || item.modelName || "").toLowerCase();
+      const q = search.trim().toLowerCase();
+
+      const matchesSearch =
+        !q ||
+        title.includes(q) ||
+        brand.includes(q) ||
+        category.includes(q) ||
+        code.includes(q);
+
+      const matchesBrand =
+        selectedBrand === "All" ||
+        brand === selectedBrand.toLowerCase();
+
+      const matchesCategory =
+        selectedCategory === "All" ||
+        category === selectedCategory.toLowerCase();
+
+      return matchesSearch && matchesBrand && matchesCategory;
+    });
+
+    if (sortBy === "price-low") {
+      list.sort((a, b) => Number(a.discountPrice || a.price || 0) - Number(b.discountPrice || b.price || 0));
+    } else if (sortBy === "price-high") {
+      list.sort((a, b) => Number(b.discountPrice || b.price || 0) - Number(a.discountPrice || a.price || 0));
+    } else if (sortBy === "name") {
+      list.sort((a, b) => String(a.title || a.name || "").localeCompare(String(b.title || b.name || "")));
     }
+
+    return list;
+  }, [machinery, search, selectedBrand, selectedCategory, sortBy]);
+
+  // Handle Contact Dealer
+  const handleContactDealer = (item) => {
+    setSelectedProduct(item);
+    setModalSuccess(false);
+    setModalError("");
+
+    let loggedUser = null;
+    try {
+      const u = localStorage.getItem("rhinco_user");
+      if (u) loggedUser = JSON.parse(u);
+    } catch (e) {}
+
+    const title = item.name || item.title || "Agricultural Machinery";
+    const brand = item.brand || item.brandName || "Rhinco";
 
     setModalForm({
-      name: initialName,
-      phone: initialPhone,
-      email: initialEmail,
-      location: initialLocation,
+      name: loggedUser?.name || "",
+      phone: loggedUser?.phone || "",
+      email: loggedUser?.email || "",
+      location: "",
       intent: "Price Quotation",
-      message: "",
+      message: `I am interested in getting quotation, subsidy paperwork, and dealer contact for ${title} (${brand}).`,
     });
-    setModalSuccess(false);
-    setModalError("");
-    setSelectedProduct(product);
-  };
-
-  const closeContactModal = () => {
-    setSelectedProduct(null);
-    setModalSuccess(false);
-    setModalError("");
   };
 
   const handleModalSubmit = async (e) => {
     e.preventDefault();
-    if (!modalForm.name || !modalForm.phone) {
-      setModalError("Please provide your name and contact phone number.");
+    if (!modalForm.name.trim() || !modalForm.phone.trim()) {
+      setModalError("Please provide your full name and valid phone number.");
       return;
     }
+
     setModalSubmitting(true);
     setModalError("");
     try {
       const prodName = selectedProduct?.name || selectedProduct?.title || "Machinery Equipment";
       const rawImg = selectedProduct?.image || selectedProduct?.machineImages?.[0] || selectedProduct?.images?.[0] || "";
       const prodImg = typeof rawImg === "string" ? rawImg : rawImg?.url || rawImg?.data || rawImg?.preview || "";
-      const prodPrice = selectedProduct?.formattedPrice || (selectedProduct?.price ? `₹${Number(selectedProduct.price).toLocaleString("en-IN")}` : "Price on Request");
+      const prodPrice = selectedProduct?.formattedPrice || (selectedProduct?.price ? `₹ ${Number(selectedProduct.price).toLocaleString("en-IN")}` : "Price on Request");
 
       let loggedUser = null;
       try {
@@ -229,9 +176,9 @@ const MachinaryEquipmentOne = ({
       } catch (err) {}
 
       const intentText = modalForm.intent ? `[${modalForm.intent}] ` : "";
-      const fullMessage = (intentText + (modalForm.message || `Customer requested enquiry and price quote for ${prodName}`)).trim();
+      const fullMessage = (intentText + (modalForm.message || `Customer requested quotation for ${prodName}`)).trim();
 
-      const res = await fetch(API_ENDPOINTS.ENQUIRIES, {
+      const res = await fetch(ENQUIRIES_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -250,12 +197,11 @@ const MachinaryEquipmentOne = ({
           userId: loggedUser?._id || loggedUser?.id || "",
         }),
       });
+
       const data = await res.json();
       if (res.ok && data.success) {
         try {
-          const stored = JSON.parse(
-            localStorage.getItem("rhinco_user_enquiries") || "[]"
-          );
+          const stored = JSON.parse(localStorage.getItem("rhinco_user_enquiries") || "[]");
           stored.unshift(data.data);
           localStorage.setItem("rhinco_user_enquiries", JSON.stringify(stored));
         } catch (e) {}
@@ -263,315 +209,340 @@ const MachinaryEquipmentOne = ({
         setModalSuccess(true);
         window.dispatchEvent(new Event("rhinco_enquiry_submitted"));
         setTimeout(() => {
+          setSelectedProduct(null);
           setModalSuccess(false);
-          closeContactModal();
-        }, 2200);
+        }, 2600);
       } else {
         setModalError(data.message || "Failed to submit enquiry.");
       }
     } catch (err) {
       console.error(err);
-      setModalError("Network error: Could not reach the server.");
+      setModalError("Network error: Could not reach server.");
     } finally {
       setModalSubmitting(false);
     }
   };
 
+  const clearFilters = () => {
+    setSearch("");
+    setSelectedBrand("All");
+    setSelectedCategory("All");
+    setSortBy("featured");
+  };
+
   return (
-    <section className="MachinaryEquipmentOne">
-      <div className="MachinaryEquipmentOne-container">
+    <section className="MachineryShowcase">
+      {/* HERO BANNER */}
+      <div className="MachineryShowcase-hero">
+        <div className="MachineryShowcase-heroContainer">
+          <div className="MachineryShowcase-heroBadge">
+            <Sparkles size={13} />
+            <span>DIRECT OEM & AUTHORIZED DEALERSHIP NETWORK</span>
+          </div>
 
-        {/* MOBILE FILTER BUTTON */}
-        <div className="MachinaryEquipmentOne-mobileTop">
-          <button
-            className="MachinaryEquipmentOne-filterToggle"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <span>☷</span>
-            {showFilters ? "Hide Filters" : "Show Filters"}
-          </button>
+          <h1 className="MachineryShowcase-heroTitle">
+            Agricultural Machinery & Heavy Implements
+          </h1>
 
-          <span className="MachinaryEquipmentOne-mobileCount">
-            {filteredMachinery.length} Products
+          <p className="MachineryShowcase-heroSubtitle">
+            Explore high-performance rotavators, multi-crop seeders, laser levellers, and tractor attachments
+            with complete government subsidy paperwork and authorized district dealer delivery.
+          </p>
+
+          {/* 4 HERO HIGHLIGHT PILLARS */}
+          <div className="MachineryShowcase-pillars">
+            <div className="MachineryShowcase-pillar">
+              <Tractor size={20} />
+              <div>
+                <strong>{machinery.length || 15}+ Heavy Implements</strong>
+                <span>Certified OEM brands</span>
+              </div>
+            </div>
+            <div className="MachineryShowcase-pillar">
+              <ShieldCheck size={20} />
+              <div>
+                <strong>Up to 50% Subsidy Support</strong>
+                <span>Assistance in your district</span>
+              </div>
+            </div>
+            <div className="MachineryShowcase-pillar">
+              <CheckCircle2 size={20} />
+              <div>
+                <strong>Field Trial & Demo</strong>
+                <span>Pre-delivery verification</span>
+              </div>
+            </div>
+            <div className="MachineryShowcase-pillar">
+              <FileText size={20} />
+              <div>
+                <strong>1-Year Warranty</strong>
+                <span>Genuine spare parts support</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FILTER & SHOWCASE CONTAINER */}
+      <div className="MachineryShowcase-container">
+        {/* INTERACTIVE CONTROLS BAR */}
+        <div className="MachineryShowcase-controlsBar">
+          {/* SEARCH BOX */}
+          <div className="MachineryShowcase-searchBox">
+            <Search size={18} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by implement name, brand, or model..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                type="button"
+                className="search-clear"
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* DROPDOWN FILTERS */}
+          <div className="MachineryShowcase-dropdowns">
+            <div className="MachineryShowcase-selectWrap">
+              <label>Brand:</label>
+              <select
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+              >
+                {brands.map((b) => (
+                  <option key={b} value={b}>
+                    {b === "All" ? "All Brands" : b}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="MachineryShowcase-selectWrap">
+              <label>Category:</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                {categories.map((c) => (
+                  <option key={c} value={c}>
+                    {c === "All" ? "All Categories" : c}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="MachineryShowcase-selectWrap">
+              <label>Sort:</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="featured">Featured Implements</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="name">Name: A to Z</option>
+              </select>
+            </div>
+
+            {(search || selectedBrand !== "All" || selectedCategory !== "All") && (
+              <button
+                type="button"
+                className="MachineryShowcase-clearBtn"
+                onClick={clearFilters}
+              >
+                <RotateCcw size={14} />
+                <span>Reset</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* CATEGORY QUICK FILTER PILLS */}
+        <div className="MachineryShowcase-pillsRow">
+          {categories.map((cat) => {
+            const isActive = selectedCategory === cat;
+            return (
+              <button
+                type="button"
+                key={cat}
+                className={`MachineryShowcase-catPill ${isActive ? "active" : ""}`}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat === "All" ? "All Equipment Types" : cat}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* RESULTS HEADER */}
+        <div className="MachineryShowcase-resultsHeader">
+          <div>
+            <h3>
+              {selectedCategory === "All" ? "All Agricultural Machinery" : selectedCategory}
+            </h3>
+            <p>
+              Showing <strong>{filteredMachinery.length}</strong> verified equipment implements
+              {selectedBrand !== "All" && ` from ${selectedBrand}`}
+            </p>
+          </div>
+          <span className="MachineryShowcase-resultsTag">
+            ● Quality Agricultural Inventory Direct from Factory
           </span>
         </div>
 
-        {/* SIDEBAR */}
-        <aside
-          className={`MachinaryEquipmentOne-sidebar ${
-            showFilters ? "MachinaryEquipmentOne-sidebarOpen" : ""
-          }`}
-        >
-          <div className="MachinaryEquipmentOne-sidebarHeader">
-            <div>
-              <span className="MachinaryEquipmentOne-sidebarEyebrow">
-                EXPLORE EQUIPMENT
-              </span>
-              <h3>Find Machinery</h3>
-            </div>
-
+        {/* MACHINERY GRID */}
+        {loading ? (
+          <div className="MachineryShowcase-loading">
+            <div className="MachineryShowcase-spinner" />
+            <p>Loading real machinery catalogue...</p>
+          </div>
+        ) : filteredMachinery.length === 0 ? (
+          <div className="MachineryShowcase-empty">
+            <Tractor size={48} strokeWidth={1.3} />
+            <h3>No machinery matches your filters</h3>
+            <p>Try resetting the search terms or selecting another category.</p>
             <button
-              className="MachinaryEquipmentOne-clearButton"
+              type="button"
+              className="MachineryShowcase-resetBtn"
               onClick={clearFilters}
             >
-              Clear All
+              Reset All Filters
             </button>
           </div>
+        ) : (
+          <div className="MachineryShowcase-grid">
+            {filteredMachinery.map((item) => {
+              const title = item.name || item.title || "Equipment";
+              const brand = item.brand || item.brandName || "Rhinco";
+              const power = item.power || item.implementPower || "Standard HP";
+              const category = item.category || item.implementType || "Machinery";
+              const model = item.modelName || item.code || "";
+              const priceText =
+                item.formattedPrice ||
+                (item.discountPrice || item.price
+                  ? `₹ ${Number(item.discountPrice || item.price).toLocaleString("en-IN")}`
+                  : null);
 
-          {filterGroups.map((group) => (
-            <div
-              className="MachinaryEquipmentOne-filterGroup"
-              key={group.key}
-            >
-              <div className="MachinaryEquipmentOne-filterHeading">
-                <h4>{group.title}</h4>
-                <span>{group.items.length}</span>
-              </div>
+              let rawImg = item.image;
+              if (!rawImg && Array.isArray(item.machineImages) && item.machineImages.length > 0) {
+                const first = item.machineImages[0];
+                rawImg = typeof first === "string" ? first : first?.data || first?.url || first?.preview || "";
+              }
+              if (!rawImg) {
+                rawImg = item.featuredImage?.data || "";
+              }
+              const imgSrc = resolveImageUrl(rawImg, "/placeholder.png");
 
-              <div className="MachinaryEquipmentOne-filterOptions">
-                {group.items.map(([label, count]) => (
-                  <label
-                    className="MachinaryEquipmentOne-filterOption"
-                    key={label}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={filters[group.key].includes(label)}
-                      onChange={() => toggleFilter(group.key, label)}
-                    />
+              return (
+                <article key={item._id || item.id} className="MachineryCard">
+                  {/* CARD IMAGE */}
+                  <div className="MachineryCard-imageArea">
+                    <span className="MachineryCard-brandBadge">{brand}</span>
 
-                    <span className="MachinaryEquipmentOne-customCheckbox"></span>
+                    {item.sponsored && (
+                      <span className="MachineryCard-sponsoredBadge">★ Sponsored</span>
+                    )}
 
-                    <span className="MachinaryEquipmentOne-filterName">
-                      {label}
-                    </span>
-
-                    <span className="MachinaryEquipmentOne-filterCount">
-                      ({count})
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          ))}
-
-          <div className="MachinaryEquipmentOne-sidebarNote">
-            <span className="MachinaryEquipmentOne-sidebarNoteIcon">✦</span>
-            <div>
-              <strong>Need help choosing?</strong>
-              <p>Contact our team to find the right equipment.</p>
-            </div>
-          </div>
-        </aside>
-
-        {/* MAIN CONTENT */}
-        <main className="MachinaryEquipmentOne-main">
-          <div className="MachinaryEquipmentOne-topbar">
-            <div className="MachinaryEquipmentOne-heading">
-              <span className="MachinaryEquipmentOne-sectionTag">
-                AGRICULTURAL EQUIPMENT
-              </span>
-              <h2>Tractor Implements</h2>
-              <p>
-                Explore reliable machinery for every stage of farming.
-              </p>
-            </div>
-
-            <div className="MachinaryEquipmentOne-searchBox">
-              <span className="MachinaryEquipmentOne-searchIcon">⌕</span>
-              <input
-                type="text"
-                placeholder="Search machinery..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search && (
-                <button
-                  className="MachinaryEquipmentOne-searchClear"
-                  onClick={() => setSearch("")}
-                  aria-label="Clear search"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="MachinaryEquipmentOne-resultsBar">
-            <div>
-              Showing{" "}
-              <strong>{filteredMachinery.length}</strong> machinery products
-            </div>
-
-            <div className="MachinaryEquipmentOne-resultsRight">
-              <span className="MachinaryEquipmentOne-resultsDot"></span>
-              Quality agricultural equipment
-            </div>
-          </div>
-
-          {/* PRODUCT GRID */}
-          {filteredMachinery.length > 0 ? (
-            <div className="MachinaryEquipmentOne-grid">
-              {filteredMachinery.map((item) => {
-                const title = item.name || item.title;
-                const brand = item.brand || item.brandName || "Rhinco";
-                const power = item.power || item.implementPower || "N/A";
-                const category = item.category || "General";
-                const priceText =
-                  item.formattedPrice ||
-                  (item.discountPrice || item.price
-                    ? `₹ ${Number(item.discountPrice || item.price).toLocaleString("en-IN")}`
-                    : null);
-
-                let rawImg = item.image;
-                if (!rawImg && Array.isArray(item.machineImages) && item.machineImages.length > 0) {
-                  const first = item.machineImages[0];
-                  rawImg = typeof first === "string" ? first : first?.data || first?.url || first?.preview || "";
-                }
-                if (!rawImg) {
-                  rawImg = item.featuredImage?.data || "";
-                }
-                const imgSrc = resolveImageUrl(rawImg, "/placeholder.png");
-
-                return (
-                  <article
-                    className="MachinaryEquipmentOne-card"
-                    key={item._id || item.id}
-                  >
                     <Link
                       to={`/machinery/${toMachinerySlug(title)}`}
-                      className="MachinaryEquipmentOne-imageArea"
-                      style={{ textDecoration: "none", display: "block" }}
+                      className="MachineryCard-imageLink"
                     >
-                      {item.sponsored && (
-                        <span className="MachinaryEquipmentOne-sponsored">
-                          ★ Sponsored
-                        </span>
-                      )}
-
                       <img
                         src={imgSrc}
                         alt={title}
-                        className="MachinaryEquipmentOne-productImage"
                         loading="lazy"
+                        className="MachineryCard-img"
                         onError={(e) => {
                           e.currentTarget.src = "/placeholder.png";
                         }}
                       />
-
-                      <span className="MachinaryEquipmentOne-imageLabel">
-                        {brand}
-                      </span>
                     </Link>
+                  </div>
 
-                    <div className="MachinaryEquipmentOne-cardContent">
-                      <h3 className="MachinaryEquipmentOne-productName">
-                        <Link
-                          to={`/machinery/${toMachinerySlug(title)}`}
-                          style={{ color: "inherit", textDecoration: "none" }}
-                        >
-                          {title}
-                        </Link>
-                      </h3>
+                  {/* CARD BODY */}
+                  <div className="MachineryCard-body">
+                    <div className="MachineryCard-categoryRow">
+                      <span className="MachineryCard-category">{category}</span>
+                      {model && <span className="MachineryCard-model">Model: {model}</span>}
+                    </div>
 
-                      <div className="MachinaryEquipmentOne-specifications">
-                        <div className="MachinaryEquipmentOne-specItem">
-                          <span>Power</span>
-                          <strong>{power}</strong>
-                        </div>
+                    <h3 className="MachineryCard-title">
+                      <Link to={`/machinery/${toMachinerySlug(title)}`}>
+                        {title}
+                      </Link>
+                    </h3>
 
-                        <div className="MachinaryEquipmentOne-specDivider"></div>
+                    {/* SPECS ROW */}
+                    <div className="MachineryCard-specsRow">
+                      <div className="MachineryCard-spec">
+                        <span>Power</span>
+                        <strong>{power}</strong>
+                      </div>
+                      <div className="MachineryCard-specDivider" />
+                      <div className="MachineryCard-spec">
+                        <span>Availability</span>
+                        <strong className="status-in-stock">
+                          {item.status || "In Stock"}
+                        </strong>
+                      </div>
+                    </div>
 
-                        <div className="MachinaryEquipmentOne-specItem">
-                          <span>Category</span>
-                          <strong>{category}</strong>
-                        </div>
+                    {/* PRICE & ACTIONS */}
+                    <div className="MachineryCard-footer">
+                      <div className="MachineryCard-priceArea">
+                        <span className="MachineryCard-priceLabel">Estimated Price</span>
+                        <span className="MachineryCard-price">
+                          {priceText || "Price on Request"}
+                        </span>
                       </div>
 
-                      <div className="MachinaryEquipmentOne-priceArea">
-                        {priceText ? (
-                          <span className="MachinaryEquipmentOne-price">
-                            {priceText}
-                          </span>
-                        ) : (
-                          <div className="MachinaryEquipmentOne-priceInquiry">
-                            <span>For Price</span>
-                            <button
-                              onClick={() => handleContactDealer(item)}
-                            >
-                              Click Here
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                      <div className="MachineryCard-actions">
                         <Link
                           to={`/machinery/${toMachinerySlug(title)}`}
-                          style={{
-                            flex: 1,
-                            padding: "9px 12px",
-                            borderRadius: "8px",
-                            backgroundColor: "#f0fdf4",
-                            color: "#166534",
-                            border: "1px solid #bbf7d0",
-                            fontWeight: "600",
-                            fontSize: "13px",
-                            textAlign: "center",
-                            textDecoration: "none",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
+                          className="MachineryCard-viewBtn"
+                          title="View Specifications"
                         >
-                          View Details
+                          Specs →
                         </Link>
-
                         <button
-                          className="MachinaryEquipmentOne-contactButton"
-                          style={{ flex: 1, margin: 0 }}
+                          type="button"
+                          className="MachineryCard-contactBtn"
                           onClick={() => handleContactDealer(item)}
                         >
                           Contact Dealer
-                          <span>↗</span>
                         </button>
                       </div>
                     </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="MachinaryEquipmentOne-emptyState">
-              <div className="MachinaryEquipmentOne-emptyIcon">⌕</div>
-              <h3>No machinery found</h3>
-              <p>
-                {loading
-                  ? "Loading machinery equipment from database..."
-                  : "No machinery equipment currently listed. Please check back soon or add items in the admin panel."}
-              </p>
-              {search && <button onClick={clearFilters}>Clear Search & Filters</button>}
-            </div>
-          )}
-        </main>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* PREMIUM CONTACT DEALER MODAL */}
+      {/* UNIFIED CONTACT DEALER MODAL */}
       {selectedProduct && (
         <div
           className="MachinaryEquipmentOne-modalOverlay"
-          onClick={closeContactModal}
+          onClick={() => !modalSubmitting && setSelectedProduct(null)}
         >
           <div
             className="MachinaryEquipmentOne-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
             <div className="MachinaryEquipmentOne-modalHead">
               <div>
                 <span className="MachinaryEquipmentOne-modalBadge">
                   <Tractor size={13} />
-                  <span>OFFICIAL DEALER INQUIRY</span>
+                  <span>OFFICIAL FACTORY DEALER INQUIRY</span>
                 </span>
                 <h3>Connect with Authorized Dealer</h3>
                 <p>
@@ -580,15 +551,15 @@ const MachinaryEquipmentOne = ({
               </div>
 
               <button
+                type="button"
                 className="MachinaryEquipmentOne-modalCloseBtn"
-                onClick={closeContactModal}
+                onClick={() => setSelectedProduct(null)}
                 aria-label="Close"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="MachinaryEquipmentOne-modalBody">
               {modalSuccess ? (
                 <div className="MachinaryEquipmentOne-successCard">
@@ -597,206 +568,135 @@ const MachinaryEquipmentOne = ({
                   </div>
                   <h4>Inquiry Sent Successfully!</h4>
                   <p>
-                    Thank you, <strong>{modalForm.name || "Customer"}</strong>. Our authorized equipment dealer has received your inquiry for <strong>{selectedProduct.name || selectedProduct.title}</strong> and will contact you at <strong>{modalForm.phone}</strong> shortly.
+                    Thank you, <strong>{modalForm.name}</strong>. Our authorized equipment dealer has received your quotation request for{" "}
+                    <strong>{selectedProduct.name || selectedProduct.title}</strong> and will contact you at <strong>{modalForm.phone}</strong> shortly.
                   </p>
-                  <div className="MachinaryEquipmentOne-successMeta">
-                    ✓ Tracked in your Profile under <strong>Machinery Enquiries</strong>
-                  </div>
-                  <button
-                    type="button"
-                    className="MachinaryEquipmentOne-submitBtn"
-                    style={{ maxWidth: "200px" }}
-                    onClick={closeContactModal}
-                  >
-                    Done
-                  </button>
                 </div>
               ) : (
                 <>
-                  {/* Spotlight Machine Card */}
-                  <div className="MachinaryEquipmentOne-spotlightCard">
-                    {selectedProduct.image || selectedProduct.images?.[0] ? (
+                  <div className="MachinaryEquipmentOne-spotlight">
+                    <div className="MachinaryEquipmentOne-spotlightImg">
                       <img
-                        src={resolveImageUrl(selectedProduct.image || selectedProduct.images?.[0], "/placeholder.png")}
+                        src={resolveImageUrl(
+                          selectedProduct.image || selectedProduct.machineImages?.[0],
+                          "/placeholder.png"
+                        )}
                         alt={selectedProduct.name || selectedProduct.title}
-                        className="MachinaryEquipmentOne-spotlightImg"
                         onError={(e) => {
-                          e.target.style.display = "none";
+                          e.currentTarget.src = "/placeholder.png";
                         }}
                       />
-                    ) : (
-                      <div className="MachinaryEquipmentOne-spotlightImgFallback">
-                        <Tractor size={28} />
-                      </div>
-                    )}
-
-                    <div className="MachinaryEquipmentOne-spotlightInfo">
-                      <h4 className="MachinaryEquipmentOne-spotlightTitle">
-                        {selectedProduct.name || selectedProduct.title}
-                      </h4>
-                      <div className="MachinaryEquipmentOne-spotlightMeta">
-                        {selectedProduct.brand && <span>Brand: {selectedProduct.brand}</span>}
-                        {selectedProduct.category && <span>• {selectedProduct.category}</span>}
-                        {(selectedProduct.implementPower || selectedProduct.power) && (
-                          <span>• {selectedProduct.implementPower || selectedProduct.power}</span>
-                        )}
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                        <span className="MachinaryEquipmentOne-spotlightPrice">
+                    </div>
+                    <div className="MachinaryEquipmentOne-spotlightMeta">
+                      <span className="MachinaryEquipmentOne-spotlightBrand">
+                        {selectedProduct.brand || selectedProduct.brandName || "Rhinco Implements"}
+                      </span>
+                      <h4>{selectedProduct.name || selectedProduct.title}</h4>
+                      <div className="MachinaryEquipmentOne-spotlightTags">
+                        <span>Power: {selectedProduct.power || selectedProduct.implementPower || "Standard HP"}</span>
+                        <span>
+                          Price:{" "}
                           {selectedProduct.formattedPrice ||
                             (selectedProduct.price
-                              ? `₹${Number(selectedProduct.price).toLocaleString("en-IN")}`
-                              : "Price on Request")}
-                        </span>
-                        <span className="MachinaryEquipmentOne-verifiedTag">
-                          <ShieldCheck size={14} />
-                          <span>Verified Rhinco Partner</span>
+                              ? `₹ ${Number(selectedProduct.price).toLocaleString("en-IN")}`
+                              : "On Request")}
                         </span>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Intent Selection Chips */}
-                  <div className="MachinaryEquipmentOne-intentSection">
-                    <span className="MachinaryEquipmentOne-intentLabel">What would you like assistance with?</span>
-                    <div className="MachinaryEquipmentOne-intentChips">
-                      {[
-                        { id: "Price Quotation", label: "Request Best Price", icon: <Tag size={13} /> },
-                        { id: "Govt Subsidy Check", label: "Subsidy Eligibility", icon: <BadgePercent size={13} /> },
-                        { id: "Book Farm Demo", label: "Book Farm Demo", icon: <Tractor size={13} /> },
-                        { id: "Financing / EMI", label: "EMI & Finance", icon: <FileText size={13} /> },
-                      ].map((chip) => (
-                        <button
-                          key={chip.id}
-                          type="button"
-                          className={`MachinaryEquipmentOne-intentChip ${
-                            modalForm.intent === chip.id ? "active" : ""
-                          }`}
-                          onClick={() => setModalForm((prev) => ({ ...prev, intent: chip.id }))}
-                        >
-                          {chip.icon}
-                          <span>{chip.label}</span>
-                        </button>
-                      ))}
                     </div>
                   </div>
 
                   {modalError && (
-                    <div
-                      style={{
-                        background: "#fef2f2",
-                        color: "#b91c1c",
-                        padding: "10px 14px",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                        border: "1px solid #fecaca",
-                      }}
-                    >
+                    <div className="MachinaryEquipmentOne-errorNotice">
                       {modalError}
                     </div>
                   )}
 
-                  {/* Inquiry Form */}
-                  <form onSubmit={handleModalSubmit} className="MachinaryEquipmentOne-formGrid">
-                    <div className="MachinaryEquipmentOne-formRow">
-                      <div className="MachinaryEquipmentOne-inputWrap">
-                        <User size={16} className="MachinaryEquipmentOne-inputIcon" />
+                  <form onSubmit={handleModalSubmit} className="MachinaryEquipmentOne-form">
+                    <div className="MachinaryEquipmentOne-formGrid">
+                      <div className="MachinaryEquipmentOne-field">
+                        <label>
+                          <User size={14} />
+                          <span>Full Name *</span>
+                        </label>
                         <input
                           type="text"
-                          placeholder="Your Full Name *"
+                          required
+                          placeholder="e.g. Ramesh Patel"
                           value={modalForm.name}
                           onChange={(e) => setModalForm({ ...modalForm, name: e.target.value })}
-                          required
                         />
                       </div>
 
-                      <div className="MachinaryEquipmentOne-inputWrap">
-                        <Phone size={16} className="MachinaryEquipmentOne-inputIcon" />
+                      <div className="MachinaryEquipmentOne-field">
+                        <label>
+                          <Phone size={14} />
+                          <span>Mobile Number *</span>
+                        </label>
                         <input
                           type="tel"
-                          placeholder="Phone / WhatsApp Number *"
+                          required
+                          placeholder="e.g. 9876543210"
                           value={modalForm.phone}
                           onChange={(e) => setModalForm({ ...modalForm, phone: e.target.value })}
-                          required
                         />
                       </div>
                     </div>
 
-                    <div className="MachinaryEquipmentOne-formRow">
-                      <div className="MachinaryEquipmentOne-inputWrap">
-                        <Mail size={16} className="MachinaryEquipmentOne-inputIcon" />
-                        <input
-                          type="email"
-                          placeholder="Email Address (Optional)"
-                          value={modalForm.email}
-                          onChange={(e) => setModalForm({ ...modalForm, email: e.target.value })}
-                        />
-                      </div>
-
-                      <div className="MachinaryEquipmentOne-inputWrap">
-                        <MapPin size={16} className="MachinaryEquipmentOne-inputIcon" />
+                    <div className="MachinaryEquipmentOne-formGrid">
+                      <div className="MachinaryEquipmentOne-field">
+                        <label>
+                          <MapPin size={14} />
+                          <span>District / Village (for dealer matching)</span>
+                        </label>
                         <input
                           type="text"
-                          placeholder="Farm District / City (e.g. Pune, MH)"
+                          placeholder="e.g. Cuttack, Odisha"
                           value={modalForm.location}
                           onChange={(e) => setModalForm({ ...modalForm, location: e.target.value })}
                         />
                       </div>
+
+                      <div className="MachinaryEquipmentOne-field">
+                        <label>
+                          <Mail size={14} />
+                          <span>Email (optional)</span>
+                        </label>
+                        <input
+                          type="email"
+                          placeholder="e.g. ramesh@gmail.com"
+                          value={modalForm.email}
+                          onChange={(e) => setModalForm({ ...modalForm, email: e.target.value })}
+                        />
+                      </div>
                     </div>
 
-                    <div className="MachinaryEquipmentOne-textareaWrap">
-                      <FileText size={16} className="MachinaryEquipmentOne-inputIcon" style={{ marginTop: "2px" }} />
+                    <div className="MachinaryEquipmentOne-field">
+                      <label>
+                        <span>Inquiry Message / Requirement</span>
+                      </label>
                       <textarea
-                        rows={2}
-                        placeholder="Any specific requirement or tractor model? (e.g., 45 HP Swaraj tractor, need 7ft rotavator...)"
+                        rows={3}
                         value={modalForm.message}
                         onChange={(e) => setModalForm({ ...modalForm, message: e.target.value })}
                       />
                     </div>
 
-                    {/* Direct Contact Options */}
-                    {(dealerPhone || dealerEmail) && (
-                      <div className="MachinaryEquipmentOne-dealerDirectBar">
-                        <span>Prefer to connect right away?</span>
-                        <div style={{ display: "flex", gap: "12px" }}>
-                          {dealerPhone && (
-                            <a href={`tel:${dealerPhone}`} className="MachinaryEquipmentOne-dealerDirectLink">
-                              <Phone size={13} />
-                              <span>Call {dealerPhone}</span>
-                            </a>
-                          )}
-                          {dealerEmail && (
-                            <a
-                              href={`mailto:${dealerEmail}?subject=Inquiry for ${selectedProduct.name || selectedProduct.title}`}
-                              className="MachinaryEquipmentOne-dealerDirectLink"
-                            >
-                              <Mail size={13} />
-                              <span>Email</span>
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={modalSubmitting}
-                      className="MachinaryEquipmentOne-submitBtn"
-                    >
-                      {modalSubmitting ? (
-                        <span>Submitting Inquiry...</span>
-                      ) : (
-                        <>
-                          <span>Submit Equipment Inquiry</span>
-                          <ArrowRight size={17} />
-                        </>
-                      )}
-                    </button>
-
-                    <p className="MachinaryEquipmentOne-trustNote">
-                      <ShieldCheck size={14} color="#059669" />
-                      <span>Free & non-binding quotation. Your details are secured with Rhinco Equipments.</span>
-                    </p>
+                    <div className="MachinaryEquipmentOne-modalActions">
+                      <button
+                        type="button"
+                        className="MachinaryEquipmentOne-cancelBtn"
+                        onClick={() => setSelectedProduct(null)}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={modalSubmitting}
+                        className="MachinaryEquipmentOne-submitBtn"
+                      >
+                        {modalSubmitting ? "Connecting Dealer..." : "Submit Quotation Request →"}
+                      </button>
+                    </div>
                   </form>
                 </>
               )}
