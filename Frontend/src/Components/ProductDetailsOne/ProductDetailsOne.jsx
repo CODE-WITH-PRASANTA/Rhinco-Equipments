@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import "./ProductDetailsOne.css";
 import drillImage from "../../assets/machine.jpg";
-import { addToCart, toggleWishlist, isInWishlist } from "../../utils/cartWishlist";
+import { useCart, useWishlist } from "../../context/CartWishlistContext";
 import { resolveImageUrl, toProductSlug } from "../../utils/helpers";
 import { API_URL } from "../../utils/apiConfig";
 
@@ -47,7 +47,8 @@ const ProductDetailsOne = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState("");
-  const [cartCount, setCartCount] = useState(0);
+  const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [justAdded, setJustAdded] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -204,7 +205,6 @@ const ProductDetailsOne = () => {
   const handleAddToCart = () => {
     if (!product) return;
     addToCart(product, quantity);
-    setCartCount((prev) => prev + quantity);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 3000);
   };

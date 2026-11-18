@@ -1,54 +1,43 @@
-// Unified Cart & Wishlist Storage & Event Helper for Rhinco Equipments
+// Unified In-Memory Cart & Wishlist Helper for Rhinco Equipments
+// NOTE: localStorage integration has been TOTALLY REMOVED as requested.
+// All state is managed purely in-memory and synchronized with React Context API.
 
-const CART_KEY = "rhinco_cart";
-const LEGACY_CART_KEY = "healthy_heaven_cart";
-const WISHLIST_KEY = "rhinco_wishlist";
-const LEGACY_WISHLIST_KEY = "healthy_heaven_wishlist";
-
-// Helper to get consistent product ID
 export const getProductId = (item) => {
   if (!item) return "";
   return String(item._id || item.id || item.productId || "");
 };
 
-// ---------------------- CART HELPERS ----------------------
+// Pure in-memory stores (NO localStorage)
+let memoryCart = [];
+let memoryWishlist = [];
+
+// Listen to context events if running in browser
+if (typeof window !== "undefined") {
+  window.addEventListener("rhinco_cart_updated", (e) => {
+    if (e.detail && Array.isArray(e.detail)) {
+      memoryCart = e.detail;
+    }
+  });
+
+  window.addEventListener("rhinco_wishlist_updated", (e) => {
+    if (e.detail && Array.isArray(e.detail)) {
+      memoryWishlist = e.detail;
+    }
+  });
+}
+
+// ---------------------- CART HELPERS (NO LOCALSTORAGE) ----------------------
 
 export const getCart = () => {
-  try {
-    const raw = localStorage.getItem(CART_KEY) || localStorage.getItem(LEGACY_CART_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.map((item) => ({
-      ...item,
-      productId: getProductId(item),
-      id: getProductId(item),
-      name: item.name || item.title || "Product",
-      price: Number(item.price || item.finalPrice || 0),
-      originalPrice: Number(item.oldPrice || item.price || 0),
-      image: item.image || (Array.isArray(item.images) && item.images[0]) || "",
-      category: item.category || "General",
-      quantity: Math.max(1, Number(item.quantity) || 1),
-    }));
-  } catch (err) {
-    console.error("Error reading cart from localStorage:", err);
-    return [];
-  }
+  return [...memoryCart];
 };
 
 export const saveCart = (cart) => {
-  try {
-    const normalized = Array.isArray(cart) ? cart : [];
-    const prevRaw = localStorage.getItem(CART_KEY);
-    const newRaw = JSON.stringify(normalized);
-    if (prevRaw === newRaw) {
-      return;
-    }
-    localStorage.setItem(CART_KEY, newRaw);
-    localStorage.setItem(LEGACY_CART_KEY, newRaw);
-    window.dispatchEvent(new CustomEvent("rhinco_cart_updated", { detail: normalized }));
-  } catch (err) {
-    console.error("Error saving cart to localStorage:", err);
+  memoryCart = Array.isArray(cart) ? [...cart] : [];
+  if (typeof window !== "undefined") {
+    try {
+      window.dispatchEvent(new CustomEvent("rhinco_cart_updated", { detail: memoryCart }));
+    } catch (e) {}
   }
 };
 
@@ -56,26 +45,34 @@ export const addToCart = (product, quantity = 1) => {
   const pId = getProductId(product);
   if (!pId) return getCart();
 
-  const cart = getCart();
+  const cart = [...memoryCart];
   const existingIndex = cart.findIndex((item) => getProductId(item) === pId);
 
-  const effectivePrice = Number(product.finalPrice || product.price || 0);
-  const originalPrice = Number(product.oldPrice || product.price || effectivePrice);
-  const primaryImage = product.image || (Array.isArray(product.images) && product.images[0]) || "";
+  const effectivePrice = Number(product.finalPrice ?? product.price ?? 0);
+  const originalPrice = Number(product.oldPrice ?? product.regularPrice ?? product.price ?? effectivePrice);
+  const primaryImage =
+    product.image ||
+    (Array.isArray(product.images) && product.images[0]) ||
+    product.featuredImage?.data ||
+    "";
 
   if (existingIndex > -1) {
-    cart[existingIndex].quantity += quantity;
+    cart[existingIndex] = {
+      ...cart[existingIndex],
+      quantity: (Number(cart[existingIndex].quantity) || 1) + Math.max(1, Number(quantity) || 1),
+    };
   } else {
     cart.push({
       productId: pId,
       id: pId,
-      name: product.name || product.title || "Product",
+      _id: pId,
+      name: product.name || product.title || product.modelName || "Product",
       price: effectivePrice,
       originalPrice: originalPrice,
       image: primaryImage,
       category: product.category || "General",
-      stockQuantity: product.stockQuantity || 10,
-      quantity: Math.max(1, quantity),
+      stockQuantity: product.stockQuantity ?? 10,
+      quantity: Math.max(1, Number(quantity) || 1),
     });
   }
 
@@ -84,17 +81,20 @@ export const addToCart = (product, quantity = 1) => {
 };
 
 export const updateCartQuantity = (productId, delta) => {
-  const pId = String(productId);
-  const cart = getCart();
+  const pId = String(productId || "");
+  let cart = [...memoryCart];
   const existingIndex = cart.findIndex((item) => getProductId(item) === pId);
 
   if (existingIndex === -1) return cart;
 
-  const newQty = cart[existingIndex].quantity + delta;
+  const newQty = (Number(cart[existingIndex].quantity) || 1) + Number(delta);
   if (newQty <= 0) {
     cart.splice(existingIndex, 1);
   } else {
-    cart[existingIndex].quantity = newQty;
+    cart[existingIndex] = {
+      ...cart[existingIndex],
+      quantity: newQty,
+    };
   }
 
   saveCart(cart);
@@ -102,8 +102,8 @@ export const updateCartQuantity = (productId, delta) => {
 };
 
 export const removeFromCart = (productId) => {
-  const pId = String(productId);
-  const cart = getCart().filter((item) => getProductId(item) !== pId);
+  const pId = String(productId || "");
+  const cart = memoryCart.filter((item) => getProductId(item) !== pId);
   saveCart(cart);
   return cart;
 };
@@ -114,65 +114,34 @@ export const clearCart = () => {
 };
 
 export const getCartItemQuantity = (productId) => {
-  const pId = String(productId);
-  const cart = getCart();
-  const item = cart.find((i) => getProductId(i) === pId);
-  return item ? item.quantity : 0;
+  const pId = String(productId || "");
+  const item = memoryCart.find((i) => getProductId(i) === pId);
+  return item ? Number(item.quantity) || 1 : 0;
 };
 
 export const getCartCount = () => {
-  const cart = getCart();
-  return cart.reduce((total, item) => total + (Number(item.quantity) || 1), 0);
+  return memoryCart.reduce((total, item) => total + (Number(item.quantity) || 1), 0);
 };
 
 export const getCartTotal = () => {
-  const cart = getCart();
-  return cart.reduce((total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+  return memoryCart.reduce(
+    (total, item) => total + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+    0
+  );
 };
 
-// ---------------------- WISHLIST HELPERS ----------------------
+// ---------------------- WISHLIST HELPERS (NO LOCALSTORAGE) ----------------------
 
 export const getWishlist = () => {
-  try {
-    const raw = localStorage.getItem(WISHLIST_KEY) || localStorage.getItem(LEGACY_WISHLIST_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    // Filter out old demo products from earlier templates (e.g. demo-honey, demo-almond)
-    return parsed
-      .filter((item) => {
-        const pId = getProductId(item);
-        return !pId.startsWith("demo-") && item.name !== "Organic Forest Honey";
-      })
-      .map((item) => ({
-        ...item,
-        productId: getProductId(item),
-        id: getProductId(item),
-        name: item.name || item.title || "Product",
-        price: Number(item.price || item.finalPrice || 0),
-        image: item.image || (Array.isArray(item.images) && item.images[0]) || "",
-        category: item.category || "General",
-        inStock: item.stockQuantity === undefined || item.stockQuantity > 0,
-      }));
-  } catch (err) {
-    console.error("Error reading wishlist:", err);
-    return [];
-  }
+  return [...memoryWishlist];
 };
 
 export const saveWishlist = (wishlist) => {
-  try {
-    const normalized = Array.isArray(wishlist) ? wishlist : [];
-    const prevRaw = localStorage.getItem(WISHLIST_KEY);
-    const newRaw = JSON.stringify(normalized);
-    if (prevRaw === newRaw) {
-      return;
-    }
-    localStorage.setItem(WISHLIST_KEY, newRaw);
-    localStorage.setItem(LEGACY_WISHLIST_KEY, newRaw);
-    window.dispatchEvent(new CustomEvent("rhinco_wishlist_updated", { detail: normalized }));
-  } catch (err) {
-    console.error("Error saving wishlist:", err);
+  memoryWishlist = Array.isArray(wishlist) ? [...wishlist] : [];
+  if (typeof window !== "undefined") {
+    try {
+      window.dispatchEvent(new CustomEvent("rhinco_wishlist_updated", { detail: memoryWishlist }));
+    } catch (e) {}
   }
 };
 
@@ -180,7 +149,7 @@ export const toggleWishlist = (product) => {
   const pId = getProductId(product);
   if (!pId) return false;
 
-  const wishlist = getWishlist();
+  let wishlist = [...memoryWishlist];
   const existingIndex = wishlist.findIndex((item) => getProductId(item) === pId);
 
   let isNowInWishlist = false;
@@ -188,17 +157,26 @@ export const toggleWishlist = (product) => {
     wishlist.splice(existingIndex, 1);
     isNowInWishlist = false;
   } else {
+    const effectivePrice = Number(product.finalPrice ?? product.price ?? 0);
+    const originalPrice = Number(product.oldPrice ?? product.regularPrice ?? product.price ?? effectivePrice);
+    const primaryImage =
+      product.image ||
+      (Array.isArray(product.images) && product.images[0]) ||
+      product.featuredImage?.data ||
+      "";
+
     wishlist.push({
       productId: pId,
       id: pId,
-      name: product.name || product.title || "Product",
-      price: Number(product.finalPrice || product.price || 0),
-      oldPrice: Number(product.oldPrice || product.price || 0),
-      image: product.image || (Array.isArray(product.images) && product.images[0]) || "",
+      _id: pId,
+      name: product.name || product.title || product.modelName || "Product",
+      price: effectivePrice,
+      oldPrice: originalPrice,
+      image: primaryImage,
       category: product.category || "General",
       description: product.description || "",
-      stockQuantity: product.stockQuantity || 10,
-      inStock: true,
+      stockQuantity: product.stockQuantity ?? 10,
+      inStock: product.stockQuantity === undefined || product.stockQuantity > 0,
     });
     isNowInWishlist = true;
   }
@@ -208,18 +186,17 @@ export const toggleWishlist = (product) => {
 };
 
 export const isInWishlist = (productId) => {
-  const pId = String(productId);
-  const wishlist = getWishlist();
-  return wishlist.some((item) => getProductId(item) === pId);
+  const pId = String(productId || "");
+  return memoryWishlist.some((item) => getProductId(item) === pId);
 };
 
 export const removeFromWishlist = (productId) => {
-  const pId = String(productId);
-  const wishlist = getWishlist().filter((item) => getProductId(item) !== pId);
+  const pId = String(productId || "");
+  const wishlist = memoryWishlist.filter((item) => getProductId(item) !== pId);
   saveWishlist(wishlist);
   return wishlist;
 };
 
 export const getWishlistCount = () => {
-  return getWishlist().length;
+  return memoryWishlist.length;
 };

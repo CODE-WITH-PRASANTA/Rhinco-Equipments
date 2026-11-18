@@ -17,14 +17,7 @@ import {
   Package,
 } from "lucide-react";
 import "./MainProduct.css";
-import {
-  getCart,
-  addToCart,
-  getCartItemQuantity,
-  getWishlist,
-  toggleWishlist,
-  isInWishlist,
-} from "../../utils/cartWishlist";
+import { useCart, useWishlist } from "../../context/CartWishlistContext";
 import { resolveImageUrl, toProductSlug } from "../../utils/helpers";
 import { API_URL } from "../../utils/apiConfig";
 
@@ -70,8 +63,8 @@ const MainProduct = () => {
   };
 
   const [brandSearch, setBrandSearch] = useState("");
-  const [wishlist, setWishlist] = useState(getWishlist);
-  const [cart, setCart] = useState(getCart);
+  const { addToCart, getCartItemQuantity } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [addedItemNotice, setAddedItemNotice] = useState("");
 
   const [searchParams] = useSearchParams();
@@ -82,24 +75,6 @@ const MainProduct = () => {
     if (cat) setActiveCategory(cat);
     if (q) setSearch(q);
   }, [searchParams]);
-
-  // Sync cart & wishlist across tabs and components
-  useEffect(() => {
-    const syncCartWishlist = () => {
-      setCart(getCart());
-      setWishlist(getWishlist());
-    };
-
-    window.addEventListener("rhinco_cart_updated", syncCartWishlist);
-    window.addEventListener("rhinco_wishlist_updated", syncCartWishlist);
-    window.addEventListener("storage", syncCartWishlist);
-
-    return () => {
-      window.removeEventListener("rhinco_cart_updated", syncCartWishlist);
-      window.removeEventListener("rhinco_wishlist_updated", syncCartWishlist);
-      window.removeEventListener("storage", syncCartWishlist);
-    };
-  }, []);
 
   // Fetch real products from backend database
   useEffect(() => {
@@ -292,7 +267,6 @@ const MainProduct = () => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product, 1);
-    setCart(getCart());
 
     const title = product.name || product.title || "Item";
     setAddedItemNotice(`Added "${title}" to your cart`);
@@ -304,7 +278,6 @@ const MainProduct = () => {
     e.preventDefault();
     e.stopPropagation();
     toggleWishlist(product);
-    setWishlist(getWishlist());
   };
 
   return (

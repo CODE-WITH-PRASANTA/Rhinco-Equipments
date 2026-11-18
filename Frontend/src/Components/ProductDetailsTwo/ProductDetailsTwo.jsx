@@ -2,11 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ShoppingCart, Heart, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import "./ProductDetailsTwo.css";
-import {
-  addToCart as helperAddToCart,
-  toggleWishlist as helperToggleWishlist,
-  isInWishlist as helperIsInWishlist,
-} from "../../utils/cartWishlist";
+import { useCart, useWishlist } from "../../context/CartWishlistContext";
 import { resolveImageUrl, toProductSlug } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -17,7 +13,8 @@ const ProductDetailsTwo = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cartAlert, setCartAlert] = useState("");
-  const [, setWishlistTick] = useState(0);
+  const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const sliderRef = useRef(null);
 
   // FETCH REAL PRODUCTS FROM DATABASE
@@ -40,19 +37,15 @@ const ProductDetailsTwo = () => {
 
     fetchProducts();
 
-    const handleWishlistUpdate = () => setWishlistTick((t) => t + 1);
-    window.addEventListener("rhinco_wishlist_updated", handleWishlistUpdate);
-
     return () => {
       isMounted = false;
-      window.removeEventListener("rhinco_wishlist_updated", handleWishlistUpdate);
     };
   }, []);
 
   const handleAddToCart = (product, e) => {
     e.preventDefault();
     e.stopPropagation();
-    helperAddToCart(product, 1);
+    addToCart(product, 1);
     const title = product.title || product.name || "Product";
     setCartAlert(`✓ Added "${title}" to cart`);
     setTimeout(() => setCartAlert(""), 2500);
@@ -61,8 +54,7 @@ const ProductDetailsTwo = () => {
   const handleToggleWishlist = (product, e) => {
     e.preventDefault();
     e.stopPropagation();
-    helperToggleWishlist(product);
-    setWishlistTick((t) => t + 1);
+    toggleWishlist(product);
   };
 
   const scrollLeft = () => {
@@ -145,7 +137,7 @@ const ProductDetailsTwo = () => {
                 "/placeholder.png"
               );
 
-              const inWish = helperIsInWishlist(pId);
+              const inWish = isInWishlist(pId);
               const productUrl = `/product/${toProductSlug(title)}`;
 
               return (

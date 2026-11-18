@@ -16,16 +16,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./WishlistMain.css";
-import {
-  getWishlist,
-  saveWishlist,
-  addToCart as helperAddToCart,
-  removeFromWishlist as helperRemoveFromWishlist,
-  getProductId as getHelperProductId,
-} from "../../utils/cartWishlist";
+import { useWishlist, useCart, getProductId } from "../../context/CartWishlistContext";
 import { resolveImageUrl } from "../../utils/helpers";
-
-const getProductId = (item) => getHelperProductId(item);
 
 const formatPrice = (price) =>
   Number(price || 0).toLocaleString("en-IN", {
@@ -49,34 +41,18 @@ const getImageUrl = (image, item) => {
 const WishlistMain = () => {
   const navigate = useNavigate();
 
-  const [wishlistItems, setWishlistItems] = useState(getWishlist);
+  // Pure React Context state (Zero localStorage)
+  const {
+    wishlistItems,
+    removeFromWishlist: contextRemoveFromWishlist,
+    clearWishlist: contextClearWishlist,
+  } = useWishlist();
+  const { addToCart: contextAddToCart } = useCart();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("recent");
   const [showClearModal, setShowClearModal] = useState(false);
   const [toast, setToast] = useState("");
-
-  // Sync with other components
-  useEffect(() => {
-    const handleSync = () => {
-      const fresh = getWishlist();
-      setWishlistItems((prev) => {
-        const prevIds = prev.map((item) => getProductId(item)).join(",");
-        const freshIds = fresh.map((item) => getProductId(item)).join(",");
-        if (prevIds === freshIds && prev.length === fresh.length) {
-          return prev;
-        }
-        return fresh;
-      });
-    };
-
-    window.addEventListener("rhinco_wishlist_updated", handleSync);
-    window.addEventListener("storage", handleSync);
-
-    return () => {
-      window.removeEventListener("rhinco_wishlist_updated", handleSync);
-      window.removeEventListener("storage", handleSync);
-    };
-  }, []);
 
   // Toast
   const showToast = (message) => {
@@ -126,33 +102,28 @@ const WishlistMain = () => {
 
   // Remove product
   const removeFromWishlist = (id) => {
-    const updated = wishlistItems.filter((item) => getProductId(item) !== id);
-    setWishlistItems(updated);
-    saveWishlist(updated);
+    contextRemoveFromWishlist(id);
     showToast("Product removed from wishlist");
   };
 
   // Clear wishlist
   const clearWishlist = () => {
-    setWishlistItems([]);
-    saveWishlist([]);
+    contextClearWishlist();
     setShowClearModal(false);
     showToast("Your wishlist has been cleared");
   };
 
   // Add product to cart
   const addToCart = (product) => {
-    helperAddToCart(product, 1);
+    contextAddToCart(product, 1);
     showToast("Product added to cart");
   };
 
   // Move to cart and remove from wishlist
   const moveToCart = (product) => {
-    helperAddToCart(product, 1);
+    contextAddToCart(product, 1);
     const pId = getProductId(product);
-    const updated = wishlistItems.filter((item) => getProductId(item) !== pId);
-    setWishlistItems(updated);
-    saveWishlist(updated);
+    contextRemoveFromWishlist(pId);
     showToast("Moved product to cart");
   };
 
@@ -160,10 +131,9 @@ const WishlistMain = () => {
   const addAllToCart = () => {
     if (!wishlistItems.length) return;
     wishlistItems.forEach((product) => {
-      helperAddToCart(product, 1);
+      contextAddToCart(product, 1);
     });
-    setWishlistItems([]);
-    saveWishlist([]);
+    contextClearWishlist();
     showToast("All wishlist products added to cart");
   };
 

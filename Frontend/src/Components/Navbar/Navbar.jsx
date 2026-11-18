@@ -27,7 +27,7 @@ import {
 
 import logo from "../../assets/Rhino-logo-removebg-preview.png";
 import "./Navbar.css";
-import { getCartCount, getWishlistCount } from "../../utils/cartWishlist";
+import { useCart, useWishlist } from "../../context/CartWishlistContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const CATEGORIES_API = `${API_URL}/categories`;
@@ -39,8 +39,10 @@ const Navbar = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(getCartCount);
-  const [wishlistCount, setWishlistCount] = useState(getWishlistCount);
+  
+  // Pure React Context state for Cart & Wishlist (Zero localStorage)
+  const { cartCount } = useCart();
+  const { wishlistCount } = useWishlist();
 
   const [currentUser, setCurrentUser] = useState(() => {
     try {
@@ -52,11 +54,6 @@ const Navbar = () => {
   });
 
   useEffect(() => {
-    const updateCounts = () => {
-      setCartCount(getCartCount());
-      setWishlistCount(getWishlistCount());
-    };
-
     const updateAuth = () => {
       try {
         const saved = localStorage.getItem("rhinco_user");
@@ -66,22 +63,12 @@ const Navbar = () => {
       }
     };
 
-    window.addEventListener("rhinco_cart_updated", updateCounts);
-    window.addEventListener("rhinco_wishlist_updated", updateCounts);
     window.addEventListener("rhinco_auth_updated", updateAuth);
-    window.addEventListener("storage", () => {
-      updateCounts();
-      updateAuth();
-    });
+    window.addEventListener("storage", updateAuth);
 
     return () => {
-      window.removeEventListener("rhinco_cart_updated", updateCounts);
-      window.removeEventListener("rhinco_wishlist_updated", updateCounts);
       window.removeEventListener("rhinco_auth_updated", updateAuth);
-      window.removeEventListener("storage", () => {
-        updateCounts();
-        updateAuth();
-      });
+      window.removeEventListener("storage", updateAuth);
     };
   }, []);
 

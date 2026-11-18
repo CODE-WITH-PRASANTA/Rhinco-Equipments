@@ -26,16 +26,8 @@ import { resolveImageUrl } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ORDERS_API = `${API_URL}/orders`;
-import {
-  getCart,
-  saveCart,
-  removeFromCart,
-  clearCart as clearCartStorage,
-  getProductId as getHelperProductId,
-} from "../../utils/cartWishlist";
+import { useCart, getProductId } from "../../context/CartWishlistContext";
 
-const CART_STORAGE_KEY = "rhinco_cart";
-const CHECKOUT_STORAGE_KEY = "rhinco_checkout";
 const ADDRESS_STORAGE_KEY = "rhinco_delivery_address";
 const SAVED_ADDRESSES_KEY = "rhinco_saved_addresses";
 
@@ -51,11 +43,6 @@ const loadSavedAddresses = () => {
     }
   } catch (e) {}
   return [];
-};
-
-// Get product ID
-const getProductId = (item) => {
-  return getHelperProductId(item);
 };
 
 // Format Indian currency
@@ -99,11 +86,18 @@ const loadRazorpayScript = () => {
 const CartMain = () => {
   const navigate = useNavigate();
 
-  const [cartItems, setCartItems] = useState(getCart);
+  // Pure React Context state for Cart (Zero localStorage)
+  const {
+    cartItems,
+    updateCartQuantity,
+    removeFromCart: contextRemoveFromCart,
+    removeMultipleFromCart,
+    clearCart: contextClearCart,
+  } = useCart();
 
   // SELECT ALL PRODUCTS IN CART BY DEFAULT
   const [selectedItems, setSelectedItems] = useState(() => {
-    return getCart().map((item) => getProductId(item));
+    return cartItems.map((item) => getProductId(item));
   });
 
   const [coupon, setCoupon] = useState("");
@@ -265,11 +259,6 @@ const CartMain = () => {
     navigate("/account?tab=address&action=new");
   };
 
-  // Save cart in localStorage and notify other components
-  useEffect(() => {
-    saveCart(cartItems);
-  }, [cartItems]);
-
   // Keep all products selected by default whenever cart updates
   useEffect(() => {
     setSelectedItems((previous) => {
@@ -281,24 +270,6 @@ const CartMain = () => {
       return existing.length > 0 ? existing : allIds;
     });
   }, [cartItems]);
-
-  // Listen for cart changes from other components
-  useEffect(() => {
-    const handleCartUpdate = () => {
-      const updated = getCart();
-      setCartItems(updated);
-    };
-
-    window.addEventListener("rhinco_cart_updated", handleCartUpdate);
-    window.addEventListener("cartUpdated", handleCartUpdate);
-    window.addEventListener("storage", handleCartUpdate);
-
-    return () => {
-      window.removeEventListener("rhinco_cart_updated", handleCartUpdate);
-      window.removeEventListener("cartUpdated", handleCartUpdate);
-      window.removeEventListener("storage", handleCartUpdate);
-    };
-  }, []);
 
   // Toast notification
   const showToast = (message) => {
@@ -335,35 +306,19 @@ const CartMain = () => {
 
   // Increase quantity
   const increaseQuantity = (id) => {
-    setCartItems((previous) =>
-      previous.map((item) =>
-        getProductId(item) === id
-          ? { ...item, quantity: (item.quantity || 1) + 1 }
-          : item
-      )
-    );
+    updateCartQuantity(id, 1);
   };
 
   // Decrease quantity
   const decreaseQuantity = (id) => {
-    setCartItems((previous) =>
-      previous.map((item) =>
-        getProductId(item) === id
-          ? {
-              ...item,
-              quantity: Math.max(1, (item.quantity || 1) - 1),
-            }
-          : item
-      )
-    );
+    updateCartQuantity(id, -1);
   };
 
   // Remove single product
   const removeItem = (id) => {
     const idStr = String(id);
     const target = cartItems.find((item) => String(getProductId(item)) === idStr);
-    const updated = removeFromCart(idStr);
-    setCartItems(updated);
+    contextRemoveFromCart(idStr);
     setSelectedItems((previous) =>
       previous.filter((itemId) => String(itemId) !== idStr)
     );
@@ -372,28 +327,20 @@ const CartMain = () => {
 
   // Remove selected products
   const removeSelectedItems = () => {
-    let updated = getCart();
-    selectedItems.forEach((id) => {
-      const idStr = String(id);
-      updated = updated.filter((item) => String(getProductId(item)) !== idStr);
-    });
-    saveCart(updated);
-    setCartItems(updated);
+    removeMultipleFromCart(selectedItems);
     setSelectedItems([]);
     showToast("Selected products removed");
   };
 
   // Clear complete cart
   const clearCart = () => {
-    clearCartStorage();
-    setCartItems([]);
+    contextClearCart();
     setSelectedItems([]);
     setShowClearModal(false);
     setCoupon("");
     setAppliedCoupon("");
     setCouponDiscountPercent(0);
     setCouponMessage("");
-    localStorage.removeItem(CHECKOUT_STORAGE_KEY);
     showToast("Your cart has been cleared");
   };
 
@@ -555,13 +502,9 @@ const CartMain = () => {
 
           const confirmedOrder = verifyData.data;
 
-          // Remove only the purchased items from cart via storage helper
+          // Remove only the purchased items from cart
           const purchasedIds = selectedProducts.map((p) => String(getProductId(p)));
-          let updatedCart = getCart();
-          purchasedIds.forEach((pid) => {
-            updatedCart = removeFromCart(pid);
-          });
-          setCartItems(updatedCart);
+          removeMultipleFromCart(purchasedIds);
           setSelectedItems([]);
 
           // Save order into user's rhinco_orders for profile view
