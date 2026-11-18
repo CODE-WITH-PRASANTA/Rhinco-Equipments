@@ -388,7 +388,18 @@ exports.getOrderById = async (req, res) => {
 // @route   PUT /api/orders/:id/status
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const {
+      status,
+      currentCourierHub,
+      expectedDeliveryDate,
+      trackingId,
+      courierPartner,
+      deliveryAgentNumber,
+      agentNo,
+      currentHub,
+      dateOfDelivery,
+    } = req.body;
+
     const validStatuses = [
       'Confirmed',
       'Processing',
@@ -408,11 +419,6 @@ exports.updateOrderStatus = async (req, res) => {
 
     const { id } = req.params;
     let order = null;
-    const updateFields = { orderStatus: status };
-
-    if (status === 'Delivered') {
-      updateFields.deliveredAt = new Date();
-    }
 
     if (id.startsWith('RHE-ORD-')) {
       order = await Order.findOne({ orderId: id });
@@ -424,8 +430,37 @@ exports.updateOrderStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    if (status === 'Delivered' && !order.invoiceNumber) {
-      updateFields.invoiceNumber = `INV-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const updateFields = { orderStatus: status };
+
+    // Shipped tracking fields
+    if (currentCourierHub !== undefined) updateFields.currentCourierHub = String(currentCourierHub).trim();
+    if (expectedDeliveryDate !== undefined) updateFields.expectedDeliveryDate = String(expectedDeliveryDate).trim();
+    if (trackingId !== undefined) {
+      updateFields.trackingId = String(trackingId).trim();
+    } else if (status === 'Shipped' && !order.trackingId) {
+      updateFields.trackingId = `RHN-EXP-${Date.now().toString().slice(-6)}`;
+    }
+    if (courierPartner !== undefined) updateFields.courierPartner = String(courierPartner).trim();
+
+    // Out for Delivery tracking fields
+    const agentPhone = deliveryAgentNumber || agentNo;
+    if (agentPhone !== undefined) updateFields.deliveryAgentNumber = String(agentPhone).trim();
+    const resolvedHub = currentHub || currentCourierHub;
+    if (resolvedHub !== undefined) {
+      updateFields.currentHub = String(resolvedHub).trim();
+      if (!updateFields.currentCourierHub) updateFields.currentCourierHub = String(resolvedHub).trim();
+    }
+    const resolvedDate = dateOfDelivery || expectedDeliveryDate;
+    if (resolvedDate !== undefined) {
+      updateFields.dateOfDelivery = String(resolvedDate).trim();
+    }
+
+    // Delivered
+    if (status === 'Delivered') {
+      updateFields.deliveredAt = new Date();
+      if (!order.invoiceNumber) {
+        updateFields.invoiceNumber = `INV-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+      }
     }
 
     order = await Order.findByIdAndUpdate(order._id, updateFields, { new: true });

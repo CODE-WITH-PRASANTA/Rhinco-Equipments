@@ -1,23 +1,28 @@
-
-/* =========================================
-   HERO SECTION
-========================================= */
+/* ==========================================================================
+   RHINO'S EQUIPMENT - ULTRA-PREMIUM MODERN HERO SECTION
+   ========================================================================== */
 
 .HeroSection {
   position: relative;
   width: 100%;
+  min-height: 580px;
   height: 80vh;
-  min-height: 540px;
-  max-height: 900px;
+  max-height: 820px;
   overflow: hidden;
-  background: #17230f;
+  background: #06150b;
   isolation: isolate;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #ffffff;
+  transition: opacity 0.4s ease;
 }
 
-/* =========================================
-   SLIDER
-========================================= */
+.HeroSection.is-loading {
+  background: radial-gradient(circle at 30% 50%, #0d2e18 0%, #051409 100%);
+}
+
+/* ==========================================================================
+   BACKGROUND SLIDER & KEN BURNS CROSS-FADE
+   ========================================================================== */
 
 .HeroSection-slider {
   position: absolute;
@@ -25,23 +30,16 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: -2;
-}
-
-.HeroSection-track {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  transition: transform 1.15s cubic-bezier(0.77, 0, 0.175, 1);
-  will-change: transform;
+  z-index: 1;
 }
 
 .HeroSection-slide {
-  position: relative;
-  flex: 0 0 100%;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
 }
 
 .HeroSection-image {
@@ -52,604 +50,297 @@
   object-fit: cover;
   object-position: center;
   transform: scale(1.04);
-  transition: transform 4.5s ease;
+  transition: transform 6.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.HeroSection-slide:nth-child(2) .HeroSection-image {
-  object-position: center 55%;
+.HeroSection-slide.active .HeroSection-image {
+  transform: scale(1.00);
 }
 
-.HeroSection-slide:nth-child(3) .HeroSection-image {
-  object-position: center 60%;
-}
-
-.HeroSection-slide:nth-child(4) .HeroSection-image {
-  object-position: center;
-}
-
-/* Image zoom effect */
-
-.HeroSection-slide:nth-child(1) .HeroSection-image {
-  animation: HeroSectionImageZoom 7s ease-in-out infinite alternate;
-}
-
-.HeroSection-slide:nth-child(2) .HeroSection-image {
-  animation: HeroSectionImageZoom 7s ease-in-out infinite alternate;
-}
-
-.HeroSection-slide:nth-child(3) .HeroSection-image {
-  animation: HeroSectionImageZoom 7s ease-in-out infinite alternate;
-}
-
-.HeroSection-slide:nth-child(4) .HeroSection-image {
-  animation: HeroSectionImageZoom 7s ease-in-out infinite alternate;
-}
-
-@keyframes HeroSectionImageZoom {
-  from {
-    transform: scale(1.02);
-  }
-
-  to {
-    transform: scale(1.11);
-  }
-}
-
-/* =========================================
-   DARK OVERLAY
-========================================= */
+/* ==========================================================================
+   LOCALIZED GRADIENT OVERLAY - ONLY SHOWN BEHIND TEXT ON THE LEFT
+   The rest of the slide image is 100% transparent and clearly visible
+   ========================================================================== */
 
 .HeroSection-overlay {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(
-      90deg,
-      rgba(8, 22, 8, 0.88) 0%,
-      rgba(11, 27, 10, 0.72) 38%,
-      rgba(10, 25, 10, 0.24) 75%,
-      rgba(10, 20, 10, 0.12) 100%
-    ),
-    linear-gradient(
-      0deg,
-      rgba(8, 20, 7, 0.35),
-      transparent 35%
-    );
+  background: linear-gradient(
+    90deg,
+    rgba(3, 14, 7, 0.90) 0%,
+    rgba(4, 16, 8, 0.78) 32%,
+    rgba(5, 18, 9, 0.45) 48%,
+    rgba(6, 20, 10, 0.12) 58%,
+    transparent 66%,
+    transparent 100%
+  );
 }
 
-/* =========================================
-   CONTENT CONTAINER
-========================================= */
+/* AMBIENT GLOW SPHERE - STRICTLY BEHIND TEXT ONLY */
+.HeroSection-glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(100px);
+  z-index: 2;
+  opacity: 0.35;
+}
+
+.HeroSection-glow-sphere.left {
+  top: 15%;
+  left: -8%;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.35) 0%, transparent 70%);
+}
+
+/* ==========================================================================
+   MAIN CONTAINER & CONTENT
+   ========================================================================== */
 
 .HeroSection-container {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   width: 100%;
-  max-width: 1550px;
+  max-width: 1440px;
   height: 100%;
   margin: 0 auto;
-  padding: 0 65px;
+  padding: 40px 32px;
   display: flex;
   align-items: center;
 }
 
-.HeroSection-content {
+.HeroSection-grid {
+  display: flex;
+  align-items: center;
   width: 100%;
-  max-width: 740px;
-  padding-bottom: 25px;
-  animation: HeroSectionContentIn 0.9s ease both;
 }
 
-@keyframes HeroSectionContentIn {
+/* CONTENT COLUMN */
+.HeroSection-contentCol {
+  width: 100%;
+  max-width: 720px;
+  animation: heroContentIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes heroContentIn {
   from {
     opacity: 0;
-    transform: translateY(35px);
+    transform: translateY(24px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* =========================================
-   EYEBROW
-========================================= */
-
+/* EYEBROW BADGE */
 .HeroSection-eyebrow {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 25px;
-  color: #c4e58b;
-  font-size: 12px;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1px solid rgba(134, 239, 172, 0.32);
+  border-radius: 9999px;
+  color: #86efac;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 3px;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
-  animation: HeroSectionTextIn 0.8s ease 0.1s both;
+  margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-.HeroSection-eyebrow-line {
-  display: inline-block;
-  width: 42px;
-  height: 2px;
-  background: #a9d65b;
+.HeroSection-eyebrow-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+  animation: heroDotPulse 2s infinite;
 }
 
-/* =========================================
-   MAIN TITLE
-========================================= */
-
-.HeroSection-title {
-  max-width: 760px;
-  margin: 0 0 22px;
-  color: #ffffff;
-  font-size: clamp(38px, 5.2vw, 70px);
-  font-weight: 800;
-  line-height: 1.12;
-  letter-spacing: -2px;
-  animation: HeroSectionTextIn 0.9s ease 0.2s both;
-}
-
-@keyframes HeroSectionTextIn {
-  from {
-    opacity: 0;
-    transform: translateY(25px);
-  }
-
-  to {
+@keyframes heroDotPulse {
+  0%, 100% {
+    transform: scale(1);
     opacity: 1;
-    transform: translateY(0);
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.6;
   }
 }
 
-/* =========================================
-   DESCRIPTION
-========================================= */
-
-.HeroSection-description {
-  max-width: 590px;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 15px;
-  line-height: 1.9;
-  font-weight: 400;
-  animation: HeroSectionTextIn 0.9s ease 0.35s both;
+.HeroSection-eyebrow-icon {
+  color: #4ade80;
 }
 
-/* =========================================
-   BUTTONS
-========================================= */
+/* HEADLINE */
+.HeroSection-title {
+  margin: 0 0 16px;
+  color: #ffffff;
+  font-size: clamp(34px, 4vw, 56px);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -1.2px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
 
+.HeroSection-title-gradient {
+  background: linear-gradient(135deg, #86efac 0%, #4ade80 40%, #ffffff 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline;
+}
+
+/* DESCRIPTION */
+.HeroSection-description {
+  margin: 0 0 20px;
+  color: #e2e8f0;
+  font-size: 15.5px;
+  line-height: 1.7;
+  max-width: 620px;
+  font-weight: 400;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* VALUE BULLETS */
+.HeroSection-bullets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-bottom: 28px;
+}
+
+.HeroSection-bulletItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.HeroSection-bulletIcon {
+  color: #4ade80;
+  flex-shrink: 0;
+}
+
+/* ACTION BUTTONS */
 .HeroSection-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 30px;
-  margin-top: 35px;
-  animation: HeroSectionTextIn 0.9s ease 0.5s both;
+  gap: 14px;
 }
 
-.HeroSection-button {
-  min-height: 54px;
-  padding: 0 24px;
+.HeroSection-primaryBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  background: #83a92e;
-  color: #ffffff;
-  border: 1px solid #83a92e;
-  border-radius: 3px;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 700;
-  transition: all 0.35s ease;
-}
-
-.HeroSection-button:hover {
-  background: #ffffff;
-  color: #356005;
-  border-color: #ffffff;
-  transform: translateY(-4px);
-}
-
-.HeroSection-button svg {
-  transition: transform 0.3s ease;
-}
-
-.HeroSection-button:hover svg {
-  transform: translateX(5px);
-}
-
-/* =========================================
-   TRUST TEXT
-========================================= */
-
-.HeroSection-trust {
-  display: flex;
-  align-items: center;
   gap: 10px;
+  height: 48px;
+  padding: 0 24px;
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.HeroSection-trust-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #c7e88f;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-}
-
-/* =========================================
-   SLIDER NAVIGATION
-========================================= */
-
-.HeroSection-navigation {
-  position: absolute;
-  z-index: 5;
-  bottom: 42px;
-  left: 65px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.HeroSection-arrow {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.13);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.HeroSection-arrow:hover {
-  color: #356005;
-  background: #ffffff;
-  transform: scale(1.08);
-}
-
-/* =========================================
-   PAGINATION DOTS
-========================================= */
-
-.HeroSection-dots {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.HeroSection-dot {
-  width: 9px;
-  height: 9px;
-  padding: 0;
-  background: rgba(255, 255, 255, 0.55);
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.4s ease;
-}
-
-.HeroSection-dot.active {
-  width: 30px;
-  background: #a9d65b;
-}
-
-/* =========================================
-   SLIDE COUNTER
-========================================= */
-
-.HeroSection-counter {
-  position: absolute;
-  right: 65px;
-  bottom: 45px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
+  border: 1px solid #22c55e;
+  border-radius: 10px;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 2px;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(22, 101, 52, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.HeroSection-counter span:first-child {
+.HeroSection-primaryBtn:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  border-color: #86efac;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.45);
+}
+
+.HeroSection-btnArrow {
+  transition: transform 0.22s ease;
+}
+
+.HeroSection-primaryBtn:hover .HeroSection-btnArrow {
+  transform: translateX(4px);
+}
+
+.HeroSection-secondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 20px;
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(12px);
   color: #ffffff;
-  font-size: 19px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.22s ease;
 }
 
-.HeroSection-counter-divider {
-  width: 35px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.6);
+.HeroSection-secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #86efac;
+  transform: translateY(-2px);
 }
 
-/* =========================================
-   BOTTOM DECORATION
-========================================= */
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
 
-.HeroSection-bottom-line {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  z-index: 4;
-  width: 100%;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.16);
-}
-
-.HeroSection-bottom-line::after {
-  content: "";
-  display: block;
-  width: 25%;
-  height: 100%;
-  background: #a9d65b;
-  animation: HeroSectionProgress 3s linear infinite;
-}
-
-@keyframes HeroSectionProgress {
-  from {
-    width: 0%;
+@media (max-width: 900px) {
+  .HeroSection {
+    height: auto;
+    min-height: 560px;
   }
 
-  to {
-    width: 100%;
+  .HeroSection-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(4, 16, 8, 0.88) 0%,
+      rgba(4, 16, 8, 0.72) 55%,
+      rgba(4, 16, 8, 0.55) 100%
+    );
   }
 }
-
-/* =========================================
-   LAPTOP RESPONSIVE
-========================================= */
-
-@media (max-width: 1200px) {
-  .HeroSection-container {
-    padding: 0 45px;
-  }
-
-  .HeroSection-title {
-    max-width: 650px;
-    font-size: clamp(40px, 5.5vw, 62px);
-  }
-
-  .HeroSection-navigation {
-    left: 45px;
-  }
-
-  .HeroSection-counter {
-    right: 45px;
-  }
-}
-
-/* =========================================
-   TABLET RESPONSIVE
-========================================= */
 
 @media (max-width: 768px) {
   .HeroSection {
-    height: 80vh;
-    min-height: 520px;
+    min-height: auto;
+    padding: 30px 0;
   }
 
   .HeroSection-container {
-    padding: 0 30px;
-  }
-
-  .HeroSection-overlay {
-    background:
-      linear-gradient(
-        90deg,
-        rgba(8, 22, 8, 0.84),
-        rgba(8, 22, 8, 0.42)
-      ),
-      linear-gradient(
-        0deg,
-        rgba(8, 20, 7, 0.4),
-        transparent 65%
-      );
-  }
-
-  .HeroSection-content {
-    max-width: 600px;
-    padding-bottom: 30px;
+    padding: 24px 18px;
   }
 
   .HeroSection-title {
-    font-size: clamp(38px, 7vw, 55px);
-    letter-spacing: -1.5px;
+    font-size: 28px;
+    line-height: 1.2;
   }
 
   .HeroSection-description {
-    max-width: 520px;
     font-size: 14px;
   }
 
-  .HeroSection-navigation {
-    left: 30px;
-    bottom: 35px;
-  }
-
-  .HeroSection-counter {
-    right: 30px;
-    bottom: 40px;
-  }
-}
-
-/* =========================================
-   MOBILE RESPONSIVE
-========================================= */
-
-@media (max-width: 480px) {
-  .HeroSection {
-    height: 80vh;
-    min-height: 550px;
-  }
-
-  .HeroSection-container {
-    padding: 0 22px;
-  }
-
-  .HeroSection-image {
-    object-position: center;
-  }
-
-  .HeroSection-overlay {
-    background:
-      linear-gradient(
-        90deg,
-        rgba(8, 22, 8, 0.83),
-        rgba(8, 22, 8, 0.48)
-      ),
-      linear-gradient(
-        0deg,
-        rgba(8, 20, 7, 0.48),
-        transparent 70%
-      );
-  }
-
-  .HeroSection-content {
-    padding-bottom: 35px;
-  }
-
-  .HeroSection-eyebrow {
-    gap: 9px;
-    margin-bottom: 20px;
-    font-size: 9px;
-    letter-spacing: 2px;
-  }
-
-  .HeroSection-eyebrow-line {
-    width: 28px;
-  }
-
-  .HeroSection-title {
-    margin-bottom: 18px;
-    font-size: clamp(35px, 9vw, 44px);
-    line-height: 1.17;
-    letter-spacing: -1px;
-  }
-
-  .HeroSection-description {
-    font-size: 12px;
-    line-height: 1.8;
-  }
-
   .HeroSection-actions {
-    align-items: flex-start;
     flex-direction: column;
-    gap: 17px;
-    margin-top: 25px;
+    width: 100%;
   }
 
-  .HeroSection-button {
-    min-height: 48px;
-    padding: 0 17px;
-    gap: 12px;
-    font-size: 11px;
-  }
-
-  .HeroSection-trust {
-    font-size: 10px;
-  }
-
-  .HeroSection-trust-icon {
-    width: 31px;
-    height: 31px;
-  }
-
-  .HeroSection-navigation {
-    left: 22px;
-    bottom: 25px;
-    gap: 10px;
-  }
-
-  .HeroSection-arrow {
-    width: 34px;
-    height: 34px;
-  }
-
-  .HeroSection-arrow svg {
-    width: 17px;
-  }
-
-  .HeroSection-dots {
-    gap: 6px;
-  }
-
-  .HeroSection-dot {
-    width: 7px;
-    height: 7px;
-  }
-
-  .HeroSection-dot.active {
-    width: 22px;
-  }
-
-  .HeroSection-counter {
-    right: 22px;
-    bottom: 32px;
-    gap: 7px;
-    font-size: 10px;
-  }
-
-  .HeroSection-counter span:first-child {
-    font-size: 15px;
-  }
-
-  .HeroSection-counter-divider {
-    width: 20px;
-  }
-}
-
-/* =========================================
-   VERY SMALL MOBILE
-========================================= */
-
-@media (max-width: 360px) {
-  .HeroSection {
-    min-height: 520px;
-  }
-
-  .HeroSection-container {
-    padding: 0 17px;
-  }
-
-  .HeroSection-title {
-    font-size: 33px;
-  }
-
-  .HeroSection-description {
-    font-size: 11px;
-  }
-
-  .HeroSection-navigation {
-    left: 17px;
-  }
-
-  .HeroSection-counter {
-    right: 17px;
-  }
-}
-
-/* =========================================
-   REDUCED MOTION
-========================================= */
-
-@media (prefers-reduced-motion: reduce) {
-  .HeroSection *,
-  .HeroSection *::before,
-  .HeroSection *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  .HeroSection-primaryBtn,
+  .HeroSection-secondaryBtn {
+    width: 100%;
   }
 }

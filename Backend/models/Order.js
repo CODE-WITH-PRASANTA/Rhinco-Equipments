@@ -99,6 +99,42 @@ const orderSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    // Shipping & Delivery Tracking Details
+    trackingId: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    courierPartner: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    currentCourierHub: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    expectedDeliveryDate: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    deliveryAgentNumber: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    currentHub: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    dateOfDelivery: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     user: {
       userId: { type: String, default: '' },
       name: { type: String, default: '' },

@@ -24,6 +24,7 @@ import Wishlist from "./Pages/Wishlist/Wishlist";
 import Login from "./Pages/Login/Login";
 import Register from "./Pages/Register/Register";
 import Profile from "./Pages/Profile/Profile";
+import OrderDetails from "./Pages/OrderDetails/OrderDetails";
 
 const App = () => {
   return (
@@ -71,6 +72,9 @@ const App = () => {
               <Route path="/create-user" element={<Register />} />
               <Route path="/account" element={<Profile />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/order-details/:orderId" element={<OrderDetails />} />
+              <Route path="/order/:orderId" element={<OrderDetails />} />
+              <Route path="/orders/:orderId" element={<OrderDetails />} />
             </Routes>
           </main>
 

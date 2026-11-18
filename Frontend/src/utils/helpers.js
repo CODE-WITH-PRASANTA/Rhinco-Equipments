@@ -22,6 +22,21 @@ export const resolveImageUrl = (path, fallback = "") => {
     raw = raw.url || raw.data || raw.preview || raw.src || "";
   }
   if (!raw || typeof raw !== "string") return fallback;
+  raw = raw.trim();
+
+  // Guard against dead mock test server URLs (e.g. :37857, :7070, :7071)
+  if (
+    raw.startsWith(":") ||
+    raw.includes("localhost:37857") ||
+    raw.includes("localhost:7070") ||
+    raw.includes("localhost:7071") ||
+    raw.includes(":37857") ||
+    raw.includes(":7070") ||
+    raw.includes(":7071")
+  ) {
+    return fallback;
+  }
+
   if (
     raw.startsWith("http://") ||
     raw.startsWith("https://") ||
@@ -29,6 +44,9 @@ export const resolveImageUrl = (path, fallback = "") => {
     raw.startsWith("data:")
   ) {
     return raw;
+  }
+  if (raw.startsWith("//")) {
+    return `https:${raw}`;
   }
   const cleanPath = raw.startsWith("/") ? raw : `/${raw}`;
   return `${BACKEND_ORIGIN}${cleanPath}`;

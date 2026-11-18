@@ -299,19 +299,6 @@ const MainProduct = () => {
         </div>
       )}
 
-      {/* Top Breadcrumb Bar */}
-      <div className="FkProducts-topBar">
-        <div className="FkProducts-container">
-          <nav className="FkProducts-breadcrumb">
-            <Link to="/">Home</Link>
-            <span className="FkProducts-breadcrumbDivider">/</span>
-            <span className="FkProducts-breadcrumbCurrent">
-              Farm Machinery & Spare Store
-            </span>
-          </nav>
-        </div>
-      </div>
-
       <div className="FkProducts-container FkProducts-layout">
         {/* MOBILE CONTROLS BAR */}
         <div className="FkProducts-mobileControls">
@@ -327,6 +314,15 @@ const MainProduct = () => {
             {filteredProducts.length} Products Found
           </div>
         </div>
+
+        {/* Backdrop for mobile drawer */}
+        {mobileFilterOpen && (
+          <div
+            className="FkProducts-sidebarOverlay"
+            onClick={() => setMobileFilterOpen(false)}
+            aria-label="Close filters backdrop"
+          />
+        )}
 
         {/* ================= LEFT SIDEBAR (FLIPKART / FACEBOOK STYLE) ================= */}
         <aside

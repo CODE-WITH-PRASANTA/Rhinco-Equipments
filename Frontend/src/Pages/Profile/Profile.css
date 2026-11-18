@@ -278,6 +278,191 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
 }
 
+/* ==================== COMPACT ORDER CARD STYLING ==================== */
+.ProfileOrderCard.compact {
+  padding: 16px 20px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1.5px solid #e2e8f0;
+}
+
+.ProfileOrderCard.compact:hover {
+  border-color: #86efac;
+  box-shadow: 0 8px 24px rgba(22, 101, 52, 0.08);
+  transform: translateY(-2px);
+}
+
+.ProfileOrderCard.compact .ProfileOrderHeader {
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.ProfileOrderCompactBody {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ProfileOrderItemsMini {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.ProfileOrderMiniItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ProfileOrderMiniImg {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.ProfileOrderMiniText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ProfileOrderMiniTitle {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.ProfileOrderMiniQty {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.ProfileOrderMoreTag {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Milestone Chip */
+.ProfileOrderMilestoneChipWrap {
+  flex-shrink: 0;
+}
+
+.ProfileOrderMilestoneChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ProfileOrderMilestoneChip.delivered {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.ProfileOrderMilestoneChip.out-delivery {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.ProfileOrderMilestoneChip.shipped {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.ProfileOrderMilestoneChip.confirmed {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.ProfileOrderFooter.compact {
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.ProfileOrderFooterPaidLabel {
+  font-size: 11.5px;
+  color: #64748b;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.ProfileOrderActionsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ProfileOrderInvoiceBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #166534;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: 1.5px solid #166534;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ProfileOrderInvoiceBtn:hover {
+  background: #166534;
+  color: #ffffff;
+}
+
+.ProfileOrderDetailsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  background: #166534;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.ProfileOrderDetailsBtn:hover {
+  background: #14532d;
+  transform: translateX(2px);
+}
+
 .ProfileOrderHeader {
   display: flex;
   align-items: center;

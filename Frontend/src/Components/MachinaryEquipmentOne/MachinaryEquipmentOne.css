@@ -56,6 +56,7 @@
   display: flex;
   gap: 16px;
   align-items: flex-start;
+  padding-top: 16px;
 }
 
 /* ==========================================================================
@@ -874,9 +875,33 @@
   color: #4b5563;
 }
 
+.FkMachinery-sidebarOverlay {
+  display: none;
+}
+
 @media (max-width: 900px) {
+  .FkMachinery-layout {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  .FkMachinery-sidebarOverlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 9998;
+    backdrop-filter: blur(2px);
+  }
+
   .FkMachinery-mobileControls {
     display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
   }
 
   .FkMachinery-sidebar {
@@ -884,12 +909,13 @@
     top: 0;
     left: -100%;
     width: 300px;
+    max-width: 85vw;
     height: 100vh;
     max-height: 100vh;
     z-index: 9999;
     background: #ffffff;
-    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
-    transition: left 0.3s ease;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.25);
+    transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .FkMachinery-sidebar--mobileOpen {
@@ -897,11 +923,64 @@
   }
 
   .FkMachinery-closeDrawerBtn {
-    display: block;
+    display: flex;
+  }
+
+  .FkMachinery-main {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .FkMachinery-utilityBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .FkMachinery-searchWrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .FkMachinery-utilityRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .FkMachinery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .FkMachinery-container {
+    padding: 0 12px;
   }
 
   .FkMachinery-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .FkMachinery-cardTitle {
+    font-size: 15px;
+  }
+
+  .FkMachinery-specItem {
+    font-size: 11px;
+  }
+
+  .FkMachinery-actionRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .FkMachinery-contactBtn,
+  .FkMachinery-specsBtn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

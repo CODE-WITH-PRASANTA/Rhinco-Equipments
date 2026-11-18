@@ -25,7 +25,8 @@ import {
   Truck,
 } from "lucide-react";
 import "./Profile.css";
-import { toMachinerySlug } from "../../utils/helpers";
+import { toMachinerySlug, resolveImageUrl } from "../../utils/helpers";
+import { downloadOrderInvoicePdf } from "../../utils/invoicePdfGenerator";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ENQUIRIES_API = `${API_URL}/enquiries`;
@@ -551,7 +552,7 @@ const Profile = () => {
                 <Package size={18} className="ProfileNavIcon" />
                 <span>My Orders</span>
               </div>
-              <span className="ProfileNavBadge">{orders.length}</span>
+              <ChevronRight size={16} />
             </button>
 
             {/* 3. My Address */}
@@ -564,9 +565,7 @@ const Profile = () => {
                 <MapPin size={18} className="ProfileNavIcon" />
                 <span>My Address</span>
               </div>
-              <span className="ProfileNavBadge" style={{ background: "#166534" }}>
-                {addresses.length}
-              </span>
+              <ChevronRight size={16} />
             </button>
 
             {/* 4. Machinery Enquiries */}
@@ -579,9 +578,7 @@ const Profile = () => {
                 <Tractor size={18} className="ProfileNavIcon" />
                 <span>Machinery Enquiries</span>
               </div>
-              <span className="ProfileNavBadge" style={{ background: "#2563eb" }}>
-                {enquiries.length > 0 ? enquiries.length : "✦"}
-              </span>
+              <ChevronRight size={16} />
             </button>
 
             {/* 5. Help Center */}
@@ -824,7 +821,12 @@ const Profile = () => {
                     const isOutForDelivery = ["Out for Delivery", "Delivered"].includes(orderStatus);
 
                     return (
-                      <div className="ProfileOrderCard" key={order._id || order.orderId || order.id}>
+                      <div
+                        className="ProfileOrderCard compact"
+                        key={order._id || order.orderId || order.id}
+                        onClick={() => navigate(`/order-details/${orderRef}`)}
+                        title="Click to view complete order tracking, invoice and delivery details"
+                      >
                         <div className="ProfileOrderHeader">
                           <div>
                             <span className="ProfileOrderId">Order #{orderRef}</span>
@@ -836,77 +838,79 @@ const Profile = () => {
                           </span>
                         </div>
 
-                        {/* ORDER TRACKING TIMELINE */}
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            background: "#f8fafc",
-                            padding: "12px 18px",
-                            borderRadius: "10px",
-                            margin: "12px 0 16px",
-                            border: "1px solid #e2e8f0",
-                            fontSize: "12px",
-                          }}
-                        >
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#166534", fontWeight: 700 }}>
-                            <CheckCircle2 size={16} />
-                            <span>Confirmed</span>
+                        {/* Compact Middle Row: Products Preview + Milestone Chip */}
+                        <div className="ProfileOrderCompactBody">
+                          <div className="ProfileOrderItemsMini">
+                            {(order.items || []).slice(0, 2).map((item, idx) => {
+                              const itemImage =
+                                item.image ||
+                                item.primaryImage ||
+                                item.img ||
+                                (Array.isArray(item.images) && item.images[0]) ||
+                                item.featuredImage ||
+                                (item.product && (item.product.image || (Array.isArray(item.product.images) && item.product.images[0]))) ||
+                                "";
+                              const resolvedImg = resolveImageUrl(itemImage, "/placeholder.png");
+
+                              return (
+                                <div className="ProfileOrderMiniItem" key={idx}>
+                                  <img
+                                    src={resolvedImg}
+                                    alt={item.title || item.name || "Equipment"}
+                                    className="ProfileOrderMiniImg"
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = "/placeholder.png";
+                                    }}
+                                  />
+                                  <div className="ProfileOrderMiniText">
+                                    <h4 className="ProfileOrderMiniTitle" title={item.title || item.name}>
+                                      {item.title || item.name}
+                                    </h4>
+                                    <span className="ProfileOrderMiniQty">
+                                      Qty: {item.quantity || 1} • {item.category || item.type || "Implement"}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            {(order.items || []).length > 2 && (
+                              <span className="ProfileOrderMoreTag">
+                                +{(order.items || []).length - 2} more item{(order.items || []).length - 2 > 1 ? "s" : ""}
+                              </span>
+                            )}
                           </div>
-                          <div style={{ flex: 1, height: "2px", background: isShipped ? "#166534" : "#e2e8f0", margin: "0 10px" }} />
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isShipped ? "#166534" : "#94a3b8", fontWeight: isShipped ? 700 : 500 }}>
-                            <Truck size={16} />
-                            <span>Shipped</span>
-                          </div>
-                          <div style={{ flex: 1, height: "2px", background: isOutForDelivery ? "#166534" : "#e2e8f0", margin: "0 10px" }} />
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isOutForDelivery ? "#166534" : "#94a3b8", fontWeight: isOutForDelivery ? 700 : 500 }}>
-                            <MapPin size={16} />
-                            <span>Out for Delivery</span>
-                          </div>
-                          <div style={{ flex: 1, height: "2px", background: isDelivered ? "#166534" : "#e2e8f0", margin: "0 10px" }} />
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isDelivered ? "#166534" : "#94a3b8", fontWeight: isDelivered ? 700 : 500 }}>
-                            <Package size={16} />
-                            <span>Delivered</span>
+
+                          {/* Shipment Milestone Chip */}
+                          <div className="ProfileOrderMilestoneChipWrap">
+                            {isDelivered ? (
+                              <div className="ProfileOrderMilestoneChip delivered">
+                                <CheckCircle2 size={14} />
+                                <span>Delivered to Farm</span>
+                              </div>
+                            ) : isOutForDelivery ? (
+                              <div className="ProfileOrderMilestoneChip out-delivery">
+                                <MapPin size={14} />
+                                <span>Out for Delivery ({order.dateOfDelivery || "Today"})</span>
+                              </div>
+                            ) : isShipped ? (
+                              <div className="ProfileOrderMilestoneChip shipped">
+                                <Truck size={14} />
+                                <span>In Transit ({order.currentCourierHub || "Hub"})</span>
+                              </div>
+                            ) : (
+                              <div className="ProfileOrderMilestoneChip confirmed">
+                                <CheckCircle2 size={14} />
+                                <span>Order Confirmed</span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        {(order.items || []).map((item, idx) => (
-                          <div className="ProfileOrderItem" key={idx}>
-                            <img
-                              src={item.image || "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=120&q=80"}
-                              alt={item.title || item.name}
-                              className="ProfileOrderImg"
-                            />
-                            <div className="ProfileOrderInfo">
-                              <h4>{item.title || item.name}</h4>
-                              <p>
-                                {item.category || item.type || "Agricultural Implement"} • Qty: {item.quantity || 1}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-
-                        {order.deliveryAddress && (
-                          <div
-                            style={{
-                              background: "#f8fafc",
-                              padding: "10px 14px",
-                              borderRadius: "8px",
-                              fontSize: "12.5px",
-                              color: "#475569",
-                              marginBottom: "12px",
-                            }}
-                          >
-                            <span style={{ fontWeight: 700, color: "#1e293b" }}>Shipping Destination: </span>
-                            {order.deliveryAddress.village}, {order.deliveryAddress.district},{" "}
-                            {order.deliveryAddress.state} - {order.deliveryAddress.pincode}
-                          </div>
-                        )}
-
-                        <div className="ProfileOrderFooter">
-                          <div>
-                            <span style={{ fontSize: "12px", color: "#64748b", display: "block" }}>
+                        {/* Compact Footer: Total + Action Buttons */}
+                        <div className="ProfileOrderFooter compact">
+                          <div className="ProfileOrderFooterLeft">
+                            <span className="ProfileOrderFooterPaidLabel">
                               Total Amount Paid (via Razorpay)
                             </span>
                             <strong className="ProfileOrderTotal">
@@ -914,43 +918,25 @@ const Profile = () => {
                             </strong>
                           </div>
 
-                          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                          <div className="ProfileOrderActionsRow" onClick={(e) => e.stopPropagation()}>
                             {isDelivered && (
                               <button
                                 type="button"
-                                onClick={() => setSelectedInvoiceOrder(order)}
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "6px",
-                                  padding: "8px 16px",
-                                  borderRadius: "8px",
-                                  backgroundColor: "#166534",
-                                  color: "#ffffff",
-                                  fontSize: "13px",
-                                  fontWeight: 600,
-                                  border: "none",
-                                  cursor: "pointer",
-                                }}
+                                onClick={() => downloadOrderInvoicePdf(order)}
+                                className="ProfileOrderInvoiceBtn"
+                                title="Download Official Tax Invoice PDF"
                               >
-                                <FileText size={15} />
-                                <span>Download Invoice</span>
+                                <FileText size={14} />
+                                <span>Invoice PDF</span>
                               </button>
                             )}
+
                             <Link
-                              to="/products"
-                              style={{
-                                padding: "8px 16px",
-                                borderRadius: "8px",
-                                backgroundColor: "#f0fdf4",
-                                color: "#166534",
-                                fontSize: "13px",
-                                fontWeight: 600,
-                                textDecoration: "none",
-                                border: "1px solid #bbf7d0",
-                              }}
+                              to={`/order-details/${orderRef}`}
+                              className="ProfileOrderDetailsBtn"
                             >
-                              Explore More
+                              <span>Order Details</span>
+                              <ChevronRight size={15} />
                             </Link>
                           </div>
                         </div>
@@ -1260,21 +1246,21 @@ const Profile = () => {
                   <div style={{ display: "flex", gap: "10px" }}>
                     <button
                       type="button"
-                      onClick={() => window.print()}
+                      onClick={() => downloadOrderInvoicePdf(selectedInvoiceOrder)}
                       style={{
                         background: "#166534",
                         color: "#fff",
                         padding: "8px 18px",
                         borderRadius: "8px",
                         border: "none",
-                        fontWeight: 600,
+                        fontWeight: 700,
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
                       }}
                     >
-                      <FileText size={15} /> Print / Save PDF
+                      <FileText size={15} /> Download PDF
                     </button>
                     <button
                       type="button"
@@ -1549,7 +1535,7 @@ const Profile = () => {
                           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                             {enq.machineImage ? (
                               <img
-                                src={enq.machineImage}
+                                src={resolveImageUrl(enq.machineImage, "/placeholder.png")}
                                 alt={enq.productOrEquipment}
                                 style={{
                                   width: "44px",
@@ -1561,7 +1547,8 @@ const Profile = () => {
                                   padding: "2px",
                                 }}
                                 onError={(e) => {
-                                  e.target.style.display = "none";
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.src = "/placeholder.png";
                                 }}
                               />
                             ) : null}

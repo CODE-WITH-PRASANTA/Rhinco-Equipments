@@ -432,10 +432,32 @@ const Navbar = () => {
 
         </nav>
 
-        {/* RIGHT ACTION ICONS */}
+        {/* RIGHT ACTION ICONS: WISHLIST, CART, THEN MY PROFILE */}
         <div className="Navbar-actions">
 
-          {/* USER ACCOUNT */}
+          {/* 1. WISHLIST */}
+          <Link
+            to="/wishlist"
+            className="Navbar-action-btn Navbar-wishlist"
+            aria-label="Wishlist"
+            title="Wishlist"
+          >
+            <Heart size={21} />
+            <span className="Navbar-count">{wishlistCount}</span>
+          </Link>
+
+          {/* 2. CART */}
+          <Link
+            to="/cart"
+            className="Navbar-action-btn Navbar-cart"
+            aria-label="Shopping Cart"
+            title="Shopping Cart"
+          >
+            <ShoppingCart size={21} />
+            <span className="Navbar-count">{cartCount}</span>
+          </Link>
+
+          {/* 3. MY PROFILE / USER ACCOUNT */}
           {currentUser ? (
             <div
               className="Navbar-user-wrapper"
@@ -542,26 +564,6 @@ const Navbar = () => {
               <span>Sign In</span>
             </Link>
           )}
-
-          <Link
-            to="/wishlist"
-            className="Navbar-action-btn Navbar-wishlist"
-            aria-label="Wishlist"
-            title="Wishlist"
-          >
-            <Heart size={21} />
-            <span className="Navbar-count">{wishlistCount}</span>
-          </Link>
-
-          <Link
-            to="/cart"
-            className="Navbar-action-btn Navbar-cart"
-            aria-label="Shopping Cart"
-            title="Shopping Cart"
-          >
-            <ShoppingCart size={21} />
-            <span className="Navbar-count">{cartCount}</span>
-          </Link>
 
           {/* MOBILE MENU BUTTON */}
           <button

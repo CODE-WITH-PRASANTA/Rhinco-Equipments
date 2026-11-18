@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import "./MachinaryEquipmentOne.css";
 import { toMachinerySlug, resolveImageUrl, API_URL } from "../../utils/helpers";
+import MachineryEnquiryModal from "../Common/MachineryEnquiryModal";
 
 const MACHINERY_API = `${API_URL}/machinery`;
 const ENQUIRIES_API = `${API_URL}/enquiries`;
@@ -66,19 +67,8 @@ const MachinaryEquipmentOne = () => {
   // Brand search filter inside sidebar
   const [brandSearch, setBrandSearch] = useState("");
 
-  // Contact dealer modal states
+  // Contact dealer modal product
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [modalForm, setModalForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    location: "",
-    intent: "Price Quotation",
-    message: "",
-  });
-  const [modalSubmitting, setModalSubmitting] = useState(false);
-  const [modalSuccess, setModalSuccess] = useState(false);
-  const [modalError, setModalError] = useState("");
 
   // Load real machinery from database
   useEffect(() => {
@@ -268,101 +258,10 @@ const MachinaryEquipmentOne = () => {
   const handleOpenDealerModal = (item, e) => {
     if (e) e.stopPropagation();
     setSelectedProduct(item);
-    setModalSuccess(false);
-    setModalError("");
-
-    let defaultName = "";
-    let defaultPhone = "";
-    let defaultEmail = "";
-    try {
-      const stored = localStorage.getItem("rhinco_user");
-      if (stored) {
-        const u = JSON.parse(stored);
-        defaultName = u.name || "";
-        defaultPhone = u.phone || "";
-        defaultEmail = u.email || "";
-      }
-    } catch (err) {}
-
-    setModalForm({
-      name: defaultName,
-      phone: defaultPhone,
-      email: defaultEmail,
-      location: "",
-      intent: "Price Quotation",
-      message: `I am interested in ${item.name || item.title || "this machinery"}. Please share quotation, subsidy options, and dealer delivery schedule.`,
-    });
-  };
-
-  // Submit dealer quotation inquiry
-  const handleModalSubmit = async (e) => {
-    e.preventDefault();
-    if (!modalForm.name.trim() || !modalForm.phone.trim()) {
-      setModalError("Please provide your name and phone number.");
-      return;
-    }
-
-    setModalSubmitting(true);
-    setModalError("");
-
-    try {
-      const payload = {
-        name: modalForm.name.trim(),
-        phone: modalForm.phone.trim(),
-        email: modalForm.email.trim(),
-        location: modalForm.location.trim() || "District Buyer",
-        product:
-          selectedProduct?.name ||
-          selectedProduct?.title ||
-          "Machinery Equipment",
-        source: "Machinery Catalogue Showcase",
-        intent: modalForm.intent || "Price Quotation",
-        message: modalForm.message.trim(),
-      };
-
-      const res = await fetch(ENQUIRIES_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setModalSuccess(true);
-        window.dispatchEvent(
-          new CustomEvent("rhinco_enquiry_submitted", { detail: payload })
-        );
-      } else {
-        setModalError(
-          data.message ||
-            "Unable to submit inquiry at this moment. Please call our helpline."
-        );
-      }
-    } catch (err) {
-      console.error("Modal submission error:", err);
-      setModalError(
-        "Network connection issue. Please dial our helpline: +91 98765 43210"
-      );
-    } finally {
-      setModalSubmitting(false);
-    }
   };
 
   return (
     <div className="FkMachinery-wrapper">
-      {/* Top Header & Breadcrumb Bar */}
-      <div className="FkMachinery-topBar">
-        <div className="FkMachinery-container">
-          <nav className="FkMachinery-breadcrumb">
-            <Link to="/">Home</Link>
-            <span className="FkMachinery-breadcrumbDivider">/</span>
-            <span className="FkMachinery-breadcrumbCurrent">
-              Agricultural Machinery
-            </span>
-          </nav>
-        </div>
-      </div>
-
       <div className="FkMachinery-container FkMachinery-layout">
         {/* MOBILE FILTER TOGGLE BUTTON */}
         <div className="FkMachinery-mobileControls">
@@ -378,6 +277,15 @@ const MachinaryEquipmentOne = () => {
             {filteredMachinery.length} Machinery Found
           </div>
         </div>
+
+        {/* Backdrop for mobile drawer */}
+        {mobileFilterOpen && (
+          <div
+            className="FkMachinery-sidebarOverlay"
+            onClick={() => setMobileFilterOpen(false)}
+            aria-label="Close filters backdrop"
+          />
+        )}
 
         {/* ================= LEFT SIDEBAR (FLIPKART / FACEBOOK STYLE) ================= */}
         <aside
@@ -832,13 +740,6 @@ const MachinaryEquipmentOne = () => {
                           <Tractor size={40} strokeWidth={1.2} />
                         </div>
                       )}
-
-                      <div className="FkMachinery-cardBadges">
-                        <span className="FkMachinery-subsidyTag">
-                          <Sparkles size={11} />
-                          Subsidy Eligible
-                        </span>
-                      </div>
                     </Link>
 
                     {/* CARD CONTENT */}
@@ -937,185 +838,12 @@ const MachinaryEquipmentOne = () => {
         </main>
       </div>
 
-      {/* ================= CONTACT DEALER MODAL ================= */}
-      {selectedProduct && (
-        <div
-          className="FkMachinery-modalOverlay"
-          onClick={() => setSelectedProduct(null)}
-        >
-          <div
-            className="FkMachinery-modalDialog"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="FkMachinery-modalHeader">
-              <div>
-                <h3>Connect With Authorized Dealer</h3>
-                <p>Direct dealer quotation, subsidy claim & field trial</p>
-              </div>
-              <button
-                type="button"
-                className="FkMachinery-modalClose"
-                onClick={() => setSelectedProduct(null)}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="FkMachinery-modalContent">
-              {modalSuccess ? (
-                <div className="FkMachinery-modalSuccess">
-                  <CheckCircle2 size={48} color="#059669" />
-                  <h4>Inquiry Successfully Transmitted!</h4>
-                  <p>
-                    Thank you <strong>{modalForm.name}</strong>. Our authorized
-                    district dealer has received your inquiry for{" "}
-                    <strong>
-                      {selectedProduct.name || selectedProduct.title}
-                    </strong>{" "}
-                    and will call you at <strong>{modalForm.phone}</strong> shortly.
-                  </p>
-                  <div className="FkMachinery-modalHelplineNotice">
-                    <span>Direct Dealer Helpline: </span>
-                    <a href={`tel:${HELPLINE_TEL}`}>{HELPLINE_PHONE}</a>
-                  </div>
-                  <button
-                    type="button"
-                    className="FkMachinery-modalDoneBtn"
-                    onClick={() => setSelectedProduct(null)}
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="FkMachinery-modalItemCard">
-                    <div className="FkMachinery-modalItemImg">
-                      <Tractor size={30} color="#059669" />
-                    </div>
-                    <div>
-                      <h4>
-                        {selectedProduct.name || selectedProduct.title}
-                      </h4>
-                      <p>
-                        {selectedProduct.brand || "Rhinco"} •{" "}
-                        {selectedProduct.category || "Farm Machinery"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {modalError && (
-                    <div className="FkMachinery-modalError">
-                      {modalError}
-                    </div>
-                  )}
-
-                  <form
-                    onSubmit={handleModalSubmit}
-                    className="FkMachinery-modalForm"
-                  >
-                    <div className="FkMachinery-formRow">
-                      <div className="FkMachinery-formField">
-                        <label>Full Name *</label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="e.g. Ramesh Patel"
-                          value={modalForm.name}
-                          onChange={(e) =>
-                            setModalForm({ ...modalForm, name: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div className="FkMachinery-formField">
-                        <label>Mobile Number *</label>
-                        <input
-                          type="tel"
-                          required
-                          placeholder="e.g. 9876543210"
-                          value={modalForm.phone}
-                          onChange={(e) =>
-                            setModalForm({
-                              ...modalForm,
-                              phone: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="FkMachinery-formRow">
-                      <div className="FkMachinery-formField">
-                        <label>District / Village</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. Cuttack, Odisha"
-                          value={modalForm.location}
-                          onChange={(e) =>
-                            setModalForm({
-                              ...modalForm,
-                              location: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="FkMachinery-formField">
-                        <label>Email (Optional)</label>
-                        <input
-                          type="email"
-                          placeholder="e.g. ramesh@gmail.com"
-                          value={modalForm.email}
-                          onChange={(e) =>
-                            setModalForm({
-                              ...modalForm,
-                              email: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="FkMachinery-formField">
-                      <label>Inquiry Requirement</label>
-                      <textarea
-                        rows={3}
-                        value={modalForm.message}
-                        onChange={(e) =>
-                          setModalForm({
-                            ...modalForm,
-                            message: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="FkMachinery-modalFooter">
-                      <div className="FkMachinery-modalHelplineHint">
-                        Helpline: <a href={`tel:${HELPLINE_TEL}`}>{HELPLINE_PHONE}</a>
-                      </div>
-                      <div className="FkMachinery-modalBtns">
-                        <button
-                          type="button"
-                          className="FkMachinery-cancelBtn"
-                          onClick={() => setSelectedProduct(null)}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={modalSubmitting}
-                          className="FkMachinery-submitBtn"
-                        >
-                          {modalSubmitting ? "Submitting..." : "Submit Quotation Request →"}
-                        </button>
-                      </div>
-                    </div>
-                  </form>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= UNIFIED CONTACT DEALER MODAL ================= */}
+      <MachineryEnquiryModal
+        isOpen={Boolean(selectedProduct)}
+        onClose={() => setSelectedProduct(null)}
+        machine={selectedProduct}
+      />
     </div>
   );
 };

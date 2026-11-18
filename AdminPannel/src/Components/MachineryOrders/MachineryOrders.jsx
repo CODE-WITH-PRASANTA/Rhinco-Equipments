@@ -22,6 +22,7 @@ import {
 import "./MachineryOrders.css";
 import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
+const ORDERS_API = `${API_URL}/machinery-orders`;
 const ENQUIRIES_API = `${API_URL}/enquiries`;
 
 const MachineryOrders = () => {
@@ -38,17 +39,44 @@ const MachineryOrders = () => {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const res = await fetch(ENQUIRIES_API);
-      const data = await res.json();
-      if (res.ok && data.success && Array.isArray(data.data)) {
-        // Filter machinery enquiries / orders
-        const machOrders = data.data.filter(
-          (item) => !item.enquiryType || item.enquiryType === "Machinery Enquiry" || item.productOrEquipment
-        );
-        setOrders(machOrders);
-      } else {
-        setNotice(data.message || "Failed to load machinery orders");
+      let machOrders = [];
+      // Primary: load from dedicated /api/machinery-orders
+      try {
+        const res = await fetch(ORDERS_API);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          machOrders = data.data;
+        }
+      } catch (err) {
+        console.warn("Machinery orders fetch notice:", err);
       }
+
+      // Secondary: merge any legacy enquiries if not already present
+      try {
+        const fallbackRes = await fetch(ENQUIRIES_API);
+        const fallbackData = await fallbackRes.json();
+        if (fallbackRes.ok && fallbackData.success && Array.isArray(fallbackData.data)) {
+          const legacyItems = fallbackData.data.filter(
+            (item) => !item.enquiryType || item.enquiryType === "Machinery Enquiry" || item.productOrEquipment
+          );
+          // Combine without duplicating phone + name + machineName
+          const existingKeys = new Set(
+            machOrders.map((o) => `${o.phone}_${o.name}_${o.productOrEquipment || o.machineName}`)
+          );
+          legacyItems.forEach((item) => {
+            const key = `${item.phone}_${item.name}_${item.productOrEquipment || item.machineName}`;
+            if (!existingKeys.has(key)) {
+              machOrders.push(item);
+            }
+          });
+        }
+      } catch (legacyErr) {
+        console.warn("Legacy enquiries check notice:", legacyErr);
+      }
+
+      // Sort newest first
+      machOrders.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      setOrders(machOrders);
     } catch (err) {
       console.error("Error loading machinery orders:", err);
       setNotice("Could not connect to backend server on port 5000.");
@@ -65,11 +93,19 @@ const MachineryOrders = () => {
   const handleStatusChange = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      const res = await fetch(`${ENQUIRIES_API}/${id}`, {
+      let res = await fetch(`${ORDERS_API}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
+      if (!res.ok) {
+        // Fallback to legacy enquiries endpoint
+        res = await fetch(`${ENQUIRIES_API}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
+      }
       const data = await res.json();
       if (res.ok && data.success) {
         setOrders((prev) =>
@@ -96,11 +132,18 @@ const MachineryOrders = () => {
     if (!selectedOrder) return;
     setSavingNote(true);
     try {
-      const res = await fetch(`${ENQUIRIES_API}/${selectedOrder._id}`, {
+      let res = await fetch(`${ORDERS_API}/${selectedOrder._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notes: adminNote }),
       });
+      if (!res.ok) {
+        res = await fetch(`${ENQUIRIES_API}/${selectedOrder._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notes: adminNote }),
+        });
+      }
       const data = await res.json();
       if (res.ok && data.success) {
         setOrders((prev) =>
@@ -123,9 +166,14 @@ const MachineryOrders = () => {
       return;
     }
     try {
-      const res = await fetch(`${ENQUIRIES_API}/${id}`, {
+      let res = await fetch(`${ORDERS_API}/${id}`, {
         method: "DELETE",
       });
+      if (!res.ok) {
+        res = await fetch(`${ENQUIRIES_API}/${id}`, {
+          method: "DELETE",
+        });
+      }
       const data = await res.json();
       if (res.ok && data.success) {
         setOrders((prev) => prev.filter((o) => o._id !== id));
@@ -337,7 +385,7 @@ const MachineryOrders = () => {
                       <div className="MachineryOrdersMachineCell">
                         {order.machineImage ? (
                           <img
-                            src={order.machineImage}
+                            src={resolveImageUrl(order.machineImage, "")}
                             alt={machineName}
                             className="MachineryOrdersMachineThumb"
                             onError={(e) => {
@@ -351,6 +399,11 @@ const MachineryOrders = () => {
                         )}
                         <div>
                           <strong className="MachineryOrdersMachineTitle">{machineName}</strong>
+                          {order.orderId && (
+                            <span style={{ fontSize: "11px", color: "#166534", fontFamily: "monospace", display: "block" }}>
+                              {order.orderId}
+                            </span>
+                          )}
                           {order.price && (
                             <span className="MachineryOrdersMachinePrice">{order.price}</span>
                           )}
@@ -443,6 +496,11 @@ const MachineryOrders = () => {
               <div>
                 <span className="MachineryOrdersModalTag">MACHINERY DEALER INQUIRY</span>
                 <h2>{selectedOrder.productOrEquipment || "Machinery Order"}</h2>
+                {selectedOrder.orderId && (
+                  <div style={{ fontSize: "12px", color: "#166534", fontWeight: 700, fontFamily: "monospace", margin: "3px 0" }}>
+                    ID: {selectedOrder.orderId}
+                  </div>
+                )}
                 <span className="MachineryOrdersModalDate">
                   Inquiry submitted on{" "}
                   {selectedOrder.createdAt
@@ -470,7 +528,7 @@ const MachineryOrders = () => {
                   {selectedOrder.machineImage && (
                     <div className="MachineryOrdersModalImgWrap">
                       <img
-                        src={selectedOrder.machineImage}
+                        src={resolveImageUrl(selectedOrder.machineImage, "")}
                         alt={selectedOrder.productOrEquipment}
                       />
                     </div>

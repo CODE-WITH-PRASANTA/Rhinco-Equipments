@@ -42,6 +42,22 @@ const ProductOrders = () => {
   const [updatingId, setUpdatingId] = useState(null);
   const [notice, setNotice] = useState("");
 
+  // Prompt Modals for Shipped & Out for Delivery
+  const [shippedModalOrder, setShippedModalOrder] = useState(null);
+  const [shippedForm, setShippedForm] = useState({
+    trackingId: "",
+    courierPartner: "Delhivery Express",
+    currentCourierHub: "",
+    expectedDeliveryDate: "",
+  });
+
+  const [outForDeliveryModalOrder, setOutForDeliveryModalOrder] = useState(null);
+  const [outForDeliveryForm, setOutForDeliveryForm] = useState({
+    deliveryAgentNumber: "",
+    currentHub: "",
+    dateOfDelivery: "",
+  });
+
   const loadOrders = async () => {
     setLoading(true);
     try {
@@ -66,13 +82,13 @@ const ProductOrders = () => {
   }, []);
 
   // Update order fulfillment status
-  const handleStatusChange = async (orderId, newStatus) => {
+  const handleStatusChange = async (orderId, newStatus, extraData = {}) => {
     setUpdatingId(orderId);
     try {
       const res = await fetch(`${ORDERS_API}/${orderId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus, ...extraData }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -93,6 +109,46 @@ const ProductOrders = () => {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  const handleStatusSelect = (order, targetStatus) => {
+    if (targetStatus === "Shipped") {
+      setShippedModalOrder(order);
+      const defaultDate = new Date(Date.now() + 3 * 86400000).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      setShippedForm({
+        trackingId: order.trackingId || `RHN-EXP-${Date.now().toString().slice(-6)}`,
+        courierPartner: order.courierPartner || "Delhivery Express",
+        currentCourierHub: order.currentCourierHub || "Central Logistics Hub",
+        expectedDeliveryDate: order.expectedDeliveryDate || defaultDate,
+      });
+    } else if (targetStatus === "Out for Delivery") {
+      setOutForDeliveryModalOrder(order);
+      setOutForDeliveryForm({
+        deliveryAgentNumber: order.deliveryAgentNumber || "+91 98765 43210",
+        currentHub: order.currentHub || order.currentCourierHub || "Local District Hub",
+        dateOfDelivery: order.dateOfDelivery || "Today by 5:00 PM",
+      });
+    } else {
+      handleStatusChange(order.orderId, targetStatus);
+    }
+  };
+
+  const submitShippedModal = (e) => {
+    e.preventDefault();
+    if (!shippedModalOrder) return;
+    handleStatusChange(shippedModalOrder.orderId, "Shipped", shippedForm);
+    setShippedModalOrder(null);
+  };
+
+  const submitOutForDeliveryModal = (e) => {
+    e.preventDefault();
+    if (!outForDeliveryModalOrder) return;
+    handleStatusChange(outForDeliveryModalOrder.orderId, "Out for Delivery", outForDeliveryForm);
+    setOutForDeliveryModalOrder(null);
   };
 
   // Filtered orders based on search and status tabs
@@ -433,7 +489,7 @@ const ProductOrders = () => {
                             value={order.orderStatus}
                             disabled={updatingId === order.orderId}
                             onChange={(e) =>
-                              handleStatusChange(order.orderId, e.target.value)
+                              handleStatusSelect(order, e.target.value)
                             }
                             className="ProductOrders-statusSelect"
                           >
@@ -559,7 +615,7 @@ const ProductOrders = () => {
                     <select
                       value={selectedOrder.orderStatus}
                       onChange={(e) =>
-                        handleStatusChange(selectedOrder.orderId, e.target.value)
+                        handleStatusSelect(selectedOrder, e.target.value)
                       }
                       className="ProductOrders-statusSelectLarge"
                     >
@@ -609,6 +665,52 @@ const ProductOrders = () => {
                     <strong>{selectedOrder.deliveryAddress?.pincode}</strong>
                   </p>
                 </div>
+
+                {(selectedOrder.trackingId || selectedOrder.currentCourierHub || selectedOrder.currentHub || selectedOrder.deliveryAgentNumber) && (
+                  <div className="ProductOrders-modalInfoCard" style={{ gridColumn: "span 2", background: "#f0fdf4", borderColor: "#bbf7d0" }}>
+                    <h4 style={{ color: "#166534" }}>
+                      <FiTruck size={15} /> Active Tracking & Dispatch Details
+                    </h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", marginTop: "8px", fontSize: "12.5px" }}>
+                      {selectedOrder.trackingId && (
+                        <div>
+                          <span style={{ color: "#64748b", display: "block" }}>Tracking ID / AWB:</span>
+                          <strong style={{ color: "#166534", fontFamily: "monospace" }}>{selectedOrder.trackingId}</strong>
+                        </div>
+                      )}
+                      {selectedOrder.courierPartner && (
+                        <div>
+                          <span style={{ color: "#64748b", display: "block" }}>Courier Partner:</span>
+                          <strong>{selectedOrder.courierPartner}</strong>
+                        </div>
+                      )}
+                      {(selectedOrder.currentCourierHub || selectedOrder.currentHub) && (
+                        <div>
+                          <span style={{ color: "#64748b", display: "block" }}>Current Hub / Facility:</span>
+                          <strong>{selectedOrder.currentCourierHub || selectedOrder.currentHub}</strong>
+                        </div>
+                      )}
+                      {selectedOrder.expectedDeliveryDate && (
+                        <div>
+                          <span style={{ color: "#64748b", display: "block" }}>Expected Delivery Date:</span>
+                          <strong>{selectedOrder.expectedDeliveryDate}</strong>
+                        </div>
+                      )}
+                      {selectedOrder.deliveryAgentNumber && (
+                        <div>
+                          <span style={{ color: "#64748b", display: "block" }}>Delivery Agent Contact:</span>
+                          <strong style={{ color: "#15803d" }}>{selectedOrder.deliveryAgentNumber}</strong>
+                        </div>
+                      )}
+                      {selectedOrder.dateOfDelivery && (
+                        <div>
+                          <span style={{ color: "#64748b", display: "block" }}>Date / Time of Delivery:</span>
+                          <strong>{selectedOrder.dateOfDelivery}</strong>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* ITEMS LIST */}
@@ -1092,6 +1194,201 @@ const ProductOrders = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* PROMPT MODAL: SHIPPED TRACKING DETAILS */}
+      {shippedModalOrder && (
+        <div
+          className="ProductOrders-modalOverlay"
+          onClick={() => setShippedModalOrder(null)}
+        >
+          <div
+            className="ProductOrders-promptModal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="ProductOrders-promptHeader">
+              <div>
+                <span style={{ fontSize: "11px", fontWeight: 700, color: "#166534", letterSpacing: "0.04em" }}>
+                  DISPATCH CONFIRMATION
+                </span>
+                <h3>Update Shipped & Courier Tracking</h3>
+              </div>
+              <button
+                type="button"
+                className="ProductOrders-modalClose"
+                onClick={() => setShippedModalOrder(null)}
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={submitShippedModal}>
+              <div className="ProductOrders-promptBody">
+                <div className="ProductOrders-promptField">
+                  <label>Current Courier Hub / Facility *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Pune Central Sorting Hub / Bhiwandi Facility"
+                    value={shippedForm.currentCourierHub}
+                    onChange={(e) =>
+                      setShippedForm({ ...shippedForm, currentCourierHub: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="ProductOrders-promptField">
+                  <label>Expected Delivery Date *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 23 Nov 2026 / Within 3 days"
+                    value={shippedForm.expectedDeliveryDate}
+                    onChange={(e) =>
+                      setShippedForm({ ...shippedForm, expectedDeliveryDate: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="ProductOrders-promptField">
+                  <label>Tracking ID / AWB Number *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. RHN-EXP-839201"
+                    value={shippedForm.trackingId}
+                    onChange={(e) =>
+                      setShippedForm({ ...shippedForm, trackingId: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="ProductOrders-promptField">
+                  <label>Courier Partner</label>
+                  <select
+                    value={shippedForm.courierPartner}
+                    onChange={(e) =>
+                      setShippedForm({ ...shippedForm, courierPartner: e.target.value })
+                    }
+                  >
+                    <option value="Delhivery Express">Delhivery Express</option>
+                    <option value="Blue Dart Aviation">Blue Dart Aviation</option>
+                    <option value="DTDC Express">DTDC Express</option>
+                    <option value="Ecom Express">Ecom Express</option>
+                    <option value="Rhino Direct Logistics">Rhino Direct Logistics</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="ProductOrders-promptFooter">
+                <button
+                  type="button"
+                  className="ProductOrders-promptCancel"
+                  onClick={() => setShippedModalOrder(null)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="ProductOrders-promptSubmit">
+                  Mark as Shipped →
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* PROMPT MODAL: OUT FOR DELIVERY DETAILS */}
+      {outForDeliveryModalOrder && (
+        <div
+          className="ProductOrders-modalOverlay"
+          onClick={() => setOutForDeliveryModalOrder(null)}
+        >
+          <div
+            className="ProductOrders-promptModal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="ProductOrders-promptHeader">
+              <div>
+                <span style={{ fontSize: "11px", fontWeight: 700, color: "#166534", letterSpacing: "0.04em" }}>
+                  LAST-MILE DISPATCH
+                </span>
+                <h3>Update Out for Delivery Details</h3>
+              </div>
+              <button
+                type="button"
+                className="ProductOrders-modalClose"
+                onClick={() => setOutForDeliveryModalOrder(null)}
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={submitOutForDeliveryModal}>
+              <div className="ProductOrders-promptBody">
+                <div className="ProductOrders-promptField">
+                  <label>Delivery Agent Contact Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="e.g. +91 98765 43210"
+                    value={outForDeliveryForm.deliveryAgentNumber}
+                    onChange={(e) =>
+                      setOutForDeliveryForm({
+                        ...outForDeliveryForm,
+                        deliveryAgentNumber: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="ProductOrders-promptField">
+                  <label>Current Local Hub / Station *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Nashik District Local Hub"
+                    value={outForDeliveryForm.currentHub}
+                    onChange={(e) =>
+                      setOutForDeliveryForm({
+                        ...outForDeliveryForm,
+                        currentHub: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="ProductOrders-promptField">
+                  <label>Date / Estimated Time of Delivery *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Today by 4:00 PM / 19 Nov 2026"
+                    value={outForDeliveryForm.dateOfDelivery}
+                    onChange={(e) =>
+                      setOutForDeliveryForm({
+                        ...outForDeliveryForm,
+                        dateOfDelivery: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="ProductOrders-promptFooter">
+                <button
+                  type="button"
+                  className="ProductOrders-promptCancel"
+                  onClick={() => setOutForDeliveryModalOrder(null)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="ProductOrders-promptSubmit">
+                  Mark Out for Delivery →
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
