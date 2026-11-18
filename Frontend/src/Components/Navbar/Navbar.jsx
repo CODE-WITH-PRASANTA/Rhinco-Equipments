@@ -88,6 +88,10 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("rhinco_user");
     localStorage.removeItem("rhinco_token");
+    localStorage.removeItem("rhinco_delivery_address");
+    localStorage.removeItem("rhinco_saved_addresses");
+    localStorage.removeItem("rhinco_cart_delivery_address");
+    localStorage.removeItem("rhinco_current_address");
     setCurrentUser(null);
     setAccountMenuOpen(false);
     window.dispatchEvent(new CustomEvent("rhinco_auth_updated", { detail: null }));

@@ -17,10 +17,12 @@ import {
   MapPin,
   Edit2,
   CheckCircle2,
+  User,
 } from "lucide-react";
 
 import { useNavigate, Link } from "react-router-dom";
 import "./CartMain.css";
+import { resolveImageUrl } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ORDERS_API = `${API_URL}/orders`;
@@ -67,17 +69,7 @@ const formatPrice = (price) => {
 
 // Get image URL
 const getImageUrl = (image) => {
-  if (!image) return "/placeholder.png";
-
-  if (
-    image.startsWith("http://") ||
-    image.startsWith("https://") ||
-    image.startsWith("data:")
-  ) {
-    return image;
-  }
-
-  return image.startsWith("/") ? image : `/${image}`;
+  return resolveImageUrl(image, "/placeholder.png");
 };
 
 // Load Razorpay Checkout SDK dynamically
@@ -115,9 +107,20 @@ const CartMain = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
 
-  // DELIVERY ADDRESS STATE (Pre-fills from localStorage, or null if none)
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const u = localStorage.getItem("rhinco_user");
+      return u ? JSON.parse(u) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
+  // DELIVERY ADDRESS STATE (Only pre-fills if logged in, null if not logged in)
   const [deliveryAddress, setDeliveryAddress] = useState(() => {
     try {
+      const userStr = localStorage.getItem("rhinco_user");
+      if (!userStr) return null; // Never pre-fill address if not logged in
       const saved = localStorage.getItem(ADDRESS_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -127,7 +130,11 @@ const CartMain = () => {
     return null;
   });
 
-  const [savedAddresses, setSavedAddresses] = useState(loadSavedAddresses);
+  const [savedAddresses, setSavedAddresses] = useState(() => {
+    const userStr = localStorage.getItem("rhinco_user");
+    if (!userStr) return [];
+    return loadSavedAddresses();
+  });
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [addressForm, setAddressForm] = useState(deliveryAddress);
 
@@ -139,65 +146,63 @@ const CartMain = () => {
       if (userStr) u = JSON.parse(userStr);
     } catch (e) {}
 
-    if (u && (u._id || u.email)) {
-      try {
-        const emailParam = encodeURIComponent(u.email || "");
-        const userParam = u._id ? `userId=${u._id}&` : "";
-        const res = await fetch(`${ADDRESSES_API}?${userParam}email=${emailParam}`);
-        const data = await res.json();
-        if (res.ok && data.success && Array.isArray(data.data)) {
-          setSavedAddresses(data.data);
-          localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(data.data));
-
-          setDeliveryAddress((current) => {
-            if (current) {
-              const stillExists = data.data.find(
-                (a) => (a._id || a.id) === (current._id || current.id)
-              );
-              if (stillExists) return stillExists;
-            }
-            const def = data.data.find((a) => a.isDefault) || data.data[0];
-            if (def) {
-              localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(def));
-              return def;
-            } else {
-              localStorage.removeItem(ADDRESS_STORAGE_KEY);
-              return null;
-            }
-          });
-          return;
-        }
-      } catch (err) {
-        console.warn("Could not sync addresses from DB in Cart:", err);
-      }
-    }
-
-    // Fallback to local storage (only real saved ones, no fake dummy data)
-    const list = loadSavedAddresses();
-    setSavedAddresses(list);
-    try {
-      const cur = localStorage.getItem(ADDRESS_STORAGE_KEY);
-      if (cur) {
-        setDeliveryAddress(JSON.parse(cur));
-      } else if (list.length > 0) {
-        const def = list.find((a) => a.isDefault) || list[0];
-        setDeliveryAddress(def);
-        localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(def));
-      } else {
-        setDeliveryAddress(null);
-      }
-    } catch (e) {
+    // CRITICAL: If NOT logged in, CLEAR ALL addresses immediately!
+    if (!u || (!u._id && !u.email)) {
+      setCurrentUser(null);
+      setSavedAddresses([]);
       setDeliveryAddress(null);
+      localStorage.removeItem(ADDRESS_STORAGE_KEY);
+      localStorage.removeItem(SAVED_ADDRESSES_KEY);
+      return;
     }
+
+    setCurrentUser(u);
+
+    // User is logged in: fetch their real saved addresses from database
+    try {
+      const emailParam = encodeURIComponent(u.email || "");
+      const userParam = u._id ? `userId=${u._id}&` : "";
+      const res = await fetch(`${ADDRESSES_API}?${userParam}email=${emailParam}`);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        setSavedAddresses(data.data);
+        localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(data.data));
+
+        setDeliveryAddress((current) => {
+          if (current) {
+            const stillExists = data.data.find(
+              (a) => (a._id || a.id) === (current._id || current.id)
+            );
+            if (stillExists) return stillExists;
+          }
+          const def = data.data.find((a) => a.isDefault) || data.data[0];
+          if (def) {
+            localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(def));
+            return def;
+          } else {
+            localStorage.removeItem(ADDRESS_STORAGE_KEY);
+            return null;
+          }
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn("Could not sync addresses from DB in Cart:", err);
+    }
+
+    setSavedAddresses([]);
+    setDeliveryAddress(null);
   };
 
   useEffect(() => {
     syncAddresses();
     window.addEventListener("focus", syncAddresses);
     window.addEventListener("storage", syncAddresses);
+    window.addEventListener("rhinco_auth_updated", syncAddresses);
     return () => {
       window.removeEventListener("focus", syncAddresses);
       window.removeEventListener("storage", syncAddresses);
+      window.removeEventListener("rhinco_auth_updated", syncAddresses);
     };
   }, []);
 
@@ -816,7 +821,16 @@ const CartMain = () => {
               </div>
 
               <div className="cartAddressHeaderActions">
-                {deliveryAddress ? (
+                {!currentUser ? (
+                  <Link
+                    to="/login?redirect=/cart"
+                    className="cartAddressAddBtn"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <User size={13} />
+                    <span>Sign In</span>
+                  </Link>
+                ) : deliveryAddress ? (
                   <>
                     <button
                       type="button"
@@ -855,7 +869,21 @@ const CartMain = () => {
               </div>
             </div>
 
-            {deliveryAddress ? (
+            {!currentUser ? (
+              <div className="cartAddressEmptyPrompt">
+                <p className="cartAddressEmptyText">
+                  You are currently browsing as a guest. Please sign in to choose or add your farm delivery address.
+                </p>
+                <Link
+                  to="/login?redirect=/cart"
+                  className="cartAddressSelectPromptBtn"
+                  style={{ textDecoration: "none" }}
+                >
+                  <User size={14} />
+                  <span>Sign In for Delivery Address</span>
+                </Link>
+              </div>
+            ) : deliveryAddress ? (
               <div className="cartAddressBody">
                 <div className="cartAddressBadgeRow">
                   <span className="cartAddressTypeBadge">
