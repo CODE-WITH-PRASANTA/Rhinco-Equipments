@@ -809,12 +809,12 @@ const MachinaryEquipmentOne = () => {
                   <article
                     key={item._id || item.id}
                     className="FkMachinery-card"
-                    onClick={() => navigate(`/machinery/${slug}`)}
+                    onClick={() => navigate(`/machinery-details/${slug}`)}
                     style={{ cursor: "pointer" }}
                   >
                     {/* CARD THUMBNAIL */}
                     <Link
-                      to={`/machinery/${slug}`}
+                      to={`/machinery-details/${slug}`}
                       className="FkMachinery-cardMedia"
                     >
                       {primaryImg ? (
@@ -851,7 +851,7 @@ const MachinaryEquipmentOne = () => {
                       </div>
 
                       <h3 className="FkMachinery-cardTitle">
-                        <Link to={`/machinery/${slug}`} title={title}>
+                        <Link to={`/machinery-details/${slug}`} title={title}>
                           {title}
                         </Link>
                       </h3>
@@ -910,7 +910,7 @@ const MachinaryEquipmentOne = () => {
 
                         <div className="FkMachinery-actions">
                           <Link
-                            to={`/machinery/${slug}`}
+                            to={`/machinery-details/${slug}`}
                             className="FkMachinery-specsBtn"
                             title="View Full Specifications"
                           >

@@ -144,7 +144,7 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
                 >
                   {/* IMAGE */}
                   <Link
-                    to={`/machinery/${toMachinerySlug(name)}`}
+                    to={`/machinery-details/${toMachinerySlug(name)}`}
                     className="agriMachineryImage"
                     style={{ textDecoration: "none", display: "block" }}
                   >
@@ -181,7 +181,7 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
 
                     <h3>
                       <Link
-                        to={`/machinery/${toMachinerySlug(name)}`}
+                        to={`/machinery-details/${toMachinerySlug(name)}`}
                         style={{ textDecoration: "none", color: "inherit" }}
                       >
                         {name}

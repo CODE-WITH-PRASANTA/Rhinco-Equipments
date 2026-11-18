@@ -187,7 +187,7 @@ const BrowsbyCategory = () => {
     const slug = toSlug(title);
 
     if (item.itemType === "machinery") {
-      navigate(`/machinery/${slug}`);
+      navigate(`/machinery-details/${slug}`);
     } else {
       navigate(`/product/${slug}`);
     }

@@ -1615,7 +1615,7 @@ const Profile = () => {
                             Ref ID: {enq._id ? `#${enq._id.slice(-6).toUpperCase()}` : "#ENQ"}
                           </span>
                           <Link
-                            to={`/machinery/${toMachinerySlug(enq.productOrEquipment || enq.machineName || "")}`}
+                            to={`/machinery-details/${toMachinerySlug(enq.productOrEquipment || enq.machineName || "")}`}
                             style={{
                               fontSize: "13px",
                               fontWeight: 700,

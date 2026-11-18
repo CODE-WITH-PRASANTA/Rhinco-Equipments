@@ -219,7 +219,7 @@ const MacineryEquipmentCards = () => {
     return (
       <article className="mec-card" key={product._id || product.id || index}>
         <div className="mec-card-image">
-          <Link to={`/machinery/${toMachinerySlug(name)}`}>
+          <Link to={`/machinery-details/${toMachinerySlug(name)}`}>
             <img
               src={image}
               alt={name}
@@ -232,7 +232,7 @@ const MacineryEquipmentCards = () => {
         </div>
 
         <h3 className="mec-product-name" title={name}>
-          <Link to={`/machinery/${toMachinerySlug(name)}`} style={{ textDecoration: "none", color: "inherit" }}>
+          <Link to={`/machinery-details/${toMachinerySlug(name)}`} style={{ textDecoration: "none", color: "inherit" }}>
             {name}
           </Link>
         </h3>

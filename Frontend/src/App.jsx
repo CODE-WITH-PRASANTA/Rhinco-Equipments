@@ -40,9 +40,6 @@ const App = () => {
             <Route path="/machinery" element={<MachinaryEquipment />} />
             <Route path="/machine-catalogue" element={<MachinaryEquipment />} />
             <Route path="/machinery-equipment" element={<MachineryAndEquipment />} />
-            <Route path="/machine-details" element={<MachineryDetails />} />
-            <Route path="/machine-details/:name" element={<MachineryDetails />} />
-            <Route path="/machinery/:name" element={<MachineryDetails />} />
             <Route path="/machinery-details/:name" element={<MachineryDetails />} />
 
             {/* Product Routes */}

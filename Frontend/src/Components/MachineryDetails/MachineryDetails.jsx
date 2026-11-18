@@ -123,6 +123,8 @@ const MachineryDetails = () => {
 
   const [machine, setMachine] = useState(null);
   const [relatedMachinery, setRelatedMachinery] = useState([]);
+  const [popularMachines, setPopularMachines] = useState([]);
+  const [notFoundSearch, setNotFoundSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState("");
   const [activeTab, setActiveTab] = useState("specifications");
@@ -161,7 +163,7 @@ const MachineryDetails = () => {
     if (paramName) {
       const cleanSlug = toMachinerySlug(paramName);
       if (cleanSlug && paramName !== cleanSlug) {
-        navigate(`/machinery/${cleanSlug}`, { replace: true });
+        navigate(`/machinery-details/${cleanSlug}`, { replace: true });
       }
     }
   }, [paramName, navigate]);
@@ -243,6 +245,7 @@ const MachineryDetails = () => {
           } else {
             // Strictly NO dummy fallback to list[0]
             setMachine(null);
+            setPopularMachines(allList.slice(0, 4));
           }
         }
       } catch (err) {
@@ -503,22 +506,155 @@ const MachineryDetails = () => {
   }
 
   if (!machine) {
+    const handleNotFoundSearch = (e) => {
+      e.preventDefault();
+      if (notFoundSearch.trim()) {
+        navigate(`/machinery?search=${encodeURIComponent(notFoundSearch.trim())}`);
+      } else {
+        navigate("/machinery");
+      }
+    };
+
     return (
-      <section className="MachineryDetails">
-        <div className="MachineryDetails-container MachineryDetails-state-container">
-          <div className="MachineryDetails-state-icon">
-            <AlertCircle size={32} />
+      <section className="MachineryDetails-notFoundSection">
+        <div className="MachineryDetails-container">
+          {/* Breadcrumb */}
+          <nav className="MachineryDetails-breadcrumb">
+            <Link to="/">Home</Link>
+            <span className="MachineryDetails-breadcrumb-arrow">›</span>
+            <Link to="/machinery">Machinery & Equipment</Link>
+            <span className="MachineryDetails-breadcrumb-arrow">›</span>
+            <span className="MachineryDetails-breadcrumb-current">Model Not Found</span>
+          </nav>
+
+          {/* Premium Not Found Hero Box */}
+          <div className="MachineryDetails-notFoundHero">
+            <div className="MachineryDetails-notFoundBadge">
+              <Tractor size={32} />
+            </div>
+
+            <h1 className="MachineryDetails-notFoundTitle">
+              Equipment Model Not Found
+            </h1>
+
+            <p className="MachineryDetails-notFoundDesc">
+              We couldn&rsquo;t find an agricultural implement matching &ldquo;
+              <strong>{paramName || "this model"}</strong>&rdquo;. The equipment
+              may have been updated, renamed, or is temporarily out of catalogue.
+            </p>
+
+            {/* In-page Interactive Search Bar */}
+            <form
+              onSubmit={handleNotFoundSearch}
+              className="MachineryDetails-notFoundSearchForm"
+            >
+              <input
+                type="text"
+                placeholder="Search by implement name, brand, or model (e.g. Rotavator, Super Seeder, Baler)..."
+                value={notFoundSearch}
+                onChange={(e) => setNotFoundSearch(e.target.value)}
+                className="MachineryDetails-notFoundInput"
+              />
+              <button type="submit" className="MachineryDetails-notFoundSearchBtn">
+                Search Catalogue →
+              </button>
+            </form>
+
+            <div className="MachineryDetails-notFoundCtaRow">
+              <Link to="/machinery" className="MachineryDetails-browseAllBtn">
+                <Tractor size={16} />
+                <span>Browse Complete Machinery Catalogue</span>
+              </Link>
+              <a
+                href="tel:+919876543210"
+                className="MachineryDetails-helplineCallBtn"
+              >
+                <Phone size={16} />
+                <span>Helpline: +91 98765 43210</span>
+              </a>
+            </div>
           </div>
-          <h2 className="MachineryDetails-state-title">
-            Machinery equipment not found
-          </h2>
-          <p className="MachineryDetails-state-desc">
-            No equipment found matching &ldquo;{paramName || "this product"}&rdquo;. Please verify the machine model or explore our complete machinery catalogue.
-          </p>
-          <Link to="/machinery" className="MachineryDetails-state-btn">
-            <Tractor size={18} />
-            Back to Machinery Catalogue
-          </Link>
+
+          {/* Popular Machinery Recommendations */}
+          {popularMachines.length > 0 && (
+            <div className="MachineryDetails-popularSection">
+              <div className="MachineryDetails-popularHeader">
+                <div>
+                  <h3>Featured & Verified Agricultural Implements</h3>
+                  <p>Explore our most requested OEM certified implements with government subsidy support</p>
+                </div>
+                <Link to="/machinery" className="MachineryDetails-viewFullLink">
+                  View Full Catalogue →
+                </Link>
+              </div>
+
+              <div className="MachineryDetails-popularGrid">
+                {popularMachines.map((item) => {
+                  const itemTitle = item.title || item.name || "Agricultural Machinery";
+                  const itemBrand = item.brandName || item.brand || "Rhinco";
+                  const itemCategory = item.category || item.implementType || "Machinery";
+                  const itemPower = item.implementPower || item.power || "35 - 50 HP";
+                  const itemSlug = toMachinerySlug(itemTitle);
+                  const itemPrice = item.discountPrice || item.price;
+                  const itemImg = item.image || (Array.isArray(item.machineImages) && item.machineImages[0]) || "";
+
+                  return (
+                    <article key={item._id || item.id} className="MachineryDetails-popularCard">
+                      <Link to={`/machinery-details/${itemSlug}`} className="MachineryDetails-popularMedia">
+                        {itemImg ? (
+                          <img
+                            src={resolveImageUrl(itemImg)}
+                            alt={itemTitle}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="MachineryDetails-popularFallback">
+                            <Tractor size={36} strokeWidth={1.2} />
+                          </div>
+                        )}
+                        <span className="MachineryDetails-popularSubsidyTag">
+                          <Sparkles size={11} /> Subsidy Eligible
+                        </span>
+                      </Link>
+
+                      <div className="MachineryDetails-popularBody">
+                        <div className="MachineryDetails-popularMeta">
+                          <span className="MachineryDetails-popularBrand">{itemBrand}</span>
+                          <span className="MachineryDetails-popularCat">{itemCategory}</span>
+                        </div>
+
+                        <h4 className="MachineryDetails-popularTitle">
+                          <Link to={`/machinery-details/${itemSlug}`} title={itemTitle}>
+                            {itemTitle}
+                          </Link>
+                        </h4>
+
+                        <div className="MachineryDetails-popularSpec">
+                          <span>Power Required:</span>
+                          <strong>{itemPower}</strong>
+                        </div>
+
+                        <div className="MachineryDetails-popularFooter">
+                          <div className="MachineryDetails-popularPrice">
+                            {itemPrice ? `₹ ${Number(itemPrice).toLocaleString("en-IN")}` : "Price on Request"}
+                          </div>
+                          <Link
+                            to={`/machinery-details/${itemSlug}`}
+                            className="MachineryDetails-popularActionBtn"
+                          >
+                            Full Specifications →
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     );
@@ -1162,7 +1298,7 @@ const MachineryDetails = () => {
                 return (
                   <article key={item._id || item.id} className="MachineryDetails-related-card">
                     <Link
-                      to={`/machinery/${toMachinerySlug(itemTitle)}`}
+                      to={`/machinery-details/${toMachinerySlug(itemTitle)}`}
                       className="MachineryDetails-related-imgwrap"
                     >
                       <img
@@ -1179,7 +1315,7 @@ const MachineryDetails = () => {
                     <div className="MachineryDetails-related-body">
                       <span className="MachineryDetails-related-category">{itemCategory}</span>
                       <h4 className="MachineryDetails-related-name">
-                        <Link to={`/machinery/${toMachinerySlug(itemTitle)}`}>
+                        <Link to={`/machinery-details/${toMachinerySlug(itemTitle)}`}>
                           {itemTitle}
                         </Link>
                       </h4>
@@ -1192,7 +1328,7 @@ const MachineryDetails = () => {
                       </div>
 
                       <Link
-                        to={`/machinery/${toMachinerySlug(itemTitle)}`}
+                        to={`/machinery-details/${toMachinerySlug(itemTitle)}`}
                         className="MachineryDetails-related-btn"
                       >
                         View Specifications →

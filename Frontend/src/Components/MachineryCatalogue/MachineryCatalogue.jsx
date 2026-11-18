@@ -536,7 +536,7 @@ const MachineryCatalogue = () => {
 
                 return (
                   <Link
-                    to={`/machinery/${toMachinerySlug(name)}`}
+                    to={`/machinery-details/${toMachinerySlug(name)}`}
                     className="MachineryCatalogue-product-card"
                     key={product._id || product.id}
                   >
