@@ -23,6 +23,8 @@
   min-height: 30px;
   margin-bottom: 20px;
   font-size: 15px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .MachineryDetails-breadcrumb a {
@@ -44,15 +46,21 @@
 .MachineryDetails-breadcrumb-current {
   color: #111b13;
   font-weight: 700;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Main layout */
 
 .MachineryDetails-main {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: stretch;
   gap: 28px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* Image card */
@@ -159,11 +167,13 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: 100%;
   min-height: 540px;
   padding: 32px 30px 26px;
   background: #fff;
   border-radius: 30px;
   box-shadow: 0 12px 35px rgba(36, 78, 38, 0.07);
+  overflow: hidden;
 }
 
 .MachineryDetails-brand {
@@ -177,10 +187,14 @@
 .MachineryDetails-product-title {
   margin: 0;
   color: #111b13;
-  font-size: clamp(27px, 3vw, 39px);
+  font-size: clamp(24px, 3vw, 38px);
   font-weight: 800;
-  line-height: 1.2;
-  letter-spacing: -1px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Rating Row */
@@ -1446,6 +1460,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .MachineryDetails-model-badge {
@@ -1456,6 +1472,10 @@
   padding: 3px 10px;
   border-radius: 20px;
   border: 1px solid #bbf7d0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  word-wrap: break-word;
 }
 
 .MachineryDetails-price-wrap {
@@ -2510,11 +2530,24 @@
   margin: 0 0 10px 0;
   line-height: 1.4;
   min-height: 38px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
 }
 
 .MachineryDetails-popularTitle a {
   color: #0f172a;
   text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
 }
 
 .MachineryDetails-popularTitle a:hover {
