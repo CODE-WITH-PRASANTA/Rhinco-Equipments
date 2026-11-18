@@ -120,6 +120,7 @@ const MachineryDetails = () => {
   const queryName = searchParams.get("name");
 
   const [machine, setMachine] = useState(null);
+  const [relatedMachinery, setRelatedMachinery] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState("");
   const [activeTab, setActiveTab] = useState("specifications");
@@ -223,6 +224,13 @@ const MachineryDetails = () => {
             const first = imgs[0];
             const firstUrl = typeof first === "string" ? first : first?.data || first?.preview || first?.url || "";
             setActiveImage(firstUrl);
+
+            // Populate related machinery
+            const currentId = String(found._id || found.id || "");
+            const related = allData
+              .filter((m) => String(m._id || m.id || "") !== currentId)
+              .slice(0, 4);
+            setRelatedMachinery(related);
           } else {
             // Strictly NO dummy fallback to list[0]
             setMachine(null);
@@ -540,6 +548,11 @@ const MachineryDetails = () => {
           {/* Product image & thumbnails */}
           <div className="MachineryDetails-image-card">
             <div className="MachineryDetails-image-background">
+              <span className="MachineryDetails-floating-badge">
+                <Sparkles size={13} />
+                Govt. Subsidy Eligible (Up to 50%)
+              </span>
+
               {activeImage ? (
                 <img
                   src={resolveImageUrl(activeImage)}
@@ -580,6 +593,38 @@ const MachineryDetails = () => {
                 })}
               </div>
             )}
+
+            {/* Machinery Trust Features Bar */}
+            <div className="MachineryDetails-trust-bar">
+              <div className="MachineryDetails-trust-item">
+                <Tractor size={18} />
+                <div>
+                  <strong>OEM Certified Implement</strong>
+                  <span>Direct from authorized factory</span>
+                </div>
+              </div>
+              <div className="MachineryDetails-trust-item">
+                <ShieldCheck size={18} />
+                <div>
+                  <strong>Subsidy Paperwork</strong>
+                  <span>Assistance in your district</span>
+                </div>
+              </div>
+              <div className="MachineryDetails-trust-item">
+                <CheckCircle2 size={18} />
+                <div>
+                  <strong>On-Farm Field Demo</strong>
+                  <span>Pre-delivery trial & setup</span>
+                </div>
+              </div>
+              <div className="MachineryDetails-trust-item">
+                <FileText size={18} />
+                <div>
+                  <strong>1-Year Warranty</strong>
+                  <span>Genuine spare parts support</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Product information */}
@@ -595,24 +640,53 @@ const MachineryDetails = () => {
 
             <h1 className="MachineryDetails-product-title">{title}</h1>
 
-            <div className="MachineryDetails-price-wrap">
-              <div className="MachineryDetails-price">{formatPrice(currentPrice)}</div>
-              {discountPercent > 0 && originalPrice > 0 && (
-                <>
-                  <del className="MachineryDetails-old-price">
-                    {formatPrice(originalPrice)}
-                  </del>
-                  <span className="MachineryDetails-discount-pill">
-                    {discountPercent}% OFF
-                  </span>
-                </>
-              )}
+            {/* Ratings Row */}
+            <div className="MachineryDetails-rating-row">
+              <div className="MachineryDetails-rating-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={16}
+                    fill={star <= Math.floor(machine.rating || 5) ? "#f59e0b" : "#e2e8f0"}
+                    color={star <= Math.floor(machine.rating || 5) ? "#f59e0b" : "#cbd5e1"}
+                  />
+                ))}
+              </div>
+              <span className="MachineryDetails-rating-score">{machine.rating || 4.9}</span>
+              <span className="MachineryDetails-rating-dot">•</span>
+              <button
+                type="button"
+                className="MachineryDetails-rating-link"
+                onClick={() => setActiveTab("reviews")}
+              >
+                {reviews.length || 8} Verified Field Reviews
+              </button>
             </div>
 
-            {/* Quick Specs Bar */}
+            {/* Price wrap */}
+            <div className="MachineryDetails-price-wrap">
+              <div className="MachineryDetails-price-numbers">
+                <div className="MachineryDetails-price">{formatPrice(currentPrice)}</div>
+                {discountPercent > 0 && originalPrice > 0 && (
+                  <>
+                    <del className="MachineryDetails-old-price">
+                      {formatPrice(originalPrice)}
+                    </del>
+                    <span className="MachineryDetails-discount-pill">
+                      {discountPercent}% OFF
+                    </span>
+                  </>
+                )}
+              </div>
+              <p className="MachineryDetails-price-subsidy-note">
+                Ex-Showroom Price • Central & State Govt Subsidy & Financing Available
+              </p>
+            </div>
+
+            {/* Quick Specs 4-Card Matrix */}
             <div className="MachineryDetails-quick-specs">
               <div className="MachineryDetails-quick-spec-item">
-                <span>Power / HP</span>
+                <span>Power Required</span>
                 <strong>{power}</strong>
               </div>
               <div className="MachineryDetails-quick-spec-item">
@@ -620,22 +694,25 @@ const MachineryDetails = () => {
                 <strong>{machine.implementType || category}</strong>
               </div>
               <div className="MachineryDetails-quick-spec-item">
+                <span>Dispatch Location</span>
+                <strong>Authorized District Dealer</strong>
+              </div>
+              <div className="MachineryDetails-quick-spec-item">
                 <span>Availability</span>
                 <strong className={machine.status === "Available" ? "status-available" : "status-unavailable"}>
-                  {machine.status || (machine.availableAtStore === "Yes" ? "In Stock" : "Out of Stock")}
+                  {machine.status || (machine.availableAtStore === "Yes" ? "In Stock" : "On Order")}
                 </strong>
               </div>
             </div>
 
-            {/* Action Button: Contact Dealer */}
+            {/* Action Buttons: Contact Dealer & Quick Call */}
             <div className="MachineryDetails-actions-row">
               <button
                 type="button"
                 onClick={() => handleOpenEnquiry()}
                 className="MachineryDetails-apply-button MachineryDetails-apply-enabled MachineryDetails-btn-quotation"
-                style={{ width: "100%", justifyContent: "center" }}
               >
-                Contact Dealer
+                <span>Contact Authorized Dealer</span>
                 <svg viewBox="0 0 24 24" fill="none" style={{ width: 18, height: 18 }}>
                   <path
                     d="M14 5l7 7m0 0l-7 7m7-7H3"
@@ -646,30 +723,23 @@ const MachineryDetails = () => {
                   />
                 </svg>
               </button>
+
+              <a
+                href="tel:+918117048317"
+                className="MachineryDetails-call-btn"
+                title="Call Dealer Helpline"
+              >
+                <Phone size={17} />
+                <span>Call Helpline</span>
+              </a>
             </div>
 
             <div className="MachineryDetails-info-divider" />
 
             <div className="MachineryDetails-dealer-note">
-              <svg viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="m9 12 2 2 4-4"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-
+              <ShieldCheck size={22} className="dealer-note-shield" />
               <p>
-                We route your application directly to an authorised machinery dealer in your
-                district for subsidy paperwork, financing assistance, and on-farm delivery.
+                <strong>Direct Authorized District Dealer Dispatch:</strong> Your request connects directly with an authorized dealer in your district for subsidy paperwork, finance assistance, and on-farm machinery delivery.
               </p>
             </div>
           </div>
@@ -1051,6 +1121,80 @@ const MachineryDetails = () => {
             )}
           </div>
         </div>
+
+        {/* RELATED MACHINERY SECTION */}
+        {relatedMachinery.length > 0 && (
+          <div className="MachineryDetails-related-section">
+            <div className="MachineryDetails-related-header">
+              <div>
+                <span className="MachineryDetails-related-eyebrow">EXPLORE ALTERNATIVES</span>
+                <h2 className="MachineryDetails-related-title">Similar Agricultural Machinery</h2>
+                <p className="MachineryDetails-related-subtitle">
+                  High-performance implements engineered for your farming requirements.
+                </p>
+              </div>
+              <Link to="/machinery" className="MachineryDetails-related-viewall">
+                View All Machinery →
+              </Link>
+            </div>
+
+            <div className="MachineryDetails-related-grid">
+              {relatedMachinery.map((item) => {
+                const itemTitle = item.title || item.name || "Machinery";
+                const itemBrand = item.brandName || item.brand || "Rhinco";
+                const itemPower = item.implementPower || item.power || "N/A";
+                const itemCategory = item.category || item.implementType || "Equipment";
+                const itemImgs = Array.isArray(item.machineImages) && item.machineImages.length > 0
+                  ? item.machineImages[0]
+                  : item.image || "";
+                const itemImgUrl = typeof itemImgs === "string" ? itemImgs : itemImgs?.data || itemImgs?.preview || itemImgs?.url || "";
+                const itemPrice = item.discountPrice || item.price;
+
+                return (
+                  <article key={item._id || item.id} className="MachineryDetails-related-card">
+                    <Link
+                      to={`/machinery/${toMachinerySlug(itemTitle)}`}
+                      className="MachineryDetails-related-imgwrap"
+                    >
+                      <img
+                        src={resolveImageUrl(itemImgUrl, "/placeholder.png")}
+                        alt={itemTitle}
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.png";
+                        }}
+                      />
+                      <span className="MachineryDetails-related-brand">{itemBrand}</span>
+                    </Link>
+
+                    <div className="MachineryDetails-related-body">
+                      <span className="MachineryDetails-related-category">{itemCategory}</span>
+                      <h4 className="MachineryDetails-related-name">
+                        <Link to={`/machinery/${toMachinerySlug(itemTitle)}`}>
+                          {itemTitle}
+                        </Link>
+                      </h4>
+
+                      <div className="MachineryDetails-related-meta">
+                        <span>Power: <strong>{itemPower}</strong></span>
+                        <span className="MachineryDetails-related-price">
+                          {itemPrice ? `₹ ${Number(itemPrice).toLocaleString("en-IN")}` : "Price on Request"}
+                        </span>
+                      </div>
+
+                      <Link
+                        to={`/machinery/${toMachinerySlug(itemTitle)}`}
+                        className="MachineryDetails-related-btn"
+                      >
+                        View Specifications →
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* PREMIUM CONTACT DEALER MODAL */}

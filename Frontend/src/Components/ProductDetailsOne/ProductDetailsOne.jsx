@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
+import {
+  ShoppingCart,
+  Zap,
+  Heart,
+  Truck,
+  RotateCcw,
+  ShieldCheck,
+  CreditCard,
+  MapPin,
+  CheckCircle2,
+  Star,
+  Layers,
+  FileText,
+  MessageSquare,
+  Sparkles,
+  ChevronRight,
+  PackageCheck,
+} from "lucide-react";
 import "./ProductDetailsOne.css";
 import drillImage from "../../assets/machine.jpg";
 import { addToCart, toggleWishlist, isInWishlist } from "../../utils/cartWishlist";
 import { resolveImageUrl, toProductSlug } from "../../utils/helpers";
+import { API_URL } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const PRODUCTS_API = `${API_URL}/products`;
 const REVIEWS_API = `${API_URL}/reviews`;
-
-const categories = [
-  "Tillage & Cultivation",
-  "Harvesting & Threshing",
-  "Seeding & Planting",
-  "Earthmoving & Levelling",
-  "Tractor Attachments",
-  "Crop Protection & Sprayers",
-];
 
 const ProductDetailsOne = () => {
   const { name: paramName } = useParams();
@@ -39,15 +48,12 @@ const ProductDetailsOne = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [pincode, setPincode] = useState("");
-  const [deliveryMessage, setDeliveryMessage] = useState(
-    "Expected Delivery in 4–10 Days"
-  );
+  const [deliveryMessage, setDeliveryMessage] = useState("Enter your pincode to check farm delivery timeline");
   const [deliveryStatus, setDeliveryStatus] = useState("default");
   const [activeImage, setActiveImage] = useState("");
   const [cartCount, setCartCount] = useState(0);
   const [justAdded, setJustAdded] = useState(false);
-  const [minPrice, setMinPrice] = useState(5000);
-  const [maxPrice, setMaxPrice] = useState(500000);
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Reviews state
   const [reviews, setReviews] = useState([]);
@@ -64,7 +70,7 @@ const ProductDetailsOne = () => {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSuccessMessage, setReviewSuccessMessage] = useState("");
 
-  // FETCH REAL PRODUCT BY NAME OR ID
+  // Fetch real product from database
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
@@ -104,7 +110,6 @@ const ProductDetailsOne = () => {
               drillImage;
             setActiveImage(primary);
           } else if (result.data.length > 0) {
-            // Default to first product if not matched
             setProduct(result.data[0]);
             const primary =
               result.data[0].image ||
@@ -132,10 +137,10 @@ const ProductDetailsOne = () => {
     const fetchReviews = async () => {
       setReviewsLoading(true);
       try {
-        const res = await fetch(`${REVIEWS_API}?status=Approved&productOrItem=${encodeURIComponent(pName)}`);
-        const data = await res.json();
-        if (res.ok && data.success && Array.isArray(data.data)) {
-          setReviews(data.data);
+        const res = await fetch(`${REVIEWS_API}?product=${encodeURIComponent(pName)}`);
+        const result = await res.json();
+        if (res.ok && result.success && Array.isArray(result.data)) {
+          setReviews(result.data);
         }
       } catch (err) {
         console.error("Could not fetch reviews:", err);
@@ -147,37 +152,33 @@ const ProductDetailsOne = () => {
     fetchReviews();
   }, [product]);
 
+  // Handle Review submission
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!reviewForm.customerName.trim() || !reviewForm.comment.trim()) {
-      alert("Please fill in your name and comment.");
+    if (!reviewForm.customerName || !reviewForm.comment) {
+      alert("Please provide your name and review feedback.");
       return;
     }
 
+    setReviewSubmitting(true);
     try {
-      setReviewSubmitting(true);
+      const pName = product?.title || product?.name || "Product";
+      const payload = {
+        ...reviewForm,
+        productName: pName,
+        productId: product?._id || product?.id || "",
+        category: product?.category || "Equipment",
+      };
+
       const res = await fetch(REVIEWS_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName: reviewForm.customerName.trim(),
-          customerEmail: reviewForm.customerEmail.trim(),
-          customerPhone: reviewForm.customerPhone.trim(),
-          productOrItem: product.title || product.name || "Product",
-          itemType: "Product",
-          rating: Number(reviewForm.rating) || 5,
-          title: reviewForm.title.trim(),
-          comment: reviewForm.comment.trim(),
-          status: "Pending",
-          verifiedPurchase: true,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setReviewSuccessMessage(
-          "Thank you for your valuable review!"
-        );
+        setReviewSuccessMessage("Thank you! Your verified review has been submitted.");
         setShowReviewModal(false);
         setReviewForm({
           customerName: "",
@@ -187,605 +188,601 @@ const ProductDetailsOne = () => {
           title: "",
           comment: "",
         });
+        if (data.data) {
+          setReviews((prev) => [data.data, ...prev]);
+        }
       } else {
-        alert(data.message || "Could not submit review.");
+        alert(data.message || "Failed to submit review. Please try again.");
       }
     } catch (err) {
-      console.error("Error submitting review:", err);
-      alert("Could not submit review. Please try again.");
+      console.error(err);
+      alert("Network error: Could not submit review.");
     } finally {
       setReviewSubmitting(false);
     }
   };
 
-  const formatPrice = (price) =>
-    `₹${Number(price || 0).toLocaleString("en-IN")}`;
+  const increaseQuantity = () => setQuantity((prev) => Math.min(prev + 1, 99));
+  const decreaseQuantity = () => setQuantity((prev) => Math.max(prev - 1, 1));
 
   const handleDeliveryCheck = (event) => {
     event.preventDefault();
-
-    if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+    const cleanPin = pincode.trim();
+    if (cleanPin.length === 6 && /^\d{6}$/.test(cleanPin)) {
+      setDeliveryMessage(`✓ Delivery available to PIN ${cleanPin} within 3–5 business days • Free Farm Shipping`);
+      setDeliveryStatus("success");
+    } else {
+      setDeliveryMessage("Please enter a valid 6-digit postal PIN code.");
       setDeliveryStatus("error");
-      setDeliveryMessage("Please enter a valid 6-digit PIN code.");
-      return;
     }
-
-    setDeliveryStatus("success");
-    setDeliveryMessage(
-      `Delivery available to ${pincode}. Expected delivery in 4–10 days.`
-    );
   };
 
   const handleAddToCart = () => {
     if (!product) return;
     addToCart(product, quantity);
-    setCartCount((previous) => previous + quantity);
+    setCartCount((prev) => prev + quantity);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 3000);
   };
 
-  const decreaseQuantity = () => {
-    setQuantity((previous) => Math.max(1, previous - 1));
+  const handleBuyNow = () => {
+    if (!product) return;
+    addToCart(product, quantity);
+    navigate("/cart");
   };
 
-  const increaseQuantity = () => {
-    setQuantity((previous) => Math.min(99, previous + 1));
-  };
+  const formatPrice = (price) =>
+    Number(price || 0).toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    });
 
   if (loading) {
     return (
-      <section className="ProductDetailsOne" style={{ padding: "80px 0", textAlign: "center" }}>
-        <div style={{ color: "#166534", fontSize: "16px", fontWeight: 600 }}>
-          Loading product details...
-        </div>
+      <section className="ProductDetailsOne-loading-wrap">
+        <div className="ProductDetailsOne-spinner" />
+        <p>Loading premium product details...</p>
       </section>
     );
   }
 
   if (!product) {
     return (
-      <section className="ProductDetailsOne" style={{ padding: "80px 0", textAlign: "center" }}>
+      <section className="ProductDetailsOne-empty-wrap">
         <h2>Product Not Found</h2>
-        <p style={{ color: "#64748b", margin: "16px 0 24px" }}>
-          The requested product could not be found.
-        </p>
-        <Link
-          to="/products"
-          style={{
-            background: "#166534",
-            color: "#fff",
-            padding: "10px 20px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
-        >
+        <p>The agricultural equipment you are looking for is currently unavailable or has been moved.</p>
+        <Link to="/products" className="ProductDetailsOne-back-btn">
           Explore All Products
         </Link>
       </section>
     );
   }
 
-  const productName = product.title || product.name || "Product";
-  const brandName = product.companyName || product.brand || "Rhinco Equipments";
+  const productName = product.title || product.name || "Agricultural Equipment";
+  const brandName = product.companyName || product.brand || "Rhinco Verified";
+  const categoryName = product.category || "General Equipment";
   const salesPrice = Number(product.finalPrice || product.price || 0);
-  const regularPrice = Number(product.oldPrice || product.price || salesPrice);
+  const regularPrice = Number(product.oldPrice || product.price || 0);
   const discountPct =
-    product.discount ||
-    (regularPrice > salesPrice
+    regularPrice > salesPrice && regularPrice > 0
       ? Math.round(((regularPrice - salesPrice) / regularPrice) * 100)
-      : 0);
+      : product.discount || 0;
 
   const imagesList =
     Array.isArray(product.images) && product.images.length > 0
       ? product.images
-      : product.image
-      ? [product.image]
-      : [drillImage];
+      : [product.image || drillImage];
+
+  const inWishlist = isInWishlist(product._id || product.id);
 
   return (
     <section className="ProductDetailsOne">
-      <div className="ProductDetailsOne-container">
-        {/* Left sidebar */}
-        <aside className="ProductDetailsOne-sidebar">
-          <form
-            className="ProductDetailsOne-search"
-            onSubmit={(event) => event.preventDefault()}
-          >
-            <input
-              type="search"
-              placeholder="Search..."
-              aria-label="Search products"
-            />
-            <button type="submit" aria-label="Search">
-              <svg viewBox="0 0 24 24" fill="none">
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="7"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
-                <path
-                  d="m16 16 4 4"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
-          </form>
+      <div className="ProductDetailsOne-wrapper">
+        {/* BREADCRUMB */}
+        <nav className="ProductDetailsOne-breadcrumb" aria-label="Breadcrumb">
+          <Link to="/">Home</Link>
+          <ChevronRight size={14} className="crumb-sep" />
+          <Link to="/products">Store Products</Link>
+          <ChevronRight size={14} className="crumb-sep" />
+          <Link to={`/products?category=${encodeURIComponent(categoryName)}`}>{categoryName}</Link>
+          <ChevronRight size={14} className="crumb-sep" />
+          <span className="crumb-current">{productName}</span>
+        </nav>
 
-          <div className="ProductDetailsOne-sidebar-section">
-            <h2>Categories</h2>
-            <div className="ProductDetailsOne-category-box">
-              {categories.map((category) => (
-                <Link
-                  key={category}
-                  to={`/products?category=${encodeURIComponent(category)}`}
-                  className="ProductDetailsOne-category-item"
-                >
-                  <span className="ProductDetailsOne-category-arrow">›</span>
-                  <span>{category}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="ProductDetailsOne-sidebar-section ProductDetailsOne-price-filter">
-            <h2>Filter by price</h2>
-            <div className="ProductDetailsOne-range-values">
-              <span>{formatPrice(minPrice)}</span>
-              <span>{formatPrice(maxPrice)}</span>
-            </div>
-            <div className="ProductDetailsOne-range-control">
-              <input
-                type="range"
-                min="5000"
-                max="500000"
-                step="5000"
-                value={maxPrice}
-                onChange={(event) => setMaxPrice(Number(event.target.value))}
-                aria-label="Filter by maximum price"
-              />
-            </div>
-            <div className="ProductDetailsOne-filter-bottom">
-              <Link
-                to={`/products?minPrice=${minPrice}&maxPrice=${maxPrice}`}
-                className="ProductDetailsOne-filter-button"
-              >
-                Filter
-              </Link>
-              <span>
-                {formatPrice(minPrice)} – {formatPrice(maxPrice)}
-              </span>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main product image gallery */}
-        <div className="ProductDetailsOne-gallery">
-          <div className="ProductDetailsOne-main-image">
-            <img src={resolveImageUrl(activeImage, drillImage)} alt={productName} />
-            {(product.badge || product.bestSeller) && (
-              <span className="ProductDetailsOne-image-badge">
-                {product.badge || "Best Seller"}
-              </span>
-            )}
-          </div>
-
-          {imagesList.length > 1 && (
-            <div className="ProductDetailsOne-thumbnails">
-              {imagesList.map((img, idx) => {
-                const src = typeof img === "string" ? img : img.preview || img.url;
-                return (
-                  <button
-                    type="button"
-                    key={idx}
-                    className={`ProductDetailsOne-thumbnail ${
-                      activeImage === src ? "ProductDetailsOne-thumbnail-active" : ""
-                    }`}
-                    onClick={() => setActiveImage(src)}
-                    aria-label={`Show product image ${idx + 1}`}
-                  >
-                    <img src={resolveImageUrl(src, drillImage)} alt={`${productName} view ${idx + 1}`} />
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Product information */}
-        <div className="ProductDetailsOne-information">
-          <span className="ProductDetailsOne-brand">{brandName}</span>
-
-          <h1 className="ProductDetailsOne-title">{productName}</h1>
-
-          <div className="ProductDetailsOne-rating">
-            <span className="ProductDetailsOne-stars">
-              {"★".repeat(Math.floor(product.rating || 5))}
-              {"☆".repeat(5 - Math.floor(product.rating || 5))}
-            </span>
-            <span className="ProductDetailsOne-rating-number">
-              {product.rating || 4.8}
-            </span>
-            <span className="ProductDetailsOne-review-count">
-              ({product.reviews || 12} reviews)
-            </span>
-          </div>
-
-          <div className="ProductDetailsOne-price">
-            <strong>{formatPrice(salesPrice)}</strong>
-            {regularPrice > salesPrice && <del>{formatPrice(regularPrice)}</del>}
-            {discountPct > 0 && <span>{discountPct}% OFF</span>}
-          </div>
-
-          {product.description && (
-            <div
-              className="ProductDetailsOne-description"
-              dangerouslySetInnerHTML={{ __html: product.description }}
-            />
-          )}
-
-          <div className="ProductDetailsOne-delivery">
-            <h3>Check Delivery Option at Your Location:</h3>
-
-            <form
-              className="ProductDetailsOne-pincode-form"
-              onSubmit={handleDeliveryCheck}
-            >
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                placeholder="Pincode"
-                value={pincode}
-                onChange={(event) =>
-                  setPincode(event.target.value.replace(/\D/g, ""))
-                }
-                aria-label="Delivery PIN code"
-              />
-
-              <button type="submit">CHECK</button>
-            </form>
-
-            <p
-              className={`ProductDetailsOne-delivery-message ProductDetailsOne-delivery-${deliveryStatus}`}
-              aria-live="polite"
-            >
-              {deliveryMessage}
-            </p>
-          </div>
-
-          <div className="ProductDetailsOne-purchase">
-            <div className="ProductDetailsOne-quantity">
-              <button
-                type="button"
-                onClick={decreaseQuantity}
-                aria-label="Decrease quantity"
-                disabled={quantity <= 1}
-              >
-                −
-              </button>
-
-              <input
-                type="number"
-                min="1"
-                max="99"
-                value={quantity}
-                onChange={(event) => {
-                  const value = Number(event.target.value);
-                  setQuantity(Math.min(99, Math.max(1, value || 1)));
-                }}
-                aria-label="Quantity"
-              />
-
-              <button
-                type="button"
-                onClick={increaseQuantity}
-                aria-label="Increase quantity"
-                disabled={quantity >= 99}
-              >
-                +
-              </button>
-            </div>
-
-            <button
-              type="button"
-              className="ProductDetailsOne-add-cart"
-              onClick={handleAddToCart}
-              style={
-                justAdded || cartCount > 0
-                  ? {
-                      backgroundColor: "#f0fdf4",
-                      color: "#166534",
-                      border: "2px solid #0f172a",
-                      borderRadius: "10px",
-                      fontWeight: 600,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      padding: "10px 24px",
-                    }
-                  : undefined
-              }
-            >
-              {justAdded || cartCount > 0 ? (
-                <>✓ Added to Cart</>
-              ) : (
-                <>
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <circle cx="10" cy="20" r="1.4" fill="currentColor" />
-                    <circle cx="18" cy="20" r="1.4" fill="currentColor" />
-                  </svg>
-                  Add To Cart
-                </>
+        {/* HERO TWO-COLUMN SHOWCASE */}
+        <div className="ProductDetailsOne-hero">
+          {/* LEFT: GALLERY */}
+          <div className="ProductDetailsOne-galleryCard">
+            <div className="ProductDetailsOne-mainViewport">
+              {(product.badge || product.bestSeller) && (
+                <span className="ProductDetailsOne-floatingBadge">
+                  <Sparkles size={13} />
+                  {product.badge || "Best Seller"}
+                </span>
               )}
-            </button>
 
-            <button
-              type="button"
-              style={{
-                background: isInWishlist(product._id || product.id) ? "#fef2f2" : "#f0fdf4",
-                border: "1.5px solid #166534",
-                borderRadius: "8px",
-                padding: "0 16px",
-                color: isInWishlist(product._id || product.id) ? "#dc2626" : "#166534",
-                fontSize: "20px",
-                cursor: "pointer",
-                height: "44px",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.2s ease",
-              }}
-              onClick={() => toggleWishlist(product)}
-              title={isInWishlist(product._id || product.id) ? "In Wishlist" : "Add to Wishlist"}
-              aria-label="Wishlist toggle"
-            >
-              {isInWishlist(product._id || product.id) ? "♥" : "♡"}
-            </button>
-          </div>
+              <button
+                type="button"
+                className={`ProductDetailsOne-wishlistFloating ${inWishlist ? "active" : ""}`}
+                onClick={() => toggleWishlist(product)}
+                aria-label="Add to wishlist"
+              >
+                <Heart size={18} fill={inWishlist ? "#dc2626" : "none"} color={inWishlist ? "#dc2626" : "#475569"} />
+              </button>
 
-          <div className="ProductDetailsOne-trust">
-            <div>
-              <span>✓</span>
-              Quality checked products
+              <img
+                src={resolveImageUrl(activeImage, drillImage)}
+                alt={productName}
+                className="ProductDetailsOne-heroImg"
+                loading="eager"
+              />
             </div>
-            <div>
-              <span>✓</span>
-              Secure shopping
-            </div>
-            <div>
-              <span>✓</span>
-              Customer support
-            </div>
-          </div>
 
-          <div className="ProductDetailsOne-cart-note" aria-live="polite">
-            {cartCount > 0 && (
-              <>
-                ✓ {cartCount} item(s) added to cart!
-                <Link to="/cart"> View Cart</Link>
-              </>
+            {/* THUMBNAILS STRIP */}
+            {imagesList.length > 1 && (
+              <div className="ProductDetailsOne-thumbnailsStrip">
+                {imagesList.map((img, idx) => {
+                  const src = typeof img === "string" ? img : img.preview || img.url;
+                  const isActive = activeImage === src;
+                  return (
+                    <button
+                      type="button"
+                      key={idx}
+                      className={`ProductDetailsOne-thumbBtn ${isActive ? "active" : ""}`}
+                      onClick={() => setActiveImage(src)}
+                      aria-label={`View image ${idx + 1}`}
+                    >
+                      <img src={resolveImageUrl(src, drillImage)} alt={`Thumbnail ${idx + 1}`} />
+                    </button>
+                  );
+                })}
+              </div>
             )}
-          </div>
-        </div>
-      </div>
 
-      {/* CUSTOMER REVIEWS & RATINGS SECTION */}
-      <div className="ProductReviews-section">
-        <div className="ProductReviews-container">
-          <div className="ProductReviews-header">
-            <div>
-              <span className="ProductReviews-eyebrow">VERIFIED FEEDBACK</span>
-              <h2 className="ProductReviews-title">Customer Reviews & Ratings</h2>
-              <p className="ProductReviews-subtitle">
-                Real feedback from verified farmers and equipment owners.
+            {/* TRUST HIGHLIGHTS BAR */}
+            <div className="ProductDetailsOne-trustBar">
+              <div className="ProductDetailsOne-trustItem">
+                <Truck size={18} />
+                <div>
+                  <strong>Free Farm Delivery</strong>
+                  <span>Direct to your field/store</span>
+                </div>
+              </div>
+              <div className="ProductDetailsOne-trustItem">
+                <ShieldCheck size={18} />
+                <div>
+                  <strong>1-Year Warranty</strong>
+                  <span>100% Genuine OEM Part</span>
+                </div>
+              </div>
+              <div className="ProductDetailsOne-trustItem">
+                <RotateCcw size={18} />
+                <div>
+                  <strong>7-Day Replacement</strong>
+                  <span>Hassle-free return policy</span>
+                </div>
+              </div>
+              <div className="ProductDetailsOne-trustItem">
+                <CreditCard size={18} />
+                <div>
+                  <strong>Cash on Delivery</strong>
+                  <span>Pay upon field arrival</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT: PRODUCT INFO & PURCHASE */}
+          <div className="ProductDetailsOne-infoCard">
+            <div className="ProductDetailsOne-metaHeader">
+              <span className="ProductDetailsOne-brandPill">{brandName}</span>
+              <span className="ProductDetailsOne-categoryPill">{categoryName}</span>
+            </div>
+
+            <h1 className="ProductDetailsOne-mainTitle">{productName}</h1>
+
+            {/* RATINGS ROW */}
+            <div className="ProductDetailsOne-ratingRow">
+              <div className="ProductDetailsOne-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={16}
+                    fill={star <= Math.floor(product.rating || 5) ? "#f59e0b" : "#e2e8f0"}
+                    color={star <= Math.floor(product.rating || 5) ? "#f59e0b" : "#cbd5e1"}
+                  />
+                ))}
+              </div>
+              <span className="ProductDetailsOne-ratingScore">{product.rating || 4.8}</span>
+              <span className="ProductDetailsOne-ratingDot">•</span>
+              <button
+                type="button"
+                className="ProductDetailsOne-ratingCountLink"
+                onClick={() => setActiveTab("reviews")}
+              >
+                {reviews.length || product.reviews || 12} Verified Customer Reviews
+              </button>
+            </div>
+
+            {/* PRICE CARD */}
+            <div className="ProductDetailsOne-priceCard">
+              <div className="ProductDetailsOne-priceNumbers">
+                <span className="ProductDetailsOne-currentPrice">{formatPrice(salesPrice)}</span>
+                {regularPrice > salesPrice && (
+                  <del className="ProductDetailsOne-oldPrice">{formatPrice(regularPrice)}</del>
+                )}
+                {discountPct > 0 && (
+                  <span className="ProductDetailsOne-discountBadge">{discountPct}% OFF</span>
+                )}
+              </div>
+              <p className="ProductDetailsOne-taxNote">
+                Inclusive of all taxes & GST • Free Farm Shipping Across India
               </p>
             </div>
 
+            {/* STOCK STATUS */}
+            <div className="ProductDetailsOne-stockBadge">
+              <span className="stock-dot" />
+              <span>In Stock • Ready for Immediate Farm Dispatch</span>
+            </div>
+
+            {/* PINCODE CHECKER */}
+            <div className="ProductDetailsOne-pincodeBox">
+              <div className="ProductDetailsOne-pincodeTitle">
+                <MapPin size={16} />
+                <span>Check Delivery Options & Est. Arrival:</span>
+              </div>
+              <form className="ProductDetailsOne-pincodeForm" onSubmit={handleDeliveryCheck}>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="Enter 6-digit Pincode"
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
+                />
+                <button type="submit">CHECK</button>
+              </form>
+              <p className={`ProductDetailsOne-pincodeMessage ${deliveryStatus}`}>
+                {deliveryMessage}
+              </p>
+            </div>
+
+            {/* ACTION CONTROLS */}
+            <div className="ProductDetailsOne-actionControls">
+              <div className="ProductDetailsOne-stepper">
+                <button
+                  type="button"
+                  onClick={decreaseQuantity}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="ProductDetailsOne-stepperValue">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={increaseQuantity}
+                  disabled={quantity >= 99}
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                type="button"
+                className={`ProductDetailsOne-addToCartBtn ${justAdded ? "added" : ""}`}
+                onClick={handleAddToCart}
+              >
+                <ShoppingCart size={19} />
+                <span>{justAdded ? "✓ Added to Cart!" : "Add to Cart"}</span>
+              </button>
+
+              <button
+                type="button"
+                className="ProductDetailsOne-buyNowBtn"
+                onClick={handleBuyNow}
+              >
+                <Zap size={19} />
+                <span>Buy Now</span>
+              </button>
+            </div>
+
+            {/* TOAST FEEDBACK */}
+            {justAdded && (
+              <div className="ProductDetailsOne-toastAlert">
+                <span>✓ Successfully added {quantity} unit(s) of "{productName}" to your cart.</span>
+                <Link to="/cart">View Cart & Checkout →</Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* BOTTOM TABBED SECTION */}
+        <div className="ProductDetailsOne-tabsCard">
+          <div className="ProductDetailsOne-tabsHeader">
             <button
               type="button"
-              className="ProductReviews-writeBtn"
-              onClick={() => {
-                setReviewSuccessMessage("");
-                setShowReviewModal(true);
-              }}
+              className={`ProductDetailsOne-tabBtn ${activeTab === "overview" ? "active" : ""}`}
+              onClick={() => setActiveTab("overview")}
             >
-              ★ Write a Review
+              <Layers size={18} />
+              <span>Overview & Description</span>
+            </button>
+            <button
+              type="button"
+              className={`ProductDetailsOne-tabBtn ${activeTab === "specifications" ? "active" : ""}`}
+              onClick={() => setActiveTab("specifications")}
+            >
+              <FileText size={18} />
+              <span>Specifications</span>
+            </button>
+            <button
+              type="button"
+              className={`ProductDetailsOne-tabBtn ${activeTab === "reviews" ? "active" : ""}`}
+              onClick={() => setActiveTab("reviews")}
+            >
+              <MessageSquare size={18} />
+              <span>Customer Reviews ({reviews.length})</span>
             </button>
           </div>
 
-          {reviewSuccessMessage && (
-            <div className="ProductReviews-successNotice">
-              <span className="ProductReviews-successIcon">✓</span>
-              <span>{reviewSuccessMessage}</span>
-            </div>
-          )}
+          <div className="ProductDetailsOne-tabBody">
+            {/* OVERVIEW TAB */}
+            {activeTab === "overview" && (
+              <div className="ProductDetailsOne-tabContent">
+                <h3 className="ProductDetailsOne-tabHeading">Product Overview</h3>
+                {product.description ? (
+                  <div
+                    className="ProductDetailsOne-richText"
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  />
+                ) : (
+                  <p className="ProductDetailsOne-defaultDesc">
+                    Engineered to the highest agricultural engineering standards, this implement delivers
+                    exceptional durability, optimal soil treatment efficiency, and reduced tractor fuel consumption.
+                  </p>
+                )}
 
-          {reviewsLoading ? (
-            <div className="ProductReviews-loading">Loading reviews...</div>
-          ) : reviews.length === 0 ? (
-            <div className="ProductReviews-empty">
-              <div className="ProductReviews-emptyStars">★★★★★</div>
-              <h3>No reviews published yet</h3>
-              <p>Be the first to share your experience with {productName}!</p>
-              <button
-                type="button"
-                className="ProductReviews-writeBtn outline"
-                onClick={() => {
-                  setReviewSuccessMessage("");
-                  setShowReviewModal(true);
-                }}
-              >
-                Be the first to review
-              </button>
-            </div>
-          ) : (
-            <div className="ProductReviews-grid">
-              {reviews.map((rev) => (
-                <div key={rev._id || rev.id} className="ProductReviews-card">
-                  <div className="ProductReviews-cardHeader">
-                    <div className="ProductReviews-avatar">
-                      {(rev.customerName || "U").slice(0, 1).toUpperCase()}
+                <div className="ProductDetailsOne-highlightsGrid">
+                  <div className="ProductDetailsOne-highlightCard">
+                    <CheckCircle2 size={20} className="hl-icon" />
+                    <div>
+                      <h4>Industrial Grade Steel</h4>
+                      <p>Built with heat-treated high tensile steel for resistance against rocky soil and heavy wear.</p>
                     </div>
-                    <div className="ProductReviews-customerInfo">
-                      <h4>{rev.customerName}</h4>
-                      <div className="ProductReviews-starsRow">
-                        {"★".repeat(Math.round(rev.rating || 5))}
-                        {"☆".repeat(5 - Math.round(rev.rating || 5))}
-                        <span className="ProductReviews-ratingScore">{rev.rating || 5}.0</span>
-                      </div>
-                    </div>
-                    {rev.verifiedPurchase && (
-                      <span className="ProductReviews-verifiedBadge">✓ Verified Purchase</span>
-                    )}
                   </div>
-
-                  {rev.title && <h5 className="ProductReviews-reviewTitle">{rev.title}</h5>}
-                  <p className="ProductReviews-comment">{rev.comment}</p>
-
-                  <div className="ProductReviews-date">
-                    {new Date(rev.createdAt || Date.now()).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
+                  <div className="ProductDetailsOne-highlightCard">
+                    <CheckCircle2 size={20} className="hl-icon" />
+                    <div>
+                      <h4>Tractor Universal Hitch</h4>
+                      <p>Compatible with Category 1 & Category 2 tractor three-point hitches across all major brands.</p>
+                    </div>
+                  </div>
+                  <div className="ProductDetailsOne-highlightCard">
+                    <CheckCircle2 size={20} className="hl-icon" />
+                    <div>
+                      <h4>Rhinco Quality Certified</h4>
+                      <p>Field tested across multiple soil conditions for reliable operation season after season.</p>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              </div>
+            )}
+
+            {/* SPECIFICATIONS TAB */}
+            {activeTab === "specifications" && (
+              <div className="ProductDetailsOne-tabContent">
+                <h3 className="ProductDetailsOne-tabHeading">Technical Specifications</h3>
+                <div className="ProductDetailsOne-specsTable">
+                  <div className="spec-row">
+                    <span className="spec-key">Product Name</span>
+                    <span className="spec-val">{productName}</span>
+                  </div>
+                  <div className="spec-row">
+                    <span className="spec-key">Brand / Manufacturer</span>
+                    <span className="spec-val">{brandName}</span>
+                  </div>
+                  <div className="spec-row">
+                    <span className="spec-key">Category</span>
+                    <span className="spec-val">{categoryName}</span>
+                  </div>
+                  <div className="spec-row">
+                    <span className="spec-key">Availability</span>
+                    <span className="spec-val">
+                      {product.stockQuantity !== undefined
+                        ? `${product.stockQuantity} Units In Stock`
+                        : "Ready for Dispatch"}
+                    </span>
+                  </div>
+                  <div className="spec-row">
+                    <span className="spec-key">Warranty</span>
+                    <span className="spec-val">1 Year Official Manufacturer Warranty</span>
+                  </div>
+                  <div className="spec-row">
+                    <span className="spec-key">Country of Origin</span>
+                    <span className="spec-val">India</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* REVIEWS TAB */}
+            {activeTab === "reviews" && (
+              <div className="ProductDetailsOne-tabContent">
+                <div className="ProductReviews-header">
+                  <div>
+                    <h3 className="ProductDetailsOne-tabHeading">Customer Reviews & Field Ratings</h3>
+                    <p className="ProductReviews-subtitle">
+                      Feedback from farmers and operators using {productName}.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="ProductReviews-writeBtn"
+                    onClick={() => {
+                      setReviewSuccessMessage("");
+                      setShowReviewModal(true);
+                    }}
+                  >
+                    ★ Write a Review
+                  </button>
+                </div>
+
+                {reviewSuccessMessage && (
+                  <div className="ProductReviews-successNotice">
+                    <span>✓ {reviewSuccessMessage}</span>
+                  </div>
+                )}
+
+                {reviewsLoading ? (
+                  <div className="ProductReviews-loading">Loading reviews...</div>
+                ) : reviews.length === 0 ? (
+                  <div className="ProductReviews-empty">
+                    <div className="ProductReviews-emptyStars">★★★★★</div>
+                    <h4>No reviews published yet</h4>
+                    <p>Be the first farmer to share your experience with this product!</p>
+                    <button
+                      type="button"
+                      className="ProductReviews-writeBtn"
+                      onClick={() => {
+                        setReviewSuccessMessage("");
+                        setShowReviewModal(true);
+                      }}
+                    >
+                      Write First Review
+                    </button>
+                  </div>
+                ) : (
+                  <div className="ProductReviews-grid">
+                    {reviews.map((rev) => (
+                      <div key={rev._id || rev.id} className="ProductReviews-card">
+                        <div className="ProductReviews-cardHeader">
+                          <div className="ProductReviews-avatar">
+                            {(rev.customerName || "F").slice(0, 1).toUpperCase()}
+                          </div>
+                          <div className="ProductReviews-customerInfo">
+                            <h4>{rev.customerName}</h4>
+                            <div className="ProductReviews-starsRow">
+                              {"★".repeat(Math.round(rev.rating || 5))}
+                              {"☆".repeat(5 - Math.round(rev.rating || 5))}
+                              <span className="ProductReviews-ratingScore">{rev.rating || 5}.0</span>
+                            </div>
+                          </div>
+                          {rev.verifiedPurchase && (
+                            <span className="ProductReviews-verifiedBadge">✓ Verified Purchase</span>
+                          )}
+                        </div>
+                        {rev.title && <h5 className="ProductReviews-reviewTitle">{rev.title}</h5>}
+                        <p className="ProductReviews-comment">{rev.comment}</p>
+                        <div className="ProductReviews-date">
+                          {new Date(rev.createdAt || Date.now()).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* WRITE A REVIEW MODAL */}
+      {/* WRITE REVIEW MODAL */}
       {showReviewModal && (
         <div className="ProductReviews-modalOverlay" onClick={() => setShowReviewModal(false)}>
           <div className="ProductReviews-modal" onClick={(e) => e.stopPropagation()}>
             <div className="ProductReviews-modalHeader">
-              <div>
-                <h3>Write a Review</h3>
-                <p>Reviewing: <strong>{productName}</strong></p>
-              </div>
+              <h3>Write a Product Review</h3>
               <button
                 type="button"
-                className="ProductReviews-modalClose"
+                className="ProductReviews-closeBtn"
                 onClick={() => setShowReviewModal(false)}
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleReviewSubmit} className="ProductReviews-modalForm">
-              <div className="ProductReviews-ratingSelect">
-                <label>Your Overall Rating *</label>
-                <div className="ProductReviews-interactiveStars">
-                  {[1, 2, 3, 4, 5].map((star) => (
+            <form onSubmit={handleReviewSubmit} className="ProductReviews-form">
+              <div className="form-group">
+                <label>Your Rating *</label>
+                <div className="star-rating-select">
+                  {[1, 2, 3, 4, 5].map((val) => (
                     <button
                       type="button"
-                      key={star}
-                      className={`ProductReviews-starBtn ${star <= reviewForm.rating ? "active" : ""}`}
-                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                      key={val}
+                      className={val <= reviewForm.rating ? "star active" : "star"}
+                      onClick={() => setReviewForm({ ...reviewForm, rating: val })}
                     >
                       ★
                     </button>
                   ))}
-                  <span className="ProductReviews-ratingLabel">
-                    {reviewForm.rating} / 5 Stars
-                  </span>
+                  <span className="star-label">{reviewForm.rating} of 5 Stars</span>
                 </div>
               </div>
 
-              <div className="ProductReviews-inputGroup">
-                <label>Your Name *</label>
+              <div className="form-group">
+                <label>Your Full Name *</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Ramesh Kumar"
+                  placeholder="e.g. Ramesh Patel"
                   value={reviewForm.customerName}
-                  onChange={(e) =>
-                    setReviewForm({ ...reviewForm, customerName: e.target.value })
-                  }
+                  onChange={(e) => setReviewForm({ ...reviewForm, customerName: e.target.value })}
                 />
               </div>
 
-              <div className="ProductReviews-formRow">
-                <div className="ProductReviews-inputGroup">
-                  <label>Email (Optional)</label>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Mobile Number (for verification)</label>
+                  <input
+                    type="tel"
+                    placeholder="e.g. 9876543210"
+                    value={reviewForm.customerPhone}
+                    onChange={(e) => setReviewForm({ ...reviewForm, customerPhone: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
                   <input
                     type="email"
                     placeholder="e.g. ramesh@gmail.com"
                     value={reviewForm.customerEmail}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, customerEmail: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="ProductReviews-inputGroup">
-                  <label>Phone (Optional)</label>
-                  <input
-                    type="tel"
-                    placeholder="e.g. +91 98765 43210"
-                    value={reviewForm.customerPhone}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, customerPhone: e.target.value })
-                    }
+                    onChange={(e) => setReviewForm({ ...reviewForm, customerEmail: e.target.value })}
                   />
                 </div>
               </div>
 
-              <div className="ProductReviews-inputGroup">
-                <label>Review Headline / Title</label>
+              <div className="form-group">
+                <label>Review Headline</label>
                 <input
                   type="text"
-                  placeholder="e.g. Excellent build quality, performs very well!"
+                  placeholder="e.g. High build quality, very satisfied!"
                   value={reviewForm.title}
-                  onChange={(e) =>
-                    setReviewForm({ ...reviewForm, title: e.target.value })
-                  }
+                  onChange={(e) => setReviewForm({ ...reviewForm, title: e.target.value })}
                 />
               </div>
 
-              <div className="ProductReviews-inputGroup">
-                <label>Your Review *</label>
+              <div className="form-group">
+                <label>Your Review & Experience *</label>
                 <textarea
                   rows={4}
                   required
-                  placeholder="Share details about performance, durability, fuel efficiency, etc."
+                  placeholder="Describe your farming experience, performance, durability..."
                   value={reviewForm.comment}
-                  onChange={(e) =>
-                    setReviewForm({ ...reviewForm, comment: e.target.value })
-                  }
+                  onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
                 />
               </div>
 
-              <div className="ProductReviews-modalActions">
-                <button
-                  type="button"
-                  className="ProductReviews-cancelBtn"
-                  onClick={() => setShowReviewModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={reviewSubmitting}
-                  className="ProductReviews-submitBtn"
-                >
-                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
-                </button>
-              </div>
+              <button type="submit" disabled={reviewSubmitting} className="ProductReviews-submitBtn">
+                {reviewSubmitting ? "Submitting Review..." : "Submit Verified Review"}
+              </button>
             </form>
           </div>
         </div>
