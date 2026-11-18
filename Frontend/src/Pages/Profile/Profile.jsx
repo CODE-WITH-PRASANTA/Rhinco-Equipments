@@ -28,6 +28,7 @@ import { toMachinerySlug } from "../../utils/helpers";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ENQUIRIES_API = `${API_URL}/enquiries`;
 const ORDERS_API = `${API_URL}/orders`;
+const ADDRESSES_API = `${API_URL}/addresses`;
 const ADDRESSES_STORAGE_KEY = "rhinco_saved_addresses";
 const DELIVERY_ADDRESS_KEY = "rhinco_delivery_address";
 
@@ -102,33 +103,60 @@ const Profile = () => {
     }
   }, [activeTab, user]);
 
-  // SAVED ADDRESSES STATE
+  // SAVED ADDRESSES STATE - Fetched from MongoDB Database
   const [addresses, setAddresses] = useState(() => {
     try {
       const saved = localStorage.getItem(ADDRESSES_STORAGE_KEY);
       if (saved) return JSON.parse(saved);
-
-      const delivery = localStorage.getItem(DELIVERY_ADDRESS_KEY);
-      if (delivery) {
-        const d = JSON.parse(delivery);
-        return [{ ...d, id: "addr-1", isDefault: true }];
-      }
     } catch (e) {}
-
-    return [
-      {
-        id: "addr-1",
-        name: user?.name || "Saroj Kumar",
-        phone: user?.phone || "+91 98765 43210",
-        village: "Plot 42, Krushi Nagar, Near Farmtech Hub",
-        district: "Pune",
-        state: "Maharashtra",
-        pincode: "411001",
-        type: "Farm Delivery",
-        isDefault: true,
-      },
-    ];
+    return [];
   });
+  const [addressesLoading, setAddressesLoading] = useState(false);
+
+  // Fetch real addresses from database for the logged-in user
+  const fetchAddresses = async () => {
+    if (!user) {
+      setAddresses([]);
+      return;
+    }
+    setAddressesLoading(true);
+    try {
+      const emailParam = encodeURIComponent(user.email || "");
+      const userParam = user._id ? `userId=${user._id}&` : "";
+      const res = await fetch(`${ADDRESSES_API}?${userParam}email=${emailParam}`);
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.data)) {
+        setAddresses(data.data);
+        localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(data.data));
+        const def = data.data.find((a) => a.isDefault) || data.data[0];
+        if (def) {
+          localStorage.setItem(DELIVERY_ADDRESS_KEY, JSON.stringify(def));
+        } else {
+          localStorage.removeItem(DELIVERY_ADDRESS_KEY);
+        }
+      } else {
+        setAddresses([]);
+        localStorage.removeItem(ADDRESSES_STORAGE_KEY);
+        localStorage.removeItem(DELIVERY_ADDRESS_KEY);
+      }
+    } catch (err) {
+      console.warn("Could not fetch addresses:", err);
+      try {
+        const stored = localStorage.getItem(ADDRESSES_STORAGE_KEY);
+        setAddresses(stored ? JSON.parse(stored) : []);
+      } catch (e) {
+        setAddresses([]);
+      }
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "address") {
+      fetchAddresses();
+    }
+  }, [activeTab, user]);
 
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
@@ -274,7 +302,7 @@ const Profile = () => {
   // Open modal to add or edit address
   const handleOpenAddressModal = (addr = null) => {
     if (addr) {
-      setEditingAddressId(addr.id);
+      setEditingAddressId(addr._id || addr.id);
       setAddressForm({
         name: addr.name || "",
         phone: addr.phone || "",
@@ -288,9 +316,9 @@ const Profile = () => {
       setEditingAddressId(null);
       setAddressForm({
         name: user?.name || "",
-        phone: user?.phone || "+91 98765 43210",
+        phone: user?.phone || "",
         village: "",
-        district: "Pune",
+        district: user?.district?.split(",")[0]?.trim() || "",
         state: "Maharashtra",
         pincode: "",
         type: "Farm Delivery",
@@ -299,77 +327,107 @@ const Profile = () => {
     setShowAddressModal(true);
   };
 
-  const handleSaveAddress = (e) => {
+  const handleSaveAddress = async (e) => {
     e.preventDefault();
-    let updated = [...addresses];
+    if (!user) return;
 
-    if (editingAddressId) {
-      updated = updated.map((a) =>
-        a.id === editingAddressId ? { ...a, ...addressForm } : a
-      );
-    } else {
-      const newAddr = {
-        ...addressForm,
-        id: `addr-${Date.now()}`,
-        isDefault: updated.length === 0,
-      };
-      updated.push(newAddr);
-    }
-
-    setAddresses(updated);
-    localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(updated));
-
-    // Update primary delivery address if it's default
-    const def = updated.find((a) => a.isDefault) || updated[0];
-    if (def) {
-      localStorage.setItem(DELIVERY_ADDRESS_KEY, JSON.stringify(def));
-    }
-
-    setShowAddressModal(false);
-    const cameFromCart = localStorage.getItem("rhinco_return_to_cart") === "true";
-    if (cameFromCart) {
-      const activeAddr = editingAddressId ? updated.find(a => a.id === editingAddressId) : updated[updated.length - 1];
-      if (activeAddr) {
-        localStorage.setItem(DELIVERY_ADDRESS_KEY, JSON.stringify(activeAddr));
+    try {
+      if (editingAddressId) {
+        const res = await fetch(`${ADDRESSES_API}/${editingAddressId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...addressForm,
+            userId: user._id,
+            userEmail: user.email,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Failed to update address");
+        }
+      } else {
+        const res = await fetch(ADDRESSES_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...addressForm,
+            userId: user._id,
+            userEmail: user.email,
+            isDefault: addresses.length === 0,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || "Failed to save address");
+        }
       }
-      setToast("Address saved! You can return to Cart to place your order.");
-    } else {
-      setToast("Address saved successfully!");
+
+      await fetchAddresses();
+      setShowAddressModal(false);
+
+      const cameFromCart = localStorage.getItem("rhinco_return_to_cart") === "true";
+      if (cameFromCart) {
+        setToast("Address saved! You can return to Cart to place your order.");
+      } else {
+        setToast("Address saved successfully!");
+      }
+      setTimeout(() => setToast(""), 3000);
+    } catch (err) {
+      console.error("Save address error:", err);
+      alert(err.message || "Failed to save address. Please try again.");
     }
-    setTimeout(() => setToast(""), 3000);
   };
 
-  const handleSetDefaultAddress = (id) => {
-    const updated = addresses.map((a) => ({
-      ...a,
-      isDefault: a.id === id,
-    }));
-    setAddresses(updated);
-    localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(updated));
-
-    const def = updated.find((a) => a.id === id);
-    if (def) {
-      localStorage.setItem(DELIVERY_ADDRESS_KEY, JSON.stringify(def));
+  const handleSetDefaultAddress = async (id) => {
+    try {
+      const res = await fetch(`${ADDRESSES_API}/${id}/default`, {
+        method: "PATCH",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to set default address");
+      }
+      await fetchAddresses();
+      setToast("Default address updated!");
+      setTimeout(() => setToast(""), 2000);
+    } catch (err) {
+      console.error("Set default address error:", err);
+      alert(err.message || "Could not set default address");
     }
-
-    setToast("Default address updated!");
-    setTimeout(() => setToast(""), 2000);
   };
 
-  const handleDeleteAddress = (id) => {
-    if (addresses.length <= 1) {
-      alert("You must keep at least one delivery address.");
-      return;
+  const handleDeleteAddress = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this address?")) return;
+
+    try {
+      const res = await fetch(`${ADDRESSES_API}/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to delete address");
+      }
+
+      await fetchAddresses();
+
+      // Check if deleted address was in delivery address
+      try {
+        const currentDelivery = localStorage.getItem(DELIVERY_ADDRESS_KEY);
+        if (currentDelivery) {
+          const parsed = JSON.parse(currentDelivery);
+          if (parsed.id === id || parsed._id === id) {
+            localStorage.removeItem(DELIVERY_ADDRESS_KEY);
+          }
+        }
+      } catch (e) {}
+
+      setToast("Address removed successfully");
+      setTimeout(() => setToast(""), 2000);
+    } catch (err) {
+      console.error("Delete address error:", err);
+      alert(err.message || "Could not delete address");
     }
-    const updated = addresses.filter((a) => a.id !== id);
-    if (updated.length > 0 && !updated.some((a) => a.isDefault)) {
-      updated[0].isDefault = true;
-      localStorage.setItem(DELIVERY_ADDRESS_KEY, JSON.stringify(updated[0]));
-    }
-    setAddresses(updated);
-    localStorage.setItem(ADDRESSES_STORAGE_KEY, JSON.stringify(updated));
-    setToast("Address removed");
-    setTimeout(() => setToast(""), 2000);
   };
 
   const handleSupportSubmit = async (e) => {
@@ -877,63 +935,86 @@ const Profile = () => {
                 </button>
               </div>
 
-              <div className="ProfileAddressGrid">
-                {addresses.map((addr) => (
-                  <div
-                    className={`ProfileAddressCard ${addr.isDefault ? "default" : ""}`}
-                    key={addr.id}
+              {addressesLoading ? (
+                <div style={{ textAlign: "center", padding: "40px 20px", color: "#64748b" }}>
+                  <Clock size={28} style={{ animation: "spin 1s linear infinite", marginBottom: "12px", display: "inline-block" }} />
+                  <p style={{ margin: 0, fontWeight: 600 }}>Loading saved addresses...</p>
+                </div>
+              ) : addresses.length === 0 ? (
+                <div className="ProfileAddressEmpty">
+                  <div className="ProfileAddressEmptyIcon">
+                    <MapPin size={32} />
+                  </div>
+                  <h3>No Delivery Addresses Saved Yet</h3>
+                  <p>
+                    You haven't saved any delivery address yet. Add your farm, warehouse, or residence address to enable quick checkout and order delivery.
+                  </p>
+                  <button
+                    type="button"
+                    className="ProfileAddressEmptyAddBtn"
+                    onClick={() => handleOpenAddressModal()}
                   >
-                    <div>
-                      <div className="ProfileAddressCardHeader">
-                        <span className="ProfileAddressTypeBadge">
-                          {addr.type || "Farm Delivery"}
-                        </span>
-                        {addr.isDefault && (
-                          <span className="ProfileAddressDefaultBadge">Default</span>
-                        )}
+                    <Plus size={16} />
+                    <span>+ Add Your First Address</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="ProfileAddressGrid">
+                  {addresses.map((addr) => (
+                    <div
+                      className={`ProfileAddressCard ${addr.isDefault ? "default" : ""}`}
+                      key={addr._id || addr.id}
+                    >
+                      <div>
+                        <div className="ProfileAddressCardHeader">
+                          <span className="ProfileAddressTypeBadge">
+                            {addr.type || "Farm Delivery"}
+                          </span>
+                          {addr.isDefault && (
+                            <span className="ProfileAddressDefaultBadge">Default</span>
+                          )}
+                        </div>
+
+                        <h4 className="ProfileAddressRecipient">{addr.name}</h4>
+                        <p className="ProfileAddressPhone">📞 {addr.phone}</p>
+                        <p className="ProfileAddressText">
+                          {addr.village}, {addr.district}, {addr.state} - <strong>{addr.pincode}</strong>
+                        </p>
                       </div>
 
-                      <h4 className="ProfileAddressRecipient">{addr.name}</h4>
-                      <p className="ProfileAddressPhone">📞 {addr.phone}</p>
-                      <p className="ProfileAddressText">
-                        {addr.village}, {addr.district}, {addr.state} - <strong>{addr.pincode}</strong>
-                      </p>
-                    </div>
-
-                    <div className="ProfileAddressActions">
-                      <button
-                        type="button"
-                        className="ProfileAddressActionBtn"
-                        onClick={() => handleOpenAddressModal(addr)}
-                      >
-                        <Edit2 size={13} style={{ marginRight: "4px" }} />
-                        Edit
-                      </button>
-
-                      {!addr.isDefault && (
+                      <div className="ProfileAddressActions">
                         <button
                           type="button"
-                          className="ProfileAddressActionBtn primary"
-                          onClick={() => handleSetDefaultAddress(addr.id)}
+                          className="ProfileAddressActionBtn"
+                          onClick={() => handleOpenAddressModal(addr)}
                         >
-                          Set as Default
+                          <Edit2 size={13} style={{ marginRight: "4px" }} />
+                          Edit
                         </button>
-                      )}
 
-                      {addresses.length > 1 && (
+                        {!addr.isDefault && (
+                          <button
+                            type="button"
+                            className="ProfileAddressActionBtn primary"
+                            onClick={() => handleSetDefaultAddress(addr._id || addr.id)}
+                          >
+                            Set as Default
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           className="ProfileAddressActionBtn danger"
-                          onClick={() => handleDeleteAddress(addr.id)}
+                          onClick={() => handleDeleteAddress(addr._id || addr.id)}
                         >
                           <Trash2 size={13} style={{ marginRight: "4px" }} />
                           Delete
                         </button>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

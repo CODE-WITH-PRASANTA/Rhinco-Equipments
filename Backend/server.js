@@ -123,6 +123,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const enquiryRoutes = require('./routes/enquiryRoutes');
 const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const addressRoutes = require('./routes/addressRoutes');
 
 app.use('/api/upload', uploadRoutes);
 app.use('/api/blog-categories', blogCategoryRoutes);
@@ -138,6 +139,7 @@ app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/enquiry', enquiryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/addresses', addressRoutes);
 
 // 404 handler
 app.use((req, res) => {

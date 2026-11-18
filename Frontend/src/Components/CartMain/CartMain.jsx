@@ -35,50 +35,18 @@ const CHECKOUT_STORAGE_KEY = "rhinco_checkout";
 const ADDRESS_STORAGE_KEY = "rhinco_delivery_address";
 const SAVED_ADDRESSES_KEY = "rhinco_saved_addresses";
 
-// Load saved addresses with fallback
+const ADDRESSES_API = `${API_URL}/addresses`;
+
+// Load saved addresses from localStorage
 const loadSavedAddresses = () => {
   try {
     const raw = localStorage.getItem(SAVED_ADDRESSES_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch (e) {}
-
-  let u = {};
-  try {
-    const userStr = localStorage.getItem("rhinco_user");
-    if (userStr) u = JSON.parse(userStr);
-  } catch (e) {}
-
-  const initial = [
-    {
-      id: "addr-1",
-      name: u.name || "Saroj Kumar",
-      phone: u.phone || "+91 98765 43210",
-      village: u.village || "Plot 42, Krushi Nagar, Near Farmtech Hub",
-      district: u.district || "Pune",
-      state: u.state || "Maharashtra",
-      pincode: u.pincode || "411001",
-      type: "Farm Delivery",
-      isDefault: true,
-    },
-    {
-      id: "addr-2",
-      name: u.name || "Saroj Kumar",
-      phone: u.phone || "+91 98765 43210",
-      village: "Warehouse #8, Agro Trade Center, Baramati Road",
-      district: "Pune",
-      state: "Maharashtra",
-      pincode: "413102",
-      type: "Warehouse",
-      isDefault: false,
-    },
-  ];
-  try {
-    localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(initial));
-  } catch (e) {}
-  return initial;
+  return [];
 };
 
 // Get product ID
@@ -145,52 +113,84 @@ const CartMain = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
 
-  // DELIVERY ADDRESS STATE (Pre-fills from localStorage or currentUser)
+  // DELIVERY ADDRESS STATE (Pre-fills from localStorage, or null if none)
   const [deliveryAddress, setDeliveryAddress] = useState(() => {
     try {
       const saved = localStorage.getItem(ADDRESS_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-
-      const userStr = localStorage.getItem("rhinco_user");
-      if (userStr) {
-        const u = JSON.parse(userStr);
-        return {
-          name: u.name || "Saroj Kumar",
-          phone: u.phone || "+91 98765 43210",
-          village: u.village || "Plot 42, Krushi Nagar, Near Farmtech Hub",
-          district: u.district || "Pune",
-          state: u.state || "Maharashtra",
-          pincode: u.pincode || "411001",
-          type: "Farm Delivery",
-        };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (parsed.name || parsed.village)) return parsed;
       }
     } catch (e) {}
-
-    return {
-      name: "Saroj Kumar",
-      phone: "+91 98765 43210",
-      village: "Plot 42, Krushi Nagar, Near Farmtech Hub",
-      district: "Pune",
-      state: "Maharashtra",
-      pincode: "411001",
-      type: "Farm Delivery",
-    };
+    return null;
   });
 
   const [savedAddresses, setSavedAddresses] = useState(loadSavedAddresses);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [addressForm, setAddressForm] = useState(deliveryAddress);
 
-  // Sync saved addresses and current delivery address on focus or storage change
-  useEffect(() => {
-    const syncAddresses = () => {
-      const list = loadSavedAddresses();
-      setSavedAddresses(list);
+  // Sync saved addresses and current delivery address from database / localStorage
+  const syncAddresses = async () => {
+    let u = null;
+    try {
+      const userStr = localStorage.getItem("rhinco_user");
+      if (userStr) u = JSON.parse(userStr);
+    } catch (e) {}
+
+    if (u && (u._id || u.email)) {
       try {
-        const cur = localStorage.getItem(ADDRESS_STORAGE_KEY);
-        if (cur) setDeliveryAddress(JSON.parse(cur));
-      } catch (e) {}
-    };
+        const emailParam = encodeURIComponent(u.email || "");
+        const userParam = u._id ? `userId=${u._id}&` : "";
+        const res = await fetch(`${ADDRESSES_API}?${userParam}email=${emailParam}`);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          setSavedAddresses(data.data);
+          localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(data.data));
+
+          setDeliveryAddress((current) => {
+            if (current) {
+              const stillExists = data.data.find(
+                (a) => (a._id || a.id) === (current._id || current.id)
+              );
+              if (stillExists) return stillExists;
+            }
+            const def = data.data.find((a) => a.isDefault) || data.data[0];
+            if (def) {
+              localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(def));
+              return def;
+            } else {
+              localStorage.removeItem(ADDRESS_STORAGE_KEY);
+              return null;
+            }
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("Could not sync addresses from DB in Cart:", err);
+      }
+    }
+
+    // Fallback to local storage (only real saved ones, no fake dummy data)
+    const list = loadSavedAddresses();
+    setSavedAddresses(list);
+    try {
+      const cur = localStorage.getItem(ADDRESS_STORAGE_KEY);
+      if (cur) {
+        setDeliveryAddress(JSON.parse(cur));
+      } else if (list.length > 0) {
+        const def = list.find((a) => a.isDefault) || list[0];
+        setDeliveryAddress(def);
+        localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(def));
+      } else {
+        setDeliveryAddress(null);
+      }
+    } catch (e) {
+      setDeliveryAddress(null);
+    }
+  };
+
+  useEffect(() => {
+    syncAddresses();
     window.addEventListener("focus", syncAddresses);
     window.addEventListener("storage", syncAddresses);
     return () => {
@@ -207,11 +207,47 @@ const CartMain = () => {
     showToast(`✓ Delivery address set: ${addr.name} (${addr.type || "Farm Delivery"})`);
   };
 
+  // Remove / clear delivery address from cart
+  const handleRemoveDeliveryAddress = () => {
+    setDeliveryAddress(null);
+    localStorage.removeItem(ADDRESS_STORAGE_KEY);
+    showToast("Delivery address removed from cart");
+  };
+
+  // Delete an address from saved addresses in database & state
+  const handleDeleteSavedAddress = async (id) => {
+    if (!id) return;
+    if (!window.confirm("Are you sure you want to delete this address?")) return;
+
+    try {
+      if (typeof id === "string" && id.length === 24) {
+        await fetch(`${ADDRESSES_API}/${id}`, { method: "DELETE" }).catch(() => {});
+      }
+    } catch (err) {}
+
+    const remaining = savedAddresses.filter((a) => (a._id || a.id) !== id);
+    setSavedAddresses(remaining);
+    localStorage.setItem(SAVED_ADDRESSES_KEY, JSON.stringify(remaining));
+
+    if (deliveryAddress && (deliveryAddress._id === id || deliveryAddress.id === id)) {
+      if (remaining.length > 0) {
+        const nextDef = remaining.find((a) => a.isDefault) || remaining[0];
+        setDeliveryAddress(nextDef);
+        localStorage.setItem(ADDRESS_STORAGE_KEY, JSON.stringify(nextDef));
+      } else {
+        setDeliveryAddress(null);
+        localStorage.removeItem(ADDRESS_STORAGE_KEY);
+      }
+    }
+
+    showToast("Address removed successfully");
+  };
+
   // Redirect to Profile Address tab when "+ New Address" is clicked
   const handleRedirectToNewAddress = () => {
     setShowAddressModal(false);
     localStorage.setItem("rhinco_return_to_cart", "true");
-    navigate("/profile?tab=address&action=new");
+    navigate("/account?tab=address&action=new");
   };
 
   // Save cart in localStorage and notify other components
@@ -668,37 +704,83 @@ const CartMain = () => {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="cartAddressEditBtn"
-                onClick={() => {
-                  setSavedAddresses(loadSavedAddresses());
-                  setShowAddressModal(true);
-                }}
-              >
-                <Edit2 size={14} />
-                <span>Change Address</span>
-              </button>
-            </div>
-
-            <div className="cartAddressBody">
-              <div className="cartAddressBadgeRow">
-                <span className="cartAddressTypeBadge">
-                  {deliveryAddress.type || "Farm Delivery"}
-                </span>
-                <strong className="cartAddressRecipient">
-                  {deliveryAddress.name}
-                </strong>
-                <span className="cartAddressPhone">
-                  {deliveryAddress.phone}
-                </span>
+              <div className="cartAddressHeaderActions">
+                {deliveryAddress ? (
+                  <>
+                    <button
+                      type="button"
+                      className="cartAddressEditBtn"
+                      onClick={() => {
+                        syncAddresses();
+                        setShowAddressModal(true);
+                      }}
+                    >
+                      <Edit2 size={13} />
+                      <span>Change</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="cartAddressRemoveBtn"
+                      onClick={handleRemoveDeliveryAddress}
+                      title="Remove address from cart"
+                    >
+                      <Trash2 size={13} />
+                      <span>Remove</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="cartAddressAddBtn"
+                    onClick={() => {
+                      syncAddresses();
+                      setShowAddressModal(true);
+                    }}
+                  >
+                    <Plus size={14} />
+                    <span>+ Add / Select Address</span>
+                  </button>
+                )}
               </div>
-
-              <p className="cartAddressLocationText">
-                {deliveryAddress.village}, {deliveryAddress.district},{" "}
-                {deliveryAddress.state} - <strong>{deliveryAddress.pincode}</strong>
-              </p>
             </div>
+
+            {deliveryAddress ? (
+              <div className="cartAddressBody">
+                <div className="cartAddressBadgeRow">
+                  <span className="cartAddressTypeBadge">
+                    {deliveryAddress.type || "Farm Delivery"}
+                  </span>
+                  <strong className="cartAddressRecipient">
+                    {deliveryAddress.name}
+                  </strong>
+                  <span className="cartAddressPhone">
+                    {deliveryAddress.phone}
+                  </span>
+                </div>
+
+                <p className="cartAddressLocationText">
+                  {deliveryAddress.village}, {deliveryAddress.district},{" "}
+                  {deliveryAddress.state} - <strong>{deliveryAddress.pincode}</strong>
+                </p>
+              </div>
+            ) : (
+              <div className="cartAddressEmptyPrompt">
+                <p className="cartAddressEmptyText">
+                  No delivery address selected. Please select or add an address to proceed with checkout.
+                </p>
+                <button
+                  type="button"
+                  className="cartAddressSelectPromptBtn"
+                  onClick={() => {
+                    syncAddresses();
+                    setShowAddressModal(true);
+                  }}
+                >
+                  <MapPin size={14} />
+                  <span>Select or Add Delivery Address</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* CART TOOLBAR */}
@@ -1040,68 +1122,88 @@ const CartMain = () => {
             </div>
 
             <div className="cartAddressList">
-              {savedAddresses.map((addr) => {
-                const isSelected =
-                  (deliveryAddress.id && deliveryAddress.id === addr.id) ||
-                  (deliveryAddress.village === addr.village &&
-                    deliveryAddress.pincode === addr.pincode);
+              {savedAddresses.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "30px 16px", color: "#64748b" }}>
+                  <MapPin size={32} style={{ color: "#94a3b8", marginBottom: "8px", display: "inline-block" }} />
+                  <p style={{ margin: "0 0 10px", fontSize: "14px" }}>No saved addresses found.</p>
+                </div>
+              ) : (
+                savedAddresses.map((addr) => {
+                  const isSelected =
+                    deliveryAddress &&
+                    ((deliveryAddress.id && deliveryAddress.id === (addr.id || addr._id)) ||
+                      (deliveryAddress._id && deliveryAddress._id === (addr._id || addr.id)) ||
+                      (deliveryAddress.village === addr.village &&
+                        deliveryAddress.pincode === addr.pincode));
 
-                return (
-                  <div
-                    key={addr.id || `${addr.village}-${addr.pincode}`}
-                    className={`cartAddressItemCard ${isSelected ? "selected" : ""}`}
-                    onClick={() => handleSelectAddress(addr)}
-                  >
-                    <div className="cartAddressItemRadioCol">
-                      <div className={`cartAddressRadioCircle ${isSelected ? "checked" : ""}`}>
-                        {isSelected && <Check size={12} strokeWidth={3} />}
+                  return (
+                    <div
+                      key={addr._id || addr.id || `${addr.village}-${addr.pincode}`}
+                      className={`cartAddressItemCard ${isSelected ? "selected" : ""}`}
+                      onClick={() => handleSelectAddress(addr)}
+                    >
+                      <div className="cartAddressItemRadioCol">
+                        <div className={`cartAddressRadioCircle ${isSelected ? "checked" : ""}`}>
+                          {isSelected && <Check size={12} strokeWidth={3} />}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="cartAddressItemContent">
-                      <div className="cartAddressItemBadges">
-                        <span className="cartAddressItemTypeBadge">
-                          {addr.type || "Farm Delivery"}
-                        </span>
-                        {addr.isDefault && (
-                          <span className="cartAddressItemDefaultBadge">Default</span>
+                      <div className="cartAddressItemContent">
+                        <div className="cartAddressItemBadges">
+                          <span className="cartAddressItemTypeBadge">
+                            {addr.type || "Farm Delivery"}
+                          </span>
+                          {addr.isDefault && (
+                            <span className="cartAddressItemDefaultBadge">Default</span>
+                          )}
+                          {isSelected && (
+                            <span className="cartAddressItemActiveBadge">Selected for Order</span>
+                          )}
+                        </div>
+
+                        <div className="cartAddressItemPerson">
+                          <strong className="cartAddressItemName">{addr.name}</strong>
+                          <span className="cartAddressItemPhone">📞 {addr.phone}</span>
+                        </div>
+
+                        <p className="cartAddressItemText">
+                          {addr.village}, {addr.district}, {addr.state} - <strong>{addr.pincode}</strong>
+                        </p>
+                      </div>
+
+                      <div className="cartAddressItemActionCol">
+                        {isSelected ? (
+                          <span className="cartAddressSelectedPill">
+                            <Check size={13} /> Selected
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            className="cartAddressSelectThisBtn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectAddress(addr);
+                            }}
+                          >
+                            Deliver Here
+                          </button>
                         )}
-                        {isSelected && (
-                          <span className="cartAddressItemActiveBadge">Selected for Order</span>
-                        )}
-                      </div>
-
-                      <div className="cartAddressItemPerson">
-                        <strong className="cartAddressItemName">{addr.name}</strong>
-                        <span className="cartAddressItemPhone">📞 {addr.phone}</span>
-                      </div>
-
-                      <p className="cartAddressItemText">
-                        {addr.village}, {addr.district}, {addr.state} - <strong>{addr.pincode}</strong>
-                      </p>
-                    </div>
-
-                    <div className="cartAddressItemActionCol">
-                      {isSelected ? (
-                        <span className="cartAddressSelectedPill">
-                          <Check size={13} /> Delivering Here
-                        </span>
-                      ) : (
                         <button
                           type="button"
-                          className="cartAddressSelectThisBtn"
+                          className="cartAddressDeleteActionBtn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleSelectAddress(addr);
+                            handleDeleteSavedAddress(addr._id || addr.id);
                           }}
+                          title="Delete this address"
                         >
-                          Deliver Here
+                          <Trash2 size={14} />
                         </button>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
 
             {/* Redirect to Profile New Address Card */}
@@ -1125,7 +1227,7 @@ const CartMain = () => {
                 className="cartAddressManageProfileBtn"
                 onClick={() => {
                   setShowAddressModal(false);
-                  navigate("/profile?tab=address");
+                  navigate("/account?tab=address");
                 }}
               >
                 Manage All Addresses in Profile →

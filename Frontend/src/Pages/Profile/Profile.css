@@ -579,6 +579,68 @@
   background: #fee2e2;
 }
 
+/* ==================== ADDRESS EMPTY STATE ==================== */
+.ProfileAddressEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  margin-top: 10px;
+}
+
+.ProfileAddressEmptyIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #ecfdf5;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.ProfileAddressEmpty h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 750;
+  color: #1e293b;
+}
+
+.ProfileAddressEmpty p {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: #64748b;
+  max-width: 460px;
+  line-height: 1.5;
+}
+
+.ProfileAddressEmptyAddBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #166534;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
+}
+
+.ProfileAddressEmptyAddBtn:hover {
+  background: #14532d;
+  transform: translateY(-1px);
+}
+
 /* ==================== MACHINERY ENQUIRIES SECTION ==================== */
 .ProfileEnquiriesList {
   display: flex;
