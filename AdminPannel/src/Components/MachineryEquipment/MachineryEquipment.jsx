@@ -9,7 +9,6 @@ import {
   FiDollarSign, FiBox, FiTool, FiAlertCircle, FiPercent
 } from "react-icons/fi";
 import "./MachineryEquipment.css";
-import { optimizeImageFile } from "../../utils/imageOptimizer";
 import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
 const MACHINERY_API = `${API_URL}/machinery`;
@@ -17,13 +16,12 @@ const CATEGORIES_API = `${API_URL}/categories`;
 
 const MAX_IMAGE_MB = 10;
 const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
-const MAX_DOC_MB = 10;
+const MAX_DOC_MB = 25;
 const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
 
 const uploadImage = async (file, folder = "machinery") => {
-  const readyFile = await optimizeImageFile(file);
   const formData = new FormData();
-  formData.append("image", readyFile);
+  formData.append("image", file);
   formData.append("folder", folder);
   const res = await fetch(`${API_URL}/upload?folder=${encodeURIComponent(folder)}`, { method: "POST", body: formData });
   const data = await res.json().catch(() => ({}));
@@ -230,17 +228,16 @@ const MachineryEquipment = () => {
 
     const selected = files.slice(0, remaining);
     setUploadingImages(true);
-    setNotice("Optimizing and uploading image(s)...");
+    setNotice("Uploading image(s)...");
 
     try {
       const uploaded = await Promise.all(
         selected.map(async (file) => {
-          const optimized = await optimizeImageFile(file);
-          const serverUrl = await uploadImage(optimized, "machinery");
+          const serverUrl = await uploadImage(file, "machinery");
           return {
             name: file.name,
-            type: optimized.type || file.type,
-            size: optimized.size || file.size,
+            type: file.type,
+            size: file.size,
             data: serverUrl,
             url: serverUrl,
           };

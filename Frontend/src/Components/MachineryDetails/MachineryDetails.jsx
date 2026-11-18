@@ -173,6 +173,18 @@ const MachineryDetails = () => {
         const rawTerm = (paramName || queryName || idParam || "").trim();
         const slugTerm = toMachinerySlug(rawTerm);
         let found = null;
+        let allList = [];
+
+        // Fetch full machinery list for catalogue fallback and related items
+        try {
+          const res = await fetch(MACHINERY_API);
+          const data = await res.json();
+          if (res.ok && data.success && Array.isArray(data.data)) {
+            allList = data.data;
+          }
+        } catch (e) {
+          console.warn("Could not fetch full machinery list:", e);
+        }
 
         // 1. Direct API lookup by id or slug
         if (rawTerm) {
@@ -188,31 +200,26 @@ const MachineryDetails = () => {
         }
 
         // 2. Query full machinery list if not matched directly
-        if (!found) {
-          const res = await fetch(MACHINERY_API);
-          const data = await res.json();
-          if (res.ok && data.success && Array.isArray(data.data)) {
-            const list = data.data;
-            const targetLower = rawTerm.toLowerCase();
+        if (!found && allList.length > 0) {
+          const targetLower = rawTerm.toLowerCase();
 
-            found = list.find((m) => {
-              const mId = String(m._id || m.id || "");
-              const mTitle = String(m.title || m.name || "");
-              const mSlug = toMachinerySlug(mTitle);
-              const mModelSlug = toMachinerySlug(m.modelName || "");
-              const mCodeSlug = toMachinerySlug(m.code || "");
+          found = allList.find((m) => {
+            const mId = String(m._id || m.id || "");
+            const mTitle = String(m.title || m.name || "");
+            const mSlug = toMachinerySlug(mTitle);
+            const mModelSlug = toMachinerySlug(m.modelName || "");
+            const mCodeSlug = toMachinerySlug(m.code || "");
 
-              return (
-                (idParam && mId === idParam) ||
-                mId === rawTerm ||
-                mSlug === slugTerm ||
-                mModelSlug === slugTerm ||
-                mCodeSlug === slugTerm ||
-                mTitle.toLowerCase() === targetLower ||
-                (slugTerm && (mSlug.includes(slugTerm) || slugTerm.includes(mSlug)))
-              );
-            });
-          }
+            return (
+              (idParam && mId === idParam) ||
+              mId === rawTerm ||
+              mSlug === slugTerm ||
+              mModelSlug === slugTerm ||
+              mCodeSlug === slugTerm ||
+              mTitle.toLowerCase() === targetLower ||
+              (slugTerm && (mSlug.includes(slugTerm) || slugTerm.includes(mSlug)))
+            );
+          });
         }
 
         if (isMounted) {
@@ -227,7 +234,7 @@ const MachineryDetails = () => {
 
             // Populate related machinery
             const currentId = String(found._id || found.id || "");
-            const related = allData
+            const related = allList
               .filter((m) => String(m._id || m.id || "") !== currentId)
               .slice(0, 4);
             setRelatedMachinery(related);

@@ -25,7 +25,6 @@ import {
 } from "react-icons/fi";
 
 import "./AddPost.css";
-import { optimizeImageFile } from "../../utils/imageOptimizer";
 import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
 const PRODUCTS_API = `${API_URL}/products`;
@@ -35,9 +34,8 @@ const MAX_IMAGE_MB = 10;
 const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
 
 const uploadImage = async (file) => {
-  const readyFile = await optimizeImageFile(file);
   const formData = new FormData();
-  formData.append("image", readyFile);
+  formData.append("image", file);
   formData.append("folder", "product");
   const res = await fetch(`${API_URL}/upload?folder=product`, { method: "POST", body: formData });
   const data = await res.json().catch(() => ({}));
