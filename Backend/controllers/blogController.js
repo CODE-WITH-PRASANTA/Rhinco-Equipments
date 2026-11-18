@@ -143,8 +143,8 @@ exports.createBlog = async (req, res) => {
       content,
       author: author ? author.trim() : 'Admin User',
       authorRole: authorRole ? authorRole.trim() : 'Author',
-      authorAvatar: saveBase64Image(authorAvatar, 'avatar'),
-      image: saveBase64Image(image, 'blog'),
+      authorAvatar: await saveBase64Image(authorAvatar, 'avatar', 'avatar'),
+      image: await saveBase64Image(image, 'blog', 'blog'),
       readTime: readTime || '5 min read',
       status: status || 'Published',
       featured: Boolean(featured),
@@ -175,8 +175,8 @@ exports.updateBlog = async (req, res) => {
     }
 
     const updateData = { ...req.body };
-    if (updateData.image) updateData.image = saveBase64Image(updateData.image, 'blog');
-    if (updateData.authorAvatar) updateData.authorAvatar = saveBase64Image(updateData.authorAvatar, 'avatar');
+    if (updateData.image) updateData.image = await saveBase64Image(updateData.image, 'blog', 'blog');
+    if (updateData.authorAvatar) updateData.authorAvatar = await saveBase64Image(updateData.authorAvatar, 'avatar', 'avatar');
 
     Object.assign(blog, updateData);
     await blog.save();

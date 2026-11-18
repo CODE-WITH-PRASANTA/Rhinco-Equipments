@@ -85,21 +85,21 @@ app.get('/api/profiles', (req, res) => {
   res.json({ success: true, data: profiles });
 });
 
-app.post('/api/profiles', (req, res) => {
+app.post('/api/profiles', async (req, res) => {
   const body = { ...req.body };
   if (body.avatar) {
-    body.avatar = saveBase64Image(body.avatar, 'avatar');
+    body.avatar = await saveBase64Image(body.avatar, 'avatar', 'avatar');
   }
   const newProfile = { _id: String(Date.now()), ...body };
   profiles.push(newProfile);
   res.status(201).json({ success: true, data: newProfile });
 });
 
-app.put('/api/profiles/:id?', (req, res) => {
+app.put('/api/profiles/:id?', async (req, res) => {
   const id = req.params.id || '1';
   const body = { ...req.body };
   if (body.avatar) {
-    body.avatar = saveBase64Image(body.avatar, 'avatar');
+    body.avatar = await saveBase64Image(body.avatar, 'avatar', 'avatar');
   }
   const index = profiles.findIndex((p) => p._id === id);
   if (index !== -1) {

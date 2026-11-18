@@ -11,12 +11,33 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 /**
+ * Sanitize folder name so it only allows safe subdirectories (e.g. 'product', 'machinery', 'category')
+ */
+const sanitizeFolder = (f) => {
+  if (!f || typeof f !== 'string') return '';
+  return f
+    .toLowerCase()
+    .trim()
+    .replace(/\\/g, '/')
+    .split('/')
+    .filter((segment) => segment && !segment.startsWith('.'))
+    .join('/');
+};
+
+/**
  * Process an uploaded file:
  * - If image (jpeg, png, webp, bmp, tiff, avif, etc.): converts to optimized WebP format
  * - If document (pdf, doc, xls, etc.) or SVG: saves directly with safe filename
- * Returns { url, filename, originalName, size, mimetype }
+ * Saves into target folder (e.g. uploads/product or uploads/machinery)
+ * Returns { url, filename, originalName, size, mimetype, convertedToWebp }
  */
-const processAndSaveFile = async (file) => {
+const processAndSaveFile = async (file, folder = '') => {
+  const cleanFolder = sanitizeFolder(folder);
+  const targetDir = cleanFolder ? path.join(uploadsDir, cleanFolder) : uploadsDir;
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+
   const ext = path.extname(file.originalname).toLowerCase();
   const cleanBase =
     path
@@ -33,11 +54,13 @@ const processAndSaveFile = async (file) => {
       ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff', '.avif'].includes(ext)) &&
     !isSvg;
 
+  const urlPrefix = cleanFolder ? `/uploads/${cleanFolder}` : '/uploads';
+
   // 1. Process raster image -> Convert to WebP
   if (isImage) {
     try {
       const finalFilename = `${cleanBase}-${uniqueSuffix}.webp`;
-      const finalPath = path.join(uploadsDir, finalFilename);
+      const finalPath = path.join(targetDir, finalFilename);
 
       await sharp(file.buffer)
         .webp({ quality: 85, effort: 4 })
@@ -46,8 +69,9 @@ const processAndSaveFile = async (file) => {
       const stats = await fs.promises.stat(finalPath);
 
       return {
-        url: `/uploads/${finalFilename}`,
+        url: `${urlPrefix}/${finalFilename}`,
         filename: finalFilename,
+        folder: cleanFolder,
         originalName: file.originalname,
         size: stats.size,
         mimetype: 'image/webp',
@@ -55,17 +79,17 @@ const processAndSaveFile = async (file) => {
       };
     } catch (sharpError) {
       console.warn('Sharp WebP conversion failed, falling back to original buffer:', sharpError.message);
-      // Fallback: save original buffer
       const safeExt = ext || '.jpg';
       const finalFilename = `${cleanBase}-${uniqueSuffix}${safeExt}`;
-      const finalPath = path.join(uploadsDir, finalFilename);
+      const finalPath = path.join(targetDir, finalFilename);
 
       await fs.promises.writeFile(finalPath, file.buffer);
       const stats = await fs.promises.stat(finalPath);
 
       return {
-        url: `/uploads/${finalFilename}`,
+        url: `${urlPrefix}/${finalFilename}`,
         filename: finalFilename,
+        folder: cleanFolder,
         originalName: file.originalname,
         size: stats.size,
         mimetype: file.mimetype || 'image/jpeg',
@@ -77,14 +101,15 @@ const processAndSaveFile = async (file) => {
   // 2. Document or SVG -> Save directly with safe sanitized filename
   const safeExt = ext || (isSvg ? '.svg' : '.bin');
   const finalFilename = `${cleanBase}-${uniqueSuffix}${safeExt}`;
-  const finalPath = path.join(uploadsDir, finalFilename);
+  const finalPath = path.join(targetDir, finalFilename);
 
   await fs.promises.writeFile(finalPath, file.buffer);
   const stats = await fs.promises.stat(finalPath);
 
   return {
-    url: `/uploads/${finalFilename}`,
+    url: `${urlPrefix}/${finalFilename}`,
     filename: finalFilename,
+    folder: cleanFolder,
     originalName: file.originalname,
     size: stats.size,
     mimetype: file.mimetype || 'application/octet-stream',
@@ -123,8 +148,10 @@ router.post('/', (req, res) => {
       });
     }
 
+    const folder = req.query.folder || req.body?.folder || '';
+
     try {
-      const result = await processAndSaveFile(file);
+      const result = await processAndSaveFile(file, folder);
 
       res.status(200).json({
         success: true,
@@ -175,8 +202,10 @@ router.post('/multiple', (req, res) => {
       });
     }
 
+    const folder = req.query.folder || req.body?.folder || '';
+
     try {
-      const results = await Promise.all(files.map(processAndSaveFile));
+      const results = await Promise.all(files.map((f) => processAndSaveFile(f, folder)));
       const urls = results.map((r) => r.url);
 
       res.status(200).json({

@@ -26,15 +26,16 @@ const resolveImageUrl = (path) => {
   return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
 };
 
-const uploadImage = async (file) => {
+const uploadImage = async (file, folder = "machinery") => {
   if (file.size > MAX_IMAGE_BYTES) {
     throw new Error(`File "${file.name}" exceeds the ${MAX_IMAGE_MB} MB limit.`);
   }
   const formData = new FormData();
   formData.append("image", file);
-  const res = await fetch(`${API_URL}/upload`, { method: "POST", body: formData });
+  formData.append("folder", folder);
+  const res = await fetch(`${API_URL}/upload?folder=${encodeURIComponent(folder)}`, { method: "POST", body: formData });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.success) throw new Error(data.message || "Failed to upload image");
+  if (!res.ok || !data.success) throw new Error(data.message || "Failed to upload file");
   return data.url;
 };
 
@@ -224,7 +225,7 @@ const MachineryEquipment = () => {
       setNotice("Uploading image(s) to server...");
       const uploaded = await Promise.all(
         selected.map(async (file) => {
-          const serverUrl = await uploadImage(file);
+          const serverUrl = await uploadImage(file, "machinery");
           return {
             name: file.name,
             type: file.type,
@@ -297,7 +298,7 @@ const MachineryEquipment = () => {
       setNotice("Uploading document(s) to server...");
       const docs = await Promise.all(
         valid.map(async (file) => {
-          const serverUrl = await uploadImage(file);
+          const serverUrl = await uploadImage(file, "machinery/documents");
           return {
             name: file.name,
             type: file.type,

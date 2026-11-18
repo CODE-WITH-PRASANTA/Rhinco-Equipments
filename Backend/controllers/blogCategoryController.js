@@ -80,11 +80,12 @@ exports.createBlogCategory = async (req, res) => {
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
 
+    const savedImage = await saveBase64Image(image, 'category', 'category');
     const newCategory = await BlogCategory.create({
       name: trimmedName,
       slug,
       description: description ? description.trim() : '',
-      image: saveBase64Image(image, 'category'),
+      image: savedImage,
       status: status || 'Active',
     });
 
@@ -135,7 +136,7 @@ exports.updateBlogCategory = async (req, res) => {
     }
 
     if (description !== undefined) category.description = description.trim();
-    if (image !== undefined) category.image = saveBase64Image(image, 'category');
+    if (image !== undefined) category.image = await saveBase64Image(image, 'category', 'category');
     if (status) category.status = status;
 
     await category.save();

@@ -168,7 +168,7 @@ exports.createProduct = async (req, res) => {
       badge: badge || (isBestSeller ? 'Best Seller' : ''),
       rating: rating !== undefined ? Number(rating) : 4.8,
       reviews: reviews !== undefined ? Number(reviews) : 12,
-      images: saveMultipleBase64Images(normalizedImages, 'product'),
+      images: await saveMultipleBase64Images(normalizedImages, 'product', 'product'),
     });
 
     const obj = newProduct.toObject();
@@ -248,7 +248,7 @@ exports.updateProduct = async (req, res) => {
       } else if (typeof images === 'string') {
         updatedImages = [images];
       }
-      product.images = saveMultipleBase64Images(updatedImages, 'product');
+      product.images = await saveMultipleBase64Images(updatedImages, 'product', 'product');
     }
 
     await product.save();

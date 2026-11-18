@@ -39,7 +39,8 @@ const resolveImageUrl = (path) => {
 const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append("image", file);
-  const res = await fetch(`${API_URL}/upload`, { method: "POST", body: formData });
+  formData.append("folder", "product");
+  const res = await fetch(`${API_URL}/upload?folder=product`, { method: "POST", body: formData });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error(data.message || "Failed to upload image");
   return data.url;

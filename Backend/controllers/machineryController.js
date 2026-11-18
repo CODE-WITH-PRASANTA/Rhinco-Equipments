@@ -222,7 +222,7 @@ exports.createMachinery = async (req, res) => {
       sponsored: Boolean(sponsored),
       code: code ? code.trim() : undefined,
       machineImages: Array.isArray(machineImages)
-        ? saveMultipleBase64Images(machineImages, 'machinery')
+        ? await saveMultipleBase64Images(machineImages, 'machinery', 'machinery')
         : [],
       documents: Array.isArray(documents) ? documents : [],
     });
@@ -287,7 +287,7 @@ exports.updateMachinery = async (req, res) => {
     if (status !== undefined) item.status = status;
     if (sponsored !== undefined) item.sponsored = Boolean(sponsored);
     if (code !== undefined) item.code = code.trim();
-    if (Array.isArray(machineImages)) item.machineImages = saveMultipleBase64Images(machineImages, 'machinery');
+    if (Array.isArray(machineImages)) item.machineImages = await saveMultipleBase64Images(machineImages, 'machinery', 'machinery');
     if (Array.isArray(documents)) item.documents = documents;
 
     const updated = await item.save();

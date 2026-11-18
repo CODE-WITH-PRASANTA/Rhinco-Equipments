@@ -1,12 +1,27 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const sharp = require('sharp');
 
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
+
+/**
+ * Sanitize folder name so it only allows safe subdirectories (e.g. 'product', 'machinery', 'category')
+ */
+const sanitizeFolder = (f) => {
+  if (!f || typeof f !== 'string') return '';
+  return f
+    .toLowerCase()
+    .trim()
+    .replace(/\\/g, '/')
+    .split('/')
+    .filter((segment) => segment && !segment.startsWith('.'))
+    .join('/');
+};
 
 /**
  * Checks if a string is a base64 Data URL
@@ -17,22 +32,25 @@ const isBase64DataUrl = (str) => {
 };
 
 /**
- * Saves a base64 string to a file in the uploads directory and returns its relative URL path.
+ * Saves a base64 string to a WebP file in the uploads directory (or subfolder) and returns its relative URL path.
  * If the input is already a URL or filePath, returns it unchanged.
  */
-const saveBase64Image = (input, prefix = 'img') => {
+const saveBase64Image = async (input, prefix = 'img', folder = '') => {
   if (!input) return '';
 
-  // If input is an object with a data or url property
+  // If input is an object with a data, url or preview property
   if (typeof input === 'object') {
     if (input.url && !isBase64DataUrl(input.url)) {
       return input.url;
     }
     if (input.data) {
-      return saveBase64Image(input.data, prefix);
+      return saveBase64Image(input.data, prefix, folder);
     }
     if (input.preview && isBase64DataUrl(input.preview)) {
-      return saveBase64Image(input.preview, prefix);
+      return saveBase64Image(input.preview, prefix, folder);
+    }
+    if (input.preview && !isBase64DataUrl(input.preview)) {
+      return input.preview;
     }
   }
 
@@ -50,20 +68,42 @@ const saveBase64Image = (input, prefix = 'img') => {
     }
 
     let ext = matches[1].toLowerCase();
-    if (ext === 'jpeg') ext = 'jpg';
-    if (ext === 'svg+xml') ext = 'svg';
-
+    const isSvg = ext === 'svg' || ext === 'svg+xml';
     const base64Data = matches[2];
     const buffer = Buffer.from(base64Data, 'base64');
 
+    const cleanFolder = sanitizeFolder(folder);
+    const targetDir = cleanFolder ? path.join(UPLOADS_DIR, cleanFolder) : UPLOADS_DIR;
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
     const randomSuffix = crypto.randomBytes(8).toString('hex');
-    const filename = `${prefix}-${Date.now()}-${randomSuffix}.${ext}`;
-    const filePath = path.join(UPLOADS_DIR, filename);
+    const cleanPrefix = (prefix || 'img').replace(/[^a-z0-9_-]/gi, '-');
+    const urlPrefix = cleanFolder ? `/uploads/${cleanFolder}` : '/uploads';
 
-    fs.writeFileSync(filePath, buffer);
+    if (!isSvg) {
+      try {
+        const filename = `${cleanPrefix}-${Date.now()}-${randomSuffix}.webp`;
+        const filePath = path.join(targetDir, filename);
 
-    // Return the relative web URL for frontend access and database storage
-    return `/uploads/${filename}`;
+        await sharp(buffer)
+          .webp({ quality: 85, effort: 4 })
+          .toFile(filePath);
+
+        return `${urlPrefix}/${filename}`;
+      } catch (sharpErr) {
+        console.warn('Sharp WebP conversion of base64 failed, writing buffer directly:', sharpErr.message);
+      }
+    }
+
+    // Fallback for SVG or sharp error:
+    const safeExt = isSvg ? 'svg' : (ext === 'jpeg' ? 'jpg' : ext);
+    const filename = `${cleanPrefix}-${Date.now()}-${randomSuffix}.${safeExt}`;
+    const filePath = path.join(targetDir, filename);
+    await fs.promises.writeFile(filePath, buffer);
+
+    return `${urlPrefix}/${filename}`;
   } catch (err) {
     console.error('Error saving base64 image to disk:', err);
     return input;
@@ -74,16 +114,16 @@ const saveBase64Image = (input, prefix = 'img') => {
  * Processes an array of images (or mixed objects/strings), ensuring every item
  * is written to disk if base64 and returned as clean URL paths.
  */
-const saveMultipleBase64Images = (images, prefix = 'img') => {
+const saveMultipleBase64Images = async (images, prefix = 'img', folder = '') => {
   if (!Array.isArray(images)) return [];
 
-  return images.map((img, index) => {
+  const promises = images.map(async (img, index) => {
     if (typeof img === 'string') {
-      return saveBase64Image(img, `${prefix}-${index + 1}`);
+      return saveBase64Image(img, `${prefix}-${index + 1}`, folder);
     }
     if (img && typeof img === 'object') {
       const target = img.data || img.url || img.preview || '';
-      const savedUrl = saveBase64Image(target, `${prefix}-${index + 1}`);
+      const savedUrl = await saveBase64Image(target, `${prefix}-${index + 1}`, folder);
       return {
         ...img,
         url: savedUrl,
@@ -93,6 +133,8 @@ const saveMultipleBase64Images = (images, prefix = 'img') => {
     }
     return img;
   });
+
+  return Promise.all(promises);
 };
 
 module.exports = {

@@ -66,7 +66,7 @@ exports.createTeamMember = async (req, res) => {
       contact: contact.trim(),
       email: email.trim().toLowerCase(),
       description: description.trim(),
-      image: saveBase64Image(image, 'team'),
+      image: await saveBase64Image(image, 'team', 'team'),
     });
 
     res.status(201).json({
@@ -96,7 +96,7 @@ exports.updateTeamMember = async (req, res) => {
     if (contact) member.contact = contact.trim();
     if (email) member.email = email.trim().toLowerCase();
     if (description) member.description = description.trim();
-    if (image) member.image = saveBase64Image(image, 'team');
+    if (image) member.image = await saveBase64Image(image, 'team', 'team');
 
     await member.save();
 
