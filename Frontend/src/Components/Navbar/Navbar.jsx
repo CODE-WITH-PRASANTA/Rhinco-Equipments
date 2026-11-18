@@ -31,6 +31,8 @@ import { getCartCount, getWishlistCount } from "../../utils/cartWishlist";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const CATEGORIES_API = `${API_URL}/categories`;
+const PRODUCTS_API = `${API_URL}/products`;
+const MACHINERY_API = `${API_URL}/machinery`;
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -95,42 +97,16 @@ const Navbar = () => {
 
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [categoryTab, setCategoryTab] = useState("store");
-
-  const navbarOrder = [
-    "Seeds & Planting",
-    "Fertilizers",
-    "Agricultural Tools",
-    "Pesticides",
-    "Organic Products",
-    "Irrigation Products",
-    "Fruits & Vegetables",
-    "Farm Machinery",
-    "Garden Supplies",
-    "Farm Accessories",
-  ];
-
-  const machineryCategoryNames = [
-    "Tractor", "Power Tiller", "Weeder", "Transplanter", "Reaper",
-    "Harvester", "Rotavator", "Thresher", "PumpSet", "Brush Cutter",
-    "Sprayer", "Chaff Cutter", "Pulverizer", "Rice Mill", "Dal Mill",
-    "Oil Mill", "Cleaner Cum Grader", "Ragi Thresher",
-    "Crop Protection & Sprayers", "Tractor Attachments", "Earthmoving & Levelling",
-    "Harvesting & Threshing", "Tillage & Cultivation"
-  ];
-
-  const isMachineryCategory = (name) => {
-    return machineryCategoryNames.some((m) =>
-      m.toLowerCase() === (name || "").toLowerCase()
-    );
-  };
+  const [categoryTab, setCategoryTab] = useState("all");
 
   const displayedCategories = useMemo(() => {
     if (categoryTab === "store") {
-      const storeCats = categories.filter((c) => !isMachineryCategory(c.name));
-      return storeCats.length > 0 ? storeCats : categories.slice(0, 10);
+      return categories.filter((c) => c.productsCount > 0);
     }
-    return categories.filter((c) => isMachineryCategory(c.name));
+    if (categoryTab === "machinery") {
+      return categories.filter((c) => c.machineryCount > 0);
+    }
+    return categories;
   }, [categories, categoryTab]);
 
   const getCategoryIcon = (name) => {
@@ -150,19 +126,77 @@ const Navbar = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch(CATEGORIES_API);
-      const result = await res.json();
-      if (res.ok && result.success && Array.isArray(result.data)) {
-        const sorted = [...result.data].sort((a, b) => {
-          const idxA = navbarOrder.indexOf(a.name);
-          const idxB = navbarOrder.indexOf(b.name);
-          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-          if (idxA !== -1) return -1;
-          if (idxB !== -1) return 1;
-          return (a.name || "").localeCompare(b.name || "");
-        });
-        setCategories(sorted);
-      }
+      setCategoriesLoading(true);
+
+      const [catRes, prodRes, machRes] = await Promise.all([
+        fetch(CATEGORIES_API).then((r) => r.json()).catch(() => ({ data: [] })),
+        fetch(PRODUCTS_API).then((r) => r.json()).catch(() => ({ data: [] })),
+        fetch(MACHINERY_API).then((r) => r.json()).catch(() => ({ data: [] })),
+      ]);
+
+      const rawCats = Array.isArray(catRes?.data) ? catRes.data : [];
+      const rawProds = Array.isArray(prodRes?.data) ? prodRes.data : [];
+      const rawMachs = Array.isArray(machRes?.data) ? machRes.data : [];
+
+      const clean = (s) => (s || "").trim().toLowerCase();
+      const categoryMap = new Map();
+
+      // Seed with DB categories
+      rawCats.forEach((cat) => {
+        if (cat.status !== "Inactive" && cat.name) {
+          const key = clean(cat.name);
+          categoryMap.set(key, {
+            _id: cat._id,
+            name: cat.name,
+            productsCount: 0,
+            machineryCount: 0,
+          });
+        }
+      });
+
+      // Count products
+      rawProds.forEach((prod) => {
+        if (!prod.category) return;
+        const key = clean(prod.category);
+        if (!categoryMap.has(key)) {
+          categoryMap.set(key, {
+            _id: `prod-${key}`,
+            name: prod.category,
+            productsCount: 0,
+            machineryCount: 0,
+          });
+        }
+        categoryMap.get(key).productsCount += 1;
+      });
+
+      // Count machinery
+      rawMachs.forEach((mach) => {
+        if (!mach.category) return;
+        const key = clean(mach.category);
+        if (!categoryMap.has(key)) {
+          categoryMap.set(key, {
+            _id: `mach-${key}`,
+            name: mach.category,
+            productsCount: 0,
+            machineryCount: 0,
+          });
+        }
+        categoryMap.get(key).machineryCount += 1;
+      });
+
+      // ONLY SHOW CATEGORIES THAT HAVE AT LEAST ONE PRODUCT OR MACHINERY
+      const activeCats = Array.from(categoryMap.values()).filter(
+        (c) => c.productsCount > 0 || c.machineryCount > 0
+      );
+
+      activeCats.sort((a, b) => {
+        const totalA = a.productsCount + a.machineryCount;
+        const totalB = b.productsCount + b.machineryCount;
+        if (totalB !== totalA) return totalB - totalA;
+        return a.name.localeCompare(b.name);
+      });
+
+      setCategories(activeCats);
     } catch (err) {
       console.warn("Could not fetch categories in Navbar:", err);
     } finally {
@@ -285,13 +319,23 @@ const Navbar = () => {
               <div className="Navbar-category-tabs">
                 <button
                   type="button"
+                  className={`Navbar-category-tab ${categoryTab === "all" ? "active" : ""}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCategoryTab("all");
+                  }}
+                >
+                  All ({categories.length})
+                </button>
+                <button
+                  type="button"
                   className={`Navbar-category-tab ${categoryTab === "store" ? "active" : ""}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setCategoryTab("store");
                   }}
                 >
-                  Store Products ({categories.filter((c) => !isMachineryCategory(c.name)).length || 10})
+                  Store Products ({categories.filter((c) => c.productsCount > 0).length})
                 </button>
                 <button
                   type="button"
@@ -301,7 +345,7 @@ const Navbar = () => {
                     setCategoryTab("machinery");
                   }}
                 >
-                  Machinery ({categories.filter((c) => isMachineryCategory(c.name)).length})
+                  Machinery ({categories.filter((c) => c.machineryCount > 0).length})
                 </button>
               </div>
 
@@ -320,32 +364,82 @@ const Navbar = () => {
 
                 {!categoriesLoading &&
                   displayedCategories.map((category) => {
-                    const catName = typeof category === "string" ? category : category.name;
+                    const catName = category.name;
                     const Icon = getCategoryIcon(catName);
-                    const linkUrl = isMachineryCategory(catName)
-                      ? `/machinery?category=${encodeURIComponent(catName)}`
-                      : `/products?category=${encodeURIComponent(catName)}`;
+                    const hasBoth = category.productsCount > 0 && category.machineryCount > 0;
+                    const defaultUrl = category.productsCount > 0
+                      ? `/products?category=${encodeURIComponent(catName)}`
+                      : `/machinery?category=${encodeURIComponent(catName)}`;
 
                     return (
-                      <Link
-                        to={linkUrl}
-                        className="Navbar-category-item"
-                        key={category._id || category.id || catName}
-                        onClick={() => setCategoryOpen(false)}
+                      <div
+                        className="Navbar-category-row"
+                        key={category._id || category.name}
                       >
-                        <div className="Navbar-category-icon">
-                          <Icon size={19} />
+                        <Link
+                          to={defaultUrl}
+                          className="Navbar-category-info-link"
+                          onClick={() => setCategoryOpen(false)}
+                        >
+                          <div className="Navbar-category-icon">
+                            <Icon size={18} />
+                          </div>
+
+                          <div className="Navbar-category-text-wrap">
+                            <span className="Navbar-category-name" title={catName}>
+                              {catName}
+                            </span>
+                            <span className="Navbar-category-counts-hint">
+                              {hasBoth
+                                ? `${category.productsCount} Products • ${category.machineryCount} Machinery`
+                                : category.productsCount > 0
+                                ? `${category.productsCount} Products`
+                                : `${category.machineryCount} Machinery`}
+                            </span>
+                          </div>
+                        </Link>
+
+                        <div className="Navbar-category-actions">
+                          {hasBoth ? (
+                            <>
+                              <Link
+                                to={`/products?category=${encodeURIComponent(catName)}`}
+                                className="Navbar-cat-btn Navbar-cat-btn--prod"
+                                onClick={() => setCategoryOpen(false)}
+                                title={`Open ${catName} in Products`}
+                              >
+                                <Package size={11} /> Product
+                              </Link>
+                              <Link
+                                to={`/machinery?category=${encodeURIComponent(catName)}`}
+                                className="Navbar-cat-btn Navbar-cat-btn--mach"
+                                onClick={() => setCategoryOpen(false)}
+                                title={`Open ${catName} in Machinery`}
+                              >
+                                <Tractor size={11} /> Machinery
+                              </Link>
+                            </>
+                          ) : category.productsCount > 0 ? (
+                            <Link
+                              to={`/products?category=${encodeURIComponent(catName)}`}
+                              className="Navbar-cat-btn Navbar-cat-btn--prod"
+                              onClick={() => setCategoryOpen(false)}
+                              title={`Open ${catName} in Products`}
+                            >
+                              <Package size={11} /> Product
+                            </Link>
+                          ) : (
+                            <Link
+                              to={`/machinery?category=${encodeURIComponent(catName)}`}
+                              className="Navbar-cat-btn Navbar-cat-btn--mach"
+                              onClick={() => setCategoryOpen(false)}
+                              title={`Open ${catName} in Machinery`}
+                            >
+                              <Tractor size={11} /> Machinery
+                            </Link>
+                          )}
                         </div>
-
-                        <span className="Navbar-category-name" title={catName}>
-                          {catName}
-                        </span>
-
-                        <ArrowRight
-                          size={14}
-                          className="Navbar-category-item-arrow"
-                        />
-                      </Link>
+                      </div>
                     );
                   })}
               </div>
@@ -611,18 +705,56 @@ const Navbar = () => {
               )}
               {!categoriesLoading &&
                 categories.map((category) => {
-                  const catName = typeof category === "string" ? category : category.name;
+                  const catName = category.name;
                   const Icon = getCategoryIcon(catName);
+                  const hasBoth = category.productsCount > 0 && category.machineryCount > 0;
 
                   return (
-                    <Link
-                      to={`/products?category=${encodeURIComponent(catName)}`}
-                      key={category._id || category.id || catName}
-                      onClick={closeMobileMenu}
+                    <div
+                      key={category._id || category.name}
+                      className="Navbar-mobile-cat-row"
                     >
-                      <Icon size={17} />
-                      {catName}
-                    </Link>
+                      <span className="Navbar-mobile-cat-title">
+                        <Icon size={17} />
+                        {catName}
+                      </span>
+                      <div className="Navbar-mobile-cat-actions">
+                        {hasBoth ? (
+                          <>
+                            <Link
+                              to={`/products?category=${encodeURIComponent(catName)}`}
+                              className="Navbar-cat-btn Navbar-cat-btn--prod"
+                              onClick={closeMobileMenu}
+                            >
+                              Product
+                            </Link>
+                            <Link
+                              to={`/machinery?category=${encodeURIComponent(catName)}`}
+                              className="Navbar-cat-btn Navbar-cat-btn--mach"
+                              onClick={closeMobileMenu}
+                            >
+                              Machinery
+                            </Link>
+                          </>
+                        ) : category.productsCount > 0 ? (
+                          <Link
+                            to={`/products?category=${encodeURIComponent(catName)}`}
+                            className="Navbar-cat-btn Navbar-cat-btn--prod"
+                            onClick={closeMobileMenu}
+                          >
+                            Product
+                          </Link>
+                        ) : (
+                          <Link
+                            to={`/machinery?category=${encodeURIComponent(catName)}`}
+                            className="Navbar-cat-btn Navbar-cat-btn--mach"
+                            onClick={closeMobileMenu}
+                          >
+                            Machinery
+                          </Link>
+                        )}
+                      </div>
+                    </div>
                   );
                 })}
             </div>
