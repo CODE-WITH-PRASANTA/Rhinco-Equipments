@@ -157,7 +157,7 @@ const ProductDetailsOne = () => {
       const data = await res.json();
       if (res.ok && data.success) {
         setReviewSuccessMessage(
-          "Thank you! Your review has been submitted for approval and will appear once published by our admin team."
+          "Thank you for your valuable review!"
         );
         setShowReviewModal(false);
         setReviewForm({
@@ -745,10 +745,6 @@ const ProductDetailsOne = () => {
                 />
               </div>
 
-              <div className="ProductReviews-modalNotice">
-                ℹ Reviews are moderated by our admin team before being published on the website.
-              </div>
-
               <div className="ProductReviews-modalActions">
                 <button
                   type="button"
@@ -762,7 +758,7 @@ const ProductDetailsOne = () => {
                   disabled={reviewSubmitting}
                   className="ProductReviews-submitBtn"
                 >
-                  {reviewSubmitting ? "Submitting..." : "Submit Review for Approval"}
+                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
                 </button>
               </div>
             </form>

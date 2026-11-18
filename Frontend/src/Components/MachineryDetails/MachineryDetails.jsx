@@ -279,7 +279,7 @@ const MachineryDetails = () => {
       const data = await res.json();
       if (res.ok && data.success) {
         setReviewSuccessMessage(
-          "Thank you! Your review has been submitted for approval and will appear once published by our admin team."
+          "Thank you for your valuable review!"
         );
         setShowReviewModal(false);
         setReviewForm({
@@ -1200,10 +1200,6 @@ const MachineryDetails = () => {
                   />
                 </div>
 
-                <div className="ReviewModal-notice">
-                  ℹ Reviews undergo verification by our admin team before being published on the platform.
-                </div>
-
                 <div className="ReviewModal-actions">
                   <button
                     type="button"
@@ -1217,7 +1213,7 @@ const MachineryDetails = () => {
                     disabled={reviewSubmitting}
                     className="ReviewModal-submit-btn"
                   >
-                    {reviewSubmitting ? "Submitting..." : "Submit Review for Approval"}
+                    {reviewSubmitting ? "Submitting..." : "Submit Review"}
                   </button>
                 </div>
               </div>
