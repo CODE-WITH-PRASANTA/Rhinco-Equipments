@@ -129,22 +129,61 @@ const MacineryEquipmentCards = () => {
 
     setSubmitting(true);
     try {
+      let loggedUser = null;
+      try {
+        const u = localStorage.getItem("rhinco_user");
+        if (u) loggedUser = JSON.parse(u);
+      } catch (err) {}
+
+      const machineTitle = activeProduct?.title || activeProduct?.name || "Machinery Equipment";
+      const primaryImage =
+        (Array.isArray(activeProduct?.machineImages) && activeProduct.machineImages[0]) ||
+        activeProduct?.image ||
+        "";
+      const priceStr = activeProduct?.discountPrice
+        ? `₹${Number(activeProduct.discountPrice).toLocaleString("en-IN")}`
+        : activeProduct?.price
+        ? `₹${Number(activeProduct.price).toLocaleString("en-IN")}`
+        : "";
+
+      const locationStr = [form.village, form.tehsil, form.district, form.state]
+        .filter(Boolean)
+        .join(", ");
+
       const res = await fetch(ENQUIRIES_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
-          phone: form.mobile,
-          email: "enquiry@rhinco.in",
-          district: `${form.district || ""}, ${form.state || ""}`,
-          subject: `Machinery Enquiry for ${activeProduct?.title || activeProduct?.name}`,
-          message: `Enquiry for ${activeProduct?.title || activeProduct?.name}. Location: ${form.village || ""}, ${form.tehsil || ""}, ${form.district || ""}, ${form.state || ""}.`,
-          machineName: activeProduct?.title || activeProduct?.name,
+          name: form.name.trim(),
+          phone: form.mobile.trim(),
+          email: loggedUser?.email || "enquiry@rhinco.in",
+          location: locationStr,
+          district: form.district || "",
+          subject: `Machinery Enquiry for ${machineTitle}`,
+          message: `Quotation requested for ${machineTitle}. Location: ${locationStr}.`,
+          productOrEquipment: machineTitle,
+          machineName: machineTitle,
           machineId: activeProduct?._id || activeProduct?.id,
+          machineImage: primaryImage,
+          price: priceStr,
+          enquiryType: "Machinery Enquiry",
+          userId: loggedUser?._id || loggedUser?.id || "",
         }),
       });
 
-      if (res.ok) {
+      const resData = await res.json();
+      if (res.ok && resData.success) {
+        try {
+          const stored = JSON.parse(
+            localStorage.getItem("rhinco_user_enquiries") || "[]"
+          );
+          stored.unshift(resData.data);
+          localStorage.setItem("rhinco_user_enquiries", JSON.stringify(stored));
+        } catch (e) {}
+
+        window.dispatchEvent(
+          new CustomEvent("rhinco_enquiry_submitted", { detail: resData.data })
+        );
         setSubmitted(true);
       } else {
         setSubmitted(true);

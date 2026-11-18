@@ -72,15 +72,19 @@ exports.createEnquiry = async (req, res) => {
       email,
       phone,
       productOrEquipment,
+      machineName,
       product,
       machine,
       machineImage,
+      image,
       price,
       enquiryType,
       location,
+      district,
       subject,
       message,
       notes,
+      userId,
     } = req.body;
 
     if (!name || !name.trim()) {
@@ -90,7 +94,17 @@ exports.createEnquiry = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Phone number is required' });
     }
 
-    const resolvedProduct = (productOrEquipment || product || machine || subject || 'General Equipment').trim();
+    const resolvedProduct = (
+      productOrEquipment ||
+      machineName ||
+      product ||
+      machine ||
+      subject ||
+      'Agricultural Equipment'
+    ).trim();
+
+    const resolvedLocation = (location || district || '').trim();
+    const resolvedImage = (machineImage || image || '').trim();
     const resolvedMessage = (message || subject || `Enquiry for ${resolvedProduct}`).trim();
 
     const newEnquiry = await Enquiry.create({
@@ -98,14 +112,15 @@ exports.createEnquiry = async (req, res) => {
       email: (email || '').trim(),
       phone: phone.trim(),
       productOrEquipment: resolvedProduct,
-      machineImage: (machineImage || '').trim(),
+      machineImage: resolvedImage,
       price: (price || '').trim(),
       enquiryType: enquiryType || 'Machinery Enquiry',
-      location: (location || '').trim(),
-      subject: (subject || '').trim(),
+      location: resolvedLocation,
+      subject: (subject || `Quotation Request for ${resolvedProduct}`).trim(),
       message: resolvedMessage,
       status: 'New',
       notes: (notes || '').trim(),
+      userId: (userId || '').trim(),
     });
 
     res.status(201).json({

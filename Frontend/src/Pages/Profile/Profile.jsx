@@ -37,7 +37,13 @@ const DELIVERY_ADDRESS_KEY = "rhinco_delivery_address";
 const Profile = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "profile";
+  const rawTab = searchParams.get("tab") || "profile";
+  const activeTab =
+    rawTab === "enquiry" || rawTab === "enquires"
+      ? "enquiries"
+      : rawTab === "order"
+      ? "orders"
+      : rawTab;
 
   const [user, setUser] = useState(() => {
     try {
@@ -217,6 +223,12 @@ const Profile = () => {
   // Fetch real machinery enquiries
   const fetchEnquiries = async () => {
     setEnquiriesLoading(true);
+    let localSaved = [];
+    try {
+      const raw = localStorage.getItem("rhinco_user_enquiries");
+      if (raw) localSaved = JSON.parse(raw);
+    } catch (e) {}
+
     try {
       const res = await fetch(ENQUIRIES_API);
       const data = await res.json();
@@ -224,26 +236,51 @@ const Profile = () => {
         const userEmail = (user?.email || "").toLowerCase().trim();
         const userName = (user?.name || "").toLowerCase().trim();
         const userPhone = (user?.phone || "").replace(/\D/g, "");
+        const userId = user?._id || user?.id || "";
+        const localIds = localSaved.map((item) => String(item._id || item.id));
 
-        // Match user's enquiries strictly - never fallback to all DB records
-        const userEnqs = data.data.filter((item) => {
+        // Match user's enquiries strictly by ID, userId, email, phone, or name
+        const matchedDbEnqs = data.data.filter((item) => {
           const itemEmail = (item.email || "").toLowerCase().trim();
           const itemName = (item.name || "").toLowerCase().trim();
           const itemPhone = (item.phone || "").replace(/\D/g, "");
+          const itemId = String(item._id || item.id);
+
+          const matchesId = localIds.includes(itemId);
+          const matchesUserId = userId && item.userId === userId;
+          const matchesEmail = userEmail && itemEmail === userEmail;
+          const matchesPhone =
+            userPhone &&
+            itemPhone &&
+            (itemPhone.includes(userPhone) || userPhone.includes(itemPhone));
+          const matchesName =
+            userName &&
+            itemName &&
+            (itemName === userName || itemName.includes(userName));
+
           return (
-            (userEmail && itemEmail === userEmail) ||
-            (userPhone && itemPhone && (itemPhone.includes(userPhone) || userPhone.includes(itemPhone))) ||
-            (userName && itemName && (itemName === userName || itemName.includes(userName)))
+            matchesId ||
+            matchesUserId ||
+            matchesEmail ||
+            matchesPhone ||
+            matchesName
           );
         });
 
-        setEnquiries(userEnqs);
+        if (matchedDbEnqs.length > 0) {
+          setEnquiries(matchedDbEnqs);
+          localStorage.setItem("rhinco_user_enquiries", JSON.stringify(matchedDbEnqs));
+        } else if (localSaved.length > 0) {
+          setEnquiries(localSaved);
+        } else {
+          setEnquiries([]);
+        }
       } else {
-        setEnquiries([]);
+        setEnquiries(localSaved);
       }
     } catch (err) {
       console.error("Error loading enquiries:", err);
-      setEnquiries([]);
+      setEnquiries(localSaved);
     } finally {
       setEnquiriesLoading(false);
     }

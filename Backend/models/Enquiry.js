@@ -62,6 +62,11 @@ const enquirySchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    userId: {
+      type: String,
+      default: '',
+      trim: true,
+    },
   },
   {
     timestamps: true,

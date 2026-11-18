@@ -305,10 +305,20 @@ const MachineryDetails = () => {
   const discountPrice = Number(machine?.discountPrice || 0);
 
   const handleOpenEnquiry = (customMsg = "") => {
+    let loggedUser = null;
+    try {
+      const u = localStorage.getItem("rhinco_user");
+      if (u) loggedUser = JSON.parse(u);
+    } catch (err) {}
+
     const title = machine?.title || machine?.name || "Machinery";
     const brand = machine?.brandName || machine?.brand || "Rhinco";
     setEnquiryForm((prev) => ({
       ...prev,
+      name: prev.name || loggedUser?.name || "",
+      phone: prev.phone || loggedUser?.phone || "",
+      email: prev.email || loggedUser?.email || "",
+      district: prev.district || loggedUser?.district || loggedUser?.city || "",
       message:
         customMsg ||
         `I am interested in getting quotation, pricing, and purchase details for ${title} (${brand}).`,
@@ -325,16 +335,39 @@ const MachineryDetails = () => {
 
     setEnquirySubmitting(true);
     try {
+      let loggedUser = null;
+      try {
+        const u = localStorage.getItem("rhinco_user");
+        if (u) loggedUser = JSON.parse(u);
+      } catch (err) {}
+
+      const machineTitle = machine?.title || machine?.name || "Agricultural Machinery";
+      const primaryImage =
+        (Array.isArray(machine?.machineImages) && machine.machineImages[0]) ||
+        machine?.image ||
+        "";
+      const formattedPrice = machine?.discountPrice
+        ? `₹${Number(machine.discountPrice).toLocaleString("en-IN")}`
+        : machine?.price
+        ? `₹${Number(machine.price).toLocaleString("en-IN")}`
+        : "";
+
       const payload = {
-        name: enquiryForm.name,
-        phone: enquiryForm.phone,
-        email: enquiryForm.email || "",
-        district: enquiryForm.district || "",
-        subject: `Quotation & Machinery Enquiry for ${machine?.title || machine?.name}`,
-        message: enquiryForm.message,
-        machineName: machine?.title || machine?.name,
-        machineId: machine?._id || machine?.id,
+        name: enquiryForm.name.trim(),
+        phone: enquiryForm.phone.trim(),
+        email: (enquiryForm.email || loggedUser?.email || "").trim(),
+        location: (enquiryForm.district || loggedUser?.district || "").trim(),
+        district: (enquiryForm.district || loggedUser?.district || "").trim(),
+        productOrEquipment: machineTitle,
+        machineName: machineTitle,
+        machineId: machine?._id || machine?.id || "",
+        machineImage: primaryImage,
+        price: formattedPrice,
+        enquiryType: "Machinery Enquiry",
+        subject: `Quotation Request for ${machineTitle}`,
+        message: enquiryForm.message.trim(),
         category: machine?.category || "Machinery",
+        userId: loggedUser?._id || loggedUser?.id || "",
       };
 
       const res = await fetch(ENQUIRIES_API, {
@@ -345,6 +378,20 @@ const MachineryDetails = () => {
 
       const resData = await res.json();
       if (res.ok && resData.success) {
+        // Save to user's local enquiries for profile display
+        try {
+          const stored = JSON.parse(
+            localStorage.getItem("rhinco_user_enquiries") || "[]"
+          );
+          stored.unshift(resData.data);
+          localStorage.setItem("rhinco_user_enquiries", JSON.stringify(stored));
+        } catch (e) {}
+
+        // Notify Profile component if listening
+        window.dispatchEvent(
+          new CustomEvent("rhinco_enquiry_submitted", { detail: resData.data })
+        );
+
         setEnquirySuccess(true);
         window.setTimeout(() => {
           setEnquirySuccess(false);
