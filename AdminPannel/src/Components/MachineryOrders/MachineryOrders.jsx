@@ -20,8 +20,8 @@ import {
   FiMessageSquare,
 } from "react-icons/fi";
 import "./MachineryOrders.css";
+import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ENQUIRIES_API = `${API_URL}/enquiries`;
 
 const MachineryOrders = () => {

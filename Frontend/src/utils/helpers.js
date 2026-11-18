@@ -2,7 +2,11 @@
  * Frontend Utilities & Helpers
  */
 
-const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+import { API_URL, BACKEND_URL } from "./apiConfig";
+
+export { API_URL, BACKEND_URL };
+
+const BACKEND_ORIGIN = BACKEND_URL;
 
 /**
  * Resolves an image URL:

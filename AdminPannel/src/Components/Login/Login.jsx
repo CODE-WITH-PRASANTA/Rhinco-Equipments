@@ -16,8 +16,7 @@ import { FaUser } from "react-icons/fa";
 
 import "./Login.css";
 import brandLogo from "../../assets/logo.png";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { API_URL } from "../../utils/apiConfig";
 
 const AUTH_KEY = "isAdminAuthenticated";
 

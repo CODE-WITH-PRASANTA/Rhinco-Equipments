@@ -20,8 +20,8 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import "./ReviewManagement.css";
+import { API_URL } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const REVIEWS_API = `${API_URL}/reviews`;
 
 const emptyReviewForm = () => ({

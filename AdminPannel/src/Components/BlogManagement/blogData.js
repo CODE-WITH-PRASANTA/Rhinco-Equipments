@@ -1,6 +1,5 @@
 // Blog API Endpoints & Dynamic Database Helpers
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+import { API_URL, BACKEND_URL } from "../../utils/apiConfig";
 
 export const API_BASE_URL = BACKEND_URL;
 export const BLOGS_API = `${API_URL}/blogs`;

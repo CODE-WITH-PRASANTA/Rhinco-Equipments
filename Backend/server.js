@@ -125,21 +125,17 @@ const authRoutes = require('./routes/authRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const addressRoutes = require('./routes/addressRoutes');
 
-app.use('/api/upload', uploadRoutes);
-app.use('/api/blog-categories', blogCategoryRoutes);
-app.use('/api/categories', blogCategoryRoutes);
-app.use('/api/blogs', blogRoutes);
-app.use('/api/team', teamRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/machinery', machineryRoutes);
-app.use('/api/machinery-equipment', machineryRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/review', reviewRoutes);
-app.use('/api/enquiries', enquiryRoutes);
-app.use('/api/enquiry', enquiryRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/addresses', addressRoutes);
+app.use(['/api/upload', '/upload'], uploadRoutes);
+app.use(['/api/blog-categories', '/blog-categories', '/api/categories', '/categories'], blogCategoryRoutes);
+app.use(['/api/blogs', '/blogs'], blogRoutes);
+app.use(['/api/team', '/team'], teamRoutes);
+app.use(['/api/products', '/products'], productRoutes);
+app.use(['/api/machinery', '/machinery', '/api/machinery-equipment', '/machinery-equipment'], machineryRoutes);
+app.use(['/api/reviews', '/reviews', '/api/review', '/review'], reviewRoutes);
+app.use(['/api/enquiries', '/enquiries', '/api/enquiry', '/enquiry'], enquiryRoutes);
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/orders', '/orders'], orderRoutes);
+app.use(['/api/addresses', '/addresses'], addressRoutes);
 
 // 404 handler
 app.use((req, res) => {

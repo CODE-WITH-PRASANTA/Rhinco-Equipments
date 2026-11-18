@@ -20,16 +20,9 @@ import {
   FiFileText,
 } from "react-icons/fi";
 import "./ProductOrders.css";
+import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const ORDERS_API = `${API_URL}/orders`;
-
-const resolveImageUrl = (path, fallback = "") => {
-  if (!path) return fallback;
-  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:") || path.startsWith("data:")) return path;
-  return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
-};
 
 const formatINR = (num) => {
   return new Intl.NumberFormat("en-IN", {

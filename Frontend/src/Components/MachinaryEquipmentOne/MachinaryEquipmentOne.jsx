@@ -17,9 +17,8 @@ import {
   Check,
 } from "lucide-react";
 import "./MachinaryEquipmentOne.css";
-import { toMachinerySlug, resolveImageUrl } from "../../utils/helpers";
+import { toMachinerySlug, resolveImageUrl, API_URL } from "../../utils/helpers";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const MACHINERY_API = `${API_URL}/machinery`;
 
 const MachinaryEquipmentOne = ({

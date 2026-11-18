@@ -1,15 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./TeamManagement.css";
+import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const TEAM_API = `${API_URL}/team`;
-
-const resolveImageUrl = (path) => {
-  if (!path) return "";
-  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:") || path.startsWith("data:")) return path;
-  return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
-};
 
 const uploadImage = async (file) => {
   const formData = new FormData();

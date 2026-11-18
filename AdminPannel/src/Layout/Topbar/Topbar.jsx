@@ -11,9 +11,9 @@ import {
   X,
 } from 'lucide-react';
 import './Topbar.css';
+import { API_URL, BACKEND_URL } from '../../utils/apiConfig';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_BASE_URL = BACKEND_URL;
 const API_BASE_URL = `${API_URL}/profiles`;
 const AUTH_KEY = 'isAdminAuthenticated';
 

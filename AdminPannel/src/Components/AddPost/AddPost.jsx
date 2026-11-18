@@ -26,20 +26,13 @@ import {
 
 import "./AddPost.css";
 import { optimizeImageFile } from "../../utils/imageOptimizer";
+import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const PRODUCTS_API = `${API_URL}/products`;
 const CATEGORIES_API = `${API_URL}/categories`;
 
 const MAX_IMAGE_MB = 10;
 const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
-
-const resolveImageUrl = (path) => {
-  if (!path) return "";
-  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:") || path.startsWith("data:")) return path;
-  return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
-};
 
 const uploadImage = async (file) => {
   const readyFile = await optimizeImageFile(file);
