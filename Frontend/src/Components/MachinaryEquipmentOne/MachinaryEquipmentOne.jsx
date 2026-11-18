@@ -10,29 +10,60 @@ import {
   Sparkles,
   X,
   ShieldCheck,
-  Tag,
-  ArrowRight,
-  FileText,
-  BadgePercent,
   Search,
   Filter,
   RotateCcw,
-  SlidersHorizontal,
   ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
+  Star,
+  Check,
+  HelpCircle,
+  ArrowRight,
+  Layers,
 } from "lucide-react";
 import "./MachinaryEquipmentOne.css";
 import { toMachinerySlug, resolveImageUrl, API_URL } from "../../utils/helpers";
 
 const MACHINERY_API = `${API_URL}/machinery`;
 const ENQUIRIES_API = `${API_URL}/enquiries`;
+const HELPLINE_PHONE = "+91 98765 43210";
+const HELPLINE_TEL = "+919876543210";
 
 const MachinaryEquipmentOne = () => {
   const [machinery, setMachinery] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Search & Filter state
   const [search, setSearch] = useState("");
-  const [selectedBrand, setSelectedBrand] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [sortBy, setSortBy] = useState("featured");
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [selectedHpRanges, setSelectedHpRanges] = useState([]);
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [minRating, setMinRating] = useState(0);
+  const [sortBy, setSortBy] = useState("relevance");
+
+  // Mobile drawer filter toggle
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // Collapsible sidebar sections (Flipkart/Facebook style)
+  const [collapsedSections, setCollapsedSections] = useState({
+    categories: false,
+    brand: false,
+    hp: false,
+    availability: false,
+    rating: false,
+  });
+
+  const toggleSection = (sectionKey) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey],
+    }));
+  };
+
+  // Brand search filter inside sidebar
+  const [brandSearch, setBrandSearch] = useState("");
 
   // Contact dealer modal states
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -72,630 +103,1005 @@ const MachinaryEquipmentOne = () => {
     };
   }, []);
 
-  // Compute brand and category filter lists
-  const { brands, categories } = useMemo(() => {
-    const bSet = new Set();
-    const cSet = new Set();
+  // Compute category counts & brands counts dynamically
+  const { categoryList, brandList } = useMemo(() => {
+    const catMap = {};
+    const brandMap = {};
 
     machinery.forEach((item) => {
-      const b = item.brand || item.brandName;
-      if (b) bSet.add(b.trim());
+      const c = (item.category || item.implementType || "Other").trim();
+      catMap[c] = (catMap[c] || 0) + 1;
 
-      const c = item.category || item.implementType;
-      if (c) cSet.add(c.trim());
+      const b = (item.brand || item.brandName || "Rhinco").trim();
+      brandMap[b] = (brandMap[b] || 0) + 1;
     });
 
+    const sortedCats = Object.keys(catMap)
+      .sort((a, b) => a.localeCompare(b))
+      .map((cat) => ({ name: cat, count: catMap[cat] }));
+
+    const sortedBrands = Object.keys(brandMap)
+      .sort((a, b) => a.localeCompare(b))
+      .map((brand) => ({ name: brand, count: brandMap[brand] }));
+
     return {
-      brands: ["All", ...Array.from(bSet).sort()],
-      categories: ["All", ...Array.from(cSet).sort()],
+      categoryList: sortedCats,
+      brandList: sortedBrands,
     };
   }, [machinery]);
 
-  // Filter & sort machinery
+  // HP Range helpers
+  const matchesHpRange = (itemHp, selectedRanges) => {
+    if (!selectedRanges || selectedRanges.length === 0) return true;
+    const num = parseInt(String(itemHp || "").replace(/[^\d]/g, ""), 10);
+    if (!num) return selectedRanges.includes("other");
+
+    return selectedRanges.some((range) => {
+      if (range === "under35") return num <= 35;
+      if (range === "36to50") return num >= 36 && num <= 50;
+      if (range === "above50") return num > 50;
+      return false;
+    });
+  };
+
+  // Toggle brand selection
+  const handleToggleBrand = (brandName) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brandName)
+        ? prev.filter((b) => b !== brandName)
+        : [...prev, brandName]
+    );
+  };
+
+  // Toggle HP range selection
+  const handleToggleHp = (rangeKey) => {
+    setSelectedHpRanges((prev) =>
+      prev.includes(rangeKey)
+        ? prev.filter((r) => r !== rangeKey)
+        : [...prev, rangeKey]
+    );
+  };
+
+  // Reset all filters
+  const handleResetFilters = () => {
+    setSearch("");
+    setSelectedCategory("All");
+    setSelectedBrands([]);
+    setSelectedHpRanges([]);
+    setInStockOnly(false);
+    setMinRating(0);
+    setSortBy("relevance");
+  };
+
+  const hasActiveFilters =
+    search.trim() !== "" ||
+    selectedCategory !== "All" ||
+    selectedBrands.length > 0 ||
+    selectedHpRanges.length > 0 ||
+    inStockOnly ||
+    minRating > 0;
+
+  // Filtered & Sorted machinery list
   const filteredMachinery = useMemo(() => {
     let list = machinery.filter((item) => {
       const title = String(item.name || item.title || "").toLowerCase();
       const brand = String(item.brand || item.brandName || "").toLowerCase();
       const category = String(item.category || item.implementType || "").toLowerCase();
       const code = String(item.code || item.modelName || "").toLowerCase();
-      const q = search.trim().toLowerCase();
+      const itemHp = item.powerRequirement || item.powerRequired || item.power || "";
 
-      const matchesSearch =
-        !q ||
-        title.includes(q) ||
-        brand.includes(q) ||
-        category.includes(q) ||
-        code.includes(q);
+      // Search match
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const matches =
+          title.includes(q) ||
+          brand.includes(q) ||
+          category.includes(q) ||
+          code.includes(q);
+        if (!matches) return false;
+      }
 
-      const matchesBrand =
-        selectedBrand === "All" ||
-        brand === selectedBrand.toLowerCase();
+      // Category filter
+      if (
+        selectedCategory !== "All" &&
+        category !== selectedCategory.toLowerCase()
+      ) {
+        return false;
+      }
 
-      const matchesCategory =
-        selectedCategory === "All" ||
-        category === selectedCategory.toLowerCase();
+      // Brand filter
+      if (selectedBrands.length > 0) {
+        const itemBrand = (item.brand || item.brandName || "Rhinco").trim();
+        if (!selectedBrands.includes(itemBrand)) return false;
+      }
 
-      return matchesSearch && matchesBrand && matchesCategory;
+      // HP Range filter
+      if (!matchesHpRange(itemHp, selectedHpRanges)) {
+        return false;
+      }
+
+      // Stock status filter
+      if (inStockOnly) {
+        const isAvail =
+          item.status === "Available" ||
+          item.availableAtStore === "Yes" ||
+          item.stockQuantity > 0;
+        if (!isAvail) return false;
+      }
+
+      // Rating filter
+      if (minRating > 0) {
+        const r = Number(item.rating || 4.8);
+        if (r < minRating) return false;
+      }
+
+      return true;
     });
 
-    if (sortBy === "price-low") {
-      list.sort((a, b) => Number(a.discountPrice || a.price || 0) - Number(b.discountPrice || b.price || 0));
-    } else if (sortBy === "price-high") {
-      list.sort((a, b) => Number(b.discountPrice || b.price || 0) - Number(a.discountPrice || a.price || 0));
-    } else if (sortBy === "name") {
-      list.sort((a, b) => String(a.title || a.name || "").localeCompare(String(b.title || b.name || "")));
+    // Sorting
+    if (sortBy === "priceAsc") {
+      list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
+    } else if (sortBy === "priceDesc") {
+      list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
+    } else if (sortBy === "nameAsc") {
+      list.sort((a, b) =>
+        String(a.name || a.title || "").localeCompare(String(b.name || b.title || ""))
+      );
+    } else if (sortBy === "rating") {
+      list.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
     }
 
     return list;
-  }, [machinery, search, selectedBrand, selectedCategory, sortBy]);
+  }, [
+    machinery,
+    search,
+    selectedCategory,
+    selectedBrands,
+    selectedHpRanges,
+    inStockOnly,
+    minRating,
+    sortBy,
+  ]);
 
-  // Handle Contact Dealer
-  const handleContactDealer = (item) => {
+  // Handle open contact dealer modal
+  const handleOpenDealerModal = (item, e) => {
+    if (e) e.stopPropagation();
     setSelectedProduct(item);
     setModalSuccess(false);
     setModalError("");
 
-    let loggedUser = null;
+    let defaultName = "";
+    let defaultPhone = "";
+    let defaultEmail = "";
     try {
-      const u = localStorage.getItem("rhinco_user");
-      if (u) loggedUser = JSON.parse(u);
-    } catch (e) {}
-
-    const title = item.name || item.title || "Agricultural Machinery";
-    const brand = item.brand || item.brandName || "Rhinco";
+      const stored = localStorage.getItem("rhinco_user");
+      if (stored) {
+        const u = JSON.parse(stored);
+        defaultName = u.name || "";
+        defaultPhone = u.phone || "";
+        defaultEmail = u.email || "";
+      }
+    } catch (err) {}
 
     setModalForm({
-      name: loggedUser?.name || "",
-      phone: loggedUser?.phone || "",
-      email: loggedUser?.email || "",
+      name: defaultName,
+      phone: defaultPhone,
+      email: defaultEmail,
       location: "",
       intent: "Price Quotation",
-      message: `I am interested in getting quotation, subsidy paperwork, and dealer contact for ${title} (${brand}).`,
+      message: `I am interested in ${item.name || item.title || "this machinery"}. Please share quotation, subsidy options, and dealer delivery schedule.`,
     });
   };
 
+  // Submit dealer quotation inquiry
   const handleModalSubmit = async (e) => {
     e.preventDefault();
     if (!modalForm.name.trim() || !modalForm.phone.trim()) {
-      setModalError("Please provide your full name and valid phone number.");
+      setModalError("Please provide your name and phone number.");
       return;
     }
 
     setModalSubmitting(true);
     setModalError("");
+
     try {
-      const prodName = selectedProduct?.name || selectedProduct?.title || "Machinery Equipment";
-      const rawImg = selectedProduct?.image || selectedProduct?.machineImages?.[0] || selectedProduct?.images?.[0] || "";
-      const prodImg = typeof rawImg === "string" ? rawImg : rawImg?.url || rawImg?.data || rawImg?.preview || "";
-      const prodPrice = selectedProduct?.formattedPrice || (selectedProduct?.price ? `₹ ${Number(selectedProduct.price).toLocaleString("en-IN")}` : "Price on Request");
-
-      let loggedUser = null;
-      try {
-        const u = localStorage.getItem("rhinco_user");
-        if (u) loggedUser = JSON.parse(u);
-      } catch (err) {}
-
-      const intentText = modalForm.intent ? `[${modalForm.intent}] ` : "";
-      const fullMessage = (intentText + (modalForm.message || `Customer requested quotation for ${prodName}`)).trim();
+      const payload = {
+        name: modalForm.name.trim(),
+        phone: modalForm.phone.trim(),
+        email: modalForm.email.trim(),
+        location: modalForm.location.trim() || "District Buyer",
+        product:
+          selectedProduct?.name ||
+          selectedProduct?.title ||
+          "Machinery Equipment",
+        source: "Machinery Catalogue Showcase",
+        intent: modalForm.intent || "Price Quotation",
+        message: modalForm.message.trim(),
+      };
 
       const res = await fetch(ENQUIRIES_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: modalForm.name.trim(),
-          phone: modalForm.phone.trim(),
-          email: (modalForm.email || loggedUser?.email || "").trim(),
-          productOrEquipment: prodName,
-          machineName: prodName,
-          machineImage: prodImg,
-          price: prodPrice,
-          location: (modalForm.location || "").trim(),
-          district: (modalForm.location || "").trim(),
-          enquiryType: "Machinery Enquiry",
-          subject: `${modalForm.intent || "Dealer Inquiry"} - ${prodName}`,
-          message: fullMessage,
-          userId: loggedUser?._id || loggedUser?.id || "",
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
-        try {
-          const stored = JSON.parse(localStorage.getItem("rhinco_user_enquiries") || "[]");
-          stored.unshift(data.data);
-          localStorage.setItem("rhinco_user_enquiries", JSON.stringify(stored));
-        } catch (e) {}
-
         setModalSuccess(true);
-        window.dispatchEvent(new Event("rhinco_enquiry_submitted"));
-        setTimeout(() => {
-          setSelectedProduct(null);
-          setModalSuccess(false);
-        }, 2600);
+        window.dispatchEvent(
+          new CustomEvent("rhinco_enquiry_submitted", { detail: payload })
+        );
       } else {
-        setModalError(data.message || "Failed to submit enquiry.");
+        setModalError(
+          data.message ||
+            "Unable to submit inquiry at this moment. Please call our helpline."
+        );
       }
     } catch (err) {
-      console.error(err);
-      setModalError("Network error: Could not reach server.");
+      console.error("Modal submission error:", err);
+      setModalError(
+        "Network connection issue. Please dial our helpline: +91 98765 43210"
+      );
     } finally {
       setModalSubmitting(false);
     }
   };
 
-  const clearFilters = () => {
-    setSearch("");
-    setSelectedBrand("All");
-    setSelectedCategory("All");
-    setSortBy("featured");
-  };
-
   return (
-    <section className="MachineryShowcase">
-      {/* HERO BANNER */}
-      <div className="MachineryShowcase-hero">
-        <div className="MachineryShowcase-heroContainer">
-          <div className="MachineryShowcase-heroBadge">
-            <Sparkles size={13} />
-            <span>DIRECT OEM & AUTHORIZED DEALERSHIP NETWORK</span>
-          </div>
-
-          <h1 className="MachineryShowcase-heroTitle">
-            Agricultural Machinery & Heavy Implements
-          </h1>
-
-          <p className="MachineryShowcase-heroSubtitle">
-            Explore high-performance rotavators, multi-crop seeders, laser levellers, and tractor attachments
-            with complete government subsidy paperwork and authorized district dealer delivery.
-          </p>
-
-          {/* 4 HERO HIGHLIGHT PILLARS */}
-          <div className="MachineryShowcase-pillars">
-            <div className="MachineryShowcase-pillar">
-              <Tractor size={20} />
-              <div>
-                <strong>{machinery.length || 15}+ Heavy Implements</strong>
-                <span>Certified OEM brands</span>
-              </div>
-            </div>
-            <div className="MachineryShowcase-pillar">
-              <ShieldCheck size={20} />
-              <div>
-                <strong>Up to 50% Subsidy Support</strong>
-                <span>Assistance in your district</span>
-              </div>
-            </div>
-            <div className="MachineryShowcase-pillar">
-              <CheckCircle2 size={20} />
-              <div>
-                <strong>Field Trial & Demo</strong>
-                <span>Pre-delivery verification</span>
-              </div>
-            </div>
-            <div className="MachineryShowcase-pillar">
-              <FileText size={20} />
-              <div>
-                <strong>1-Year Warranty</strong>
-                <span>Genuine spare parts support</span>
-              </div>
-            </div>
-          </div>
+    <div className="FkMachinery-wrapper">
+      {/* Top Header & Breadcrumb Bar */}
+      <div className="FkMachinery-topBar">
+        <div className="FkMachinery-container">
+          <nav className="FkMachinery-breadcrumb">
+            <Link to="/">Home</Link>
+            <span className="FkMachinery-breadcrumbDivider">/</span>
+            <span className="FkMachinery-breadcrumbCurrent">
+              Agricultural Machinery
+            </span>
+          </nav>
         </div>
       </div>
 
-      {/* FILTER & SHOWCASE CONTAINER */}
-      <div className="MachineryShowcase-container">
-        {/* INTERACTIVE CONTROLS BAR */}
-        <div className="MachineryShowcase-controlsBar">
-          {/* SEARCH BOX */}
-          <div className="MachineryShowcase-searchBox">
-            <Search size={18} className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search by implement name, brand, or model..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {search && (
-              <button
-                type="button"
-                className="search-clear"
-                onClick={() => setSearch("")}
-                aria-label="Clear search"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* DROPDOWN FILTERS */}
-          <div className="MachineryShowcase-dropdowns">
-            <div className="MachineryShowcase-selectWrap">
-              <label>Brand:</label>
-              <select
-                value={selectedBrand}
-                onChange={(e) => setSelectedBrand(e.target.value)}
-              >
-                {brands.map((b) => (
-                  <option key={b} value={b}>
-                    {b === "All" ? "All Brands" : b}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="MachineryShowcase-selectWrap">
-              <label>Category:</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c === "All" ? "All Categories" : c}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="MachineryShowcase-selectWrap">
-              <label>Sort:</label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="featured">Featured Implements</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="name">Name: A to Z</option>
-              </select>
-            </div>
-
-            {(search || selectedBrand !== "All" || selectedCategory !== "All") && (
-              <button
-                type="button"
-                className="MachineryShowcase-clearBtn"
-                onClick={clearFilters}
-              >
-                <RotateCcw size={14} />
-                <span>Reset</span>
-              </button>
-            )}
+      <div className="FkMachinery-container FkMachinery-layout">
+        {/* MOBILE FILTER TOGGLE BUTTON */}
+        <div className="FkMachinery-mobileControls">
+          <button
+            type="button"
+            className="FkMachinery-mobileFilterBtn"
+            onClick={() => setMobileFilterOpen(true)}
+          >
+            <Filter size={16} />
+            <span>Filters ({hasActiveFilters ? "Active" : "All"})</span>
+          </button>
+          <div className="FkMachinery-mobileResultsCount">
+            {filteredMachinery.length} Machinery Found
           </div>
         </div>
 
-        {/* CATEGORY QUICK FILTER PILLS */}
-        <div className="MachineryShowcase-pillsRow">
-          {categories.map((cat) => {
-            const isActive = selectedCategory === cat;
-            return (
-              <button
-                type="button"
-                key={cat}
-                className={`MachineryShowcase-catPill ${isActive ? "active" : ""}`}
-                onClick={() => setSelectedCategory(cat)}
-              >
-                {cat === "All" ? "All Equipment Types" : cat}
-              </button>
-            );
-          })}
-        </div>
+        {/* ================= LEFT SIDEBAR (FLIPKART / FACEBOOK STYLE) ================= */}
+        <aside
+          className={`FkMachinery-sidebar ${
+            mobileFilterOpen ? "FkMachinery-sidebar--mobileOpen" : ""
+          }`}
+        >
+          <div className="FkMachinery-sidebarCard">
+            {/* Sidebar Header */}
+            <div className="FkMachinery-filterHeader">
+              <div className="FkMachinery-filterTitleRow">
+                <SlidersHorizontal size={18} className="FkMachinery-filterIcon" />
+                <span className="FkMachinery-filterHeading">Filters</span>
+              </div>
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  className="FkMachinery-clearBtn"
+                  onClick={handleResetFilters}
+                >
+                  CLEAR ALL
+                </button>
+              )}
+              {mobileFilterOpen && (
+                <button
+                  type="button"
+                  className="FkMachinery-closeDrawerBtn"
+                  onClick={() => setMobileFilterOpen(false)}
+                  aria-label="Close filters"
+                >
+                  <X size={20} />
+                </button>
+              )}
+            </div>
 
-        {/* RESULTS HEADER */}
-        <div className="MachineryShowcase-resultsHeader">
-          <div>
-            <h3>
-              {selectedCategory === "All" ? "All Agricultural Machinery" : selectedCategory}
-            </h3>
-            <p>
-              Showing <strong>{filteredMachinery.length}</strong> verified equipment implements
-              {selectedBrand !== "All" && ` from ${selectedBrand}`}
-            </p>
-          </div>
-          <span className="MachineryShowcase-resultsTag">
-            ● Quality Agricultural Inventory Direct from Factory
-          </span>
-        </div>
-
-        {/* MACHINERY GRID */}
-        {loading ? (
-          <div className="MachineryShowcase-loading">
-            <div className="MachineryShowcase-spinner" />
-            <p>Loading real machinery catalogue...</p>
-          </div>
-        ) : filteredMachinery.length === 0 ? (
-          <div className="MachineryShowcase-empty">
-            <Tractor size={48} strokeWidth={1.3} />
-            <h3>No machinery matches your filters</h3>
-            <p>Try resetting the search terms or selecting another category.</p>
-            <button
-              type="button"
-              className="MachineryShowcase-resetBtn"
-              onClick={clearFilters}
-            >
-              Reset All Filters
-            </button>
-          </div>
-        ) : (
-          <div className="MachineryShowcase-grid">
-            {filteredMachinery.map((item) => {
-              const title = item.name || item.title || "Equipment";
-              const brand = item.brand || item.brandName || "Rhinco";
-              const power = item.power || item.implementPower || "Standard HP";
-              const category = item.category || item.implementType || "Machinery";
-              const model = item.modelName || item.code || "";
-              const priceText =
-                item.formattedPrice ||
-                (item.discountPrice || item.price
-                  ? `₹ ${Number(item.discountPrice || item.price).toLocaleString("en-IN")}`
-                  : null);
-
-              let rawImg = item.image;
-              if (!rawImg && Array.isArray(item.machineImages) && item.machineImages.length > 0) {
-                const first = item.machineImages[0];
-                rawImg = typeof first === "string" ? first : first?.data || first?.url || first?.preview || "";
-              }
-              if (!rawImg) {
-                rawImg = item.featuredImage?.data || "";
-              }
-              const imgSrc = resolveImageUrl(rawImg, "/placeholder.png");
-
-              return (
-                <article key={item._id || item.id} className="MachineryCard">
-                  {/* CARD IMAGE */}
-                  <div className="MachineryCard-imageArea">
-                    <span className="MachineryCard-brandBadge">{brand}</span>
-
-                    {item.sponsored && (
-                      <span className="MachineryCard-sponsoredBadge">★ Sponsored</span>
-                    )}
-
-                    <Link
-                      to={`/machinery/${toMachinerySlug(title)}`}
-                      className="MachineryCard-imageLink"
+            {/* Active Filter Chips */}
+            {hasActiveFilters && (
+              <div className="FkMachinery-activeChips">
+                {selectedCategory !== "All" && (
+                  <span className="FkMachinery-chip">
+                    {selectedCategory}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCategory("All")}
                     >
-                      <img
-                        src={imgSrc}
-                        alt={title}
-                        loading="lazy"
-                        className="MachineryCard-img"
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.png";
-                        }}
+                      ×
+                    </button>
+                  </span>
+                )}
+                {selectedBrands.map((b) => (
+                  <span key={b} className="FkMachinery-chip">
+                    {b}
+                    <button type="button" onClick={() => handleToggleBrand(b)}>
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {selectedHpRanges.map((r) => (
+                  <span key={r} className="FkMachinery-chip">
+                    {r === "under35"
+                      ? "≤35 HP"
+                      : r === "36to50"
+                      ? "36-50 HP"
+                      : ">50 HP"}
+                    <button type="button" onClick={() => handleToggleHp(r)}>
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {inStockOnly && (
+                  <span className="FkMachinery-chip">
+                    In Stock
+                    <button
+                      type="button"
+                      onClick={() => setInStockOnly(false)}
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {minRating > 0 && (
+                  <span className="FkMachinery-chip">
+                    {minRating}★ & above
+                    <button type="button" onClick={() => setMinRating(0)}>
+                      ×
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* SECTION 1: CATEGORIES (FLIPKART STYLE) */}
+            <div className="FkMachinery-section">
+              <div
+                className="FkMachinery-sectionHeader"
+                onClick={() => toggleSection("categories")}
+              >
+                <span>CATEGORIES</span>
+                {collapsedSections.categories ? (
+                  <ChevronDown size={16} />
+                ) : (
+                  <ChevronUp size={16} />
+                )}
+              </div>
+              {!collapsedSections.categories && (
+                <div className="FkMachinery-catList">
+                  <button
+                    type="button"
+                    className={`FkMachinery-catItem ${
+                      selectedCategory === "All" ? "active" : ""
+                    }`}
+                    onClick={() => setSelectedCategory("All")}
+                  >
+                    <span className="FkMachinery-catName">
+                      All Equipment Types
+                    </span>
+                    <span className="FkMachinery-catCount">
+                      {machinery.length}
+                    </span>
+                  </button>
+                  {categoryList.map((cat) => (
+                    <button
+                      type="button"
+                      key={cat.name}
+                      className={`FkMachinery-catItem ${
+                        selectedCategory === cat.name ? "active" : ""
+                      }`}
+                      onClick={() => setSelectedCategory(cat.name)}
+                    >
+                      <span className="FkMachinery-catName">{cat.name}</span>
+                      <span className="FkMachinery-catCount">{cat.count}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* SECTION 2: BRAND FILTER */}
+            <div className="FkMachinery-section">
+              <div
+                className="FkMachinery-sectionHeader"
+                onClick={() => toggleSection("brand")}
+              >
+                <span>BRAND</span>
+                {collapsedSections.brand ? (
+                  <ChevronDown size={16} />
+                ) : (
+                  <ChevronUp size={16} />
+                )}
+              </div>
+              {!collapsedSections.brand && (
+                <div className="FkMachinery-sectionBody">
+                  {brandList.length > 5 && (
+                    <div className="FkMachinery-filterSearchBox">
+                      <Search size={14} />
+                      <input
+                        type="text"
+                        placeholder="Search Brand"
+                        value={brandSearch}
+                        onChange={(e) => setBrandSearch(e.target.value)}
                       />
-                    </Link>
+                    </div>
+                  )}
+                  <div className="FkMachinery-checkboxList">
+                    {brandList
+                      .filter((b) =>
+                        b.name.toLowerCase().includes(brandSearch.toLowerCase())
+                      )
+                      .map((b) => {
+                        const isChecked = selectedBrands.includes(b.name);
+                        return (
+                          <label
+                            key={b.name}
+                            className={`FkMachinery-checkboxRow ${
+                              isChecked ? "checked" : ""
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => handleToggleBrand(b.name)}
+                            />
+                            <span className="FkMachinery-customCheck">
+                              {isChecked && <Check size={12} />}
+                            </span>
+                            <span className="FkMachinery-labelTxt">
+                              {b.name}
+                            </span>
+                            <span className="FkMachinery-labelCount">
+                              ({b.count})
+                            </span>
+                          </label>
+                        );
+                      })}
                   </div>
+                </div>
+              )}
+            </div>
 
-                  {/* CARD BODY */}
-                  <div className="MachineryCard-body">
-                    <div className="MachineryCard-categoryRow">
-                      <span className="MachineryCard-category">{category}</span>
-                      {model && <span className="MachineryCard-model">Model: {model}</span>}
-                    </div>
+            {/* SECTION 3: TRACTOR HP POWER REQUIREMENT */}
+            <div className="FkMachinery-section">
+              <div
+                className="FkMachinery-sectionHeader"
+                onClick={() => toggleSection("hp")}
+              >
+                <span>TRACTOR HP / POWER</span>
+                {collapsedSections.hp ? (
+                  <ChevronDown size={16} />
+                ) : (
+                  <ChevronUp size={16} />
+                )}
+              </div>
+              {!collapsedSections.hp && (
+                <div className="FkMachinery-sectionBody">
+                  <div className="FkMachinery-checkboxList">
+                    {[
+                      { key: "under35", label: "35 HP & Below" },
+                      { key: "36to50", label: "36 HP - 50 HP" },
+                      { key: "above50", label: "Above 50 HP (Heavy Duty)" },
+                    ].map((hp) => {
+                      const isChecked = selectedHpRanges.includes(hp.key);
+                      return (
+                        <label
+                          key={hp.key}
+                          className={`FkMachinery-checkboxRow ${
+                            isChecked ? "checked" : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => handleToggleHp(hp.key)}
+                          />
+                          <span className="FkMachinery-customCheck">
+                            {isChecked && <Check size={12} />}
+                          </span>
+                          <span className="FkMachinery-labelTxt">
+                            {hp.label}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
 
-                    <h3 className="MachineryCard-title">
-                      <Link to={`/machinery/${toMachinerySlug(title)}`}>
-                        {title}
-                      </Link>
-                    </h3>
+            {/* SECTION 4: AVAILABILITY */}
+            <div className="FkMachinery-section">
+              <div
+                className="FkMachinery-sectionHeader"
+                onClick={() => toggleSection("availability")}
+              >
+                <span>AVAILABILITY</span>
+                {collapsedSections.availability ? (
+                  <ChevronDown size={16} />
+                ) : (
+                  <ChevronUp size={16} />
+                )}
+              </div>
+              {!collapsedSections.availability && (
+                <div className="FkMachinery-sectionBody">
+                  <label className="FkMachinery-checkboxRow">
+                    <input
+                      type="checkbox"
+                      checked={inStockOnly}
+                      onChange={(e) => setInStockOnly(e.target.checked)}
+                    />
+                    <span className="FkMachinery-customCheck">
+                      {inStockOnly && <Check size={12} />}
+                    </span>
+                    <span className="FkMachinery-labelTxt">
+                      Include In-Stock Only
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
 
-                    {/* SPECS ROW */}
-                    <div className="MachineryCard-specsRow">
-                      <div className="MachineryCard-spec">
-                        <span>Power</span>
-                        <strong>{power}</strong>
+            {/* SECTION 5: CUSTOMER RATINGS */}
+            <div className="FkMachinery-section">
+              <div
+                className="FkMachinery-sectionHeader"
+                onClick={() => toggleSection("rating")}
+              >
+                <span>CUSTOMER RATINGS</span>
+                {collapsedSections.rating ? (
+                  <ChevronDown size={16} />
+                ) : (
+                  <ChevronUp size={16} />
+                )}
+              </div>
+              {!collapsedSections.rating && (
+                <div className="FkMachinery-sectionBody">
+                  <div className="FkMachinery-checkboxList">
+                    {[4, 3].map((star) => (
+                      <label key={star} className="FkMachinery-checkboxRow">
+                        <input
+                          type="radio"
+                          name="ratingFilter"
+                          checked={minRating === star}
+                          onChange={() =>
+                            setMinRating(minRating === star ? 0 : star)
+                          }
+                        />
+                        <span className="FkMachinery-customRadio" />
+                        <span className="FkMachinery-starRow">
+                          <span>{star}★ & above</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SIDEBAR HELPLINE CARD */}
+            <div className="FkMachinery-sidebarHelpline">
+              <div className="FkMachinery-helplineIcon">
+                <Phone size={18} />
+              </div>
+              <div className="FkMachinery-helplineBody">
+                <span className="FkMachinery-helplineLabel">
+                  Dealer Helpline
+                </span>
+                <a
+                  href={`tel:${HELPLINE_TEL}`}
+                  className="FkMachinery-helplineNumber"
+                >
+                  {HELPLINE_PHONE}
+                </a>
+                <span className="FkMachinery-helplineSub">
+                  Govt Subsidy & Quotation Support
+                </span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        {/* ================= RIGHT MAIN AREA ================= */}
+        <main className="FkMachinery-main">
+          {/* Top Utility Bar (Search, Result Count, Sort By) */}
+          <div className="FkMachinery-utilityBar">
+            <div className="FkMachinery-searchWrap">
+              <Search size={16} className="FkMachinery-searchIcon" />
+              <input
+                type="text"
+                placeholder="Search by equipment name, implement type, brand, or model..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="FkMachinery-searchInput"
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="FkMachinery-searchClear"
+                  onClick={() => setSearch("")}
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            <div className="FkMachinery-utilityRight">
+              <span className="FkMachinery-resultsCount">
+                Showing <strong>{filteredMachinery.length}</strong> items
+              </span>
+
+              <div className="FkMachinery-sortWrap">
+                <span className="FkMachinery-sortLabel">Sort By:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="FkMachinery-sortSelect"
+                >
+                  <option value="relevance">Relevance</option>
+                  <option value="priceAsc">Price -- Low to High</option>
+                  <option value="priceDesc">Price -- High to Low</option>
+                  <option value="nameAsc">Name (A - Z)</option>
+                  <option value="rating">Customer Rating</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Machinery Grid Area */}
+          {loading ? (
+            <div className="FkMachinery-loadingState">
+              <div className="FkMachinery-spinner" />
+              <p>Loading authorized machinery catalogue...</p>
+            </div>
+          ) : filteredMachinery.length === 0 ? (
+            <div className="FkMachinery-emptyState">
+              <Tractor size={48} strokeWidth={1.3} />
+              <h3>No machinery equipment matches your current filters</h3>
+              <p>
+                Try clearing selected brands, category, or search keywords to view
+                the full machinery catalogue.
+              </p>
+              <button
+                type="button"
+                className="FkMachinery-emptyResetBtn"
+                onClick={handleResetFilters}
+              >
+                Reset All Filters
+              </button>
+            </div>
+          ) : (
+            <div className="FkMachinery-grid">
+              {filteredMachinery.map((item) => {
+                const title = item.name || item.title || "Agricultural Machine";
+                const brand = item.brand || item.brandName || "Rhinco";
+                const category = item.category || item.implementType || "Farm Equipment";
+                const slug = toMachinerySlug(item);
+                const power =
+                  item.powerRequirement ||
+                  item.powerRequired ||
+                  item.power ||
+                  "35 - 50 HP";
+                const price = item.price ? Number(item.price) : 0;
+
+                const primaryImg =
+                  item.image ||
+                  (Array.isArray(item.images) && item.images[0]) ||
+                  (Array.isArray(item.machineImages) && item.machineImages[0]) ||
+                  "";
+
+                return (
+                  <article key={item._id || item.id} className="FkMachinery-card">
+                    {/* CARD THUMBNAIL */}
+                    <Link
+                      to={`/machinery/${slug}`}
+                      className="FkMachinery-cardMedia"
+                    >
+                      {primaryImg ? (
+                        <img
+                          src={resolveImageUrl(primaryImg)}
+                          alt={title}
+                          className="FkMachinery-cardImg"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="FkMachinery-cardImgFallback">
+                          <Tractor size={40} strokeWidth={1.2} />
+                        </div>
+                      )}
+
+                      <div className="FkMachinery-cardBadges">
+                        <span className="FkMachinery-subsidyTag">
+                          <Sparkles size={11} />
+                          Subsidy Eligible
+                        </span>
                       </div>
-                      <div className="MachineryCard-specDivider" />
-                      <div className="MachineryCard-spec">
-                        <span>Availability</span>
-                        <strong className="status-in-stock">
-                          {item.status || "In Stock"}
-                        </strong>
-                      </div>
-                    </div>
+                    </Link>
 
-                    {/* PRICE & ACTIONS */}
-                    <div className="MachineryCard-footer">
-                      <div className="MachineryCard-priceArea">
-                        <span className="MachineryCard-priceLabel">Estimated Price</span>
-                        <span className="MachineryCard-price">
-                          {priceText || "Price on Request"}
+                    {/* CARD CONTENT */}
+                    <div className="FkMachinery-cardBody">
+                      <div className="FkMachinery-cardMetaRow">
+                        <span className="FkMachinery-brandPill">{brand}</span>
+                        <span className="FkMachinery-categoryPill">
+                          {category}
                         </span>
                       </div>
 
-                      <div className="MachineryCard-actions">
-                        <Link
-                          to={`/machinery/${toMachinerySlug(title)}`}
-                          className="MachineryCard-viewBtn"
-                          title="View Specifications"
-                        >
-                          Specs →
+                      <h3 className="FkMachinery-cardTitle">
+                        <Link to={`/machinery/${slug}`} title={title}>
+                          {title}
                         </Link>
-                        <button
-                          type="button"
-                          className="MachineryCard-contactBtn"
-                          onClick={() => handleContactDealer(item)}
-                        >
-                          Contact Dealer
-                        </button>
+                      </h3>
+
+                      {/* QUICK SPECS ROW */}
+                      <div className="FkMachinery-specRow">
+                        <div className="FkMachinery-specItem">
+                          <span className="FkMachinery-specLabel">Power HP</span>
+                          <strong className="FkMachinery-specVal">{power}</strong>
+                        </div>
+                        <div className="FkMachinery-specItem">
+                          <span className="FkMachinery-specLabel">Warranty</span>
+                          <strong className="FkMachinery-specVal">
+                            {item.warranty || "1 Year Standard"}
+                          </strong>
+                        </div>
+                      </div>
+
+                      {/* RATING ROW */}
+                      <div className="FkMachinery-ratingRow">
+                        <div className="FkMachinery-stars">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              size={12}
+                              fill={
+                                s <= Math.floor(item.rating || 5)
+                                  ? "#f59e0b"
+                                  : "#e2e8f0"
+                              }
+                              color={
+                                s <= Math.floor(item.rating || 5)
+                                  ? "#f59e0b"
+                                  : "#cbd5e1"
+                              }
+                            />
+                          ))}
+                        </div>
+                        <span className="FkMachinery-ratingNum">
+                          {item.rating || 4.8}
+                        </span>
+                      </div>
+
+                      {/* PRICE & ACTIONS */}
+                      <div className="FkMachinery-cardFooter">
+                        <div className="FkMachinery-priceWrap">
+                          <span className="FkMachinery-price">
+                            {price > 0
+                              ? `₹ ${price.toLocaleString("en-IN")}`
+                              : "Price On Request"}
+                          </span>
+                          <span className="FkMachinery-subsidyNote">
+                            Subsidy assistance available
+                          </span>
+                        </div>
+
+                        <div className="FkMachinery-actions">
+                          <Link
+                            to={`/machinery/${slug}`}
+                            className="FkMachinery-specsBtn"
+                            title="View machine specifications"
+                          >
+                            Specs →
+                          </Link>
+
+                          <button
+                            type="button"
+                            className="FkMachinery-dealerBtn"
+                            onClick={(e) => handleOpenDealerModal(item, e)}
+                            title="Connect with authorized dealer"
+                          >
+                            <Phone size={13} />
+                            <span>Contact Dealer</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </main>
       </div>
 
-      {/* UNIFIED CONTACT DEALER MODAL */}
+      {/* ================= CONTACT DEALER MODAL ================= */}
       {selectedProduct && (
         <div
-          className="MachinaryEquipmentOne-modalOverlay"
-          onClick={() => !modalSubmitting && setSelectedProduct(null)}
+          className="FkMachinery-modalOverlay"
+          onClick={() => setSelectedProduct(null)}
         >
           <div
-            className="MachinaryEquipmentOne-modal"
+            className="FkMachinery-modalDialog"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="MachinaryEquipmentOne-modalHead">
+            <div className="FkMachinery-modalHeader">
               <div>
-                <span className="MachinaryEquipmentOne-modalBadge">
-                  <Tractor size={13} />
-                  <span>OFFICIAL FACTORY DEALER INQUIRY</span>
-                </span>
-                <h3>Connect with Authorized Dealer</h3>
-                <p>
-                  Get direct factory quotations, tractor compatibility verification & government subsidy support.
-                </p>
+                <h3>Connect With Authorized Dealer</h3>
+                <p>Direct dealer quotation, subsidy claim & field trial</p>
               </div>
-
               <button
                 type="button"
-                className="MachinaryEquipmentOne-modalCloseBtn"
+                className="FkMachinery-modalClose"
                 onClick={() => setSelectedProduct(null)}
-                aria-label="Close"
               >
-                <X size={18} />
+                <X size={20} />
               </button>
             </div>
 
-            <div className="MachinaryEquipmentOne-modalBody">
+            <div className="FkMachinery-modalContent">
               {modalSuccess ? (
-                <div className="MachinaryEquipmentOne-successCard">
-                  <div className="MachinaryEquipmentOne-successIconWrap">
-                    <CheckCircle2 size={36} />
-                  </div>
-                  <h4>Inquiry Sent Successfully!</h4>
+                <div className="FkMachinery-modalSuccess">
+                  <CheckCircle2 size={48} color="#059669" />
+                  <h4>Inquiry Successfully Transmitted!</h4>
                   <p>
-                    Thank you, <strong>{modalForm.name}</strong>. Our authorized equipment dealer has received your quotation request for{" "}
-                    <strong>{selectedProduct.name || selectedProduct.title}</strong> and will contact you at <strong>{modalForm.phone}</strong> shortly.
+                    Thank you <strong>{modalForm.name}</strong>. Our authorized
+                    district dealer has received your inquiry for{" "}
+                    <strong>
+                      {selectedProduct.name || selectedProduct.title}
+                    </strong>{" "}
+                    and will call you at <strong>{modalForm.phone}</strong> shortly.
                   </p>
+                  <div className="FkMachinery-modalHelplineNotice">
+                    <span>Direct Dealer Helpline: </span>
+                    <a href={`tel:${HELPLINE_TEL}`}>{HELPLINE_PHONE}</a>
+                  </div>
+                  <button
+                    type="button"
+                    className="FkMachinery-modalDoneBtn"
+                    onClick={() => setSelectedProduct(null)}
+                  >
+                    Done
+                  </button>
                 </div>
               ) : (
                 <>
-                  <div className="MachinaryEquipmentOne-spotlight">
-                    <div className="MachinaryEquipmentOne-spotlightImg">
-                      <img
-                        src={resolveImageUrl(
-                          selectedProduct.image || selectedProduct.machineImages?.[0],
-                          "/placeholder.png"
-                        )}
-                        alt={selectedProduct.name || selectedProduct.title}
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.png";
-                        }}
-                      />
+                  <div className="FkMachinery-modalItemCard">
+                    <div className="FkMachinery-modalItemImg">
+                      <Tractor size={30} color="#059669" />
                     </div>
-                    <div className="MachinaryEquipmentOne-spotlightMeta">
-                      <span className="MachinaryEquipmentOne-spotlightBrand">
-                        {selectedProduct.brand || selectedProduct.brandName || "Rhinco Implements"}
-                      </span>
-                      <h4>{selectedProduct.name || selectedProduct.title}</h4>
-                      <div className="MachinaryEquipmentOne-spotlightTags">
-                        <span>Power: {selectedProduct.power || selectedProduct.implementPower || "Standard HP"}</span>
-                        <span>
-                          Price:{" "}
-                          {selectedProduct.formattedPrice ||
-                            (selectedProduct.price
-                              ? `₹ ${Number(selectedProduct.price).toLocaleString("en-IN")}`
-                              : "On Request")}
-                        </span>
-                      </div>
+                    <div>
+                      <h4>
+                        {selectedProduct.name || selectedProduct.title}
+                      </h4>
+                      <p>
+                        {selectedProduct.brand || "Rhinco"} •{" "}
+                        {selectedProduct.category || "Farm Machinery"}
+                      </p>
                     </div>
                   </div>
 
                   {modalError && (
-                    <div className="MachinaryEquipmentOne-errorNotice">
+                    <div className="FkMachinery-modalError">
                       {modalError}
                     </div>
                   )}
 
-                  <form onSubmit={handleModalSubmit} className="MachinaryEquipmentOne-form">
-                    <div className="MachinaryEquipmentOne-formGrid">
-                      <div className="MachinaryEquipmentOne-field">
-                        <label>
-                          <User size={14} />
-                          <span>Full Name *</span>
-                        </label>
+                  <form
+                    onSubmit={handleModalSubmit}
+                    className="FkMachinery-modalForm"
+                  >
+                    <div className="FkMachinery-formRow">
+                      <div className="FkMachinery-formField">
+                        <label>Full Name *</label>
                         <input
                           type="text"
                           required
                           placeholder="e.g. Ramesh Patel"
                           value={modalForm.name}
-                          onChange={(e) => setModalForm({ ...modalForm, name: e.target.value })}
+                          onChange={(e) =>
+                            setModalForm({ ...modalForm, name: e.target.value })
+                          }
                         />
                       </div>
-
-                      <div className="MachinaryEquipmentOne-field">
-                        <label>
-                          <Phone size={14} />
-                          <span>Mobile Number *</span>
-                        </label>
+                      <div className="FkMachinery-formField">
+                        <label>Mobile Number *</label>
                         <input
                           type="tel"
                           required
                           placeholder="e.g. 9876543210"
                           value={modalForm.phone}
-                          onChange={(e) => setModalForm({ ...modalForm, phone: e.target.value })}
+                          onChange={(e) =>
+                            setModalForm({
+                              ...modalForm,
+                              phone: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
 
-                    <div className="MachinaryEquipmentOne-formGrid">
-                      <div className="MachinaryEquipmentOne-field">
-                        <label>
-                          <MapPin size={14} />
-                          <span>District / Village (for dealer matching)</span>
-                        </label>
+                    <div className="FkMachinery-formRow">
+                      <div className="FkMachinery-formField">
+                        <label>District / Village</label>
                         <input
                           type="text"
                           placeholder="e.g. Cuttack, Odisha"
                           value={modalForm.location}
-                          onChange={(e) => setModalForm({ ...modalForm, location: e.target.value })}
+                          onChange={(e) =>
+                            setModalForm({
+                              ...modalForm,
+                              location: e.target.value,
+                            })
+                          }
                         />
                       </div>
-
-                      <div className="MachinaryEquipmentOne-field">
-                        <label>
-                          <Mail size={14} />
-                          <span>Email (optional)</span>
-                        </label>
+                      <div className="FkMachinery-formField">
+                        <label>Email (Optional)</label>
                         <input
                           type="email"
                           placeholder="e.g. ramesh@gmail.com"
                           value={modalForm.email}
-                          onChange={(e) => setModalForm({ ...modalForm, email: e.target.value })}
+                          onChange={(e) =>
+                            setModalForm({
+                              ...modalForm,
+                              email: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
 
-                    <div className="MachinaryEquipmentOne-field">
-                      <label>
-                        <span>Inquiry Message / Requirement</span>
-                      </label>
+                    <div className="FkMachinery-formField">
+                      <label>Inquiry Requirement</label>
                       <textarea
                         rows={3}
                         value={modalForm.message}
-                        onChange={(e) => setModalForm({ ...modalForm, message: e.target.value })}
+                        onChange={(e) =>
+                          setModalForm({
+                            ...modalForm,
+                            message: e.target.value,
+                          })
+                        }
                       />
                     </div>
 
-                    <div className="MachinaryEquipmentOne-modalActions">
-                      <button
-                        type="button"
-                        className="MachinaryEquipmentOne-cancelBtn"
-                        onClick={() => setSelectedProduct(null)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={modalSubmitting}
-                        className="MachinaryEquipmentOne-submitBtn"
-                      >
-                        {modalSubmitting ? "Connecting Dealer..." : "Submit Quotation Request →"}
-                      </button>
+                    <div className="FkMachinery-modalFooter">
+                      <div className="FkMachinery-modalHelplineHint">
+                        Helpline: <a href={`tel:${HELPLINE_TEL}`}>{HELPLINE_PHONE}</a>
+                      </div>
+                      <div className="FkMachinery-modalBtns">
+                        <button
+                          type="button"
+                          className="FkMachinery-cancelBtn"
+                          onClick={() => setSelectedProduct(null)}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={modalSubmitting}
+                          className="FkMachinery-submitBtn"
+                        >
+                          {modalSubmitting ? "Submitting..." : "Submit Quotation Request →"}
+                        </button>
+                      </div>
                     </div>
                   </form>
                 </>
@@ -704,7 +1110,7 @@ const MachinaryEquipmentOne = () => {
           </div>
         </div>
       )}
-    </section>
+    </div>
   );
 };
 

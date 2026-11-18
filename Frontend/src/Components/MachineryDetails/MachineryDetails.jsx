@@ -734,12 +734,12 @@ const MachineryDetails = () => {
               </button>
 
               <a
-                href="tel:+918117048317"
+                href="tel:+919876543210"
                 className="MachineryDetails-call-btn"
-                title="Call Dealer Helpline"
+                title="Call Dealer Helpline (+91 98765 43210)"
               >
                 <Phone size={17} />
-                <span>Call Helpline</span>
+                <span>Call Helpline (+91 98765 43210)</span>
               </a>
             </div>
 

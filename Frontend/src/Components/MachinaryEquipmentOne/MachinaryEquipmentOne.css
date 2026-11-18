@@ -1,805 +1,1135 @@
 /* ==========================================================================
-   MODERN MACHINERY EQUIPMENT SHOWCASE (MachineryShowcase)
+   FLIPKART / FACEBOOK STYLE MACHINERY CATALOGUE
    ========================================================================== */
 
-.MachineryShowcase {
-  width: 100%;
+.FkMachinery-wrapper {
+  background-color: #f1f3f6;
   min-height: 100vh;
-  background: #f8fafc;
-  color: #0f172a;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  padding-bottom: 70px;
+  padding-bottom: 60px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1f2937;
 }
 
-/* HERO BANNER */
-.MachineryShowcase-hero {
-  width: 100%;
-  background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
-  color: #ffffff;
-  padding: 48px 24px 44px;
-  position: relative;
+.FkMachinery-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* TOP BREADCRUMB BAR */
+.FkMachinery-topBar {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px 0;
+  margin-bottom: 16px;
+}
+
+.FkMachinery-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.FkMachinery-breadcrumb a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.FkMachinery-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.FkMachinery-breadcrumbDivider {
+  color: #9ca3af;
+}
+
+.FkMachinery-breadcrumbCurrent {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* 2-COLUMN MAIN LAYOUT */
+.FkMachinery-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* ==========================================================================
+   FLIPKART STYLE SIDEBAR FILTER
+   ========================================================================== */
+.FkMachinery-sidebar {
+  width: 270px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for sidebar */
+.FkMachinery-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.FkMachinery-sidebar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.FkMachinery-sidebarCard {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
-.MachineryShowcase-heroContainer {
-  width: min(100%, 1380px);
-  margin: 0 auto;
-}
-
-.MachineryShowcase-heroBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(8px);
-  border-radius: 30px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-  color: #fef08a;
-}
-
-.MachineryShowcase-heroTitle {
-  font-size: clamp(28px, 3.4vw, 42px);
-  font-weight: 900;
-  line-height: 1.2;
-  margin: 0 0 12px 0;
-  letter-spacing: -0.8px;
-}
-
-.MachineryShowcase-heroSubtitle {
-  font-size: clamp(14px, 1.4vw, 16px);
-  line-height: 1.6;
-  color: #d1fae5;
-  max-width: 820px;
-  margin: 0 0 32px 0;
-}
-
-/* 4 Hero Pillars */
-.MachineryShowcase-pillars {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
-}
-
-.MachineryShowcase-pillar {
+/* Filter Header */
+.FkMachinery-filterHeader {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(6px);
-  border-radius: 14px;
-  padding: 12px 16px;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #ffffff;
 }
 
-.MachineryShowcase-pillar svg {
-  color: #a7f3d0;
+.FkMachinery-filterTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.FkMachinery-filterIcon {
+  color: #059669;
+}
+
+.FkMachinery-filterHeading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.2px;
+}
+
+.FkMachinery-clearBtn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.FkMachinery-clearBtn:hover {
+  background: #eff6ff;
+}
+
+.FkMachinery-closeDrawerBtn {
+  display: none;
+  background: none;
+  border: none;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+/* Active Chips */
+.FkMachinery-activeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.FkMachinery-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e5e7eb;
+  color: #1f2937;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.FkMachinery-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+}
+
+.FkMachinery-chip button:hover {
+  color: #dc2626;
+}
+
+/* Sidebar Section */
+.FkMachinery-section {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.FkMachinery-sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4b5563;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.FkMachinery-sectionHeader:hover {
+  color: #111827;
+}
+
+.FkMachinery-sectionBody {
+  padding: 0 16px 14px 16px;
+}
+
+/* Category List */
+.FkMachinery-catList {
+  padding: 0 8px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.FkMachinery-catItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.FkMachinery-catItem:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.FkMachinery-catItem.active {
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 700;
+}
+
+.FkMachinery-catCount {
+  font-size: 11px;
+  color: #9ca3af;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.FkMachinery-catItem.active .FkMachinery-catCount {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* Brand / Filter Search Box */
+.FkMachinery-filterSearchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.FkMachinery-filterSearchBox input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 12px;
+  width: 100%;
+  color: #111827;
+}
+
+/* Checkbox & Radio Rows */
+.FkMachinery-checkboxList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.FkMachinery-checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  user-select: none;
+  padding: 3px 0;
+}
+
+.FkMachinery-checkboxRow input {
+  display: none;
+}
+
+.FkMachinery-customCheck {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #9ca3af;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: #ffffff;
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
-.MachineryShowcase-pillar strong {
-  display: block;
-  font-size: 13.5px;
-  color: #ffffff;
-  font-weight: 700;
+.FkMachinery-checkboxRow input:checked + .FkMachinery-customCheck {
+  background: #059669;
+  border-color: #059669;
 }
 
-.MachineryShowcase-pillar span {
-  display: block;
-  font-size: 11.5px;
-  color: #d1fae5;
-}
-
-/* MAIN CONTAINER */
-.MachineryShowcase-container {
-  width: min(100% - 48px, 1380px);
-  margin: 32px auto 0;
-}
-
-/* CONTROLS BAR */
-.MachineryShowcase-controlsBar {
+.FkMachinery-customRadio {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #9ca3af;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 14px 18px;
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  flex-shrink: 0;
+}
+
+.FkMachinery-checkboxRow input:checked + .FkMachinery-customRadio {
+  border-color: #059669;
+  background: radial-gradient(circle, #059669 45%, #ffffff 50%);
+}
+
+.FkMachinery-labelTxt {
+  flex: 1;
+}
+
+.FkMachinery-labelCount {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.FkMachinery-starRow {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* SIDEBAR HELPLINE CARD */
+.FkMachinery-sidebarHelpline {
+  background: #ecfdf5;
+  border-top: 1px solid #d1fae5;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.FkMachinery-helplineIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #059669;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.FkMachinery-helplineBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.FkMachinery-helplineLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #065f46;
+  letter-spacing: 0.5px;
+}
+
+.FkMachinery-helplineNumber {
+  font-size: 14px;
+  font-weight: 800;
+  color: #047857;
+  text-decoration: none;
+  margin: 1px 0 2px 0;
+}
+
+.FkMachinery-helplineNumber:hover {
+  text-decoration: underline;
+}
+
+.FkMachinery-helplineSub {
+  font-size: 11px;
+  color: #047857;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   RIGHT MAIN CONTENT
+   ========================================================================== */
+.FkMachinery-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* TOP UTILITY BAR */
+.FkMachinery-utilityBar {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
 }
 
-.MachineryShowcase-searchBox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.FkMachinery-searchWrap {
   flex: 1;
   min-width: 260px;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  padding: 0 14px;
-  height: 44px;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.MachineryShowcase-searchBox .search-icon {
-  color: #64748b;
+.FkMachinery-searchIcon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+}
+
+.FkMachinery-searchInput {
+  width: 100%;
+  height: 38px;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 36px 0 36px;
+  font-size: 13px;
+  color: #111827;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.FkMachinery-searchInput:focus {
+  border-color: #059669;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.FkMachinery-searchClear {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.FkMachinery-utilityRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   flex-shrink: 0;
 }
 
-.MachineryShowcase-searchBox input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 14px;
-  color: #0f172a;
+.FkMachinery-resultsCount {
+  font-size: 13px;
+  color: #6b7280;
 }
 
-.MachineryShowcase-searchBox .search-clear {
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: #94a3b8;
-  cursor: pointer;
+.FkMachinery-resultsCount strong {
+  color: #111827;
 }
 
-.MachineryShowcase-dropdowns {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.MachineryShowcase-selectWrap {
+.FkMachinery-sortWrap {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  padding: 0 12px;
-  height: 44px;
 }
 
-.MachineryShowcase-selectWrap label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-}
-
-.MachineryShowcase-selectWrap select {
-  border: none;
-  background: transparent;
-  outline: none;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #0f172a;
-  cursor: pointer;
-}
-
-.MachineryShowcase-clearBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 44px;
-  padding: 0 14px;
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.MachineryShowcase-clearBtn:hover {
-  background: #fca5a5;
-}
-
-/* Category Quick Filter Pills */
-.MachineryShowcase-pillsRow {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 6px;
-  margin-bottom: 22px;
-}
-
-.MachineryShowcase-catPill {
-  padding: 8px 16px;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 20px;
+.FkMachinery-sortLabel {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
+  color: #4b5563;
 }
 
-.MachineryShowcase-catPill:hover {
-  border-color: #10b981;
-  color: #065f46;
-}
-
-.MachineryShowcase-catPill.active {
-  background: #065f46;
-  border-color: #065f46;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(6, 95, 70, 0.25);
-}
-
-/* RESULTS HEADER */
-.MachineryShowcase-resultsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.MachineryShowcase-resultsHeader h3 {
-  font-size: 22px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 4px 0;
-}
-
-.MachineryShowcase-resultsHeader p {
-  margin: 0;
-  font-size: 13.5px;
-  color: #64748b;
-}
-
-.MachineryShowcase-resultsTag {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #059669;
-}
-
-/* LOADING & EMPTY */
-.MachineryShowcase-loading,
-.MachineryShowcase-empty {
-  text-align: center;
-  padding: 60px 20px;
+.FkMachinery-sortSelect {
+  height: 36px;
   background: #ffffff;
-  border-radius: 20px;
-  border: 1px dashed #cbd5e1;
-}
-
-.MachineryShowcase-spinner {
-  width: 44px;
-  height: 44px;
-  border: 4px solid #e2e8f0;
-  border-top-color: #059669;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-
-.MachineryShowcase-empty svg {
-  color: #94a3b8;
-  margin-bottom: 12px;
-}
-
-.MachineryShowcase-empty h3 {
-  font-size: 18px;
-  font-weight: 800;
-  margin: 0 0 6px 0;
-}
-
-.MachineryShowcase-empty p {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0 0 16px 0;
-}
-
-.MachineryShowcase-resetBtn {
-  padding: 10px 20px;
-  background: #065f46;
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  outline: none;
   cursor: pointer;
+}
+
+.FkMachinery-sortSelect:focus {
+  border-color: #059669;
 }
 
 /* ==========================================================================
    MACHINERY CARDS GRID
    ========================================================================== */
-.MachineryShowcase-grid {
+.FkMachinery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
-.MachineryCard {
+@media (max-width: 1200px) {
+  .FkMachinery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.FkMachinery-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.MachineryCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 36px rgba(6, 95, 70, 0.12);
-  border-color: #86efac;
+.FkMachinery-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.09);
+  border-color: #cbd5e1;
 }
 
-/* Image Area */
-.MachineryCard-imageArea {
+/* Card Media */
+.FkMachinery-cardMedia {
   position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  height: 190px;
+  background: #fafafa;
   overflow: hidden;
+  padding: 12px;
+  text-decoration: none;
 }
 
-.MachineryCard-img {
+.FkMachinery-cardImg {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+
+.FkMachinery-card:hover .FkMachinery-cardImg {
+  transform: scale(1.04);
+}
+
+.FkMachinery-cardImgFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  transition: transform 0.35s ease;
+  color: #9ca3af;
 }
 
-.MachineryCard:hover .MachineryCard-img {
-  transform: scale(1.06);
-}
-
-.MachineryCard-brandBadge {
+.FkMachinery-cardBadges {
   position: absolute;
-  top: 14px;
-  left: 14px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 4px 10px;
-  border-radius: 6px;
+  top: 10px;
+  left: 10px;
+}
+
+.FkMachinery-subsidyTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: #0f172a;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  z-index: 2;
-}
-
-.MachineryCard-sponsoredBadge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  font-weight: 700;
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  z-index: 2;
 }
 
 /* Card Body */
-.MachineryCard-body {
-  padding: 20px 22px;
+.FkMachinery-cardBody {
+  padding: 14px 16px 16px 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-.MachineryCard-categoryRow {
+.FkMachinery-cardMetaRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 6px;
   margin-bottom: 6px;
 }
 
-.MachineryCard-category {
+.FkMachinery-brandPill {
   font-size: 11px;
   font-weight: 700;
+  color: #047857;
+  background: #f0fdf4;
+  padding: 2px 6px;
+  border-radius: 4px;
   text-transform: uppercase;
-  color: #059669;
-  letter-spacing: 0.6px;
 }
 
-.MachineryCard-model {
+.FkMachinery-categoryPill {
   font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
+  color: #6b7280;
 }
 
-.MachineryCard-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 14px 0;
-  line-height: 1.35;
+.FkMachinery-cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 10px 0;
+  min-height: 40px;
 }
 
-.MachineryCard-title a {
-  color: inherit;
+.FkMachinery-cardTitle a {
+  color: #111827;
   text-decoration: none;
-  transition: color 0.15s ease;
 }
 
-.MachineryCard-title a:hover {
+.FkMachinery-cardTitle a:hover {
   color: #059669;
 }
 
 /* Specs Row */
-.MachineryCard-specsRow {
-  display: flex;
-  align-items: center;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 8px 12px;
-  margin-bottom: 18px;
+.FkMachinery-specRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
 }
 
-.MachineryCard-spec {
-  flex: 1;
-}
-
-.MachineryCard-spec span {
-  display: block;
-  font-size: 11px;
-  color: #64748b;
-}
-
-.MachineryCard-spec strong {
-  display: block;
-  font-size: 12.5px;
-  color: #0f172a;
-  font-weight: 700;
-}
-
-.MachineryCard-spec strong.status-in-stock {
-  color: #059669;
-}
-
-.MachineryCard-specDivider {
-  width: 1px;
-  height: 24px;
-  background: #cbd5e1;
-  margin: 0 10px;
-}
-
-/* Footer & Actions */
-.MachineryCard-footer {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 14px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.MachineryCard-priceArea {
+.FkMachinery-specItem {
   display: flex;
   flex-direction: column;
 }
 
-.MachineryCard-priceLabel {
-  font-size: 10.5px;
-  color: #64748b;
+.FkMachinery-specLabel {
+  font-size: 10px;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.FkMachinery-specVal {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Rating Row */
+.FkMachinery-ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.FkMachinery-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.FkMachinery-ratingNum {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+}
+
+/* Card Footer */
+.FkMachinery-cardFooter {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.FkMachinery-priceWrap {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.FkMachinery-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.FkMachinery-subsidyNote {
+  font-size: 11px;
+  color: #059669;
   font-weight: 500;
 }
 
-.MachineryCard-price {
-  font-size: 17px;
-  font-weight: 900;
-  color: #065f46;
-  letter-spacing: -0.3px;
-}
-
-.MachineryCard-actions {
-  display: flex;
+/* Action Buttons */
+.FkMachinery-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
   gap: 8px;
 }
 
-.MachineryCard-viewBtn {
-  padding: 8px 12px;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
+.FkMachinery-specsBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  background: #ffffff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #334155;
+  color: #374151;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.MachineryCard-viewBtn:hover {
-  background: #e2e8f0;
+.FkMachinery-specsBtn:hover {
+  border-color: #111827;
+  background: #f9fafb;
 }
 
-.MachineryCard-contactBtn {
-  padding: 8px 14px;
+.FkMachinery-dealerBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background: #059669;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.FkMachinery-dealerBtn:hover {
+  background: #047857;
+}
+
+/* Loading & Empty States */
+.FkMachinery-loadingState,
+.FkMachinery-emptyState {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 60px 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.FkMachinery-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #059669;
+  border-radius: 50%;
+  animation: fkSpin 0.8s linear infinite;
+  margin: 0 auto 16px auto;
+}
+
+@keyframes fkSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.FkMachinery-emptyState h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 16px 0 8px 0;
+}
+
+.FkMachinery-emptyState p {
+  font-size: 14px;
+  max-width: 460px;
+  margin: 0 auto 20px auto;
+}
+
+.FkMachinery-emptyResetBtn {
   background: #059669;
   color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.2);
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.MachineryCard-contactBtn:hover {
-  background: #047857;
-  transform: translateY(-1px);
 }
 
 /* ==========================================================================
-   UNIFIED CONTACT DEALER MODAL
+   MOBILE CONTROLS & DRAWER
    ========================================================================== */
-.MachinaryEquipmentOne-modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  display: flex;
+.FkMachinery-mobileControls {
+  display: none;
+  width: 100%;
   align-items: center;
-  justify-content: center;
-  padding: 20px;
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-.MachinaryEquipmentOne-modal {
-  width: min(100%, 580px);
-  background: #ffffff;
-  border-radius: 24px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-  max-height: 92vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.MachinaryEquipmentOne-modalHead {
-  background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-  color: #ffffff;
-  padding: 24px 28px 20px;
-  position: relative;
-}
-
-.MachinaryEquipmentOne-modalBadge {
+.FkMachinery-mobileFilterBtn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-.MachinaryEquipmentOne-modalHead h3 {
-  font-size: 20px;
-  font-weight: 800;
-  margin: 0 0 4px 0;
-}
-
-.MachinaryEquipmentOne-modalHead p {
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 16px;
   font-size: 13px;
-  color: #d1fae5;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.MachinaryEquipmentOne-modalCloseBtn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  color: #ffffff;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-weight: 700;
+  color: #111827;
   cursor: pointer;
 }
 
-.MachinaryEquipmentOne-modalBody {
-  padding: 24px 28px;
-  overflow-y: auto;
-}
-
-.MachinaryEquipmentOne-spotlight {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 12px 14px;
-  margin-bottom: 20px;
-}
-
-.MachinaryEquipmentOne-spotlightImg {
-  width: 60px;
-  height: 60px;
-  flex-shrink: 0;
-  background: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-  padding: 4px;
-}
-
-.MachinaryEquipmentOne-spotlightImg img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.MachinaryEquipmentOne-spotlightBrand {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: #059669;
-}
-
-.MachinaryEquipmentOne-spotlightMeta h4 {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 2px 0 4px 0;
-}
-
-.MachinaryEquipmentOne-spotlightTags {
-  display: flex;
-  gap: 10px;
-  font-size: 12px;
-  color: #64748b;
-}
-
-.MachinaryEquipmentOne-errorNotice {
-  padding: 10px 14px;
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
+.FkMachinery-mobileResultsCount {
   font-size: 13px;
-  margin-bottom: 16px;
+  font-weight: 600;
+  color: #4b5563;
 }
 
-.MachinaryEquipmentOne-formGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
-}
+@media (max-width: 900px) {
+  .FkMachinery-mobileControls {
+    display: flex;
+  }
 
-@media (max-width: 540px) {
-  .MachinaryEquipmentOne-formGrid {
+  .FkMachinery-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 300px;
+    height: 100vh;
+    max-height: 100vh;
+    z-index: 9999;
+    background: #ffffff;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s ease;
+  }
+
+  .FkMachinery-sidebar--mobileOpen {
+    left: 0;
+  }
+
+  .FkMachinery-closeDrawerBtn {
+    display: block;
+  }
+
+  .FkMachinery-grid {
     grid-template-columns: 1fr;
   }
 }
 
-.MachinaryEquipmentOne-field {
+/* ==========================================================================
+   CONTACT DEALER MODAL
+   ========================================================================== */
+.FkMachinery-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.FkMachinery-modalDialog {
+  background: #ffffff;
+  border-radius: 12px;
+  max-width: 540px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.FkMachinery-modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.FkMachinery-modalHeader h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 2px 0;
+}
+
+.FkMachinery-modalHeader p {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.FkMachinery-modalClose {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.FkMachinery-modalClose:hover {
+  color: #111827;
+}
+
+.FkMachinery-modalContent {
+  padding: 20px;
+}
+
+.FkMachinery-modalItemCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.FkMachinery-modalItemImg {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.FkMachinery-modalItemCard h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 2px 0;
+}
+
+.FkMachinery-modalItemCard p {
+  font-size: 12px;
+  color: #065f46;
+  margin: 0;
+}
+
+.FkMachinery-modalError {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 6px;
   margin-bottom: 14px;
 }
 
-.MachinaryEquipmentOne-field label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #334155;
-}
-
-.MachinaryEquipmentOne-field input,
-.MachinaryEquipmentOne-field textarea {
-  padding: 10px 14px;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 13.5px;
-  outline: none;
-  font-family: inherit;
-  transition: border-color 0.2s ease;
-}
-
-.MachinaryEquipmentOne-field input:focus,
-.MachinaryEquipmentOne-field textarea:focus {
-  border-color: #059669;
-}
-
-.MachinaryEquipmentOne-modalActions {
+.FkMachinery-modalForm {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.FkMachinery-formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 500px) {
+  .FkMachinery-formRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.FkMachinery-formField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.FkMachinery-formField label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.FkMachinery-formField input,
+.FkMachinery-formField textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.FkMachinery-formField input:focus,
+.FkMachinery-formField textarea:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.1);
+}
+
+.FkMachinery-modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #f3f4f6;
+  flex-wrap: wrap;
 }
 
-.MachinaryEquipmentOne-cancelBtn {
-  padding: 10px 18px;
-  background: #f1f5f9;
-  color: #475569;
-  border: none;
-  border-radius: 8px;
-  font-size: 13.5px;
+.FkMachinery-modalHelplineHint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.FkMachinery-modalHelplineHint a {
+  color: #059669;
   font-weight: 700;
+  text-decoration: none;
+}
+
+.FkMachinery-modalBtns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.FkMachinery-cancelBtn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
   cursor: pointer;
 }
 
-.MachinaryEquipmentOne-submitBtn {
-  padding: 10px 22px;
+.FkMachinery-submitBtn {
   background: #059669;
-  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-size: 13.5px;
+  border-radius: 6px;
+  padding: 9px 20px;
+  font-size: 13px;
   font-weight: 700;
+  color: #ffffff;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.15s ease;
 }
 
-.MachinaryEquipmentOne-submitBtn:hover:not(:disabled) {
+.FkMachinery-submitBtn:hover {
   background: #047857;
 }
 
-/* Success Card */
-.MachinaryEquipmentOne-successCard {
+.FkMachinery-submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.FkMachinery-modalSuccess {
   text-align: center;
   padding: 30px 10px;
 }
 
-.MachinaryEquipmentOne-successIconWrap {
-  width: 60px;
-  height: 60px;
-  background: #dcfce7;
-  color: #16a34a;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-}
-
-.MachinaryEquipmentOne-successCard h4 {
+.FkMachinery-modalSuccess h4 {
   font-size: 18px;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 8px 0;
+  font-weight: 700;
+  color: #111827;
+  margin: 14px 0 8px 0;
 }
 
-.MachinaryEquipmentOne-successCard p {
-  font-size: 14px;
-  color: #475569;
+.FkMachinery-modalSuccess p {
+  font-size: 13px;
+  color: #4b5563;
   line-height: 1.5;
-  margin: 0;
+  max-width: 420px;
+  margin: 0 auto 16px auto;
+}
+
+.FkMachinery-modalHelplineNotice {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #065f46;
+  margin-bottom: 20px;
+}
+
+.FkMachinery-modalHelplineNotice a {
+  font-weight: 800;
+  color: #047857;
+}
+
+.FkMachinery-modalDoneBtn {
+  background: #059669;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
