@@ -21,6 +21,8 @@ import {
   ExternalLink,
   MessageSquare,
   Clock,
+  FileText,
+  Truck,
 } from "lucide-react";
 import "./Profile.css";
 import { toMachinerySlug } from "../../utils/helpers";
@@ -60,6 +62,8 @@ const Profile = () => {
   const [supportSubmitting, setSupportSubmitting] = useState(false);
   const [supportSuccess, setSupportSuccess] = useState(false);
 
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState(null);
+
   const [orders, setOrders] = useState(() => {
     try {
       const stored = localStorage.getItem("rhinco_orders");
@@ -75,21 +79,28 @@ const Profile = () => {
       const res = await fetch(ORDERS_API);
       const data = await res.json();
       if (res.ok && data.success && Array.isArray(data.data)) {
-        const userOrders = data.data.filter(
-          (o) =>
-            o.paymentStatus === "paid" &&
-            (!user?.email ||
-              o.user?.email === user.email ||
-              o.user?.phone === user.phone ||
-              o.deliveryAddress?.phone === user.phone)
-        );
-        if (userOrders.length > 0) {
-          setOrders(userOrders);
-          localStorage.setItem("rhinco_orders", JSON.stringify(userOrders));
-          return;
-        }
+        const userOrders = data.data.filter((o) => {
+          if (o.paymentStatus !== "paid") return false;
+          if (!user?.email && !user?.phone) return true;
+          const matchEmail =
+            user.email &&
+            o.user?.email &&
+            o.user.email.toLowerCase() === user.email.toLowerCase();
+          const matchPhone =
+            user.phone &&
+            (o.user?.phone === user.phone ||
+              o.deliveryAddress?.phone === user.phone);
+          const matchUserId = user._id && o.user?.userId === user._id;
+          return matchEmail || matchPhone || matchUserId;
+        });
+
+        setOrders(userOrders);
+        localStorage.setItem("rhinco_orders", JSON.stringify(userOrders));
+        return;
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Could not fetch orders from DB:", e);
+    }
 
     try {
       const stored = localStorage.getItem("rhinco_orders");
@@ -769,6 +780,11 @@ const Profile = () => {
                       : order.date || "Recent";
                     const orderStatus = order.orderStatus || order.statusText || order.status || "Confirmed";
                     const orderTotal = order.totalAmount || order.total || 0;
+                    const statusClass = String(orderStatus).toLowerCase().replace(/\s+/g, "");
+
+                    const isDelivered = orderStatus === "Delivered";
+                    const isShipped = ["Shipped", "Dispatched", "Out for Delivery", "Delivered"].includes(orderStatus);
+                    const isOutForDelivery = ["Out for Delivery", "Delivered"].includes(orderStatus);
 
                     return (
                       <div className="ProfileOrderCard" key={order._id || order.orderId || order.id}>
@@ -778,9 +794,44 @@ const Profile = () => {
                             <span style={{ color: "#94a3b8", margin: "0 8px" }}>•</span>
                             <span style={{ color: "#64748b" }}>Placed on {orderDate}</span>
                           </div>
-                          <span className={`ProfileOrderStatus confirmed`}>
+                          <span className={`ProfileOrderStatus ${statusClass}`}>
                             {orderStatus}
                           </span>
+                        </div>
+
+                        {/* ORDER TRACKING TIMELINE */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            background: "#f8fafc",
+                            padding: "12px 18px",
+                            borderRadius: "10px",
+                            margin: "12px 0 16px",
+                            border: "1px solid #e2e8f0",
+                            fontSize: "12px",
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#166534", fontWeight: 700 }}>
+                            <CheckCircle2 size={16} />
+                            <span>Confirmed</span>
+                          </div>
+                          <div style={{ flex: 1, height: "2px", background: isShipped ? "#166534" : "#e2e8f0", margin: "0 10px" }} />
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isShipped ? "#166534" : "#94a3b8", fontWeight: isShipped ? 700 : 500 }}>
+                            <Truck size={16} />
+                            <span>Shipped</span>
+                          </div>
+                          <div style={{ flex: 1, height: "2px", background: isOutForDelivery ? "#166534" : "#e2e8f0", margin: "0 10px" }} />
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isOutForDelivery ? "#166534" : "#94a3b8", fontWeight: isOutForDelivery ? 700 : 500 }}>
+                            <MapPin size={16} />
+                            <span>Out for Delivery</span>
+                          </div>
+                          <div style={{ flex: 1, height: "2px", background: isDelivered ? "#166534" : "#e2e8f0", margin: "0 10px" }} />
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isDelivered ? "#166534" : "#94a3b8", fontWeight: isDelivered ? 700 : 500 }}>
+                            <Package size={16} />
+                            <span>Delivered</span>
+                          </div>
                         </div>
 
                         {(order.items || []).map((item, idx) => (
@@ -826,7 +877,29 @@ const Profile = () => {
                             </strong>
                           </div>
 
-                          <div style={{ display: "flex", gap: "10px" }}>
+                          <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                            {isDelivered && (
+                              <button
+                                type="button"
+                                onClick={() => setSelectedInvoiceOrder(order)}
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  padding: "8px 16px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#166534",
+                                  color: "#ffffff",
+                                  fontSize: "13px",
+                                  fontWeight: 600,
+                                  border: "none",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <FileText size={15} />
+                                <span>Download Invoice</span>
+                              </button>
+                            )}
                             <Link
                               to="/products"
                               style={{
@@ -849,6 +922,341 @@ const Profile = () => {
                   })}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAX INVOICE MODAL IN MY PROFILE */}
+          {selectedInvoiceOrder && (
+            <div
+              style={{
+                position: "fixed",
+                inset: 0,
+                backgroundColor: "rgba(15, 23, 42, 0.6)",
+                backdropFilter: "blur(4px)",
+                zIndex: 9999,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "20px",
+              }}
+              onClick={() => setSelectedInvoiceOrder(null)}
+            >
+              <div
+                style={{
+                  background: "#ffffff",
+                  maxWidth: "760px",
+                  width: "100%",
+                  borderRadius: "16px",
+                  padding: "32px",
+                  maxHeight: "90vh",
+                  overflowY: "auto",
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* INVOICE HEADER */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    borderBottom: "2px solid #166534",
+                    paddingBottom: "16px",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div>
+                    <h2
+                      style={{
+                        fontSize: "22px",
+                        color: "#166534",
+                        margin: "0 0 4px",
+                        fontWeight: 800,
+                      }}
+                    >
+                      RHINCO AGRO EQUIPMENTS
+                    </h2>
+                    <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                      FarmTech Industrial Park, Sector 4, Gujarat - 382010
+                    </p>
+                    <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#64748b" }}>
+                      GSTIN: 24AABCR1234F1Z5 • support@rhincoequipments.com
+                    </p>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        background: "#166534",
+                        color: "#fff",
+                        padding: "4px 12px",
+                        borderRadius: "4px",
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      ORIGINAL TAX INVOICE
+                    </span>
+                    <p
+                      style={{
+                        margin: "8px 0 2px",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        color: "#0f172a",
+                      }}
+                    >
+                      Invoice #{selectedInvoiceOrder.invoiceNumber || `INV-${selectedInvoiceOrder.orderId}`}
+                    </p>
+                    <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                      Date:{" "}
+                      {new Date(
+                        selectedInvoiceOrder.deliveredAt || selectedInvoiceOrder.createdAt
+                      ).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        marginTop: "4px",
+                        fontSize: "11px",
+                        color: "#047857",
+                        background: "#ecfdf5",
+                        padding: "2px 8px",
+                        borderRadius: "12px",
+                        fontWeight: 600,
+                      }}
+                    >
+                      ✓ DELIVERED
+                    </span>
+                  </div>
+                </div>
+
+                {/* BILL TO & ORDER SUMMARY */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1.2fr 1fr",
+                    gap: "16px",
+                    marginBottom: "20px",
+                    background: "#f8fafc",
+                    padding: "14px",
+                    borderRadius: "10px",
+                    border: "1px solid #e2e8f0",
+                    fontSize: "13px",
+                  }}
+                >
+                  <div>
+                    <strong style={{ color: "#0f172a", display: "block", marginBottom: "4px" }}>
+                      Delivered To Customer:
+                    </strong>
+                    <p style={{ margin: 0, fontWeight: 700, color: "#1e293b" }}>
+                      {selectedInvoiceOrder.user?.name || selectedInvoiceOrder.deliveryAddress?.name}
+                    </p>
+                    <p style={{ margin: "2px 0", color: "#475569" }}>
+                      {selectedInvoiceOrder.deliveryAddress?.village},{" "}
+                      {selectedInvoiceOrder.deliveryAddress?.district}
+                    </p>
+                    <p style={{ margin: "2px 0", color: "#475569" }}>
+                      {selectedInvoiceOrder.deliveryAddress?.state} -{" "}
+                      {selectedInvoiceOrder.deliveryAddress?.pincode}
+                    </p>
+                    <p style={{ margin: "2px 0", color: "#475569" }}>
+                      Phone:{" "}
+                      {selectedInvoiceOrder.user?.phone || selectedInvoiceOrder.deliveryAddress?.phone}
+                    </p>
+                  </div>
+                  <div>
+                    <strong style={{ color: "#0f172a", display: "block", marginBottom: "4px" }}>
+                      Order & Payment:
+                    </strong>
+                    <p style={{ margin: "2px 0", color: "#475569" }}>
+                      Order ID: <strong>{selectedInvoiceOrder.orderId}</strong>
+                    </p>
+                    <p style={{ margin: "2px 0", color: "#475569" }}>
+                      Payment Mode: <strong>Razorpay Online (Prepaid)</strong>
+                    </p>
+                    <p style={{ margin: "2px 0", color: "#475569" }}>
+                      Payment ID:{" "}
+                      <strong style={{ fontFamily: "monospace", fontSize: "11px" }}>
+                        {selectedInvoiceOrder.razorpayPaymentId}
+                      </strong>
+                    </p>
+                  </div>
+                </div>
+
+                {/* ITEMS TABLE */}
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    marginBottom: "20px",
+                    fontSize: "13px",
+                  }}
+                >
+                  <thead>
+                    <tr
+                      style={{
+                        background: "#f1f5f9",
+                        textAlign: "left",
+                        borderBottom: "2px solid #cbd5e1",
+                      }}
+                    >
+                      <th style={{ padding: "8px 10px" }}>#</th>
+                      <th style={{ padding: "8px 10px" }}>Item Description</th>
+                      <th style={{ padding: "8px 10px" }}>Category</th>
+                      <th style={{ padding: "8px 10px", textAlign: "center" }}>Qty</th>
+                      <th style={{ padding: "8px 10px", textAlign: "right" }}>Rate</th>
+                      <th style={{ padding: "8px 10px", textAlign: "right" }}>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(selectedInvoiceOrder.items || []).map((item, idx) => (
+                      <tr key={idx} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                        <td style={{ padding: "8px 10px", color: "#64748b" }}>{idx + 1}</td>
+                        <td style={{ padding: "8px 10px", fontWeight: 600, color: "#0f172a" }}>
+                          {item.title}
+                        </td>
+                        <td style={{ padding: "8px 10px", color: "#64748b" }}>
+                          {item.category || "Implement"}
+                        </td>
+                        <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 600 }}>
+                          {item.quantity}
+                        </td>
+                        <td style={{ padding: "8px 10px", textAlign: "right" }}>
+                          ₹{Number(item.price).toLocaleString("en-IN")}
+                        </td>
+                        <td style={{ padding: "8px 10px", textAlign: "right", fontWeight: 700 }}>
+                          ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* TOTALS */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-end",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div style={{ fontSize: "11px", color: "#64748b", maxWidth: "340px" }}>
+                    <p style={{ margin: "0 0 2px" }}>
+                      ✓ Computer generated tax invoice for farm mechanization machinery.
+                    </p>
+                    <p style={{ margin: 0 }}>
+                      ✓ Rhinco Equipments Quality Tested & Subsidy Approved.
+                    </p>
+                  </div>
+                  <div
+                    style={{
+                      minWidth: "240px",
+                      fontSize: "13px",
+                      background: "#f8fafc",
+                      padding: "12px 16px",
+                      borderRadius: "8px",
+                      border: "1px solid #e2e8f0",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
+                      <span style={{ color: "#64748b" }}>Subtotal:</span>
+                      <span>
+                        ₹
+                        {Number(
+                          selectedInvoiceOrder.subtotal || selectedInvoiceOrder.totalAmount
+                        ).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    {selectedInvoiceOrder.discount > 0 && (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: "3px 0",
+                          color: "#16a34a",
+                        }}
+                      >
+                        <span>Discount:</span>
+                        <span>- ₹{Number(selectedInvoiceOrder.discount).toLocaleString("en-IN")}</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "3px 0" }}>
+                      <span style={{ color: "#64748b" }}>Delivery:</span>
+                      <span style={{ color: "#166534", fontWeight: 600 }}>FREE Delivery</span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "8px 0 2px",
+                        borderTop: "2px solid #166534",
+                        fontSize: "15px",
+                        fontWeight: 800,
+                        color: "#166534",
+                      }}
+                    >
+                      <span>Total Paid:</span>
+                      <span>₹{Number(selectedInvoiceOrder.totalAmount).toLocaleString("en-IN")}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* FOOTER ACTIONS */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    borderTop: "1px dashed #cbd5e1",
+                    paddingTop: "14px",
+                  }}
+                >
+                  <span style={{ fontSize: "12px", color: "#166534", fontWeight: 700 }}>
+                    ✓ Verified Paid via Razorpay
+                  </span>
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      style={{
+                        background: "#166534",
+                        color: "#fff",
+                        padding: "8px 18px",
+                        borderRadius: "8px",
+                        border: "none",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
+                      <FileText size={15} /> Print / Save PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedInvoiceOrder(null)}
+                      style={{
+                        background: "#f1f5f9",
+                        color: "#475569",
+                        padding: "8px 16px",
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

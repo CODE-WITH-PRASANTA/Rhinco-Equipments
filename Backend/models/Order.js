@@ -78,8 +78,24 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ['Confirmed', 'Processing', 'Dispatched', 'Delivered', 'Cancelled'],
-      default: 'Confirmed',
+      enum: [
+        'Confirmed',
+        'Processing',
+        'Dispatched',
+        'Shipped',
+        'Out for Delivery',
+        'Delivered',
+        'Cancelled',
+      ],
+      default: 'Processing',
+    },
+    invoiceNumber: {
+      type: String,
+      default: '',
+    },
+    deliveredAt: {
+      type: Date,
+      default: null,
     },
     user: {
       userId: { type: String, default: '' },

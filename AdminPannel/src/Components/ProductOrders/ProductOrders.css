@@ -485,9 +485,15 @@
   color: #92400e;
 }
 
-.ProductOrders-badge.dispatched {
+.ProductOrders-badge.dispatched,
+.ProductOrders-badge.shipped {
   background: #e0f2fe;
   color: #0369a1;
+}
+
+.ProductOrders-badge.outForDelivery {
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .ProductOrders-badge.delivered {
