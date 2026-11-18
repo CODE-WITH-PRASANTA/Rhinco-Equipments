@@ -627,11 +627,6 @@ const CartMain = () => {
       showToast(err.message || "Failed to initiate payment gateway");
       setPaymentLoading(false);
     }
-    } catch (err) {
-      console.error("Razorpay initiation error:", err);
-      showToast(err.message || "Failed to initiate payment gateway");
-      setPaymentLoading(false);
-    }
   };
 
   // Continue shopping
