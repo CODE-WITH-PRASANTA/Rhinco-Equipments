@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Tractor,
   CheckCircle2,
@@ -31,6 +31,7 @@ const HELPLINE_PHONE = "+91 98765 43210";
 const HELPLINE_TEL = "+919876543210";
 
 const MachinaryEquipmentOne = () => {
+  const navigate = useNavigate();
   const [machinery, setMachinery] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -790,7 +791,7 @@ const MachinaryEquipmentOne = () => {
                 const title = item.name || item.title || "Agricultural Machine";
                 const brand = item.brand || item.brandName || "Rhinco";
                 const category = item.category || item.implementType || "Farm Equipment";
-                const slug = toMachinerySlug(item);
+                const slug = toMachinerySlug(item.name || item.title || "");
                 const power =
                   item.powerRequirement ||
                   item.powerRequired ||
@@ -805,7 +806,12 @@ const MachinaryEquipmentOne = () => {
                   "";
 
                 return (
-                  <article key={item._id || item.id} className="FkMachinery-card">
+                  <article
+                    key={item._id || item.id}
+                    className="FkMachinery-card"
+                    onClick={() => navigate(`/machinery/${slug}`)}
+                    style={{ cursor: "pointer" }}
+                  >
                     {/* CARD THUMBNAIL */}
                     <Link
                       to={`/machinery/${slug}`}
@@ -906,9 +912,9 @@ const MachinaryEquipmentOne = () => {
                           <Link
                             to={`/machinery/${slug}`}
                             className="FkMachinery-specsBtn"
-                            title="View machine specifications"
+                            title="View Full Specifications"
                           >
-                            Specs →
+                            Full Specifications
                           </Link>
 
                           <button

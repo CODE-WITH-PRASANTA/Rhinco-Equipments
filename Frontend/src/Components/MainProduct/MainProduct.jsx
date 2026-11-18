@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ShoppingCart,
   Heart,
@@ -38,6 +38,7 @@ const formatPrice = (price) =>
   `₹ ${Number(price || 0).toLocaleString("en-IN")}`;
 
 const MainProduct = () => {
+  const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -819,7 +820,12 @@ const MainProduct = () => {
                 const cartQty = getCartItemQuantity(id);
 
                 return (
-                  <article key={id} className="FkProducts-card">
+                  <article
+                    key={id}
+                    className="FkProducts-card"
+                    onClick={() => navigate(`/product/${slug}`)}
+                    style={{ cursor: "pointer" }}
+                  >
                     {/* Media */}
                     <div className="FkProducts-cardMedia">
                       <Link to={`/product/${slug}`} className="FkProducts-imgLink">

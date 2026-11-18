@@ -2,7 +2,7 @@
  * Frontend Utilities & Helpers
  */
 
-import { API_URL, BACKEND_URL } from "./apiConfig";
+import { API_URL, BACKEND_URL } from "./apiConfig.js";
 
 export { API_URL, BACKEND_URL };
 
@@ -38,8 +38,12 @@ export const resolveImageUrl = (path, fallback = "") => {
  * Generates a clean URL slug (e.g. "shaktiman-regular-plus-rotavator")
  * Replaces spaces, percent encodings, and special characters with hyphens.
  */
-export const toMachinerySlug = (text) => {
-  if (!text) return "";
+export const toMachinerySlug = (input) => {
+  if (!input) return "";
+  let text = input;
+  if (typeof input === "object") {
+    text = input.slug || input.name || input.title || input.modelName || input._id || "";
+  }
   let decoded = text;
   try {
     decoded = decodeURIComponent(text);
@@ -56,8 +60,12 @@ export const toMachinerySlug = (text) => {
  * Generates a clean URL slug for store products (e.g. "rhinco-hydraulic-trolley-5-ton")
  * Replaces spaces, percent encodings, and special characters with hyphens.
  */
-export const toProductSlug = (text) => {
-  if (!text) return "";
+export const toProductSlug = (input) => {
+  if (!input) return "";
+  let text = input;
+  if (typeof input === "object") {
+    text = input.slug || input.name || input.title || input.modelName || input._id || "";
+  }
   let decoded = text;
   try {
     decoded = decodeURIComponent(text);
