@@ -212,7 +212,12 @@
   margin-top: 15px;
 }
 
-.ProductDetailsOne-filter-bottom button {
+.ProductDetailsOne-filter-bottom button,
+.ProductDetailsOne-filter-bottom .ProductDetailsOne-filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   min-width: 105px;
   padding: 12px 20px;
   color: #243022;
@@ -226,7 +231,8 @@
   transition: background 0.2s ease;
 }
 
-.ProductDetailsOne-filter-bottom button:hover {
+.ProductDetailsOne-filter-bottom button:hover,
+.ProductDetailsOne-filter-bottom .ProductDetailsOne-filter-button:hover {
   background: #e7a914;
 }
 

@@ -31,7 +31,29 @@ export const resolveImageUrl = (path, fallback = "") => {
  */
 export const toMachinerySlug = (text) => {
   if (!text) return "";
-  return String(text)
+  let decoded = text;
+  try {
+    decoded = decodeURIComponent(text);
+  } catch (e) {}
+  return String(decoded)
+    .toLowerCase()
+    .trim()
+    .replace(/%20/g, " ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
+/**
+ * Generates a clean URL slug for store products (e.g. "rhinco-hydraulic-trolley-5-ton")
+ * Replaces spaces, percent encodings, and special characters with hyphens.
+ */
+export const toProductSlug = (text) => {
+  if (!text) return "";
+  let decoded = text;
+  try {
+    decoded = decodeURIComponent(text);
+  } catch (e) {}
+  return String(decoded)
     .toLowerCase()
     .trim()
     .replace(/%20/g, " ")
@@ -42,4 +64,5 @@ export const toMachinerySlug = (text) => {
 export default {
   resolveImageUrl,
   toMachinerySlug,
+  toProductSlug,
 };

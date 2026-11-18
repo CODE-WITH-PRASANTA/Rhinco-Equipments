@@ -10,7 +10,7 @@ import {
   toggleWishlist,
   isInWishlist,
 } from "../../utils/cartWishlist";
-import { resolveImageUrl } from "../../utils/helpers";
+import { resolveImageUrl, toProductSlug } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const PRODUCTS_API = `${API_URL}/products`;
@@ -503,7 +503,7 @@ const MainProduct = () => {
                       </button>
 
                       <Link
-                        to={`/product/${encodeURIComponent(product.title || product.name)}`}
+                        to={`/product/${toProductSlug(product.title || product.name)}`}
                         className="MainProduct-image-link"
                       >
                         <img
@@ -525,7 +525,7 @@ const MainProduct = () => {
                       </span>
 
                       <Link
-                        to={`/product/${encodeURIComponent(product.title || product.name)}`}
+                        to={`/product/${toProductSlug(product.title || product.name)}`}
                         className="MainProduct-product-name"
                       >
                         {product.title || product.name}

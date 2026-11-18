@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
 import "./ProductDetailsOne.css";
 import drillImage from "../../assets/machine.jpg";
 import { addToCart, toggleWishlist, isInWishlist } from "../../utils/cartWishlist";
-import { resolveImageUrl } from "../../utils/helpers";
+import { resolveImageUrl, toProductSlug } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const PRODUCTS_API = `${API_URL}/products`;
@@ -21,8 +21,19 @@ const categories = [
 const ProductDetailsOne = () => {
   const { name: paramName } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const idParam = searchParams.get("id");
   const queryName = searchParams.get("name");
+
+  // Automatically normalize URL slug to remove % and %20 and replace with clean hyphens
+  useEffect(() => {
+    if (paramName) {
+      const cleanSlug = toProductSlug(paramName);
+      if (cleanSlug && paramName !== cleanSlug) {
+        navigate(`/product/${cleanSlug}`, { replace: true });
+      }
+    }
+  }, [paramName, navigate]);
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -62,17 +73,25 @@ const ProductDetailsOne = () => {
         const result = await res.json();
         if (res.ok && result.success && Array.isArray(result.data)) {
           const rawTarget = paramName || queryName || "";
-          const targetName = decodeURIComponent(rawTarget).trim().toLowerCase();
+          const targetSlug = toProductSlug(rawTarget);
+          let targetDecoded = "";
+          try {
+            targetDecoded = decodeURIComponent(rawTarget).trim().toLowerCase();
+          } catch (e) {
+            targetDecoded = rawTarget.trim().toLowerCase();
+          }
 
           const found = result.data.find((item) => {
             const pId = String(item._id || item.id || "");
-            const title = String(item.title || item.name || "").toLowerCase();
+            const title = String(item.title || item.name || "");
+            const itemSlug = toProductSlug(title);
 
             if (idParam && pId === idParam) return true;
-            if (targetName) {
-              if (title === targetName) return true;
-              if (title.replace(/\s+/g, "-") === targetName.replace(/\s+/g, "-")) return true;
-              if (title.includes(targetName) || targetName.includes(title)) return true;
+            if (targetSlug && itemSlug === targetSlug) return true;
+            if (targetDecoded) {
+              const lowerTitle = title.toLowerCase();
+              if (lowerTitle === targetDecoded) return true;
+              if (lowerTitle.includes(targetDecoded) || targetDecoded.includes(lowerTitle)) return true;
             }
             return false;
           });
@@ -297,22 +316,29 @@ const ProductDetailsOne = () => {
             </button>
           </form>
 
-          <div className="ProductDetailsOne-categories">
-            <h3>Categories</h3>
-            <ul>
+          <div className="ProductDetailsOne-sidebar-section">
+            <h2>Categories</h2>
+            <div className="ProductDetailsOne-category-box">
               {categories.map((category) => (
-                <li key={category}>
-                  <Link to={`/products?category=${encodeURIComponent(category)}`}>
-                    {category}
-                  </Link>
-                </li>
+                <Link
+                  key={category}
+                  to={`/products?category=${encodeURIComponent(category)}`}
+                  className="ProductDetailsOne-category-item"
+                >
+                  <span className="ProductDetailsOne-category-arrow">›</span>
+                  <span>{category}</span>
+                </Link>
               ))}
-            </ul>
+            </div>
           </div>
 
-          <div className="ProductDetailsOne-filter-price">
-            <h3>Filter by price</h3>
-            <div className="ProductDetailsOne-price-slider">
+          <div className="ProductDetailsOne-sidebar-section ProductDetailsOne-price-filter">
+            <h2>Filter by price</h2>
+            <div className="ProductDetailsOne-range-values">
+              <span>{formatPrice(minPrice)}</span>
+              <span>{formatPrice(maxPrice)}</span>
+            </div>
+            <div className="ProductDetailsOne-range-control">
               <input
                 type="range"
                 min="5000"
@@ -323,11 +349,10 @@ const ProductDetailsOne = () => {
                 aria-label="Filter by maximum price"
               />
             </div>
-            <div className="ProductDetailsOne-price-row">
+            <div className="ProductDetailsOne-filter-bottom">
               <Link
                 to={`/products?minPrice=${minPrice}&maxPrice=${maxPrice}`}
                 className="ProductDetailsOne-filter-button"
-                style={{ textDecoration: "none", textAlign: "center", lineHeight: "34px" }}
               >
                 Filter
               </Link>
