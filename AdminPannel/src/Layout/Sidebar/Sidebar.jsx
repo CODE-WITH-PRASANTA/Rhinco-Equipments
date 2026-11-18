@@ -48,11 +48,6 @@ const menuItems = [
         path: "/products",
         icon: <FiFileText size={16} />,
       },
-      {
-        text: "Product Order",
-        path: "/product-orders",
-        icon: <FiShoppingCart size={16} />,
-      },
     ],
   },
   {
@@ -69,11 +64,6 @@ const menuItems = [
         text: "Manage Equipment",
         path: "/machinery-equipment",
         icon: <FiFileText size={16} />,
-      },
-      {
-        text: "Enquires Machinery",
-        path: "/machinery-orders",
-        icon: <FiTruck size={16} />,
       },
     ],
   },
