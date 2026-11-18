@@ -252,9 +252,9 @@ const MachineryEquipment = () => {
       const details = oversized
         .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
         .join(", ");
-      setMediaError(
-        `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB per image. Exceeded: ${details}`
-      );
+      const errMsg = `Image size limit exceeded! Files over ${MAX_IMAGE_MB} MB cannot be uploaded. Exceeded: ${details}`;
+      setMediaError(errMsg);
+      setNotice({ type: "error", text: errMsg });
       if (imageInputRef.current) imageInputRef.current.value = "";
       return;
     }
@@ -312,9 +312,9 @@ const MachineryEquipment = () => {
       const details = oversized
         .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
         .join(", ");
-      setMediaError(
-        `Document size limit exceeded! Maximum allowed size is ${MAX_DOC_MB} MB per document. Exceeded: ${details}`
-      );
+      const errMsg = `Document size limit exceeded! Files over ${MAX_DOC_MB} MB cannot be uploaded. Exceeded: ${details}`;
+      setMediaError(errMsg);
+      setNotice({ type: "error", text: errMsg });
       if (docInputRef.current) docInputRef.current.value = "";
       return;
     }
@@ -382,8 +382,18 @@ const MachineryEquipment = () => {
   // SUBMIT FORM TO DATABASE
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // STRICT CHECK: Cannot submit if media error is showing
+    if (mediaError) {
+      setNotice({
+        type: "error",
+        text: `Cannot submit form! Please resolve the file size error: ${mediaError}`,
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     setNotice({ type: "", text: "" });
-    setMediaError("");
 
     if (uploadingMedia || images.some((img) => img.uploading)) {
       setNotice({
@@ -924,15 +934,30 @@ const MachineryEquipment = () => {
 
           {/* SUBMIT BUTTON */}
           <div className="AddMachinery-submitRow">
+            {mediaError && (
+              <div className="AddMachinery-submitBlockNotice">
+                <AlertCircle size={16} />
+                <span>Form submission is blocked: {mediaError}</span>
+                <button
+                  type="button"
+                  className="AddMachinery-dismissErrorBtn"
+                  onClick={() => setMediaError("")}
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
             <button
               type="submit"
-              disabled={isSubmitting || uploadingMedia}
-              className="AddMachinery-submitBtn"
+              disabled={isSubmitting || uploadingMedia || Boolean(mediaError)}
+              className={`AddMachinery-submitBtn ${mediaError ? "disabled-error" : ""}`}
             >
               <Save size={18} />
               <span>
                 {isSubmitting
                   ? "Saving to Database..."
+                  : mediaError
+                  ? "Cannot Submit — Fix Error Above"
                   : editingId
                   ? "Update Machinery"
                   : "Publish Machinery to Catalogue →"}

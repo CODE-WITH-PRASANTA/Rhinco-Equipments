@@ -202,9 +202,9 @@ const AddPost = () => {
       const details = oversized
         .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
         .join(", ");
-      setImageError(
-        `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB per image. Exceeded: ${details}`
-      );
+      const errMsg = `Image size limit exceeded! Files over ${MAX_IMAGE_MB} MB cannot be uploaded. Exceeded: ${details}`;
+      setImageError(errMsg);
+      setNotice({ type: "error", text: errMsg });
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -274,8 +274,18 @@ const AddPost = () => {
   // SUBMIT FORM TO DATABASE
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // STRICT CHECK: Cannot submit if image error is showing
+    if (imageError) {
+      setNotice({
+        type: "error",
+        text: `Cannot submit form! Please resolve the upload error first: ${imageError}`,
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     setNotice({ type: "", text: "" });
-    setImageError("");
 
     if (uploadingImages || images.some((img) => img.uploading)) {
       setNotice({
@@ -692,15 +702,30 @@ const AddPost = () => {
 
           {/* SUBMIT BUTTON ROW */}
           <div className="AddPost-submitRow">
+            {imageError && (
+              <div className="AddPost-submitBlockNotice">
+                <AlertCircle size={16} />
+                <span>Form submission is blocked: {imageError}</span>
+                <button
+                  type="button"
+                  className="AddPost-dismissErrorBtn"
+                  onClick={() => setImageError("")}
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
             <button
               type="submit"
-              disabled={isSubmitting || uploadingImages}
-              className="AddPost-submitBtn"
+              disabled={isSubmitting || uploadingImages || Boolean(imageError)}
+              className={`AddPost-submitBtn ${imageError ? "disabled-error" : ""}`}
             >
               <Save size={18} />
               <span>
                 {isSubmitting
                   ? "Saving to Database..."
+                  : imageError
+                  ? "Cannot Submit — Fix Error Above"
                   : editingId
                   ? "Update Product"
                   : "Publish Product to Store →"}

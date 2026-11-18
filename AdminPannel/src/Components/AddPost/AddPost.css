@@ -525,7 +525,39 @@
 /* SUBMIT ROW */
 .AddPost-submitRow {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.AddPost-submitBlockNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.AddPost-dismissErrorBtn {
+  background: #b91c1c;
+  color: #ffffff;
+  border: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.AddPost-dismissErrorBtn:hover {
+  background: #991b1b;
 }
 
 .AddPost-submitBtn {
@@ -541,7 +573,7 @@
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
 }
 
@@ -552,6 +584,13 @@
 .AddPost-submitBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.AddPost-submitBtn.disabled-error {
+  background: #94a3b8 !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
 }
 
 /* ==========================================================================
