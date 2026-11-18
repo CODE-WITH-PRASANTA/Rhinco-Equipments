@@ -850,7 +850,7 @@ const MachineryDetails = () => {
               </div>
             </div>
 
-            {/* Action Buttons: Contact Dealer & Quick Call */}
+            {/* Action Button: Contact Dealer */}
             <div className="MachineryDetails-actions-row">
               <button
                 type="button"
@@ -868,15 +868,6 @@ const MachineryDetails = () => {
                   />
                 </svg>
               </button>
-
-              <a
-                href="tel:+919876543210"
-                className="MachineryDetails-call-btn"
-                title="Call Dealer Helpline (+91 98765 43210)"
-              >
-                <Phone size={17} />
-                <span>Call Helpline (+91 98765 43210)</span>
-              </a>
             </div>
 
             <div className="MachineryDetails-info-divider" />

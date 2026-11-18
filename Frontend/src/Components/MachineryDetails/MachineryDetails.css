@@ -1580,15 +1580,12 @@
 
 .MachineryDetails-actions-row {
   display: flex;
-  gap: 12px;
   margin-top: 20px;
-  flex-wrap: wrap;
   width: 100%;
 }
 
 .MachineryDetails-btn-quotation {
-  flex: 1 1 200px;
-  min-width: 0;
+  width: 100%;
 }
 
 .MachineryDetails-btn-contact-dealer {
