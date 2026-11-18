@@ -14,6 +14,8 @@ import {
   MapPin,
   Tag,
   BadgePercent,
+  Sparkles,
+  Star,
 } from "lucide-react";
 import "./MachineryDetails.css";
 import "../MachinaryEquipmentOne/MachinaryEquipmentOne.css";
