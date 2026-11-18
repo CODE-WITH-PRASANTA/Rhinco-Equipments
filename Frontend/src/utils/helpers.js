@@ -7,21 +7,26 @@ const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_URL || "http://localhost:500
 /**
  * Resolves an image URL:
  * - If image path starts with /uploads, prepends the backend origin
+ * - If image is an object { url, data, preview, src }, extracts the string path
  * - If image is an external URL (http/https/blob/data), returns as is
- * - If empty, returns fallback
+ * - If empty or invalid, returns fallback
  */
 export const resolveImageUrl = (path, fallback = "") => {
   if (!path) return fallback;
-  if (typeof path !== "string") return fallback;
-  if (
-    path.startsWith("http://") ||
-    path.startsWith("https://") ||
-    path.startsWith("blob:") ||
-    path.startsWith("data:")
-  ) {
-    return path;
+  let raw = path;
+  if (typeof raw === "object" && raw !== null) {
+    raw = raw.url || raw.data || raw.preview || raw.src || "";
   }
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  if (!raw || typeof raw !== "string") return fallback;
+  if (
+    raw.startsWith("http://") ||
+    raw.startsWith("https://") ||
+    raw.startsWith("blob:") ||
+    raw.startsWith("data:")
+  ) {
+    return raw;
+  }
+  const cleanPath = raw.startsWith("/") ? raw : `/${raw}`;
   return `${BACKEND_ORIGIN}${cleanPath}`;
 };
 

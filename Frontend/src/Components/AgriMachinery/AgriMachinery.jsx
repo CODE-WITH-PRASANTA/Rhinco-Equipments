@@ -126,10 +126,12 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
               const name = product.title || product.name;
               const power = product.implementPower || product.power || "Standard HP";
               const category = product.category || product.implementType || "Machinery";
-              const image = (Array.isArray(product.machineImages) && product.machineImages[0]) ||
+              const rawImage =
+                (Array.isArray(product.machineImages) && product.machineImages[0]) ||
                 product.image ||
                 product.featuredImage?.data ||
                 "";
+              const resolvedImage = resolveImageUrl(rawImage, "/placeholder.png");
               const priceDisplay = product.formattedPrice ||
                 (product.discountPrice ? `₹ ${Number(product.discountPrice).toLocaleString("en-IN")}` :
                 (product.price ? `₹ ${Number(product.price).toLocaleString("en-IN")}` : null));
@@ -146,9 +148,9 @@ const AgriMachinery = ({ dealerEmail = "", onContactDealer }) => {
                     className="agriMachineryImage"
                     style={{ textDecoration: "none", display: "block" }}
                   >
-                    {!imageErrors.includes(productId) && image ? (
+                    {!imageErrors.includes(productId) && resolvedImage ? (
                       <img
-                        src={resolveImageUrl(image)}
+                        src={resolvedImage}
                         alt={name}
                         loading="lazy"
                         onError={() => handleImageError(productId)}
