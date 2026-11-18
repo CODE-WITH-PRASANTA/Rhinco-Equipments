@@ -22,7 +22,14 @@ import {
 import "./ProductOrders.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const ORDERS_API = `${API_URL}/orders`;
+
+const resolveImageUrl = (path, fallback = "") => {
+  if (!path) return fallback;
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:") || path.startsWith("data:")) return path;
+  return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
+};
 
 const formatINR = (num) => {
   return new Intl.NumberFormat("en-IN", {
@@ -389,7 +396,7 @@ const ProductOrders = () => {
                             {(order.items || []).slice(0, 3).map((item, idx) => (
                               <img
                                 key={idx}
-                                src={item.image || "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=100&q=80"}
+                                src={resolveImageUrl(item.image, "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=100&q=80")}
                                 alt={item.title}
                                 className="ProductOrders-itemThumb"
                                 title={`${item.title} (Qty: ${item.quantity})`}
@@ -620,7 +627,7 @@ const ProductOrders = () => {
                   {(selectedOrder.items || []).map((item, idx) => (
                     <div key={idx} className="ProductOrders-modalItemRow">
                       <img
-                        src={item.image || "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=120&q=80"}
+                        src={resolveImageUrl(item.image, "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=120&q=80")}
                         alt={item.title}
                         className="ProductOrders-modalItemImg"
                       />
@@ -1092,9 +1099,6 @@ const ProductOrders = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
           </div>
         </div>
       )}

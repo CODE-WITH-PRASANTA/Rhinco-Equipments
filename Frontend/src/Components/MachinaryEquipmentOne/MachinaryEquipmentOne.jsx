@@ -17,7 +17,7 @@ import {
   Check,
 } from "lucide-react";
 import "./MachinaryEquipmentOne.css";
-import { toMachinerySlug } from "../../utils/helpers";
+import { toMachinerySlug, resolveImageUrl } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const MACHINERY_API = `${API_URL}/machinery`;
@@ -406,14 +406,15 @@ const MachinaryEquipmentOne = ({
                     ? `₹ ${Number(item.discountPrice || item.price).toLocaleString("en-IN")}`
                     : null);
 
-                let imgSrc = item.image;
-                if (!imgSrc && Array.isArray(item.machineImages) && item.machineImages.length > 0) {
+                let rawImg = item.image;
+                if (!rawImg && Array.isArray(item.machineImages) && item.machineImages.length > 0) {
                   const first = item.machineImages[0];
-                  imgSrc = typeof first === "string" ? first : first?.data || first?.url || first?.preview || "";
+                  rawImg = typeof first === "string" ? first : first?.data || first?.url || first?.preview || "";
                 }
-                if (!imgSrc) {
-                  imgSrc = item.featuredImage?.data || "https://placehold.co/600x400/f2f5f1/315b42?text=Machinery+Image";
+                if (!rawImg) {
+                  rawImg = item.featuredImage?.data || "";
                 }
+                const imgSrc = resolveImageUrl(rawImg, "/placeholder.png");
 
                 return (
                   <article
@@ -437,8 +438,7 @@ const MachinaryEquipmentOne = ({
                         className="MachinaryEquipmentOne-productImage"
                         loading="lazy"
                         onError={(e) => {
-                          e.currentTarget.src =
-                            "https://placehold.co/600x400/f2f5f1/315b42?text=Machinery+Image";
+                          e.currentTarget.src = "/placeholder.png";
                         }}
                       />
 
@@ -600,7 +600,7 @@ const MachinaryEquipmentOne = ({
                   <div className="MachinaryEquipmentOne-spotlightCard">
                     {selectedProduct.image || selectedProduct.images?.[0] ? (
                       <img
-                        src={selectedProduct.image || selectedProduct.images?.[0]}
+                        src={resolveImageUrl(selectedProduct.image || selectedProduct.images?.[0], "/placeholder.png")}
                         alt={selectedProduct.name || selectedProduct.title}
                         className="MachinaryEquipmentOne-spotlightImg"
                         onError={(e) => {

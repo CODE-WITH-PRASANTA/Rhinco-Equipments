@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./MacineryEquipmentCards.css";
-import { toMachinerySlug } from "../../utils/helpers";
+import { toMachinerySlug, resolveImageUrl } from "../../utils/helpers";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const MACHINERY_API = `${API_URL}/machinery`;
@@ -207,10 +207,11 @@ const MacineryEquipmentCards = () => {
     const name = product.title || product.name;
     const power = product.implementPower || product.power || "Standard HP";
     const category = product.category || product.implementType || "Machinery";
-    const image = (Array.isArray(product.machineImages) && product.machineImages[0]) ||
+    const rawImage = (Array.isArray(product.machineImages) && product.machineImages[0]) ||
       product.image ||
       product.featuredImage?.data ||
-      fallbackImg;
+      "";
+    const image = resolveImageUrl(rawImage, fallbackImg);
     const priceDisplay = product.formattedPrice ||
       (product.discountPrice ? `₹ ${Number(product.discountPrice).toLocaleString("en-IN")}` :
       (product.price ? `₹ ${Number(product.price).toLocaleString("en-IN")}` : "For Price"));
