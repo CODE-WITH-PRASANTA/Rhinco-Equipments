@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const Machinery = require('../models/Machinery');
 const { saveMultipleBase64Images } = require('../utils/saveBase64Image');
 
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB max image size
+const MAX_DOC_BYTES = 10 * 1024 * 1024; // 10 MB max document size
+
+// Sanitize documents to remove unsafe blob URLs and ensure valid structure
 const sanitizeDocuments = (docs) => {
   if (!Array.isArray(docs)) return [];
   return docs
@@ -23,17 +27,17 @@ const sanitizeDocuments = (docs) => {
     .filter(Boolean);
 };
 
+// Format machinery for complete compatibility across both frontend and admin panel
 const formatMachinery = (item) => {
   const obj = item.toObject ? item.toObject() : item;
 
-  // Extract first image
   let primaryImage = '';
   if (Array.isArray(obj.machineImages) && obj.machineImages.length > 0) {
     const first = obj.machineImages[0];
     if (typeof first === 'string') {
       primaryImage = first;
     } else if (first && typeof first === 'object') {
-      primaryImage = first.data || first.preview || first.url || '';
+      primaryImage = first.url || first.data || first.preview || '';
     }
   }
 
@@ -42,17 +46,21 @@ const formatMachinery = (item) => {
       ? obj.discountPrice
       : obj.price;
 
+  const itemId = String(obj._id || obj.id || '');
+
   return {
     ...obj,
-    id: obj._id,
+    _id: itemId,
+    id: itemId,
     name: obj.title,
-    brand: obj.brandName,
-    power: obj.implementPower || 'N/A',
-    type: obj.implementType || obj.category || 'Equipment',
+    brand: obj.brandName || obj.brand || 'Rhinco',
+    power: obj.implementPower || obj.powerRequirement || '35 - 50 HP',
+    type: obj.implementType || obj.category || 'Farm Equipment',
     image: primaryImage,
     featuredImage: {
       name: 'featured-image.jpg',
       data: primaryImage,
+      url: primaryImage,
     },
     formattedPrice: effectivePrice
       ? `₹ ${Number(effectivePrice).toLocaleString('en-IN')}`
@@ -60,14 +68,19 @@ const formatMachinery = (item) => {
   };
 };
 
-// @desc    Get all machinery & equipment
+// @desc    Get all machinery & equipment with query filters, search, and sorting
 // @route   GET /api/machinery
 exports.getMachineries = async (req, res) => {
   try {
     const { category, brand, type, status, search, sort } = req.query;
     let query = {};
 
-    if (category && category !== 'All Categories' && category !== 'All Equipment Types' && category !== 'All') {
+    if (
+      category &&
+      category !== 'All Categories' &&
+      category !== 'All Equipment Types' &&
+      category !== 'All'
+    ) {
       query.category = { $regex: new RegExp(`^${category}$`, 'i') };
     }
 
@@ -98,23 +111,22 @@ exports.getMachineries = async (req, res) => {
     }
 
     let sortOption = { createdAt: -1 };
-    if (sort === 'oldest') {
-      sortOption = { createdAt: 1 };
-    } else if (sort === 'priceLow') {
+    if (sort === 'price-low' || sort === 'priceAsc') {
       sortOption = { price: 1 };
-    } else if (sort === 'priceHigh') {
+    } else if (sort === 'price-high' || sort === 'priceDesc') {
       sortOption = { price: -1 };
-    } else if (sort === 'title') {
+    } else if (sort === 'name' || sort === 'nameAsc') {
       sortOption = { title: 1 };
+    } else if (sort === 'rating') {
+      sortOption = { rating: -1 };
     }
 
-    const machineries = await Machinery.find(query).sort(sortOption);
-    const formatted = machineries.map(formatMachinery);
+    const items = await Machinery.find(query).sort(sortOption);
 
     res.json({
       success: true,
-      count: formatted.length,
-      data: formatted,
+      count: items.length,
+      data: items.map(formatMachinery),
     });
   } catch (error) {
     console.error('Error fetching machinery:', error);
@@ -138,26 +150,25 @@ exports.getMachineryById = async (req, res) => {
     if (!item) {
       const decoded = decodeURIComponent(param);
       const cleanPattern = decoded.replace(/-/g, ' ').trim();
-      const regexExact = new RegExp(`^${cleanPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+      const regexExact = new RegExp(
+        `^${cleanPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
+        'i'
+      );
 
       item = await Machinery.findOne({
-        $or: [
-          { title: regexExact },
-          { modelName: regexExact },
-          { code: regexExact },
-        ],
+        $or: [{ title: regexExact }, { modelName: regexExact }, { code: regexExact }],
       });
 
       // 3. Fallback to flexible slug search
       if (!item) {
         const words = cleanPattern.split(/\s+/).filter(Boolean);
         if (words.length > 0) {
-          const flexibleRegex = new RegExp(words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*'), 'i');
+          const flexibleRegex = new RegExp(
+            words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*'),
+            'i'
+          );
           item = await Machinery.findOne({
-            $or: [
-              { title: flexibleRegex },
-              { modelName: flexibleRegex },
-            ],
+            $or: [{ title: flexibleRegex }, { modelName: flexibleRegex }],
           });
         }
       }
@@ -192,11 +203,13 @@ exports.createMachinery = async (req, res) => {
       category,
       implementPower,
       power,
+      powerRequirement,
       price,
       discount,
       discountPrice,
       description,
       specification,
+      warranty,
       availableAtStore,
       status,
       sponsored,
@@ -208,6 +221,8 @@ exports.createMachinery = async (req, res) => {
     const resolvedTitle = (title || name || '').trim();
     const resolvedBrand = (brandName || brand || '').trim();
     const resolvedCategory = (category || '').trim();
+    const resolvedType = (implementType || type || resolvedCategory || '').trim();
+    const resolvedDesc = (description || '').trim();
 
     if (!resolvedTitle) {
       return res.status(400).json({ success: false, message: 'Machine title is required' });
@@ -218,66 +233,91 @@ exports.createMachinery = async (req, res) => {
     if (!resolvedCategory) {
       return res.status(400).json({ success: false, message: 'Category is required' });
     }
-    if (price === undefined || price === null || isNaN(Number(price))) {
-      return res.status(400).json({ success: false, message: 'Valid price is required' });
-    }
-
-    const MAX_ALLOWED_IMAGE_BYTES = 10 * 1024 * 1024;
-    const MAX_ALLOWED_DOC_BYTES = 25 * 1024 * 1024;
-    if (Array.isArray(documents)) {
-      const oversizedDoc = documents.find((d) => d && d.size && d.size > MAX_ALLOWED_DOC_BYTES);
-      if (oversizedDoc) {
-        return res.status(400).json({
-          success: false,
-          message: `Document size limit exceeded! Maximum allowed size is 25 MB. Exceeded: "${oversizedDoc.name || 'document'}"`,
-        });
-      }
-    }
-    if (Array.isArray(machineImages)) {
-      const oversizedImg = machineImages.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_IMAGE_BYTES);
-      if (oversizedImg) {
-        return res.status(400).json({
-          success: false,
-          message: `Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversizedImg.name || 'image'}"`,
-        });
-      }
+    if (!resolvedDesc) {
+      return res.status(400).json({ success: false, message: 'Description is required' });
     }
 
     const numPrice = Number(price);
-    const numDiscountPercent = Number(discount) || 0;
-    let resolvedDiscountPrice = null;
-    if (discountPrice !== undefined && discountPrice !== null && discountPrice !== '') {
-      resolvedDiscountPrice = Number(discountPrice);
-    } else if (numDiscountPercent > 0) {
-      resolvedDiscountPrice = Math.max(0, numPrice - (numPrice * numDiscountPercent) / 100);
+    if (isNaN(numPrice) || numPrice < 0) {
+      return res.status(400).json({ success: false, message: 'Valid price is required' });
     }
 
-    const newMachinery = await Machinery.create({
+    // Verify image size limits (max 5 MB)
+    if (Array.isArray(machineImages)) {
+      const oversized = machineImages.find(
+        (img) => img && typeof img === 'object' && img.size && img.size > MAX_IMAGE_BYTES
+      );
+      if (oversized) {
+        const mb = (oversized.size / (1024 * 1024)).toFixed(2);
+        return res.status(400).json({
+          success: false,
+          message: `Image size limit exceeded! Maximum allowed image size is 5 MB. Found: "${oversized.name || 'Image'}" (${mb} MB)`,
+        });
+      }
+    }
+
+    // Verify document size limits (max 10 MB)
+    if (Array.isArray(documents)) {
+      const oversizedDoc = documents.find(
+        (doc) => doc && typeof doc === 'object' && doc.size && doc.size > MAX_DOC_BYTES
+      );
+      if (oversizedDoc) {
+        const mb = (oversizedDoc.size / (1024 * 1024)).toFixed(2);
+        return res.status(400).json({
+          success: false,
+          message: `Document size limit exceeded! Maximum allowed document size is 10 MB. Found: "${oversizedDoc.name || 'Document'}" (${mb} MB)`,
+        });
+      }
+    }
+
+    const numDiscount = Number(discount) || 0;
+    let finalDiscountPrice = null;
+    if (discountPrice !== undefined && discountPrice !== null && discountPrice !== '') {
+      finalDiscountPrice = Number(discountPrice);
+    } else if (numDiscount > 0) {
+      finalDiscountPrice = Math.max(0, numPrice - (numPrice * numDiscount) / 100);
+    }
+
+    // Process and normalize images
+    let rawImages = [];
+    if (Array.isArray(machineImages)) {
+      rawImages = machineImages
+        .map((img) => (typeof img === 'string' ? img : img.data || img.preview || img.url || ''))
+        .filter(Boolean);
+    } else if (typeof machineImages === 'string' && machineImages) {
+      rawImages = [machineImages];
+    }
+
+    const savedImages = await saveMultipleBase64Images(rawImages, 'machinery', 'machine');
+    const safeDocs = sanitizeDocuments(documents);
+
+    const newMachine = await Machinery.create({
       title: resolvedTitle,
       brandName: resolvedBrand,
+      brand: resolvedBrand,
       modelName: (modelName || '').trim(),
-      implementType: (implementType || type || '').trim(),
+      implementType: resolvedType,
       category: resolvedCategory,
-      implementPower: (implementPower || power || '').trim(),
+      implementPower: (implementPower || power || powerRequirement || '').trim(),
+      powerRequirement: (implementPower || power || powerRequirement || '').trim(),
       price: numPrice,
-      discount: numDiscountPercent,
-      discountPrice: resolvedDiscountPrice,
-      description: (description || '').trim(),
+      discount: numDiscount,
+      discountPrice: finalDiscountPrice,
+      description: resolvedDesc,
       specification: (specification || '').trim(),
-      availableAtStore: availableAtStore || 'Yes',
+      warranty: (warranty || '1 Year Standard').trim(),
+      availableAtStore: availableAtStore === 'No' ? 'No' : 'Yes',
       status: status || 'Available',
-      sponsored: Boolean(sponsored),
-      code: code ? code.trim() : undefined,
-      machineImages: Array.isArray(machineImages)
-        ? await saveMultipleBase64Images(machineImages, 'machinery', 'machinery')
-        : [],
-      documents: sanitizeDocuments(documents),
+      sponsored: sponsored === true || sponsored === 'true',
+      code: (code || '').trim(),
+      machineImages: savedImages,
+      documents: safeDocs,
     });
 
     res.status(201).json({
       success: true,
-      message: 'Machinery equipment saved successfully in database',
-      data: formatMachinery(newMachinery),
+      message: 'Machinery equipment successfully saved to database',
+      data: formatMachinery(newMachine),
     });
   } catch (error) {
     console.error('Error creating machinery:', error);
@@ -305,11 +345,13 @@ exports.updateMachinery = async (req, res) => {
       category,
       implementPower,
       power,
+      powerRequirement,
       price,
       discount,
       discountPrice,
       description,
       specification,
+      warranty,
       availableAtStore,
       status,
       sponsored,
@@ -318,55 +360,60 @@ exports.updateMachinery = async (req, res) => {
       documents,
     } = req.body;
 
-    const MAX_ALLOWED_IMAGE_BYTES = 10 * 1024 * 1024;
-    const MAX_ALLOWED_DOC_BYTES = 25 * 1024 * 1024;
-    if (Array.isArray(documents)) {
-      const oversizedDoc = documents.find((d) => d && d.size && d.size > MAX_ALLOWED_DOC_BYTES);
-      if (oversizedDoc) {
-        return res.status(400).json({
-          success: false,
-          message: `Document size limit exceeded! Maximum allowed size is 25 MB. Exceeded: "${oversizedDoc.name || 'document'}"`,
-        });
-      }
-    }
-    if (Array.isArray(machineImages)) {
-      const oversizedImg = machineImages.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_IMAGE_BYTES);
-      if (oversizedImg) {
-        return res.status(400).json({
-          success: false,
-          message: `Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversizedImg.name || 'image'}"`,
-        });
-      }
-    }
-
     if (title || name) item.title = (title || name).trim();
-    if (brandName || brand) item.brandName = (brandName || brand).trim();
-    if (modelName !== undefined) item.modelName = modelName.trim();
-    if (implementType !== undefined || type !== undefined) item.implementType = (implementType || type || '').trim();
-    if (category) item.category = category.trim();
-    if (implementPower !== undefined || power !== undefined) item.implementPower = (implementPower || power || '').trim();
-    if (price !== undefined && !isNaN(Number(price))) item.price = Number(price);
-    if (discount !== undefined) item.discount = Number(discount) || 0;
-    if (discountPrice !== undefined) {
-      item.discountPrice =
-        discountPrice === '' || discountPrice === null ? null : Number(discountPrice);
-    } else if (discount !== undefined && item.discount > 0 && item.price > 0) {
-      item.discountPrice = Math.max(0, item.price - (item.price * item.discount) / 100);
+    if (brandName || brand) {
+      const b = (brandName || brand).trim();
+      item.brandName = b;
+      item.brand = b;
     }
-    if (description !== undefined) item.description = description.trim();
+    if (modelName !== undefined) item.modelName = modelName.trim();
+    if (implementType || type) item.implementType = (implementType || type).trim();
+    if (category) item.category = category.trim();
+    if (implementPower || power || powerRequirement) {
+      const p = (implementPower || power || powerRequirement).trim();
+      item.implementPower = p;
+      item.powerRequirement = p;
+    }
+    if (price !== undefined) {
+      const p = Number(price);
+      if (!isNaN(p) && p >= 0) item.price = p;
+    }
+    if (discount !== undefined) {
+      const d = Number(discount);
+      if (!isNaN(d) && d >= 0 && d <= 100) item.discount = d;
+    }
+    if (discountPrice !== undefined) {
+      item.discountPrice = discountPrice !== '' && discountPrice !== null ? Number(discountPrice) : null;
+    }
+    if (description) item.description = description.trim();
     if (specification !== undefined) item.specification = specification.trim();
+    if (warranty !== undefined) item.warranty = warranty.trim();
     if (availableAtStore !== undefined) item.availableAtStore = availableAtStore;
     if (status !== undefined) item.status = status;
-    if (sponsored !== undefined) item.sponsored = Boolean(sponsored);
+    if (sponsored !== undefined) item.sponsored = sponsored === true || sponsored === 'true';
     if (code !== undefined) item.code = code.trim();
-    if (Array.isArray(machineImages)) item.machineImages = await saveMultipleBase64Images(machineImages, 'machinery', 'machinery');
-    if (Array.isArray(documents)) item.documents = sanitizeDocuments(documents);
+
+    if (machineImages !== undefined) {
+      let rawImages = [];
+      if (Array.isArray(machineImages)) {
+        rawImages = machineImages
+          .map((img) => (typeof img === 'string' ? img : img.data || img.preview || img.url || ''))
+          .filter(Boolean);
+      } else if (typeof machineImages === 'string' && machineImages) {
+        rawImages = [machineImages];
+      }
+      item.machineImages = await saveMultipleBase64Images(rawImages, 'machinery', 'machine');
+    }
+
+    if (documents !== undefined) {
+      item.documents = sanitizeDocuments(documents);
+    }
 
     const updated = await item.save();
 
     res.json({
       success: true,
-      message: 'Machinery equipment updated successfully in database',
+      message: 'Machinery equipment updated successfully',
       data: formatMachinery(updated),
     });
   } catch (error) {
@@ -388,7 +435,8 @@ exports.deleteMachinery = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Machinery equipment deleted successfully from database',
+      message: 'Machinery equipment successfully deleted from database',
+      deletedId: req.params.id,
     });
   } catch (error) {
     console.error('Error deleting machinery:', error);

@@ -1,7 +1,42 @@
 const Product = require('../models/Product');
 const { saveMultipleBase64Images } = require('../utils/saveBase64Image');
 
-// @desc    Get all products
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB max image size
+
+// Format product for complete compatibility across both frontend and admin panel
+const formatProduct = (p) => {
+  const obj = p.toObject ? p.toObject() : p;
+  const primaryImg =
+    Array.isArray(obj.images) && obj.images.length > 0 ? obj.images[0] : '';
+  const priceVal = Number(obj.price || 0);
+  const discVal = Number(obj.discount || 0);
+  const finalVal =
+    obj.finalPrice !== undefined && obj.finalPrice !== null
+      ? Number(obj.finalPrice)
+      : Math.max(0, priceVal - (priceVal * discVal) / 100);
+  const itemId = String(obj._id || obj.id || '');
+
+  return {
+    ...obj,
+    _id: itemId,
+    id: itemId,
+    name: obj.title,
+    brand: obj.companyName || obj.brand || 'Rhinco',
+    companyName: obj.companyName || obj.brand || 'Rhinco',
+    image: primaryImg,
+    featuredImage: primaryImg,
+    price: finalVal,
+    salesPrice: finalVal,
+    regularPrice: priceVal,
+    mrp: priceVal,
+    oldPrice: priceVal,
+    finalPrice: finalVal,
+    discount: discVal,
+    stockStatus: obj.stockQuantity > 0 ? 'In Stock' : 'Out of Stock',
+  };
+};
+
+// @desc    Get all products with filters, search, and sorting
 // @route   GET /api/products
 exports.getProducts = async (req, res) => {
   try {
@@ -18,7 +53,9 @@ exports.getProducts = async (req, res) => {
         { title: { $regex: s, $options: 'i' } },
         { category: { $regex: s, $options: 'i' } },
         { companyName: { $regex: s, $options: 'i' } },
+        { brand: { $regex: s, $options: 'i' } },
         { description: { $regex: s, $options: 'i' } },
+        { code: { $regex: s, $options: 'i' } },
       ];
     }
 
@@ -37,34 +74,22 @@ exports.getProducts = async (req, res) => {
     }
 
     let sortOption = { createdAt: -1 };
-    if (sort === 'price-low') {
+    if (sort === 'price-low' || sort === 'priceAsc') {
       sortOption = { finalPrice: 1 };
-    } else if (sort === 'price-high') {
+    } else if (sort === 'price-high' || sort === 'priceDesc') {
       sortOption = { finalPrice: -1 };
     } else if (sort === 'rating') {
       sortOption = { rating: -1 };
-    } else if (sort === 'name') {
+    } else if (sort === 'name' || sort === 'nameAsc') {
       sortOption = { title: 1 };
     }
 
     const products = await Product.find(query).sort(sortOption);
 
-    // Format products so both `title` and `name` are available for frontend compatibility
-    const formatted = products.map((p) => {
-      const obj = p.toObject();
-      return {
-        ...obj,
-        name: obj.title, // alias for frontend templates expecting `name`
-        image: obj.images && obj.images.length > 0 ? obj.images[0] : '', // primary image
-        oldPrice: obj.price,
-        price: obj.finalPrice || obj.price,
-      };
-    });
-
     res.json({
       success: true,
-      count: formatted.length,
-      data: formatted,
+      count: products.length,
+      data: products.map(formatProduct),
     });
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -72,24 +97,32 @@ exports.getProducts = async (req, res) => {
   }
 };
 
-// @desc    Get single product
+// @desc    Get single product by ID or title slug
 // @route   GET /api/products/:id
 exports.getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const param = (req.params.id || '').trim();
+    let product = null;
+
+    if (param.match(/^[0-9a-fA-F]{24}$/)) {
+      product = await Product.findById(param);
+    }
+
+    if (!product) {
+      const decoded = decodeURIComponent(param).replace(/-/g, ' ');
+      const regex = new RegExp(`^${decoded.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
+      product = await Product.findOne({
+        $or: [{ title: regex }, { code: regex }],
+      });
+    }
+
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
-    const obj = product.toObject();
+
     res.json({
       success: true,
-      data: {
-        ...obj,
-        name: obj.title,
-        image: obj.images && obj.images.length > 0 ? obj.images[0] : '',
-        oldPrice: obj.price,
-        price: obj.finalPrice || obj.price,
-      },
+      data: formatProduct(product),
     });
   } catch (error) {
     console.error('Error fetching product by id:', error);
@@ -106,6 +139,7 @@ exports.createProduct = async (req, res) => {
       name,
       category,
       companyName,
+      brand,
       description,
       price,
       discount,
@@ -118,81 +152,86 @@ exports.createProduct = async (req, res) => {
       images,
     } = req.body;
 
-    const productTitle = (title || name || '').trim();
-    if (!productTitle) {
+    const resolvedTitle = (title || name || '').trim();
+    const resolvedBrand = (companyName || brand || '').trim();
+    const resolvedCategory = (category || '').trim();
+    const resolvedDesc = (description || '').trim();
+
+    if (!resolvedTitle) {
       return res.status(400).json({ success: false, message: 'Product title is required' });
     }
-    if (!category || !category.trim()) {
+    if (!resolvedCategory) {
       return res.status(400).json({ success: false, message: 'Product category is required' });
     }
-    if (!companyName || !companyName.trim()) {
+    if (!resolvedBrand) {
       return res.status(400).json({ success: false, message: 'Company or Brand name is required' });
     }
-    if (!description || !description.trim()) {
+    if (!resolvedDesc) {
       return res.status(400).json({ success: false, message: 'Product description is required' });
     }
 
     const numPrice = Number(price);
-    if (isNaN(numPrice) || numPrice <= 0) {
-      return res.status(400).json({ success: false, message: 'Valid product price is required' });
+    if (isNaN(numPrice) || numPrice < 0) {
+      return res.status(400).json({ success: false, message: 'Valid positive price is required' });
     }
 
-    const MAX_ALLOWED_FILE_BYTES = 10 * 1024 * 1024;
+    // Verify image size limits (max 5 MB)
     if (Array.isArray(images)) {
-      const oversized = images.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_FILE_BYTES);
+      const oversized = images.find(
+        (img) => img && typeof img === 'object' && img.size && img.size > MAX_IMAGE_BYTES
+      );
       if (oversized) {
+        const mb = (oversized.size / (1024 * 1024)).toFixed(2);
         return res.status(400).json({
           success: false,
-          message: `Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversized.name || 'image'}"`,
+          message: `Image size limit exceeded! Maximum allowed image size is 5 MB. Found: "${oversized.name || 'Image'}" (${mb} MB)`,
         });
       }
     }
 
     const numDiscount = Number(discount) || 0;
     const calcFinalPrice =
-      finalPrice !== undefined && !isNaN(Number(finalPrice))
+      finalPrice !== undefined && !isNaN(Number(finalPrice)) && Number(finalPrice) > 0
         ? Number(finalPrice)
         : Math.max(0, numPrice - (numPrice * numDiscount) / 100);
 
-    // Normalize images: accept array of strings, or array of objects with preview/url, or single string
-    let normalizedImages = [];
+    // Normalize image inputs
+    let rawImages = [];
     if (Array.isArray(images)) {
-      normalizedImages = images.map((img) =>
-        typeof img === 'string' ? img : img.preview || img.url || ''
-      ).filter(Boolean);
+      rawImages = images
+        .map((img) => (typeof img === 'string' ? img : img.url || img.preview || img.data || ''))
+        .filter(Boolean);
     } else if (typeof images === 'string' && images) {
-      normalizedImages = [images];
+      rawImages = [images];
     }
+
+    // Save base64 images if present, otherwise keep clean /uploads/ URL
+    const savedImages = await saveMultipleBase64Images(rawImages, 'product', 'product');
 
     const isBestSeller = bestSeller === true || bestSeller === 'true';
 
     const newProduct = await Product.create({
-      title: productTitle,
-      category: category.trim(),
-      companyName: companyName.trim(),
-      description: description.trim(),
+      title: resolvedTitle,
+      category: resolvedCategory,
+      companyName: resolvedBrand,
+      brand: resolvedBrand,
+      description: resolvedDesc,
       price: numPrice,
       discount: numDiscount,
       finalPrice: calcFinalPrice,
       stockQuantity: stockQuantity !== undefined ? Number(stockQuantity) : 1,
+      stockStatus: Number(stockQuantity) > 0 ? 'In Stock' : 'Out of Stock',
       bestSeller: isBestSeller,
       badge: badge || (isBestSeller ? 'Best Seller' : ''),
       rating: rating !== undefined ? Number(rating) : 4.8,
       reviews: reviews !== undefined ? Number(reviews) : 12,
-      images: await saveMultipleBase64Images(normalizedImages, 'product', 'product'),
+      images: savedImages,
     });
 
-    const obj = newProduct.toObject();
     res.status(201).json({
       success: true,
-      message: 'Product created successfully in database',
-      data: {
-        ...obj,
-        name: obj.title,
-        image: obj.images && obj.images.length > 0 ? obj.images[0] : '',
-        oldPrice: obj.price,
-        price: obj.finalPrice || obj.price,
-      },
+      message: 'Product successfully created and saved to database',
+      data: formatProduct(newProduct),
     });
   } catch (error) {
     console.error('Error creating product:', error);
@@ -214,6 +253,7 @@ exports.updateProduct = async (req, res) => {
       name,
       category,
       companyName,
+      brand,
       description,
       price,
       discount,
@@ -226,66 +266,56 @@ exports.updateProduct = async (req, res) => {
       images,
     } = req.body;
 
-    const MAX_ALLOWED_FILE_BYTES = 10 * 1024 * 1024;
-    if (Array.isArray(images)) {
-      const oversized = images.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_FILE_BYTES);
-      if (oversized) {
-        return res.status(400).json({
-          success: false,
-          message: `Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversized.name || 'image'}"`,
-        });
-      }
-    }
-
     if (title || name) product.title = (title || name).trim();
     if (category) product.category = category.trim();
-    if (companyName) product.companyName = companyName.trim();
-    if (description) product.description = description.trim();
-    if (price !== undefined) product.price = Number(price);
-    if (discount !== undefined) product.discount = Number(discount);
-
-    if (finalPrice !== undefined) {
-      product.finalPrice = Number(finalPrice);
-    } else if (price !== undefined || discount !== undefined) {
-      const p = product.price;
-      const d = product.discount || 0;
-      product.finalPrice = Math.max(0, p - (p * d) / 100);
+    if (companyName || brand) {
+      const b = (companyName || brand).trim();
+      product.companyName = b;
+      product.brand = b;
     }
-
-    if (stockQuantity !== undefined) product.stockQuantity = Number(stockQuantity);
+    if (description) product.description = description.trim();
+    if (price !== undefined) {
+      const p = Number(price);
+      if (!isNaN(p) && p >= 0) product.price = p;
+    }
+    if (discount !== undefined) {
+      const d = Number(discount);
+      if (!isNaN(d) && d >= 0 && d <= 100) product.discount = d;
+    }
+    if (finalPrice !== undefined && !isNaN(Number(finalPrice))) {
+      product.finalPrice = Number(finalPrice);
+    } else if (product.price !== undefined) {
+      product.finalPrice = Math.max(0, product.price - (product.price * (product.discount || 0)) / 100);
+    }
+    if (stockQuantity !== undefined) {
+      product.stockQuantity = Number(stockQuantity);
+      product.stockStatus = product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock';
+    }
     if (bestSeller !== undefined) {
       product.bestSeller = bestSeller === true || bestSeller === 'true';
-      if (product.bestSeller && !product.badge) product.badge = 'Best Seller';
     }
     if (badge !== undefined) product.badge = badge;
     if (rating !== undefined) product.rating = Number(rating);
     if (reviews !== undefined) product.reviews = Number(reviews);
 
     if (images !== undefined) {
-      let updatedImages = [];
+      let rawImages = [];
       if (Array.isArray(images)) {
-        updatedImages = images.map((img) =>
-          typeof img === 'string' ? img : img.preview || img.url || ''
-        ).filter(Boolean);
-      } else if (typeof images === 'string') {
-        updatedImages = [images];
+        rawImages = images
+          .map((img) => (typeof img === 'string' ? img : img.url || img.preview || img.data || ''))
+          .filter(Boolean);
+      } else if (typeof images === 'string' && images) {
+        rawImages = [images];
       }
-      product.images = await saveMultipleBase64Images(updatedImages, 'product', 'product');
+      product.images = await saveMultipleBase64Images(rawImages, 'product', 'product');
     }
 
-    await product.save();
+    const updated = await product.save();
 
-    const obj = product.toObject();
     res.json({
       success: true,
       message: 'Product updated successfully',
-      data: {
-        ...obj,
-        name: obj.title,
-        image: obj.images && obj.images.length > 0 ? obj.images[0] : '',
-        oldPrice: obj.price,
-        price: obj.finalPrice || obj.price,
-      },
+      data: formatProduct(updated),
     });
   } catch (error) {
     console.error('Error updating product:', error);
@@ -306,8 +336,8 @@ exports.deleteProduct = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Product deleted successfully',
-      data: product,
+      message: 'Product successfully deleted from database',
+      deletedId: req.params.id,
     });
   } catch (error) {
     console.error('Error deleting product:', error);

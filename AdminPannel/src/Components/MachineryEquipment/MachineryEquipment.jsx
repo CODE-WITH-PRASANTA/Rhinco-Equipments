@@ -1,545 +1,469 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Editor } from "@tinymce/tinymce-react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import {
-  FiPlus, FiSearch, FiEye, FiEdit2, FiTrash2, FiX, FiUploadCloud,
-  FiImage, FiGrid, FiCheckCircle, FiFilter, FiChevronLeft,
-  FiChevronRight, FiSave, FiRotateCcw, FiLayers, FiFileText,
-  FiTag, FiFolder, FiFile, FiExternalLink, FiPackage, FiMapPin,
-  FiDollarSign, FiBox, FiTool, FiAlertCircle, FiPercent
-} from "react-icons/fi";
+  Tractor,
+  UploadCloud,
+  X,
+  Image,
+  Tag,
+  DollarSign,
+  Box,
+  Building2,
+  Star,
+  CheckCircle2,
+  Save,
+  Percent,
+  Layers,
+  Edit,
+  Trash2,
+  Search,
+  Plus,
+  RotateCcw,
+  RefreshCw,
+  AlertCircle,
+  ExternalLink,
+  Eye,
+  Check,
+  FileText,
+  File,
+  ShieldCheck,
+  Zap,
+} from "lucide-react";
+
 import "./MachineryEquipment.css";
 import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
 const MACHINERY_API = `${API_URL}/machinery`;
 const CATEGORIES_API = `${API_URL}/categories`;
 
-const MAX_IMAGE_MB = 10;
+// STRICT LIMITS AS REQUESTED
+const MAX_IMAGE_MB = 5;
 const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
-const MAX_DOC_MB = 25;
+const MAX_DOC_MB = 10;
 const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
 
-const uploadImage = async (file, folder = "machinery") => {
+// Direct FormData upload for images
+const uploadImageFile = async (file) => {
   const formData = new FormData();
   formData.append("image", file);
-  formData.append("folder", folder);
-  const res = await fetch(`${API_URL}/upload?folder=${encodeURIComponent(folder)}`, { method: "POST", body: formData });
+  formData.append("folder", "machinery");
+
+  const res = await fetch(`${API_URL}/upload?folder=machinery`, {
+    method: "POST",
+    body: formData,
+  });
+
   const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.success) throw new Error(data.message || "Failed to upload file");
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to upload machinery image to server.");
+  }
   return data.url;
 };
 
-const emptyForm = () => ({
-  machineImages: [],
-  title: "",
-  brandName: "",
-  modelName: "",
-  implementType: "",
-  category: "",
-  implementPower: "",
-  price: "",
-  discount: 0,
-  discountPrice: "",
-  description: "",
-  specification: "",
-  documents: [],
-  availableAtStore: ""
-});
+// Direct FormData upload for documents
+const uploadDocumentFile = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("folder", "documents");
 
-const formatPrice = (value) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 2,
-  }).format(Number(value) || 0);
-
-const formatCurrency = (value) =>
-  Number(value || 0).toLocaleString("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0
+  const res = await fetch(`${API_URL}/upload?folder=documents`, {
+    method: "POST",
+    body: formData,
   });
 
-const formatDate = (date) =>
-  date
-    ? new Date(date).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-      })
-    : "—";
-
-const plainText = (html = "") =>
-  html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-
-const imageSrc = (image) => {
-  if (!image) return "";
-  const raw = typeof image === "string" ? image : image.data || image.preview || image.url || "";
-  return resolveImageUrl(raw);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || "Failed to upload document to server.");
+  }
+  return data.url;
 };
+
+const createEmptyForm = () => ({
+  title: "",
+  brandName: "Rhinco",
+  modelName: "",
+  category: "Rotavators",
+  implementType: "Rotavators",
+  implementPower: "35 - 50 HP",
+  price: "",
+  discount: "0",
+  discountPrice: "",
+  warranty: "1 Year Standard",
+  status: "Available",
+  availableAtStore: "Yes",
+  description: "",
+  specification: "",
+});
 
 const MachineryEquipment = () => {
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState("form");
-  const [equipments, setEquipments] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
-  const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("All Categories");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [notice, setNotice] = useState("");
-  const [viewEquipment, setViewEquipment] = useState(null);
-  const [deleteId, setDeleteId] = useState(null);
-  const [saving, setSaving] = useState(false);
-
-  // Dynamic categories and upload error states
-  const [categories, setCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [imageError, setImageError] = useState("");
-  const [uploadingImages, setUploadingImages] = useState(false);
-  const [docError, setDocError] = useState("");
-  const [uploadingDocs, setUploadingDocs] = useState(false);
-
-  const finalPrice = useMemo(() => {
-    const p = parseFloat(form.price) || 0;
-    const d = parseFloat(form.discount) || 0;
-    if (d <= 0) return p;
-    return Math.max(0, p - (p * d) / 100);
-  }, [form.price, form.discount]);
-
+  const navigate = useNavigate();
   const imageInputRef = useRef(null);
-  const documentInputRef = useRef(null);
+  const docInputRef = useRef(null);
 
-  const itemsPerPage = 6;
+  const [form, setForm] = useState(createEmptyForm);
+  const [images, setImages] = useState([]); // [{ id, preview, url, name, size, uploading }]
+  const [documents, setDocuments] = useState([]); // [{ id, name, url, size, type, uploading }]
+  const [categories, setCategories] = useState([]);
 
-  // FETCH DYNAMIC CATEGORIES FROM DATABASE
-  const loadCategories = async () => {
-    try {
-      setCategoriesLoading(true);
-      const res = await fetch(CATEGORIES_API);
-      const data = await res.json();
-      if (res.ok && data.success && Array.isArray(data.data)) {
-        const names = data.data
-          .map((c) => (typeof c === "string" ? c : c.name))
-          .filter(Boolean);
-        setCategories((prev) => Array.from(new Set([...prev, ...names])).sort());
-      }
-    } catch (err) {
-      console.warn("Could not load categories from database:", err);
-    } finally {
-      setCategoriesLoading(false);
-    }
-  };
+  const [editingId, setEditingId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [notice, setNotice] = useState({ type: "", text: "" });
+  const [mediaError, setMediaError] = useState("");
+  const [createdMachine, setCreatedMachine] = useState(null);
 
-  // LOAD REAL EQUIPMENT FROM DATABASE
-  const loadEquipments = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(MACHINERY_API);
-      const data = await res.json();
-      if (res.ok && data.success && Array.isArray(data.data)) {
-        setEquipments(data.data);
-        const equipCats = data.data.map((item) => item.category).filter(Boolean);
-        setCategories((prev) => Array.from(new Set([...prev, ...equipCats])).sort());
-      }
-    } catch (err) {
-      console.error("Error loading machinery equipment:", err);
-      setNotice("Could not load equipment from database. Ensure backend is running.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Load categories
   useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await fetch(CATEGORIES_API);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.data)) {
+          setCategories(data.data);
+        }
+      } catch (err) {
+        console.warn("Could not fetch categories:", err);
+      }
+    };
     loadCategories();
-    loadEquipments();
   }, []);
 
-  // EDIT DETECTION VIA NAVIGATION OR URL QUERY
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const editId = params.get("edit");
+  // Check URL query ?edit=ID or location.state
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  );
+  const editIdFromUrl = searchParams.get("edit");
 
+  useEffect(() => {
     if (location.state?.equipment) {
-      openEditForm(location.state.equipment);
-    } else if (editId) {
-      const fetchItem = async () => {
+      populateMachinery(location.state.equipment);
+    } else if (editIdFromUrl) {
+      const fetchMachine = async () => {
         try {
-          const res = await fetch(`${MACHINERY_API}/${editId}`);
+          const res = await fetch(`${MACHINERY_API}/${editIdFromUrl}`);
           const data = await res.json();
           if (res.ok && data.success && data.data) {
-            openEditForm(data.data);
+            populateMachinery(data.data);
           }
         } catch (err) {
-          console.error("Error loading equipment to edit:", err);
+          console.error("Failed to load machinery for edit:", err);
         }
       };
-      fetchItem();
+      fetchMachine();
     }
-  }, [location.state, location.search]);
+  }, [location.state, editIdFromUrl]);
+
+  const populateMachinery = (machine) => {
+    if (!machine) return;
+    setEditingId(machine._id || machine.id);
+    setForm({
+      title: machine.title || machine.name || "",
+      brandName: machine.brandName || machine.brand || "Rhinco",
+      modelName: machine.modelName || "",
+      category: machine.category || "Rotavators",
+      implementType: machine.implementType || machine.category || "Rotavators",
+      implementPower: machine.implementPower || machine.power || "35 - 50 HP",
+      price: String(machine.price || ""),
+      discount: String(machine.discount !== undefined ? machine.discount : "0"),
+      discountPrice: String(machine.discountPrice || ""),
+      warranty: machine.warranty || "1 Year Standard",
+      status: machine.status || "Available",
+      availableAtStore: machine.availableAtStore || "Yes",
+      description: machine.description || "",
+      specification: machine.specification || "",
+    });
+
+    // Populate images
+    const rawImages = Array.isArray(machine.machineImages) && machine.machineImages.length > 0
+      ? machine.machineImages
+      : machine.image
+      ? [machine.image]
+      : [];
+
+    setImages(
+      rawImages.map((img, idx) => ({
+        id: `img-${idx}-${Date.now()}`,
+        url: typeof img === "string" ? img : img.url || img.data || img.preview || "",
+        preview: typeof img === "string" ? img : img.url || img.data || img.preview || "",
+        name: `Image ${idx + 1}`,
+        uploading: false,
+      }))
+    );
+
+    // Populate documents
+    if (Array.isArray(machine.documents)) {
+      setDocuments(
+        machine.documents.map((doc, idx) => ({
+          id: `doc-${idx}-${Date.now()}`,
+          name: typeof doc === "string" ? "Brochure.pdf" : doc.name || `Document ${idx + 1}`,
+          url: typeof doc === "string" ? doc : doc.url || doc.path || "",
+          size: typeof doc === "object" ? doc.size || 0 : 0,
+          uploading: false,
+        }))
+      );
+    }
+
+    setNotice({
+      type: "info",
+      text: `Now editing: "${machine.title || machine.name}"`,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const updateField = (field, value) => {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value
-    }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  // IMAGE UPLOAD
-  const handleImages = async (event) => {
-    setImageError("");
-    const files = Array.from(event.target.files || []);
+  // Auto-calculated discount price
+  const calcDiscountPrice = useMemo(() => {
+    const p = Number(form.price) || 0;
+    const d = Number(form.discount) || 0;
+    if (d > 0) return Math.max(0, p - (p * d) / 100);
+    if (form.discountPrice && Number(form.discountPrice) > 0)
+      return Number(form.discountPrice);
+    return p;
+  }, [form.price, form.discount, form.discountPrice]);
 
+  // IMAGE UPLOADER: Strict 5 MB check, uploads to /api/upload?folder=machinery
+  const handleImageUpload = async (e) => {
+    setMediaError("");
+    const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    // 1. Validate image file formats
-    const nonImages = files.filter((file) => !file.type.startsWith("image/"));
-    if (nonImages.length > 0) {
-      const errorMsg = "Invalid file type. Only image files (PNG, JPG, JPEG, WEBP, GIF, SVG) are allowed.";
-      setImageError(errorMsg);
-      setNotice(errorMsg);
-      event.target.value = "";
-      return;
-    }
-
-    // 2. Validate image file size (Max 10 MB each)
-    const oversized = files.filter((file) => file.size > MAX_IMAGE_BYTES);
-    if (oversized.length > 0) {
-      const details = oversized
-        .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
-        .join(", ");
-      const errorMsg = `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB. Exceeded: ${details}`;
-      setImageError(errorMsg);
-      setNotice(errorMsg);
-      event.target.value = "";
-      return;
-    }
-
-    // 3. Check remaining image slots
-    const remaining = 6 - form.machineImages.length;
+    const remaining = 8 - images.length;
     if (remaining <= 0) {
-      const errorMsg = "You can upload a maximum of 6 images (1 main image + 5 additional images).";
-      setImageError(errorMsg);
-      setNotice(errorMsg);
-      event.target.value = "";
+      setMediaError("Maximum 8 images allowed per machinery item.");
+      if (imageInputRef.current) imageInputRef.current.value = "";
       return;
     }
 
-    const selected = files.slice(0, remaining);
-    setUploadingImages(true);
-    setNotice("Uploading image(s)...");
-
-    try {
-      const uploaded = await Promise.all(
-        selected.map(async (file) => {
-          const serverUrl = await uploadImage(file, "machinery");
-          return {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            data: serverUrl,
-            url: serverUrl,
-          };
-        })
-      );
-
-      setForm((prev) => ({
-        ...prev,
-        machineImages: [...prev.machineImages, ...uploaded],
-      }));
-
-      setImageError("");
-      setNotice(files.length > remaining ? "Filled remaining available image slots (Max 6)." : "Images uploaded and optimized successfully!");
-    } catch (err) {
-      console.error("Machine image upload error:", err);
-      const errorMsg = err.message || "Failed to upload image. Please try again.";
-      setImageError(errorMsg);
-      setNotice(errorMsg);
-    } finally {
-      setUploadingImages(false);
-      event.target.value = "";
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    if (!imageFiles.length) {
+      setMediaError("Please select valid image files (JPG, PNG, WebP).");
+      if (imageInputRef.current) imageInputRef.current.value = "";
+      return;
     }
-  };
 
-  const removeImage = (index) => {
-    setImageError("");
-    setForm((prev) => ({
-      ...prev,
-      machineImages: prev.machineImages.filter(
-        (_, i) => i !== index
-      )
-    }));
-  };
-
-  // DOCUMENT UPLOAD
-  const handleDocuments = async (event) => {
-    setDocError("");
-    const files = Array.from(event.target.files || []);
-
-    if (!files.length) return;
-
-    // Check if any document exceeds 10 MB
-    const oversized = files.filter((file) => file.size > MAX_DOC_BYTES);
+    // STRICT 5 MB CHECK
+    const oversized = imageFiles.filter((f) => f.size > MAX_IMAGE_BYTES);
     if (oversized.length > 0) {
       const details = oversized
         .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
         .join(", ");
-      const errorMsg = `Document size limit exceeded! Maximum allowed size is ${MAX_DOC_MB} MB. Exceeded: ${details}`;
-      setDocError(errorMsg);
-      setNotice(errorMsg);
-      event.target.value = "";
-      return;
-    }
-
-    const valid = files.filter((file) => {
-      const ext = file.name.split(".").pop().toLowerCase();
-      return ["pdf", "doc", "docx", "xls", "xlsx"].includes(ext);
-    });
-
-    if (valid.length !== files.length) {
-      const errorMsg = "Only PDF, DOC, DOCX, XLS and XLSX documents are allowed.";
-      setDocError(errorMsg);
-      setNotice(errorMsg);
-      event.target.value = "";
-      return;
-    }
-
-    try {
-      setUploadingDocs(true);
-      setNotice("Uploading document(s) to server...");
-      const docs = await Promise.all(
-        valid.map(async (file) => {
-          const serverUrl = await uploadImage(file, "machinery/documents");
-          return {
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            data: serverUrl,
-            url: serverUrl,
-          };
-        })
+      setMediaError(
+        `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB per image. Exceeded: ${details}`
       );
+      if (imageInputRef.current) imageInputRef.current.value = "";
+      return;
+    }
 
-      setForm((prev) => ({
+    const toUpload = imageFiles.slice(0, remaining);
+    setUploadingMedia(true);
+    setNotice({ type: "info", text: "Uploading machinery image(s)..." });
+
+    for (const file of toUpload) {
+      const tempId = `temp-${Date.now()}-${Math.random()}`;
+      const localPreview = URL.createObjectURL(file);
+
+      setImages((prev) => [
         ...prev,
-        documents: [...prev.documents, ...docs],
-      }));
-      setNotice("Documents uploaded successfully to server!");
-    } catch (err) {
-      console.error("Document upload error:", err);
-      const errMsg = err.message || "Failed to upload document(s).";
-      setDocError(errMsg);
-      setNotice(errMsg);
-    } finally {
-      setUploadingDocs(false);
-      event.target.value = "";
+        {
+          id: tempId,
+          preview: localPreview,
+          url: "",
+          name: file.name,
+          size: file.size,
+          uploading: true,
+        },
+      ]);
+
+      try {
+        const serverUrl = await uploadImageFile(file);
+        setImages((prev) =>
+          prev.map((item) =>
+            item.id === tempId
+              ? { ...item, preview: serverUrl, url: serverUrl, uploading: false }
+              : item
+          )
+        );
+      } catch (err) {
+        console.error("Machinery image upload failed:", err);
+        setMediaError(`Failed to upload "${file.name}": ${err.message}`);
+        setImages((prev) => prev.filter((item) => item.id !== tempId));
+      }
     }
+
+    setUploadingMedia(false);
+    setNotice({ type: "success", text: "Images uploaded successfully!" });
+    if (imageInputRef.current) imageInputRef.current.value = "";
   };
 
-  const removeDocument = (index) => {
-    setDocError("");
-    setForm((prev) => ({
-      ...prev,
-      documents: prev.documents.filter((_, i) => i !== index)
-    }));
+  // DOCUMENT UPLOADER: Strict 10 MB check, uploads to /api/upload?folder=documents
+  const handleDocUpload = async (e) => {
+    setMediaError("");
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    // STRICT 10 MB CHECK
+    const oversized = files.filter((f) => f.size > MAX_DOC_BYTES);
+    if (oversized.length > 0) {
+      const details = oversized
+        .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
+        .join(", ");
+      setMediaError(
+        `Document size limit exceeded! Maximum allowed size is ${MAX_DOC_MB} MB per document. Exceeded: ${details}`
+      );
+      if (docInputRef.current) docInputRef.current.value = "";
+      return;
+    }
+
+    setUploadingMedia(true);
+    setNotice({ type: "info", text: "Uploading document / brochure..." });
+
+    for (const file of files) {
+      const tempId = `temp-doc-${Date.now()}-${Math.random()}`;
+
+      setDocuments((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          name: file.name,
+          url: "",
+          size: file.size,
+          uploading: true,
+        },
+      ]);
+
+      try {
+        const serverUrl = await uploadDocumentFile(file);
+        setDocuments((prev) =>
+          prev.map((item) =>
+            item.id === tempId
+              ? { ...item, url: serverUrl, uploading: false }
+              : item
+          )
+        );
+      } catch (err) {
+        console.error("Document upload failed:", err);
+        setMediaError(`Failed to upload document "${file.name}": ${err.message}`);
+        setDocuments((prev) => prev.filter((item) => item.id !== tempId));
+      }
+    }
+
+    setUploadingMedia(false);
+    setNotice({ type: "success", text: "Document(s) uploaded successfully!" });
+    if (docInputRef.current) docInputRef.current.value = "";
   };
 
-  // RESET FORM
-  const openNewForm = () => {
-    setForm(emptyForm());
+  const removeImage = (id) => {
+    setMediaError("");
+    setImages((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const removeDocument = (id) => {
+    setMediaError("");
+    setDocuments((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const resetForm = () => {
+    setForm(createEmptyForm());
+    setImages([]);
+    setDocuments([]);
     setEditingId(null);
-    setNotice("");
-    setActiveTab("form");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-  };
-
-  // EDIT EQUIPMENT
-  const openEditForm = (item) => {
-    const rawPrice = item.price !== undefined && item.price !== null ? Number(item.price) : 0;
-    const rawDiscPrice =
-      item.discountPrice !== undefined && item.discountPrice !== null
-        ? Number(item.discountPrice)
-        : null;
-
-    let computedDiscount =
-      item.discount !== undefined && item.discount !== null ? Number(item.discount) : 0;
-    if (!computedDiscount && rawPrice > 0 && rawDiscPrice !== null && rawDiscPrice < rawPrice) {
-      computedDiscount = Math.round(((rawPrice - rawDiscPrice) / rawPrice) * 100);
-    }
-
-    setForm({
-      ...emptyForm(),
-      title: item.title || item.name || "",
-      brandName: item.brandName || item.brand || "",
-      modelName: item.modelName || "",
-      implementType: item.implementType || item.type || "",
-      category: item.category || "",
-      implementPower: item.implementPower || item.power || "",
-      price: item.price !== undefined && item.price !== null ? String(item.price) : "",
-      discount: computedDiscount,
-      discountPrice:
-        item.discountPrice !== undefined && item.discountPrice !== null
-          ? String(item.discountPrice)
-          : "",
-      description: item.description || "",
-      specification: item.specification || "",
-      availableAtStore: item.availableAtStore || "Yes",
-      machineImages:
-        item.machineImages && item.machineImages.length > 0
-          ? item.machineImages
-          : item.image
-          ? [{ name: "Image 1", data: item.image }]
-          : [],
-      documents: item.documents || [],
-    });
-
-    setEditingId(item._id || item.id);
-    setNotice("Editing equipment: " + (item.title || item.name));
-    setActiveTab("form");
-    setViewEquipment(null);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    setMediaError("");
+    setNotice({ type: "", text: "" });
+    setCreatedMachine(null);
+    if (imageInputRef.current) imageInputRef.current.value = "";
+    if (docInputRef.current) docInputRef.current.value = "";
   };
 
   // SUBMIT FORM TO DATABASE
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setNotice({ type: "", text: "" });
+    setMediaError("");
 
-    if (imageError) {
-      return setNotice(imageError);
+    if (uploadingMedia || images.some((img) => img.uploading)) {
+      setNotice({
+        type: "error",
+        text: "Please wait for media uploads to finish before submitting.",
+      });
+      return;
     }
 
-    if (docError) {
-      return setNotice(docError);
-    }
+    const readyImageUrls = images
+      .map((img) => img.url)
+      .filter((url) => typeof url === "string" && url.startsWith("/uploads"));
 
-    if (uploadingImages || uploadingDocs) {
-      return setNotice("Files are currently being uploaded and optimized. Please wait a moment.");
-    }
-
-    const oversizedDoc = form.documents.find((d) => d && d.size && d.size > MAX_DOC_BYTES);
-    if (oversizedDoc) {
-      const err = `Document "${oversizedDoc.name}" exceeds the maximum allowed size of ${MAX_DOC_MB} MB.`;
-      setDocError(err);
-      return setNotice(err);
-    }
-
-    const oversizedImg = form.machineImages.find((img) => img && img.size && img.size > MAX_IMAGE_BYTES);
-    if (oversizedImg) {
-      const err = `Image "${oversizedImg.name}" exceeds the maximum allowed size of ${MAX_IMAGE_MB} MB.`;
-      setImageError(err);
-      return setNotice(err);
-    }
-
-    if (!form.machineImages.length) {
-      return setNotice("Please upload at least one machine image.");
+    if (readyImageUrls.length === 0) {
+      setMediaError("Please upload at least one machinery image.");
+      setNotice({
+        type: "error",
+        text: "Machinery equipment must have at least one uploaded photo.",
+      });
+      return;
     }
 
     if (!form.title.trim()) {
-      return setNotice("Please enter the machine title.");
+      setNotice({ type: "error", text: "Please enter machinery title." });
+      return;
     }
-
     if (!form.brandName.trim()) {
-      return setNotice("Please enter the brand name.");
+      setNotice({ type: "error", text: "Please enter brand name." });
+      return;
+    }
+    if (!form.category.trim()) {
+      setNotice({ type: "error", text: "Please select machinery category." });
+      return;
+    }
+    if (!form.description.trim()) {
+      setNotice({ type: "error", text: "Please provide equipment description." });
+      return;
     }
 
-    if (!form.category) {
-      return setNotice("Please select a category.");
+    const numPrice = Number(form.price);
+    if (isNaN(numPrice) || numPrice <= 0) {
+      setNotice({ type: "error", text: "Please enter a valid price." });
+      return;
     }
 
-    if (!plainText(form.description)) {
-      return setNotice("Please enter the product description.");
-    }
+    const readyDocs = documents
+      .filter((d) => d.url && d.url.startsWith("/uploads"))
+      .map((d) => ({
+        name: d.name || "Technical Brochure",
+        url: d.url,
+        size: d.size || 0,
+      }));
 
-    if (!plainText(form.specification)) {
-      return setNotice("Please enter the product specifications.");
-    }
+    setIsSubmitting(true);
 
-    if (form.price === "" || Number(form.price) < 0) {
-      return setNotice("Please enter a valid price.");
-    }
-
-    if (
-      form.discount !== "" &&
-      form.discount !== undefined &&
-      (Number(form.discount) < 0 || Number(form.discount) > 100)
-    ) {
-      return setNotice("Discount percentage must be between 0 and 100.");
-    }
+    const payload = {
+      title: form.title.trim(),
+      brandName: form.brandName.trim(),
+      brand: form.brandName.trim(),
+      modelName: form.modelName.trim(),
+      category: form.category.trim(),
+      implementType: form.implementType.trim() || form.category.trim(),
+      implementPower: form.implementPower.trim(),
+      powerRequirement: form.implementPower.trim(),
+      price: numPrice,
+      discount: Number(form.discount) || 0,
+      discountPrice: calcDiscountPrice,
+      warranty: form.warranty.trim() || "1 Year Standard",
+      status: form.status,
+      availableAtStore: form.availableAtStore,
+      description: form.description.trim(),
+      specification: form.specification.trim(),
+      machineImages: readyImageUrls,
+      documents: readyDocs,
+    };
 
     try {
-      setSaving(true);
-
-      const numBasePrice = Number(form.price);
-      const numDiscPercent = Number(form.discount) || 0;
-      const computedCustPrice = numDiscPercent > 0 ? Number(finalPrice) : null;
-
-      const cleanMachineImages = form.machineImages
-        .map((img) => {
-          const src = img.url || img.data || (typeof img === "string" ? img : "");
-          return {
-            name: img.name || "image",
-            type: img.type || "image/webp",
-            size: img.size || 0,
-            url: src,
-            data: src,
-          };
-        })
-        .filter(
-          (img) =>
-            img.url &&
-            !img.url.startsWith("blob:") &&
-            !img.url.startsWith("data:")
-        );
-
-      if (!cleanMachineImages.length) {
-        return setNotice("Please upload at least one valid machine image to the server.");
-      }
-
-      const cleanDocuments = form.documents
-        .map((doc) => {
-          const src = doc.url || doc.data || (typeof doc === "string" ? doc : "");
-          return {
-            name: doc.name || "document",
-            type: doc.type || "application/pdf",
-            size: doc.size || 0,
-            url: src,
-            data: src,
-          };
-        })
-        .filter(
-          (doc) =>
-            doc.url &&
-            !doc.url.startsWith("blob:") &&
-            !doc.url.startsWith("data:")
-        );
-
-      const payload = {
-        title: form.title.trim(),
-        brandName: form.brandName.trim(),
-        modelName: form.modelName.trim(),
-        implementType: form.implementType.trim(),
-        category: form.category,
-        implementPower: form.implementPower.trim(),
-        price: numBasePrice,
-        discount: numDiscPercent,
-        discountPrice: computedCustPrice,
-        description: form.description,
-        specification: form.specification,
-        availableAtStore: form.availableAtStore || "Yes",
-        machineImages: cleanMachineImages,
-        documents: cleanDocuments,
-      };
-
-      const url = editingId ? `${MACHINERY_API}/${editingId}` : MACHINERY_API;
+      const url = editingId
+        ? `${MACHINERY_API}/${editingId}`
+        : MACHINERY_API;
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -548,1253 +472,566 @@ const MachineryEquipment = () => {
         body: JSON.stringify(payload),
       });
 
-      const result = await res.json();
-      if (!res.ok || !result.success) {
-        throw new Error(result.message || "Failed to save equipment to database.");
-      }
-
-      setNotice(
-        editingId
-          ? "Equipment updated successfully in database."
-          : "Equipment added successfully into database."
-      );
-
-      setForm(emptyForm());
-      setEditingId(null);
-      setCurrentPage(1);
-      await loadEquipments();
-      setActiveTab("table");
-    } catch (err) {
-      console.error("Save error:", err);
-      setNotice(err.message || "Failed to save equipment. Please try again.");
-    } finally {
-      setSaving(false);
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  // DELETE EQUIPMENT
-  const confirmDelete = async () => {
-    if (!deleteId) return;
-
-    try {
-      const res = await fetch(`${MACHINERY_API}/${deleteId}`, {
-        method: "DELETE",
-      });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to delete equipment from database.");
+        throw new Error(data.message || "Failed to save machinery in database.");
       }
 
-      await loadEquipments();
-      setDeleteId(null);
-      setNotice("Equipment deleted successfully from database.");
+      setCreatedMachine(data.data);
+      setNotice({
+        type: "success",
+        text: editingId
+          ? "Machinery specifications updated successfully in database!"
+          : "Machinery equipment published successfully and live in database!",
+      });
+
+      if (!editingId) {
+        resetForm();
+      }
     } catch (err) {
-      console.error("Delete error:", err);
-      setNotice(err.message || "Failed to delete equipment.");
+      console.error("Submission failed:", err);
+      setNotice({
+        type: "error",
+        text: err.message || "An unexpected error occurred while saving.",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // SEARCH AND FILTER
-  const filteredEquipments = useMemo(() => {
-    const q = search.trim().toLowerCase();
-
-    return equipments.filter((item) => {
-      const matchesQuery =
-        !q ||
-        [
-          item.title,
-          item.brandName,
-          item.modelName,
-          item.implementType,
-          item.category,
-          item.availableAtStore
-        ].some((value) =>
-          String(value || "").toLowerCase().includes(q)
-        );
-
-      return (
-        matchesQuery &&
-        (categoryFilter === "All Categories" ||
-          item.category === categoryFilter)
-      );
-    });
-  }, [equipments, search, categoryFilter]);
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredEquipments.length / itemsPerPage)
-  );
-
-  const paginatedEquipments = filteredEquipments.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalImages = equipments.reduce(
-    (total, item) =>
-      total + (item.machineImages?.length || 0),
-    0
-  );
-
-  const totalDocuments = equipments.reduce(
-    (total, item) =>
-      total + (item.documents?.length || 0),
-    0
-  );
-
-  const storeListings = equipments.filter(
-    (item) => item.availableAtStore === "Yes"
-  ).length;
-
-  const editorConfig = {
-    height: 260,
-    menubar: false,
-    plugins: [
-      "lists",
-      "link",
-      "table",
-      "wordcount",
-      "autolink",
-      "code"
-    ],
-    toolbar:
-      "undo redo | blocks | bold italic underline | " +
-      "bullist numlist | alignleft aligncenter alignright | " +
-      "link table | removeformat",
-    branding: false,
-    promotion: false,
-    content_style:
-      "body { font-family: Arial, sans-serif; font-size: 14px; color: #26352b; }"
-  };
-    return (
-    <div className="MachineryEquipment">
-      {/* PAGE HEADER */}
-      <div className="MachineryEquipment-header">
-        <div>
-          <span className="MachineryEquipment-eyebrow">
-            RHINO'S EQUIPMENT / INVENTORY
-          </span>
-
-          <h1>Machinery & Equipment</h1>
-
-          <p>
-            Manage your machinery products, pricing, images and specifications.
-          </p>
+  return (
+    <div className="AddMachinery">
+      {/* Top Header */}
+      <div className="AddMachinery-header">
+        <div className="AddMachinery-headerLeft">
+          <div className="AddMachinery-headerIcon">
+            <Tractor size={26} />
+          </div>
+          <div>
+            <h2>
+              {editingId
+                ? "Edit Machinery & Heavy Equipment"
+                : "Add New Machinery & Equipment"}
+            </h2>
+            <p>
+              Full specifications, tractor HP, dealer delivery • Image max: 5 MB
+              • Doc max: 10 MB
+            </p>
+          </div>
         </div>
 
-        <button
-          className="MachineryEquipment-addBtn"
-          type="button"
-          onClick={openNewForm}
-        >
-          <FiPlus />
-          Add New Equipment
-        </button>
-      </div>
-
-      {/* NOTIFICATION */}
-      {notice && (
-        <div className="MachineryEquipment-notice">
-          <FiCheckCircle />
-          <span>{notice}</span>
+        <div className="AddMachinery-headerActions">
           <button
             type="button"
-            onClick={() => setNotice("")}
+            className="AddMachinery-resetBtn"
+            onClick={resetForm}
+            title="Reset form"
           >
-            <FiX />
+            <RotateCcw size={16} />
+            <span>Reset Form</span>
           </button>
+
+          <Link
+            to="/machinery-equipment"
+            className="AddMachinery-manageLink"
+          >
+            <Box size={16} />
+            <span>View All Machinery</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Notice Banner */}
+      {notice.text && (
+        <div
+          className={`AddMachinery-notice AddMachinery-notice--${notice.type}`}
+        >
+          {notice.type === "success" ? (
+            <CheckCircle2 size={18} />
+          ) : (
+            <AlertCircle size={18} />
+          )}
+          <span>{notice.text}</span>
+          {createdMachine && (
+            <a
+              href={`http://localhost:5173/machinery`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="AddMachinery-viewLiveBtn"
+            >
+              <ExternalLink size={14} />
+              <span>View On Live Catalogue</span>
+            </a>
+          )}
         </div>
       )}
 
-      {/* STATISTICS */}
-      <div className="MachineryEquipment-stats">
-        <div className="MachineryEquipment-statCard">
-          <div className="MachineryEquipment-statIcon">
-            <FiPackage />
-          </div>
-          <div>
-            <span>Total Equipment</span>
-            <h3>{equipments.length}</h3>
-          </div>
-        </div>
-
-        <div className="MachineryEquipment-statCard">
-          <div className="MachineryEquipment-statIcon">
-            <FiImage />
-          </div>
-          <div>
-            <span>Total Images</span>
-            <h3>{totalImages}</h3>
-          </div>
-        </div>
-
-        <div className="MachineryEquipment-statCard">
-          <div className="MachineryEquipment-statIcon">
-            <FiFileText />
-          </div>
-          <div>
-            <span>Documents</span>
-            <h3>{totalDocuments}</h3>
-          </div>
-        </div>
-
-        <div className="MachineryEquipment-statCard">
-          <div className="MachineryEquipment-statIcon">
-            <FiMapPin />
-          </div>
-          <div>
-            <span>Available at Store</span>
-            <h3>{storeListings}</h3>
-          </div>
-        </div>
-      </div>
-
-      {/* TABS */}
-      <div className="MachineryEquipment-tabs">
-        <button
-          type="button"
-          className={
-            activeTab === "form" ? "active" : ""
-          }
-          onClick={() => setActiveTab("form")}
-        >
-          <FiPlus />
-          {editingId ? "Edit Equipment" : "Add Equipment"}
-        </button>
-
-        <button
-          type="button"
-          className={
-            activeTab === "table" ? "active" : ""
-          }
-          onClick={() => setActiveTab("table")}
-        >
-          <FiGrid />
-          Equipment List
-          <span>{equipments.length}</span>
-        </button>
-      </div>
-
-      {/* ADD / EDIT FORM */}
-      {activeTab === "form" && (
-        <form
-          className="MachineryEquipment-form"
-          onSubmit={handleSubmit}
-        >
-          <div className="MachineryEquipment-formHeading">
-            <div>
-              <h2>
-                {editingId
-                  ? "Update Equipment Details"
-                  : "Add New Machinery"}
-              </h2>
-              <p>
-                Enter all the required information about your machine.
-              </p>
-            </div>
-
-            {editingId && (
-              <span className="MachineryEquipment-editBadge">
-                Editing
-              </span>
-            )}
-          </div>
-
-          {/* IMAGE UPLOAD */}
-          <section className="MachineryEquipment-section">
-            <div className="MachineryEquipment-sectionTitle">
-              <div className="MachineryEquipment-sectionIcon">
-                <FiImage />
+      {/* 2-Column Main Layout */}
+      <div className="AddMachinery-layout">
+        {/* LEFT COLUMN: The Form */}
+        <form onSubmit={handleSubmit} className="AddMachinery-formCol">
+          {/* CARD 1: GENERAL & MODEL SPECIFICATIONS */}
+          <div className="AddMachinery-card">
+            <div className="AddMachinery-cardHeader">
+              <div className="AddMachinery-cardHeaderIcon">
+                <Tag size={18} />
               </div>
-
               <div>
-                <h3>Machine Images</h3>
-                <p>
-                  Upload up to 6 images: 1 main image and 5 additional images (Max 10 MB each, auto-optimized to WebP).
-                </p>
+                <h3>General & Model Specifications</h3>
+                <p>Machine name, manufacturer brand, and model code</p>
               </div>
             </div>
 
-            {imageError && (
-              <div
-                style={{
-                  backgroundColor: "#fef2f2",
-                  color: "#b91c1c",
-                  border: "1px solid #fecaca",
-                  borderRadius: "10px",
-                  padding: "12px 16px",
-                  marginBottom: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  fontSize: "13px",
-                  fontWeight: "600",
-                }}
-              >
-                <FiAlertCircle size={20} style={{ flexShrink: 0 }} />
-                <span style={{ flex: 1 }}>{imageError}</span>
-                <button
-                  type="button"
-                  onClick={() => setImageError("")}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "#b91c1c",
-                    cursor: "pointer",
-                    padding: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                  aria-label="Dismiss"
-                >
-                  <FiX size={16} />
-                </button>
+            <div className="AddMachinery-cardBody">
+              <div className="AddMachinery-field">
+                <label>
+                  Machine Title * <span className="AddMachinery-reqNote">(e.g. Fieldking Multi-Crop Super Seeder 7 Feet)</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Fieldking Multi-Crop Super Seeder 7 Feet"
+                  value={form.title}
+                  onChange={(e) => updateField("title", e.target.value)}
+                />
               </div>
-            )}
 
-            <div className="MachineryEquipment-uploadGrid">
-              {form.machineImages.map((image, index) => (
-                <div
-                  className="MachineryEquipment-imagePreview"
-                  key={`${image.name}-${index}`}
-                >
-                  <img
-                    src={imageSrc(image)}
-                    alt={image.name || "Machine"}
+              <div className="AddMachinery-row">
+                <div className="AddMachinery-field">
+                  <label>
+                    <Building2 size={14} />
+                    <span>Brand / OEM Manufacturer *</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Fieldking, Rhinco, Shaktiman"
+                    value={form.brandName}
+                    onChange={(e) => updateField("brandName", e.target.value)}
                   />
-
-                  <button
-                    type="button"
-                    className="MachineryEquipment-removeImage"
-                    onClick={() => removeImage(index)}
-                    title="Remove image"
-                  >
-                    <FiX />
-                  </button>
-
-                  {index === 0 && (
-                    <span className="MachineryEquipment-mainImageLabel">
-                      Main Image
-                    </span>
-                  )}
                 </div>
-              ))}
 
-              {form.machineImages.length < 6 && (
-                <button
-                  type="button"
-                  className="MachineryEquipment-uploadBox"
-                  onClick={() => imageInputRef.current?.click()}
-                >
-                  <FiUploadCloud />
-                  <strong>Upload Images</strong>
-                  <span>
-                    {form.machineImages.length}/6 images
-                  </span>
-                  <small>PNG, JPG, WEBP · Max 5 MB</small>
-                </button>
+                <div className="AddMachinery-field">
+                  <label>
+                    <span>Model Name / Code</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. FKMS-7F"
+                    value={form.modelName}
+                    onChange={(e) => updateField("modelName", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="AddMachinery-row">
+                <div className="AddMachinery-field">
+                  <label>
+                    <Layers size={14} />
+                    <span>Category / Implement Type *</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    list="machinery-categories-list"
+                    placeholder="Select or enter category..."
+                    value={form.category}
+                    onChange={(e) => {
+                      updateField("category", e.target.value);
+                      updateField("implementType", e.target.value);
+                    }}
+                  />
+                  <datalist id="machinery-categories-list">
+                    {categories.map((c) => (
+                      <option key={c._id || c.name} value={c.name} />
+                    ))}
+                    <option value="Rotavators" />
+                    <option value="Super Seeders" />
+                    <option value="Laser Levellers" />
+                    <option value="Chaff Cutters" />
+                    <option value="Power Weeders" />
+                    <option value="Tractor Trailers" />
+                    <option value="Boom Sprayers" />
+                    <option value="Disc Harrows" />
+                  </datalist>
+                </div>
+
+                <div className="AddMachinery-field">
+                  <label>
+                    <Zap size={14} />
+                    <span>Tractor Power Required *</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. 45 - 55 HP"
+                    value={form.implementPower}
+                    onChange={(e) => updateField("implementPower", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="AddMachinery-field">
+                <label>Detailed Machine Overview & Field Benefits *</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="Explain high performance field capabilities, soil compatibility, fuel efficiency, and government subsidy eligibility..."
+                  value={form.description}
+                  onChange={(e) => updateField("description", e.target.value)}
+                />
+              </div>
+
+              <div className="AddMachinery-field">
+                <label>Technical Specifications (Specs Sheet)</label>
+                <textarea
+                  rows={4}
+                  placeholder="e.g. Number of Blades: 48, Working Width: 2.1m, Gearbox: Multi-Speed Heavy Duty, Weight: 480 kg..."
+                  value={form.specification}
+                  onChange={(e) => updateField("specification", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 2: PRICING, WARRANTY & DEALER STATUS */}
+          <div className="AddMachinery-card">
+            <div className="AddMachinery-cardHeader">
+              <div className="AddMachinery-cardHeaderIcon">
+                <DollarSign size={18} />
+              </div>
+              <div>
+                <h3>Ex-Showroom Price & Availability</h3>
+                <p>Ex-showroom pricing, subsidy discounts, and stock status</p>
+              </div>
+            </div>
+
+            <div className="AddMachinery-cardBody">
+              <div className="AddMachinery-pricingGrid">
+                <div className="AddMachinery-field">
+                  <label>Ex-Showroom Price (₹) *</label>
+                  <div className="AddMachinery-inputWithPrefix">
+                    <span>₹</span>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      step="any"
+                      placeholder="e.g. 175000"
+                      value={form.price}
+                      onChange={(e) => updateField("price", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="AddMachinery-field">
+                  <label>Subsidy / Discount (%)</label>
+                  <div className="AddMachinery-inputWithPrefix">
+                    <span>%</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      placeholder="e.g. 10"
+                      value={form.discount}
+                      onChange={(e) => updateField("discount", e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="AddMachinery-field">
+                  <label>Discounted Price (₹)</label>
+                  <div className="AddMachinery-calculatedPrice">
+                    ₹ {calcDiscountPrice.toLocaleString("en-IN")}
+                  </div>
+                </div>
+              </div>
+
+              <div className="AddMachinery-row">
+                <div className="AddMachinery-field">
+                  <label>
+                    <ShieldCheck size={14} />
+                    <span>Warranty Duration</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1 Year Standard / 2 Years Comprehensive"
+                    value={form.warranty}
+                    onChange={(e) => updateField("warranty", e.target.value)}
+                  />
+                </div>
+
+                <div className="AddMachinery-field">
+                  <label>Status at Dealership</label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => updateField("status", e.target.value)}
+                  >
+                    <option value="Available">Available (Ready Stock)</option>
+                    <option value="On Order">On Order (Fabrication Queue)</option>
+                    <option value="Reserved">Reserved</option>
+                    <option value="Sold">Sold</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 3: MACHINERY PHOTOS (STRICT 5 MB LIMIT) */}
+          <div className="AddMachinery-card">
+            <div className="AddMachinery-cardHeader">
+              <div className="AddMachinery-cardHeaderIcon">
+                <Image size={18} />
+              </div>
+              <div>
+                <h3>Machinery Photos</h3>
+                <p>Upload up to 8 photos • Max 5 MB per image (JPG, PNG, WebP)</p>
+              </div>
+            </div>
+
+            <div className="AddMachinery-cardBody">
+              <div
+                className="AddMachinery-dropzone"
+                onClick={() => imageInputRef.current?.click()}
+              >
+                <input
+                  type="file"
+                  ref={imageInputRef}
+                  style={{ display: "none" }}
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  multiple
+                  onChange={handleImageUpload}
+                />
+                <UploadCloud size={38} className="AddMachinery-dropzoneIcon" />
+                <div className="AddMachinery-dropzoneText">
+                  <h4>Click to upload machine photo(s)</h4>
+                  <p>
+                    Maximum size: <strong>5 MB per image</strong>. First photo
+                    is used as the catalogue thumbnail.
+                  </p>
+                </div>
+              </div>
+
+              {images.length > 0 && (
+                <div className="AddMachinery-thumbsGrid">
+                  {images.map((img, idx) => (
+                    <div
+                      key={img.id}
+                      className={`AddMachinery-thumbItem ${
+                        img.uploading ? "uploading" : ""
+                      }`}
+                    >
+                      <img
+                        src={resolveImageUrl(img.preview || img.url)}
+                        alt={`machine-photo-${idx}`}
+                        className="AddMachinery-thumbImg"
+                      />
+                      {idx === 0 && (
+                        <span className="AddMachinery-primaryTag">Cover</span>
+                      )}
+                      {img.uploading && (
+                        <div className="AddMachinery-uploadingOverlay">
+                          <RefreshCw size={18} className="AddMachinery-spin" />
+                          <span>Uploading</span>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="AddMachinery-thumbDeleteBtn"
+                        onClick={() => removeImage(img.id)}
+                        title="Remove photo"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* CARD 4: TECHNICAL BROCHURES & DOCUMENTS (STRICT 10 MB LIMIT) */}
+          <div className="AddMachinery-card">
+            <div className="AddMachinery-cardHeader">
+              <div className="AddMachinery-cardHeaderIcon">
+                <FileText size={18} />
+              </div>
+              <div>
+                <h3>Technical Documents & Brochures</h3>
+                <p>Upload PDF specifications, subsidy forms • Max 10 MB per doc</p>
+              </div>
+            </div>
+
+            <div className="AddMachinery-cardBody">
+              <div
+                className="AddMachinery-dropzone AddMachinery-dropzone--doc"
+                onClick={() => docInputRef.current?.click()}
+              >
+                <input
+                  type="file"
+                  ref={docInputRef}
+                  style={{ display: "none" }}
+                  accept=".pdf,.doc,.docx,.xls,.xlsx"
+                  multiple
+                  onChange={handleDocUpload}
+                />
+                <FileText size={32} className="AddMachinery-dropzoneIcon" />
+                <div className="AddMachinery-dropzoneText">
+                  <h4>Click to attach PDF brochures or technical sheets</h4>
+                  <p>
+                    Maximum size: <strong>10 MB per document</strong> (PDF, DOCX, XLS).
+                  </p>
+                </div>
+              </div>
+
+              {mediaError && (
+                <div className="AddMachinery-mediaError">
+                  <AlertCircle size={16} />
+                  <span>{mediaError}</span>
+                </div>
               )}
 
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                ref={imageInputRef}
-                onChange={handleImages}
-                hidden
-              />
-            </div>
-          </section>
-
-          {/* BASIC INFORMATION */}
-          <section className="MachineryEquipment-section">
-            <div className="MachineryEquipment-sectionTitle">
-              <div className="MachineryEquipment-sectionIcon">
-                <FiPackage />
-              </div>
-
-              <div>
-                <h3>Basic Machine Information</h3>
-                <p>
-                  Provide the machine's name, brand, model and category.
-                </p>
-              </div>
-            </div>
-
-            <div className="MachineryEquipment-formGrid">
-              <div className="MachineryEquipment-field full">
-                <label>
-                  Title of the Machine <span>*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter machine title"
-                  value={form.title}
-                  onChange={(e) =>
-                    updateField("title", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <div className="MachineryEquipment-field">
-                <label>
-                  Brand Name <span>*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. JCB, Caterpillar, Komatsu"
-                  value={form.brandName}
-                  onChange={(e) =>
-                    updateField("brandName", e.target.value)
-                  }
-                  required
-                />
-              </div>
-
-              <div className="MachineryEquipment-field">
-                <label>Model Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter model name"
-                  value={form.modelName}
-                  onChange={(e) =>
-                    updateField("modelName", e.target.value)
-                  }
-                />
-              </div>
-
-              <div className="MachineryEquipment-field">
-                <label>Implement Type</label>
-                <input
-                  type="text"
-                  placeholder="Enter implement type"
-                  value={form.implementType}
-                  onChange={(e) =>
-                    updateField("implementType", e.target.value)
-                  }
-                />
-              </div>
-
-              <div className="MachineryEquipment-field">
-                <label>
-                  Category <span>*</span>
-                </label>
-                <select
-                  value={form.category}
-                  onChange={(e) =>
-                    updateField("category", e.target.value)
-                  }
-                  required
-                >
-                  <option value="">
-                    {categoriesLoading ? "Loading categories from database..." : "Select Category"}
-                  </option>
-                  {categories.map((category) => (
-                    <option
-                      value={category}
-                      key={category}
-                    >
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="MachineryEquipment-field">
-                <label>Implement Power</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 75 HP, 55 kW"
-                  value={form.implementPower}
-                  onChange={(e) =>
-                    updateField("implementPower", e.target.value)
-                  }
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* PRICING & DISCOUNTS */}
-          <section className="MachineryEquipment-section">
-            <div className="MachineryEquipment-sectionTitle">
-              <span className="MachineryEquipment-sectionNumber">2</span>
-              <div className="MachineryEquipment-sectionIcon">
-                <FiDollarSign />
-              </div>
-
-              <div>
-                <h3>Pricing & Discounts</h3>
-                <p>
-                  Set base price and promotional discounts.
-                </p>
-              </div>
-            </div>
-
-            <div className="MachineryEquipment-formGrid">
-              <div className="MachineryEquipment-field">
-                <label>
-                  Price (₹) <span>*</span>
-                </label>
-                <div className="MachineryEquipment-inputWrap">
-                  <FiDollarSign />
-                  <input
-                    type="number"
-                    min="1"
-                    step="0.01"
-                    placeholder="Enter base price"
-                    value={form.price}
-                    onChange={(e) =>
-                      updateField("price", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="MachineryEquipment-field">
-                <label>Discount (%)</label>
-                <div className="MachineryEquipment-inputWrap">
-                  <FiPercent />
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="0"
-                    value={form.discount !== undefined ? form.discount : 0}
-                    onChange={(e) =>
-                      updateField("discount", e.target.value)
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="MachineryEquipment-field full">
-                <div className="MachineryEquipment-pricePreview">
-                  <div className="MachineryEquipment-priceItem">
-                    <span>Base Price</span>
-                    <strong>{formatPrice(form.price)}</strong>
-                  </div>
-
-                  <div className="MachineryEquipment-priceItem">
-                    <span>Discount</span>
-                    <span className="discount">
-                      {Number(form.discount) || 0}% OFF
-                    </span>
-                  </div>
-
-                  <div className="MachineryEquipment-priceItem total">
-                    <span>Customer Final Price</span>
-                    <strong>{formatPrice(finalPrice)}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* DESCRIPTION */}
-          <section className="MachineryEquipment-section">
-            <div className="MachineryEquipment-sectionTitle">
-              <div className="MachineryEquipment-sectionIcon">
-                <FiFileText />
-              </div>
-
-              <div>
-                <h3>Product Description</h3>
-                <p>
-                  Write a detailed description of the machine.
-                </p>
-              </div>
-            </div>
-
-            <div className="MachineryEquipment-editor">
-              <label>
-                Description <span>*</span>
-              </label>
-
-              <Editor
-                key={editingId ? `desc-${editingId}` : "desc-new"}
-                tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
-                apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
-                value={form.description}
-                onEditorChange={(value) =>
-                  updateField("description", value)
-                }
-                init={editorConfig}
-              />
-            </div>
-          </section>
-
-          {/* SPECIFICATION */}
-          <section className="MachineryEquipment-section">
-            <div className="MachineryEquipment-sectionTitle">
-              <div className="MachineryEquipment-sectionIcon">
-                <FiTool />
-              </div>
-
-              <div>
-                <h3>Machine Specifications</h3>
-                <p>
-                  Add technical specifications and machine features.
-                </p>
-              </div>
-            </div>
-
-            <div className="MachineryEquipment-editor">
-              <label>
-                Specification <span>*</span>
-              </label>
-
-              <Editor
-                key={editingId ? `spec-${editingId}` : "spec-new"}
-                tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"
-                apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
-                value={form.specification}
-                onEditorChange={(value) =>
-                  updateField("specification", value)
-                }
-                init={editorConfig}
-              />
-            </div>
-          </section>
-
-          {/* DOCUMENTS */}
-          <section className="MachineryEquipment-section">
-            <div className="MachineryEquipment-sectionTitle">
-              <div className="MachineryEquipment-sectionIcon">
-                <FiFileText />
-              </div>
-
-              <div>
-                <h3>Required Documents</h3>
-                <p>
-                  Upload brochures, manuals, datasheets or other documents (Max 10 MB each).
-                </p>
-              </div>
-            </div>
-
-            {docError && (
-              <div
-                style={{
-                  backgroundColor: "#fef2f2",
-                  color: "#b91c1c",
-                  border: "1px solid #fecaca",
-                  borderRadius: "10px",
-                  padding: "12px 16px",
-                  marginBottom: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  fontSize: "13px",
-                  fontWeight: "600",
-                }}
-              >
-                <FiAlertCircle size={20} style={{ flexShrink: 0 }} />
-                <span style={{ flex: 1 }}>{docError}</span>
-                <button
-                  type="button"
-                  onClick={() => setDocError("")}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    color: "#b91c1c",
-                    cursor: "pointer",
-                    padding: "4px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                  aria-label="Dismiss"
-                >
-                  <FiX size={16} />
-                </button>
-              </div>
-            )}
-
-            <button
-              type="button"
-              className="MachineryEquipment-documentUpload"
-              onClick={() => documentInputRef.current?.click()}
-            >
-              <FiUploadCloud />
-              <span>
-                <strong>Upload Documents</strong>
-                <small>PDF, DOC, DOCX, XLS, XLSX · Max 10 MB each</small>
-              </span>
-            </button>
-
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.doc,.docx,.xls,.xlsx"
-              ref={documentInputRef}
-              onChange={handleDocuments}
-              hidden
-            />
-
-            {form.documents.length > 0 && (
-              <div className="MachineryEquipment-documentList">
-                {form.documents.map((doc, index) => (
-                  <div
-                    className="MachineryEquipment-documentItem"
-                    key={`${doc.name}-${index}`}
-                  >
-                    <FiFileText />
-
-                    <div>
-                      <strong>{doc.name}</strong>
-                      <small>
-                        {(doc.size / (1024 * 1024)).toFixed(2)} MB
-                      </small>
+              {documents.length > 0 && (
+                <div className="AddMachinery-docsList">
+                  {documents.map((doc) => (
+                    <div key={doc.id} className="AddMachinery-docItem">
+                      <File size={18} color="#059669" />
+                      <div className="AddMachinery-docMeta">
+                        <span className="AddMachinery-docName">{doc.name}</span>
+                        {doc.size > 0 && (
+                          <span className="AddMachinery-docSize">
+                            ({(doc.size / (1024 * 1024)).toFixed(2)} MB)
+                          </span>
+                        )}
+                      </div>
+                      {doc.uploading ? (
+                        <RefreshCw size={14} className="AddMachinery-spin" />
+                      ) : (
+                        <button
+                          type="button"
+                          className="AddMachinery-docDeleteBtn"
+                          onClick={() => removeDocument(doc.id)}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeDocument(index)}
-                      title="Remove document"
-                    >
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* STORE AVAILABILITY */}
-          <section className="MachineryEquipment-section">
-            <div className="MachineryEquipment-sectionTitle">
-              <div className="MachineryEquipment-sectionIcon">
-                <FiMapPin />
-              </div>
-
-              <div>
-                <h3>Store Availability</h3>
-                <p>
-                  Specify whether this machine is available at your store.
-                </p>
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
 
-            <div className="MachineryEquipment-field">
-              <label>Available at Store</label>
-
-              <div className="MachineryEquipment-radioGroup">
-                <label>
-                  <input
-                    type="radio"
-                    name="availableAtStore"
-                    value="Yes"
-                    checked={form.availableAtStore === "Yes"}
-                    onChange={(e) =>
-                      updateField(
-                        "availableAtStore",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <span>Yes, Available</span>
-                </label>
-
-                <label>
-                  <input
-                    type="radio"
-                    name="availableAtStore"
-                    value="No"
-                    checked={form.availableAtStore === "No"}
-                    onChange={(e) =>
-                      updateField(
-                        "availableAtStore",
-                        e.target.value
-                      )
-                    }
-                  />
-                  <span>Not Available</span>
-                </label>
-              </div>
-            </div>
-          </section>
-
-          {/* FORM ACTIONS */}
-          <div className="MachineryEquipment-formActions">
-            <button
-              type="button"
-              className="MachineryEquipment-resetBtn"
-              onClick={openNewForm}
-            >
-              <FiRotateCcw />
-              Reset Form
-            </button>
-
+          {/* SUBMIT BUTTON */}
+          <div className="AddMachinery-submitRow">
             <button
               type="submit"
-              className="MachineryEquipment-submitBtn"
-              disabled={saving || uploadingImages || uploadingDocs || !!docError || !!imageError}
+              disabled={isSubmitting || uploadingMedia}
+              className="AddMachinery-submitBtn"
             >
-              <FiSave />
-              {uploadingImages
-                ? "Uploading Images..."
-                : uploadingDocs
-                ? "Uploading Documents..."
-                : saving
-                ? "Saving..."
-                : editingId
-                ? "Update Equipment"
-                : "Submit Equipment"}
+              <Save size={18} />
+              <span>
+                {isSubmitting
+                  ? "Saving to Database..."
+                  : editingId
+                  ? "Update Machinery"
+                  : "Publish Machinery to Catalogue →"}
+              </span>
             </button>
           </div>
         </form>
-      )}
-            {/* EQUIPMENT TABLE */}
-      {activeTab === "table" && (
-        <div className="MachineryEquipment-tableWrapper">
-          <div className="MachineryEquipment-tableHeader">
-            <div>
-              <h2>Equipment Management</h2>
-              <p>View, edit and manage all machinery products.</p>
+
+        {/* RIGHT COLUMN: Live Card Preview */}
+        <aside className="AddMachinery-previewCol">
+          <div className="AddMachinery-previewCard">
+            <div className="AddMachinery-previewHeader">
+              <Eye size={16} />
+              <span>Live Catalogue Preview</span>
             </div>
 
-            <button
-              type="button"
-              className="MachineryEquipment-addBtn"
-              onClick={openNewForm}
-            >
-              <FiPlus />
-              Add Equipment
-            </button>
-          </div>
-
-          {/* FILTERS */}
-          <div className="MachineryEquipment-filters">
-            <div className="MachineryEquipment-search">
-              <FiSearch />
-              <input
-                type="text"
-                placeholder="Search equipment, brand or model..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-
-            <div className="MachineryEquipment-categoryFilter">
-              <FiFilter />
-              <select
-                value={categoryFilter}
-                onChange={(e) => {
-                  setCategoryFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-              >
-                <option value="All Categories">All Categories</option>
-
-                {categories.map((category) => (
-                  <option value={category} key={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* TABLE */}
-          <div className="MachineryEquipment-tableScroll">
-            <table className="MachineryEquipment-table">
-              <thead>
-                <tr>
-                  <th>Machine</th>
-                  <th>Brand / Model</th>
-                  <th>Category</th>
-                  <th>Implement Type</th>
-                  <th>Power</th>
-                  <th>Price</th>
-                  <th>Store</th>
-                  <th>Files</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {paginatedEquipments.length > 0 ? (
-                  paginatedEquipments.map((item) => (
-                    <tr key={item._id || item.id}>
-                      <td>
-                        <div className="MachineryEquipment-productCell">
-                          {imageSrc(item.machineImages?.[0]) || item.image ? (
-                            <img
-                              src={imageSrc(item.machineImages?.[0]) || item.image}
-                              alt={item.title}
-                            />
-                          ) : (
-                            <div className="MachineryEquipment-noImage">
-                              <FiImage />
-                            </div>
-                          )}
-
-                          <div>
-                            <strong>{item.title}</strong>
-                            <small>
-                              Added {formatDate(item.createdAt)}
-                            </small>
-                          </div>
-                        </div>
-                      </td>
-
-                      <td>
-                        <strong>{item.brandName || "—"}</strong>
-                        <small className="MachineryEquipment-subText">
-                          {item.modelName || "No model"}
-                        </small>
-                      </td>
-
-                      <td>
-                        <span className="MachineryEquipment-categoryBadge">
-                          {item.category || "—"}
-                        </span>
-                      </td>
-
-                      <td>{item.implementType || "—"}</td>
-
-                      <td>{item.implementPower || "—"}</td>
-
-                      <td>
-                        <strong>
-                          {formatCurrency(
-                            item.discountPrice || item.price
-                          )}
-                        </strong>
-
-                        {item.discountPrice !== "" &&
-                          item.discountPrice !== undefined &&
-                          Number(item.discountPrice) < Number(item.price) && (
-                            <small className="MachineryEquipment-oldPrice">
-                              {formatCurrency(item.price)}
-                            </small>
-                          )}
-                      </td>
-
-                      <td>
-                        <span
-                          className={`MachineryEquipment-storeBadge ${
-                            item.availableAtStore === "Yes"
-                              ? "available"
-                              : "unavailable"
-                          }`}
-                        >
-                          {item.availableAtStore || "Not Set"}
-                        </span>
-                      </td>
-
-                      <td>
-                        <span className="MachineryEquipment-fileCount">
-                          <FiImage />
-                          {item.machineImages?.length || 0}
-                        </span>
-
-                        <span className="MachineryEquipment-fileCount">
-                          <FiFileText />
-                          {item.documents?.length || 0}
-                        </span>
-                      </td>
-
-                      <td>
-                        <div className="MachineryEquipment-actions">
-                          <button
-                            type="button"
-                            title="View"
-                            onClick={() => setViewEquipment(item)}
-                          >
-                            <FiEye />
-                          </button>
-
-                          <button
-                            type="button"
-                            title="Edit"
-                            onClick={() => openEditForm(item)}
-                          >
-                            <FiEdit2 />
-                          </button>
-
-                          <button
-                            type="button"
-                            title="Delete"
-                            onClick={() => setDeleteId(item._id || item.id)}
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="9"
-                      className="MachineryEquipment-empty"
-                    >
-                      <FiPackage />
-                      <strong>No equipment found</strong>
-                      <span>
-                        Add equipment or change your search filters.
-                      </span>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* PAGINATION */}
-          <div className="MachineryEquipment-pagination">
-            <span>
-              Showing{" "}
-              {filteredEquipments.length === 0
-                ? 0
-                : (currentPage - 1) * itemsPerPage + 1}
-              {" - "}
-              {Math.min(
-                currentPage * itemsPerPage,
-                filteredEquipments.length
-              )}{" "}
-              of {filteredEquipments.length} equipment
-            </span>
-
-            <div>
-              <button
-                type="button"
-                disabled={currentPage === 1}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.max(1, prev - 1))
-                }
-              >
-                <FiChevronLeft />
-              </button>
-
-              <span>
-                {currentPage} / {totalPages}
-              </span>
-
-              <button
-                type="button"
-                disabled={currentPage >= totalPages}
-                onClick={() =>
-                  setCurrentPage((prev) =>
-                    Math.min(totalPages, prev + 1)
-                  )
-                }
-              >
-                <FiChevronRight />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* VIEW EQUIPMENT MODAL */}
-      {viewEquipment && (
-        <div
-          className="MachineryEquipment-modalOverlay"
-          onClick={() => setViewEquipment(null)}
-        >
-          <div
-            className="MachineryEquipment-viewModal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="MachineryEquipment-modalHeader">
-              <div>
-                <span>PRODUCT DETAILS</span>
-                <h2>{viewEquipment.title}</h2>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setViewEquipment(null)}
-              >
-                <FiX />
-              </button>
-            </div>
-
-            <div className="MachineryEquipment-modalBody">
-              {/* IMAGES */}
-              <div className="MachineryEquipment-modalImages">
-                {viewEquipment.machineImages?.map((image, index) => (
+            <div className="AddMachinery-mockCard">
+              <div className="AddMachinery-mockMedia">
+                {images.length > 0 ? (
                   <img
-                    key={index}
-                    src={imageSrc(image)}
-                    alt={`${viewEquipment.title} ${index + 1}`}
+                    src={resolveImageUrl(images[0].preview || images[0].url)}
+                    alt="preview"
+                    className="AddMachinery-mockImg"
                   />
-                ))}
-              </div>
-
-              {/* DETAILS */}
-              <div className="MachineryEquipment-detailGrid">
-                <div>
-                  <span>Brand Name</span>
-                  <strong>{viewEquipment.brandName || "—"}</strong>
-                </div>
-
-                <div>
-                  <span>Model Name</span>
-                  <strong>{viewEquipment.modelName || "—"}</strong>
-                </div>
-
-                <div>
-                  <span>Category</span>
-                  <strong>{viewEquipment.category || "—"}</strong>
-                </div>
-
-                <div>
-                  <span>Implement Type</span>
-                  <strong>{viewEquipment.implementType || "—"}</strong>
-                </div>
-
-                <div>
-                  <span>Implement Power</span>
-                  <strong>{viewEquipment.implementPower || "—"}</strong>
-                </div>
-
-                <div>
-                  <span>Available at Store</span>
-                  <strong>
-                    {viewEquipment.availableAtStore || "Not Set"}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>Original Price</span>
-                  <strong>
-                    {formatCurrency(viewEquipment.price)}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>Discount Price</span>
-                  <strong>
-                    {viewEquipment.discountPrice !== ""
-                      ? formatCurrency(viewEquipment.discountPrice)
-                      : "No discount"}
-                  </strong>
-                </div>
-              </div>
-
-              {/* DESCRIPTION */}
-              <div className="MachineryEquipment-detailSection">
-                <h3>Description</h3>
-                <div
-                  className="MachineryEquipment-richText"
-                  dangerouslySetInnerHTML={{
-                    __html: viewEquipment.description || "No description added."
-                  }}
-                />
-              </div>
-
-              {/* SPECIFICATIONS */}
-              <div className="MachineryEquipment-detailSection">
-                <h3>Specifications</h3>
-                <div
-                  className="MachineryEquipment-richText"
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      viewEquipment.specification ||
-                      "No specifications added."
-                  }}
-                />
-              </div>
-
-              {/* DOCUMENTS */}
-              <div className="MachineryEquipment-detailSection">
-                <h3>Required Documents</h3>
-
-                {viewEquipment.documents?.length ? (
-                  <div className="MachineryEquipment-viewDocuments">
-                    {viewEquipment.documents.map((doc, index) => (
-                      <a
-                        href={doc.data}
-                        download={doc.name}
-                        key={index}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <FiFileText />
-                        {doc.name}
-                        <FiExternalLink />
-                      </a>
-                    ))}
-                  </div>
                 ) : (
-                  <p>No documents uploaded.</p>
+                  <div className="AddMachinery-mockPlaceholder">
+                    <Tractor size={40} strokeWidth={1.2} />
+                    <span>No Photo Uploaded</span>
+                  </div>
                 )}
+                <span className="AddMachinery-mockSubsidyTag">
+                  Subsidy Eligible
+                </span>
+              </div>
+
+              <div className="AddMachinery-mockBody">
+                <div className="AddMachinery-mockMeta">
+                  <span className="AddMachinery-mockBrand">
+                    {form.brandName || "Rhinco"}
+                  </span>
+                  <span className="AddMachinery-mockCat">
+                    {form.category || "Farm Machinery"}
+                  </span>
+                </div>
+
+                <h4 className="AddMachinery-mockTitle">
+                  {form.title || "Machinery Equipment Title..."}
+                </h4>
+
+                <div className="AddMachinery-mockSpecRow">
+                  <div>
+                    <small>Power HP</small>
+                    <strong>{form.implementPower || "35 - 50 HP"}</strong>
+                  </div>
+                  <div>
+                    <small>Warranty</small>
+                    <strong>{form.warranty || "1 Year"}</strong>
+                  </div>
+                </div>
+
+                <div className="AddMachinery-mockFooter">
+                  <div className="AddMachinery-mockPrice">
+                    <span>
+                      {Number(form.price) > 0
+                        ? `₹ ${calcDiscountPrice.toLocaleString("en-IN")}`
+                        : "Price on Request"}
+                    </span>
+                    <small>Govt. subsidy available</small>
+                  </div>
+                  <span className="AddMachinery-mockStatus">
+                    {form.status}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="MachineryEquipment-modalFooter">
-              <button
-                type="button"
-                className="MachineryEquipment-resetBtn"
-                onClick={() => setViewEquipment(null)}
-              >
-                Close
-              </button>
-
-              <button
-                type="button"
-                className="MachineryEquipment-submitBtn"
-                onClick={() => openEditForm(viewEquipment)}
-              >
-                <FiEdit2 />
-                Edit Equipment
-              </button>
+            <div className="AddMachinery-uploadLimitsCard">
+              <h4>
+                <CheckCircle2 size={16} color="#059669" />
+                Upload Limits & Integration Specs
+              </h4>
+              <ul>
+                <li>
+                  <strong>Images:</strong> Max <strong>5 MB</strong> per file (WebP auto-optimized).
+                </li>
+                <li>
+                  <strong>Documents:</strong> Max <strong>10 MB</strong> per file (PDF, DOCX, XLS).
+                </li>
+                <li>
+                  <strong>Database:</strong> Stored on disk under <code>/uploads/machinery</code> and <code>/uploads/documents</code>.
+                </li>
+                <li>
+                  <strong>Live URL:</strong> Appears directly at <code>http://localhost:5173/machinery</code>.
+                </li>
+              </ul>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* DELETE CONFIRMATION */}
-      {deleteId !== null && (
-        <div
-          className="MachineryEquipment-modalOverlay"
-          onClick={() => setDeleteId(null)}
-        >
-          <div
-            className="MachineryEquipment-deleteModal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="MachineryEquipment-deleteIcon">
-              <FiTrash2 />
-            </div>
-
-            <h3>Delete Equipment?</h3>
-
-            <p>
-              Are you sure you want to delete this equipment? This action
-              cannot be undone.
-            </p>
-
-            <div className="MachineryEquipment-deleteActions">
-              <button
-                type="button"
-                className="MachineryEquipment-resetBtn"
-                onClick={() => setDeleteId(null)}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                className="MachineryEquipment-deleteConfirm"
-                onClick={confirmDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        </aside>
+      </div>
     </div>
   );
 };

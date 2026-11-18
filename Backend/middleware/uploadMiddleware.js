@@ -70,7 +70,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 25 * 1024 * 1024, // 25 MB max file size (supports up to 25 MB documents)
+    fileSize: 10 * 1024 * 1024, // 10 MB max file size per upload
     files: 20, // max 20 files per batch
   },
 });

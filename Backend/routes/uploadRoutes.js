@@ -54,21 +54,21 @@ const processAndSaveFile = async (file, folder = '') => {
       ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.tiff', '.avif'].includes(ext)) &&
     !isSvg;
 
-  // Strict file size limits: Images 10 MB, Documents 25 MB
-  const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-  const MAX_DOC_BYTES = 25 * 1024 * 1024;
+  // Strict file size limits: Images max 5 MB, Documents max 10 MB
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB for images
+  const MAX_DOC_BYTES = 10 * 1024 * 1024; // 10 MB for documents
   const fileSize = file.size || (file.buffer ? file.buffer.length : 0);
 
   if (isImage && fileSize > MAX_IMAGE_BYTES) {
     const mb = (fileSize / (1024 * 1024)).toFixed(2);
-    const err = new Error(`Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${file.originalname}" (${mb} MB)`);
+    const err = new Error(`Image size limit exceeded! Maximum allowed image size is 5 MB. Uploaded: "${file.originalname}" (${mb} MB)`);
     err.statusCode = 400;
     throw err;
   }
 
   if (!isImage && fileSize > MAX_DOC_BYTES) {
     const mb = (fileSize / (1024 * 1024)).toFixed(2);
-    const err = new Error(`Document size limit exceeded! Maximum allowed size is 25 MB. Exceeded: "${file.originalname}" (${mb} MB)`);
+    const err = new Error(`Document size limit exceeded! Maximum allowed document size is 10 MB. Uploaded: "${file.originalname}" (${mb} MB)`);
     err.statusCode = 400;
     throw err;
   }
