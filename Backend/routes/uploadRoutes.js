@@ -129,6 +129,12 @@ router.post('/', (req, res) => {
   uploadSingle(req, res, async (err) => {
     if (err) {
       console.error('Upload error:', err);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File size limit exceeded! Maximum allowed size is 10 MB per file.',
+        });
+      }
       return res.status(400).json({
         success: false,
         message: err.message || 'File upload failed',
@@ -183,6 +189,12 @@ router.post('/multiple', (req, res) => {
   uploadMultiple(req, res, async (err) => {
     if (err) {
       console.error('Multiple upload error:', err);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File size limit exceeded! Maximum allowed size is 10 MB per file.',
+        });
+      }
       return res.status(400).json({
         success: false,
         message: err.message || 'Multiple file upload failed',

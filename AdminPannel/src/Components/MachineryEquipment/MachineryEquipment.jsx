@@ -16,9 +16,9 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const MACHINERY_API = `${API_URL}/machinery`;
 const CATEGORIES_API = `${API_URL}/categories`;
 
-const MAX_IMAGE_MB = 50;
+const MAX_IMAGE_MB = 10;
 const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
-const MAX_DOC_MB = 25;
+const MAX_DOC_MB = 10;
 const MAX_DOC_BYTES = MAX_DOC_MB * 1024 * 1024;
 
 const resolveImageUrl = (path) => {
@@ -108,6 +108,7 @@ const MachineryEquipment = () => {
   const [imageError, setImageError] = useState("");
   const [uploadingImages, setUploadingImages] = useState(false);
   const [docError, setDocError] = useState("");
+  const [uploadingDocs, setUploadingDocs] = useState(false);
 
   const finalPrice = useMemo(() => {
     const p = parseFloat(form.price) || 0;
@@ -211,7 +212,20 @@ const MachineryEquipment = () => {
       return;
     }
 
-    // 2. Check remaining image slots
+    // 2. Validate image file size (Max 10 MB each)
+    const oversized = files.filter((file) => file.size > MAX_IMAGE_BYTES);
+    if (oversized.length > 0) {
+      const details = oversized
+        .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
+        .join(", ");
+      const errorMsg = `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB. Exceeded: ${details}`;
+      setImageError(errorMsg);
+      setNotice(errorMsg);
+      event.target.value = "";
+      return;
+    }
+
+    // 3. Check remaining image slots
     const remaining = 6 - form.machineImages.length;
     if (remaining <= 0) {
       const errorMsg = "You can upload a maximum of 6 images (1 main image + 5 additional images).";
@@ -297,9 +311,12 @@ const MachineryEquipment = () => {
       const errorMsg = "Only PDF, DOC, DOCX, XLS and XLSX documents are allowed.";
       setDocError(errorMsg);
       setNotice(errorMsg);
+      event.target.value = "";
+      return;
     }
 
     try {
+      setUploadingDocs(true);
       setNotice("Uploading document(s) to server...");
       const docs = await Promise.all(
         valid.map(async (file) => {
@@ -321,14 +338,17 @@ const MachineryEquipment = () => {
       setNotice("Documents uploaded successfully to server!");
     } catch (err) {
       console.error("Document upload error:", err);
-      setDocError(err.message || "Failed to upload document(s).");
-      setNotice("Unable to upload one or more documents.");
+      const errMsg = err.message || "Failed to upload document(s).";
+      setDocError(errMsg);
+      setNotice(errMsg);
+    } finally {
+      setUploadingDocs(false);
+      event.target.value = "";
     }
-
-    event.target.value = "";
   };
 
   const removeDocument = (index) => {
+    setDocError("");
     setForm((prev) => ({
       ...prev,
       documents: prev.documents.filter((_, i) => i !== index)
@@ -403,8 +423,30 @@ const MachineryEquipment = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (uploadingImages) {
-      return setNotice("Images are currently being uploaded and optimized. Please wait a moment.");
+    if (imageError) {
+      return setNotice(imageError);
+    }
+
+    if (docError) {
+      return setNotice(docError);
+    }
+
+    if (uploadingImages || uploadingDocs) {
+      return setNotice("Files are currently being uploaded and optimized. Please wait a moment.");
+    }
+
+    const oversizedDoc = form.documents.find((d) => d && d.size && d.size > MAX_DOC_BYTES);
+    if (oversizedDoc) {
+      const err = `Document "${oversizedDoc.name}" exceeds the maximum allowed size of ${MAX_DOC_MB} MB.`;
+      setDocError(err);
+      return setNotice(err);
+    }
+
+    const oversizedImg = form.machineImages.find((img) => img && img.size && img.size > MAX_IMAGE_BYTES);
+    if (oversizedImg) {
+      const err = `Image "${oversizedImg.name}" exceeds the maximum allowed size of ${MAX_IMAGE_MB} MB.`;
+      setImageError(err);
+      return setNotice(err);
     }
 
     if (!form.machineImages.length) {
@@ -742,7 +784,7 @@ const MachineryEquipment = () => {
               <div>
                 <h3>Machine Images</h3>
                 <p>
-                  Upload up to 6 images: 1 main image and 5 additional images (Auto-optimized to WebP).
+                  Upload up to 6 images: 1 main image and 5 additional images (Max 10 MB each, auto-optimized to WebP).
                 </p>
               </div>
             </div>
@@ -1260,11 +1302,13 @@ const MachineryEquipment = () => {
             <button
               type="submit"
               className="MachineryEquipment-submitBtn"
-              disabled={saving || uploadingImages}
+              disabled={saving || uploadingImages || uploadingDocs || !!docError || !!imageError}
             >
               <FiSave />
               {uploadingImages
                 ? "Uploading Images..."
+                : uploadingDocs
+                ? "Uploading Documents..."
                 : saving
                 ? "Saving..."
                 : editingId

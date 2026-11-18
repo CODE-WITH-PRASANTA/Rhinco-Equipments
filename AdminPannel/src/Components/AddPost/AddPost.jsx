@@ -21,6 +21,7 @@ import {
   FiPlus,
   FiRotateCcw,
   FiRefreshCw,
+  FiAlertCircle,
 } from "react-icons/fi";
 
 import "./AddPost.css";
@@ -30,6 +31,9 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 const PRODUCTS_API = `${API_URL}/products`;
 const CATEGORIES_API = `${API_URL}/categories`;
+
+const MAX_IMAGE_MB = 10;
+const MAX_IMAGE_BYTES = MAX_IMAGE_MB * 1024 * 1024;
 
 const resolveImageUrl = (path) => {
   if (!path) return "";
@@ -73,6 +77,7 @@ const AddPost = ({ onSubmit }) => {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [notice, setNotice] = useState("");
+  const [imageError, setImageError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -208,19 +213,37 @@ const AddPost = ({ onSubmit }) => {
 
   // IMAGE UPLOAD - Auto-optimizes multi-MB camera images to lightweight WebP
   const handleImageUpload = async (e) => {
+    setImageError("");
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
     const remaining = 5 - images.length;
     if (remaining <= 0) {
-      setNotice("Maximum 5 images are allowed.");
+      const msg = "Maximum 5 images are allowed.";
+      setImageError(msg);
+      setNotice(msg);
       e.target.value = "";
       return;
     }
 
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
     if (!imageFiles.length) {
-      setNotice("Please select valid image files (JPG, PNG, WEBP, etc.).");
+      const msg = "Please select valid image files (JPG, PNG, WEBP, etc.).";
+      setImageError(msg);
+      setNotice(msg);
+      e.target.value = "";
+      return;
+    }
+
+    // Check if any image exceeds 10 MB
+    const oversized = imageFiles.filter((file) => file.size > MAX_IMAGE_BYTES);
+    if (oversized.length > 0) {
+      const details = oversized
+        .map((f) => `"${f.name}" (${(f.size / (1024 * 1024)).toFixed(2)} MB)`)
+        .join(", ");
+      const errorMsg = `Image size limit exceeded! Maximum allowed size is ${MAX_IMAGE_MB} MB. Exceeded: ${details}`;
+      setImageError(errorMsg);
+      setNotice(errorMsg);
       e.target.value = "";
       return;
     }
@@ -239,6 +262,7 @@ const AddPost = ({ onSubmit }) => {
           id: tempId,
           preview: localPreview,
           name: file.name,
+          size: file.size,
           uploading: true,
         },
       ]);
@@ -249,13 +273,15 @@ const AddPost = ({ onSubmit }) => {
         setImages((prev) =>
           prev.map((img) =>
             img.id === tempId
-              ? { ...img, preview: serverUrl, url: serverUrl, uploading: false }
+              ? { ...img, preview: serverUrl, url: serverUrl, uploading: false, size: optimized.size || file.size }
               : img
           )
         );
       } catch (err) {
         console.error("Product image upload failed:", err);
-        setNotice("Failed to upload " + file.name + ": " + err.message);
+        const errMsg = "Failed to upload " + file.name + ": " + (err.message || "Error");
+        setImageError(errMsg);
+        setNotice(errMsg);
         setImages((prev) => prev.filter((img) => img.id !== tempId));
       }
     }
@@ -267,12 +293,14 @@ const AddPost = ({ onSubmit }) => {
 
   // REMOVE IMAGE
   const removeImage = (id) => {
+    setImageError("");
     setImages((prev) => prev.filter((img) => img.id !== id));
   };
 
   // RESET FORM
   const resetForm = () => {
     setImages([]);
+    setImageError("");
     setForm(createEmptyForm());
     setEditingId(null);
     setNotice("");
@@ -285,8 +313,21 @@ const AddPost = ({ onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (imageError) {
+      setNotice(imageError);
+      return;
+    }
+
     if (uploadingImages || images.some((img) => img.uploading)) {
       setNotice("Please wait for images to finish uploading before submitting.");
+      return;
+    }
+
+    const oversizedImg = images.find((img) => img.size && img.size > MAX_IMAGE_BYTES);
+    if (oversizedImg) {
+      const err = `Image "${oversizedImg.name}" exceeds the maximum allowed size of ${MAX_IMAGE_MB} MB.`;
+      setImageError(err);
+      setNotice(err);
       return;
     }
 
@@ -635,9 +676,44 @@ const AddPost = ({ onSubmit }) => {
             <span className="AddPost-sectionIcon"><FiImage /></span>
             <div>
               <h3>Product Media <span>*</span></h3>
-              <p>Upload up to 5 clear images of your equipment (Max 5MB each).</p>
+              <p>Upload up to 5 clear images of your equipment (Max 10 MB each, auto-optimized to WebP).</p>
             </div>
           </div>
+
+          {imageError && (
+            <div
+              style={{
+                backgroundColor: "#fef2f2",
+                color: "#b91c1c",
+                border: "1px solid #fecaca",
+                borderRadius: "8px",
+                padding: "10px 14px",
+                marginBottom: "16px",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                fontSize: "14px",
+                fontWeight: 500,
+              }}
+            >
+              <FiAlertCircle size={20} style={{ flexShrink: 0 }} />
+              <span style={{ flex: 1 }}>{imageError}</span>
+              <button
+                type="button"
+                onClick={() => setImageError("")}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#b91c1c",
+                  display: "flex",
+                  padding: 0,
+                }}
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+          )}
 
           <div
             className={`AddPost-dropzone ${images.length >= 5 ? "disabled" : ""}`}
@@ -650,7 +726,7 @@ const AddPost = ({ onSubmit }) => {
             <FiUploadCloud className="AddPost-dropzoneIcon" />
             <h4>Drag & Drop product images here</h4>
             <p>or click to browse files from your computer</p>
-            <span>JPG, PNG, WEBP (Auto-optimized, up to 5 images)</span>
+            <span>JPG, PNG, WEBP (Max 10 MB each, auto-optimized, up to 5 images)</span>
 
             <input
               ref={fileInputRef}
@@ -744,7 +820,7 @@ const AddPost = ({ onSubmit }) => {
           <button
             type="submit"
             className="AddPost-submitButton"
-            disabled={isSubmitting || uploadingImages}
+            disabled={isSubmitting || uploadingImages || !!imageError}
           >
             {uploadingImages ? (
               <>

@@ -137,6 +137,17 @@ exports.createProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid product price is required' });
     }
 
+    const MAX_ALLOWED_FILE_BYTES = 10 * 1024 * 1024;
+    if (Array.isArray(images)) {
+      const oversized = images.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_FILE_BYTES);
+      if (oversized) {
+        return res.status(400).json({
+          success: false,
+          message: `Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversized.name || 'image'}"`,
+        });
+      }
+    }
+
     const numDiscount = Number(discount) || 0;
     const calcFinalPrice =
       finalPrice !== undefined && !isNaN(Number(finalPrice))
@@ -214,6 +225,17 @@ exports.updateProduct = async (req, res) => {
       reviews,
       images,
     } = req.body;
+
+    const MAX_ALLOWED_FILE_BYTES = 10 * 1024 * 1024;
+    if (Array.isArray(images)) {
+      const oversized = images.find((img) => img && typeof img === 'object' && img.size && img.size > MAX_ALLOWED_FILE_BYTES);
+      if (oversized) {
+        return res.status(400).json({
+          success: false,
+          message: `Image size limit exceeded! Maximum allowed size is 10 MB. Exceeded: "${oversized.name || 'image'}"`,
+        });
+      }
+    }
 
     if (title || name) product.title = (title || name).trim();
     if (category) product.category = category.trim();
