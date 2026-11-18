@@ -97,17 +97,8 @@ const Navbar = () => {
 
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [categoryTab, setCategoryTab] = useState("all");
 
-  const displayedCategories = useMemo(() => {
-    if (categoryTab === "store") {
-      return categories.filter((c) => c.productsCount > 0);
-    }
-    if (categoryTab === "machinery") {
-      return categories.filter((c) => c.machineryCount > 0);
-    }
-    return categories;
-  }, [categories, categoryTab]);
+  const displayedCategories = categories;
 
   const getCategoryIcon = (name) => {
     const lower = (name || "").toLowerCase();
@@ -316,39 +307,6 @@ const Navbar = () => {
 
             {/* COMPACT CATEGORY DROPDOWN */}
             <div className="Navbar-category-dropdown">
-              <div className="Navbar-category-tabs">
-                <button
-                  type="button"
-                  className={`Navbar-category-tab ${categoryTab === "all" ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCategoryTab("all");
-                  }}
-                >
-                  All ({categories.length})
-                </button>
-                <button
-                  type="button"
-                  className={`Navbar-category-tab ${categoryTab === "store" ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCategoryTab("store");
-                  }}
-                >
-                  Store Products ({categories.filter((c) => c.productsCount > 0).length})
-                </button>
-                <button
-                  type="button"
-                  className={`Navbar-category-tab ${categoryTab === "machinery" ? "active" : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCategoryTab("machinery");
-                  }}
-                >
-                  Machinery ({categories.filter((c) => c.machineryCount > 0).length})
-                </button>
-              </div>
-
               <div className="Navbar-category-grid">
                 {categoriesLoading && (
                   <div style={{ gridColumn: "1 / -1", padding: "16px", textAlign: "center", color: "#64748b", fontSize: "13px" }}>
