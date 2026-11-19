@@ -1,0 +1,605 @@
+
+/* =========================================
+   SERVICE BREADCRUMB - PREMIUM DESIGN
+========================================= */
+
+.ServiceBreadcrumb {
+  --sb-green: #244500;
+  --sb-dark: #102b0b;
+  --sb-lime: #d8ff3e;
+  --sb-white: #ffffff;
+  --sb-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+
+  background-color: var(--sb-green);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  overflow: hidden;
+  isolation: isolate;
+
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.ServiceBreadcrumb *,
+.ServiceBreadcrumb *::before,
+.ServiceBreadcrumb *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   OVERLAY
+========================================= */
+
+.ServiceBreadcrumb-overlay {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(13, 35, 8, 0.96) 0%,
+      rgba(20, 57, 14, 0.88) 42%,
+      rgba(24, 67, 17, 0.65) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.20),
+      transparent
+    );
+}
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
+
+.ServiceBreadcrumb-container {
+  position: relative;
+
+  width: min(100% - 100px, 1440px);
+  min-height: 320px;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.ServiceBreadcrumb-content {
+  position: relative;
+  z-index: 3;
+
+  width: 100%;
+  max-width: 780px;
+
+  padding: 42px 0;
+
+  animation: ServiceBreadcrumb-fade 0.9s var(--sb-ease) both;
+}
+
+/* =========================================
+   BRAND LABEL
+========================================= */
+
+.ServiceBreadcrumb-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+
+  margin-bottom: 15px;
+
+  color: var(--sb-lime);
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.ServiceBreadcrumb-brand-line {
+  display: inline-block;
+
+  width: 30px;
+  height: 2px;
+
+  background: var(--sb-lime);
+  border-radius: 5px;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.ServiceBreadcrumb-title {
+  max-width: 800px;
+
+  margin: 0;
+
+  color: var(--sb-white);
+
+  font-size: clamp(36px, 4.5vw, 58px);
+  font-weight: 800;
+
+  line-height: 1.12;
+  letter-spacing: -1.8px;
+
+  text-transform: capitalize;
+
+  text-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+
+  animation: ServiceBreadcrumb-fade 0.9s 0.12s var(--sb-ease) both;
+}
+
+/* =========================================
+   LIME ACCENT
+========================================= */
+
+.ServiceBreadcrumb-accent {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  margin: 17px 0 13px;
+
+  animation: ServiceBreadcrumb-fade 0.9s 0.22s var(--sb-ease) both;
+}
+
+.ServiceBreadcrumb-accent span {
+  display: block;
+
+  height: 4px;
+
+  background: var(--sb-lime);
+  border-radius: 10px;
+}
+
+.ServiceBreadcrumb-accent span:nth-child(1),
+.ServiceBreadcrumb-accent span:nth-child(3) {
+  width: 7px;
+}
+
+.ServiceBreadcrumb-accent span:nth-child(2) {
+  width: 38px;
+}
+
+/* =========================================
+   SUBTITLE
+========================================= */
+
+.ServiceBreadcrumb-subtitle {
+  max-width: 650px;
+
+  margin: 0 0 23px;
+
+  color: rgba(255, 255, 255, 0.84);
+
+  font-size: 15px;
+  font-weight: 400;
+
+  line-height: 1.8;
+
+  animation: ServiceBreadcrumb-fade 0.9s 0.3s var(--sb-ease) both;
+}
+
+/* =========================================
+   BREADCRUMB NAVIGATION
+========================================= */
+
+.ServiceBreadcrumb-navigation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 11px;
+
+  animation: ServiceBreadcrumb-fade 0.9s 0.4s var(--sb-ease) both;
+}
+
+.ServiceBreadcrumb-link {
+  position: relative;
+
+  color: rgba(255, 255, 255, 0.75);
+
+  font-size: 13px;
+  font-weight: 500;
+
+  text-decoration: none;
+
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.ServiceBreadcrumb-link:hover {
+  color: var(--sb-lime);
+  transform: translateY(-2px);
+}
+
+.ServiceBreadcrumb-link:focus-visible {
+  outline: 2px solid var(--sb-lime);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+.ServiceBreadcrumb-separator {
+  color: var(--sb-lime);
+
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.ServiceBreadcrumb-current {
+  color: var(--sb-lime);
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================================
+   RIGHT SIDE DECORATION
+========================================= */
+
+.ServiceBreadcrumb-side-decoration {
+  position: absolute;
+
+  top: 50%;
+  right: 5%;
+
+  width: 300px;
+  height: 300px;
+
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+}
+
+.ServiceBreadcrumb-side-inner {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  border: 1px solid rgba(216, 255, 62, 0.19);
+  border-radius: 50%;
+
+  animation: ServiceBreadcrumb-rotate 35s linear infinite;
+}
+
+.ServiceBreadcrumb-side-inner::before,
+.ServiceBreadcrumb-side-inner::after {
+  content: "";
+
+  position: absolute;
+  inset: 13%;
+
+  border: 1px solid rgba(216, 255, 62, 0.16);
+  border-radius: 50%;
+}
+
+.ServiceBreadcrumb-side-inner::after {
+  inset: 28%;
+}
+
+.ServiceBreadcrumb-side-dot {
+  position: absolute;
+
+  top: 12%;
+  right: 23%;
+
+  width: 11px;
+  height: 11px;
+
+  border-radius: 50%;
+
+  background: var(--sb-lime);
+
+  box-shadow: 0 0 20px rgba(216, 255, 62, 0.8);
+}
+
+/* =========================================
+   DECORATIVE CIRCLES
+========================================= */
+
+.ServiceBreadcrumb-decoration {
+  position: absolute;
+  inset: 0;
+
+  z-index: 0;
+
+  pointer-events: none;
+}
+
+.ServiceBreadcrumb-circle {
+  position: absolute;
+
+  display: block;
+
+  border: 1px solid rgba(216, 255, 62, 0.10);
+  border-radius: 50%;
+
+  animation: ServiceBreadcrumb-pulse 5s ease-in-out infinite;
+}
+
+.ServiceBreadcrumb-circle--one {
+  width: 180px;
+  height: 180px;
+
+  top: -110px;
+  left: 12%;
+}
+
+.ServiceBreadcrumb-circle--two {
+  width: 120px;
+  height: 120px;
+
+  bottom: -80px;
+  left: 35%;
+
+  animation-delay: 1s;
+}
+
+.ServiceBreadcrumb-circle--three {
+  width: 80px;
+  height: 80px;
+
+  top: 20px;
+  right: 25%;
+
+  animation-delay: 2s;
+}
+
+.ServiceBreadcrumb-decoration-dot {
+  position: absolute;
+
+  left: 8%;
+  bottom: 25%;
+
+  width: 5px;
+  height: 5px;
+
+  background: var(--sb-lime);
+  border-radius: 50%;
+
+  box-shadow: 0 0 14px var(--sb-lime);
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes ServiceBreadcrumb-fade {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ServiceBreadcrumb-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes ServiceBreadcrumb-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================
+   LARGE LAPTOP
+========================================= */
+
+@media (max-width: 1200px) {
+  .ServiceBreadcrumb-container {
+    width: calc(100% - 80px);
+  }
+
+  .ServiceBreadcrumb-side-decoration {
+    right: 0;
+    width: 250px;
+    height: 250px;
+  }
+
+  .ServiceBreadcrumb-content {
+    max-width: 680px;
+  }
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+  .ServiceBreadcrumb,
+  .ServiceBreadcrumb-overlay {
+    min-height: 285px;
+  }
+
+  .ServiceBreadcrumb-container {
+    width: calc(100% - 60px);
+    min-height: 285px;
+  }
+
+  .ServiceBreadcrumb-title {
+    font-size: clamp(34px, 5.5vw, 47px);
+  }
+
+  .ServiceBreadcrumb-content {
+    max-width: 620px;
+  }
+
+  .ServiceBreadcrumb-side-decoration {
+    right: -8%;
+    width: 210px;
+    height: 210px;
+    opacity: 0.65;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+  .ServiceBreadcrumb,
+  .ServiceBreadcrumb-overlay {
+    min-height: 250px;
+  }
+
+  .ServiceBreadcrumb {
+    background-position: center;
+  }
+
+  .ServiceBreadcrumb-container {
+    width: calc(100% - 36px);
+    min-height: 250px;
+  }
+
+  .ServiceBreadcrumb-content {
+    max-width: 100%;
+    padding: 32px 0;
+  }
+
+  .ServiceBreadcrumb-brand {
+    gap: 8px;
+    margin-bottom: 11px;
+
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .ServiceBreadcrumb-brand-line {
+    width: 22px;
+  }
+
+  .ServiceBreadcrumb-title {
+    font-size: clamp(30px, 8vw, 39px);
+    letter-spacing: -0.9px;
+    line-height: 1.15;
+  }
+
+  .ServiceBreadcrumb-accent {
+    margin: 13px 0 11px;
+  }
+
+  .ServiceBreadcrumb-subtitle {
+    max-width: 450px;
+
+    margin-bottom: 17px;
+
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .ServiceBreadcrumb-navigation {
+    gap: 8px;
+  }
+
+  .ServiceBreadcrumb-link,
+  .ServiceBreadcrumb-current {
+    font-size: 12px;
+  }
+
+  .ServiceBreadcrumb-separator {
+    font-size: 15px;
+  }
+
+  .ServiceBreadcrumb-side-decoration {
+    right: -32%;
+    width: 180px;
+    height: 180px;
+    opacity: 0.4;
+  }
+
+  .ServiceBreadcrumb-circle--three {
+    right: 8%;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+  .ServiceBreadcrumb,
+  .ServiceBreadcrumb-overlay {
+    min-height: 230px;
+  }
+
+  .ServiceBreadcrumb-container {
+    width: calc(100% - 28px);
+    min-height: 230px;
+  }
+
+  .ServiceBreadcrumb-content {
+    padding: 27px 0;
+  }
+
+  .ServiceBreadcrumb-title {
+    font-size: 28px;
+  }
+
+  .ServiceBreadcrumb-subtitle {
+    font-size: 12px;
+  }
+
+  .ServiceBreadcrumb-navigation {
+    gap: 6px;
+  }
+
+  .ServiceBreadcrumb-link,
+  .ServiceBreadcrumb-current {
+    font-size: 11px;
+  }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .ServiceBreadcrumb *,
+  .ServiceBreadcrumb *::before,
+  .ServiceBreadcrumb *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

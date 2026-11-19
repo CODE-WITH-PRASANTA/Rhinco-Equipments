@@ -8,10 +8,14 @@ import {
   Clock,
   Leaf,
   ChevronRight,
+  Sprout,
+  ShieldCheck,
+  Tractor,
 } from "lucide-react";
 
 import "./Footer.css";
 import logo from "../../assets/Rhino-logo-removebg-preview.png";
+import footerBg from "../../assets/footer-bg.png";
 
 const Footer = () => {
   const quickLinks = [
@@ -25,45 +29,42 @@ const Footer = () => {
     { name: "Contact Us", path: "/contact" },
   ];
 
-  const productLinks = [
-    { name: "Seeds & Planting", path: "/category/seeds" },
-    { name: "Organic Fertilizers", path: "/category/fertilizers" },
-    { name: "Agricultural Tools", path: "/category/tools" },
-    { name: "Crop Protection", path: "/category/pesticides" },
-    { name: "Irrigation Products", path: "/category/irrigation" },
-    { name: "Farm Machinery", path: "/category/machinery" },
-    { name: "Garden Supplies", path: "/category/garden" },
-  ];
-
-  const supportLinks = [
-    { name: "Track Your Order", path: "/track-order" },
-    { name: "Customer Feedback", path: "/feedback" },
-    { name: "Frequently Asked Questions", path: "/faq" },
-    { name: "Privacy Policy", path: "/privacy-policy" },
-    { name: "Terms & Conditions", path: "/terms-conditions" },
-    { name: "Refund & Return Policy", path: "/refund-policy" },
-    { name: "Shipping Policy", path: "/shipping-policy" },
-  ];
-
   return (
-    <footer className="Footer">
-
-      {/* MAIN FOOTER */}
+    <footer
+      className="Footer"
+      style={{
+        "--footer-bg-image": `url(${footerBg})`,
+      }}
+    >
+      {/* ================= MAIN FOOTER ================= */}
 
       <div className="Footer-main">
         <div className="Footer-container">
 
-          {/* COMPANY */}
+          {/* COMPANY SECTION */}
 
           <div className="Footer-company">
 
-            <Link to="/" className="Footer-logo-link">
+            <Link to="/" className="Footer-brand">
+
               <span className="Footer-logo-frame">
                 <img
                   src={logo}
-                  alt="Farmtech Agro"
+                  alt="Rhino's Equipment"
                   className="Footer-logo"
                 />
+              </span>
+
+              <span className="Footer-brand-text">
+
+                <span className="Footer-brand-name">
+                  Rhino's Equipment
+                </span>
+
+                <span className="Footer-brand-sub">
+                  Agro Equipment Solutions
+                </span>
+
               </span>
             </Link>
 
@@ -81,12 +82,61 @@ const Footer = () => {
 
           </div>
 
-          {/* QUICK LINKS */}
+          {/* FARM PROMISE SECTION */}
+
+          <div className="Footer-promise">
+
+            <div className="Footer-promise-icon">
+              <Sprout size={30} />
+            </div>
+
+            <span className="Footer-promise-label">
+              OUR PROMISE
+            </span>
+
+            <h3>
+              Growing A Better
+              <span>Agricultural Future</span>
+            </h3>
+
+            <p>
+              Empowering farmers with quality equipment,
+              trusted solutions and dependable support.
+            </p>
+
+            <div className="Footer-promise-line" />
+
+            <div className="Footer-promise-points">
+
+              <div>
+                <ShieldCheck size={15} />
+                <span>Quality First</span>
+              </div>
+
+              <div>
+                <Sprout size={15} />
+                <span>Farmer Focused</span>
+              </div>
+
+              <div>
+                <Tractor size={15} />
+                <span>Trusted Solutions</span>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* QUICK LINKS SECTION */}
 
           <div className="Footer-column">
-            <h3 className="Footer-heading">Quick Links</h3>
+
+            <h3 className="Footer-heading">
+              Quick Links
+            </h3>
 
             <ul className="Footer-link-list">
+
               {quickLinks.map((link) => (
                 <li key={link.path}>
                   <Link to={link.path}>
@@ -95,84 +145,75 @@ const Footer = () => {
                   </Link>
                 </li>
               ))}
+
             </ul>
+
           </div>
 
-          {/* PRODUCTS */}
-
-          <div className="Footer-column">
-            <h3 className="Footer-heading">Our Products</h3>
-
-            <ul className="Footer-link-list">
-              {productLinks.map((link) => (
-                <li key={link.path}>
-                  <Link to={link.path}>
-                    <ChevronRight size={16} />
-                    <span>{link.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* CUSTOMER SUPPORT */}
-
-          <div className="Footer-column">
-            <h3 className="Footer-heading">Customer Support</h3>
-
-            <ul className="Footer-link-list">
-              {supportLinks.map((link) => (
-                <li key={link.path}>
-                  <Link to={link.path}>
-                    <ChevronRight size={16} />
-                    <span>{link.name}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* CONTACT */}
+          {/* CONTACT SECTION */}
 
           <div className="Footer-column Footer-contact-column">
-            <h3 className="Footer-heading">Get In Touch</h3>
+
+            <h3 className="Footer-heading">
+              Get In Touch
+            </h3>
+
+            {/* LOCATION */}
 
             <div className="Footer-contact-item">
+
               <span className="Footer-contact-icon">
                 <MapPin size={20} />
               </span>
+
               <p>
                 India
                 <span>Serving Farmers Across India</span>
               </p>
+
             </div>
 
+            {/* PHONE */}
+
             <div className="Footer-contact-item">
+
               <span className="Footer-contact-icon">
                 <Phone size={20} />
               </span>
+
               <a href="tel:+919583195951">
                 +91 9583195951 (Helpline)
               </a>
+
             </div>
 
+            {/* EMAIL */}
+
             <div className="Footer-contact-item">
+
               <span className="Footer-contact-icon">
                 <Mail size={20} />
               </span>
+
               <a href="mailto:farmershelpline.in@gmail.com">
                 farmershelpline.in@gmail.com
               </a>
+
             </div>
 
+            {/* BUSINESS HOURS */}
+
             <div className="Footer-contact-item">
+
               <span className="Footer-contact-icon">
                 <Clock size={20} />
               </span>
+
               <p>
                 Monday - Saturday
                 <span>9:00 AM - 6:00 PM</span>
               </p>
+
             </div>
 
           </div>
@@ -180,17 +221,19 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* BOTTOM BAR */}
+      {/* ================= BOTTOM BAR ================= */}
 
       <div className="Footer-bottom">
+
         <div className="Footer-bottom-container">
 
-          {/* LEFT: DEVELOPER + POLICIES */}
+          {/* LEFT SECTION */}
 
           <div className="Footer-bottom-left">
 
             <div className="Footer-developed">
               <span>Developed with care by</span>
+
               <a
                 href="https://prwebstock.com/"
                 target="_blank"
@@ -201,8 +244,9 @@ const Footer = () => {
             </div>
 
             <div className="Footer-bottom-links">
+
               <Link to="/terms-conditions">
-                Terms & Conditions
+                Terms &amp; Conditions
               </Link>
 
               <span className="Footer-bottom-separator" />
@@ -210,17 +254,20 @@ const Footer = () => {
               <Link to="/privacy-policy">
                 Privacy Policy
               </Link>
+
             </div>
 
           </div>
 
-          {/* CENTER: COPYRIGHT */}
+          {/* COPYRIGHT */}
 
           <div className="Footer-copyright">
-            © {new Date().getFullYear()} Farmtech Agro. All Rights Reserved.
+            © {new Date().getFullYear()} Farmtech Agro.
+            All Rights Reserved.
           </div>
 
         </div>
+
       </div>
 
     </footer>

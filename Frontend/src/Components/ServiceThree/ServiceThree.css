@@ -1,0 +1,964 @@
+
+/* =========================================
+   SERVICE THREE - PREMIUM ON-SITE SUPPORT
+========================================= */
+
+.ServiceThree {
+  --ServiceThree-green: #087c19;
+  --ServiceThree-dark: #102d18;
+  --ServiceThree-light: #eafaDC;
+  --ServiceThree-text: #151c17;
+
+  position: relative;
+  width: 100%;
+  padding: 28px 2.5%;
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(131, 202, 73, 0.12),
+      transparent 28%
+    ),
+    linear-gradient(
+      120deg,
+      #f6fff3,
+      #ffffff 50%,
+      #effae9
+    );
+
+  font-family: inherit;
+}
+
+.ServiceThree,
+.ServiceThree * {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
+
+.ServiceThree-container {
+  position: relative;
+  width: 100%;
+  max-width: 1850px;
+  min-height: 710px;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: 1.02fr 1.12fr;
+  align-items: stretch;
+
+  gap: 25px;
+  padding: 22px 22px 22px 28px;
+
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 45px;
+
+  background: rgba(255, 255, 255, 0.76);
+
+  box-shadow:
+    0 12px 35px rgba(37, 100, 31, 0.09),
+    inset 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+/* =========================================
+   LEFT CONTENT
+========================================= */
+
+.ServiceThree-content {
+  position: relative;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  width: 100%;
+  min-width: 0;
+  padding: 12px 0 12px 8px;
+}
+
+/* BADGE */
+
+.ServiceThree-badge {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+
+  padding: 10px 20px;
+  margin-bottom: 15px;
+
+  border-radius: 50px;
+
+  color: #087018;
+  background: linear-gradient(
+    120deg,
+    #e7f8d1,
+    #f2fce9
+  );
+
+  font-size: 16px;
+  font-weight: 850;
+
+  transition: all 0.35s ease;
+}
+
+.ServiceThree-badge:hover {
+  background: #dff4c4;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(8, 124, 25, 0.12);
+}
+
+/* TITLE */
+
+.ServiceThree-title {
+  margin: 0;
+
+  color: var(--ServiceThree-dark);
+
+  font-size: clamp(42px, 3.7vw, 69px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -2.5px;
+}
+
+.ServiceThree-title span {
+  color: var(--ServiceThree-green);
+}
+
+/* TITLE LINE */
+
+.ServiceThree-title-line {
+  width: 140px;
+  height: 7px;
+
+  margin: 10px 0 12px;
+
+  border-radius: 50px;
+
+  background: linear-gradient(
+    90deg,
+    #0b8d1d 0%,
+    #a8ed55 100%
+  );
+}
+
+/* DESCRIPTION */
+
+.ServiceThree-description {
+  max-width: 850px;
+
+  margin: 0 0 23px;
+
+  color: #343a35;
+
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+/* =========================================
+   FEATURE CARDS
+========================================= */
+
+.ServiceThree-features {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+
+  margin-bottom: 28px;
+}
+
+.ServiceThree-feature {
+  min-width: 0;
+  min-height: 98px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+
+  padding: 10px 7px;
+
+  border-radius: 25px;
+
+  background: linear-gradient(
+    135deg,
+    #f0fae5,
+    #f9fff5
+  );
+
+  transition: all 0.4s ease;
+}
+
+.ServiceThree-feature:hover {
+  transform: translateY(-7px);
+
+  background: #e6f7d5;
+
+  box-shadow: 0 12px 25px rgba(8, 124, 25, 0.12);
+}
+
+.ServiceThree-feature-icon {
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #087a18;
+
+  transition: all 0.4s ease;
+}
+
+.ServiceThree-feature-icon svg {
+  width: 49px;
+  height: 49px;
+  stroke-width: 1.9;
+}
+
+.ServiceThree-feature:hover .ServiceThree-feature-icon {
+  transform: rotate(-8deg) scale(1.1);
+}
+
+.ServiceThree-feature h4 {
+  margin: 0;
+
+  color: #141b15;
+
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.4;
+}
+
+.ServiceThree-feature h4 span {
+  display: block;
+}
+
+/* =========================================
+   SERVICE LIST
+========================================= */
+
+.ServiceThree-service-list {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+
+  column-gap: 25px;
+  row-gap: 15px;
+
+  margin-bottom: 25px;
+}
+
+.ServiceThree-service-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: #171d18;
+
+  font-size: 17px;
+  font-weight: 750;
+
+  transition: all 0.3s ease;
+}
+
+.ServiceThree-service-item svg {
+  flex-shrink: 0;
+
+  color: #ffffff;
+  fill: #0b8a20;
+  stroke: #ffffff;
+  stroke-width: 2.5;
+}
+
+.ServiceThree-service-item:hover {
+  color: var(--ServiceThree-green);
+  transform: translateX(5px);
+}
+
+/* =========================================
+   SUPPORT SERVICE STRIP
+========================================= */
+
+.ServiceThree-support-services {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  margin: 0 0 28px;
+  padding: 13px 5px;
+
+  border: 1px dashed #b4dca4;
+  border-radius: 25px;
+
+  background: rgba(248, 255, 243, 0.75);
+}
+
+.ServiceThree-support-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-width: 0;
+  padding: 5px 7px;
+
+  transition: all 0.35s ease;
+}
+
+.ServiceThree-support-item:not(:last-child) {
+  border-right: 1px solid #d1e6c7;
+}
+
+.ServiceThree-support-item:hover {
+  transform: translateY(-4px);
+}
+
+.ServiceThree-support-icon {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--ServiceThree-green);
+}
+
+.ServiceThree-support-icon svg {
+  width: 37px;
+  height: 37px;
+  stroke-width: 2;
+}
+
+.ServiceThree-support-item h4 {
+  margin: 0;
+
+  color: #141b15;
+
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.ServiceThree-support-item h4 span {
+  display: block;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.ServiceThree-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.ServiceThree-book-btn,
+.ServiceThree-support-btn {
+  min-height: 62px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 0 25px;
+
+  border-radius: 50px;
+
+  text-decoration: none;
+
+  font-size: 17px;
+  font-weight: 850;
+
+  transition: all 0.35s ease;
+}
+
+/* BOOK BUTTON */
+
+.ServiceThree-book-btn {
+  color: #ffffff;
+
+  background: linear-gradient(
+    120deg,
+    #0a961e,
+    #00570e
+  );
+
+  box-shadow: 0 8px 20px rgba(0, 112, 19, 0.17);
+}
+
+.ServiceThree-book-btn:hover {
+  color: #ffffff;
+
+  transform: translateY(-5px);
+
+  background: linear-gradient(
+    120deg,
+    #007416,
+    #00470c
+  );
+
+  box-shadow: 0 14px 30px rgba(0, 100, 15, 0.25);
+}
+
+.ServiceThree-arrow {
+  transition: transform 0.35s ease;
+}
+
+.ServiceThree-book-btn:hover .ServiceThree-arrow {
+  transform: translateX(7px);
+}
+
+/* SUPPORT BUTTON */
+
+.ServiceThree-support-btn {
+  color: #0a6b19;
+
+  border: 2px solid #16872a;
+
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.ServiceThree-support-btn:hover {
+  color: #ffffff;
+
+  background: var(--ServiceThree-green);
+
+  transform: translateY(-5px);
+
+  box-shadow: 0 12px 25px rgba(8, 124, 25, 0.17);
+}
+
+/* =========================================
+   RIGHT IMAGE SECTION
+========================================= */
+
+.ServiceThree-visual {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+
+  overflow: hidden;
+
+  border-radius: 35px;
+  border: 6px solid #ffffff;
+
+  background: #e9f3df;
+
+  box-shadow: 0 12px 30px rgba(25, 75, 20, 0.09);
+}
+
+/* IMAGE WRAPPER */
+
+.ServiceThree-image-wrapper {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+  min-height: 660px;
+
+  overflow: hidden;
+}
+
+/* GREEN CORNER */
+
+.ServiceThree-image-corner {
+  position: absolute;
+  z-index: 2;
+
+  top: 0;
+  left: 0;
+
+  width: 175px;
+  height: 190px;
+
+  background: linear-gradient(
+    135deg,
+    #138e19,
+    #087013
+  );
+
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+
+  pointer-events: none;
+}
+
+/* MAIN IMAGE */
+
+.ServiceThree-image {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+  min-height: 660px;
+
+  object-fit: cover;
+  object-position: center;
+
+  transition:
+    transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.6s ease;
+}
+
+.ServiceThree-image-wrapper:hover .ServiceThree-image {
+  transform: scale(1.08);
+  filter: saturate(1.14) contrast(1.04);
+}
+
+/* IMAGE OVERLAY */
+
+.ServiceThree-image-overlay {
+  position: absolute;
+  inset: auto 0 0;
+
+  padding: 85px 30px 35px;
+
+  color: #ffffff;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 35, 7, 0.9),
+    rgba(0, 35, 7, 0.35),
+    transparent
+  );
+
+  opacity: 0;
+  transform: translateY(20px);
+
+  transition: all 0.45s ease;
+}
+
+.ServiceThree-image-wrapper:hover .ServiceThree-image-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ServiceThree-image-overlay span {
+  display: inline-block;
+
+  color: #c6f49d;
+
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 2px;
+}
+
+.ServiceThree-image-overlay h3 {
+  margin: 9px 0;
+
+  font-size: 27px;
+  font-weight: 900;
+}
+
+.ServiceThree-image-overlay p {
+  margin: 0;
+
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* IMAGE TAG */
+
+.ServiceThree-image-tag {
+  position: absolute;
+  z-index: 3;
+
+  bottom: 25px;
+  left: 25px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 18px;
+
+  border-radius: 50px;
+
+  color: #ffffff;
+  background: rgba(5, 105, 19, 0.88);
+
+  font-size: 13px;
+  font-weight: 800;
+
+  backdrop-filter: blur(12px);
+
+  transition: all 0.35s ease;
+}
+
+.ServiceThree-image-wrapper:hover .ServiceThree-image-tag {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+/* =========================================
+   RESPONSIVE - LAPTOP
+========================================= */
+
+@media (max-width: 1450px) {
+  .ServiceThree-container {
+    min-height: 620px;
+    gap: 20px;
+  }
+
+  .ServiceThree-image-wrapper,
+  .ServiceThree-image {
+    min-height: 575px;
+  }
+
+  .ServiceThree-title {
+    font-size: clamp(40px, 4vw, 57px);
+  }
+
+  .ServiceThree-description {
+    font-size: 16px;
+  }
+
+  .ServiceThree-feature {
+    min-height: 88px;
+    gap: 6px;
+  }
+
+  .ServiceThree-feature-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ServiceThree-feature-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ServiceThree-feature h4 {
+    font-size: 12px;
+  }
+
+  .ServiceThree-service-item {
+    font-size: 14px;
+  }
+
+  .ServiceThree-support-item {
+    gap: 6px;
+    padding: 4px;
+  }
+
+  .ServiceThree-support-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .ServiceThree-support-item h4 {
+    font-size: 10px;
+  }
+
+  .ServiceThree-book-btn,
+  .ServiceThree-support-btn {
+    min-height: 55px;
+    padding: 0 17px;
+    font-size: 14px;
+  }
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 1050px) {
+  .ServiceThree {
+    padding: 25px 4%;
+  }
+
+  .ServiceThree-container {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding: 25px;
+  }
+
+  .ServiceThree-content {
+    padding: 10px;
+  }
+
+  .ServiceThree-title {
+    font-size: clamp(40px, 6vw, 60px);
+  }
+
+  .ServiceThree-description {
+    max-width: 750px;
+    font-size: 17px;
+  }
+
+  .ServiceThree-image-wrapper,
+  .ServiceThree-image {
+    min-height: 480px;
+  }
+
+  .ServiceThree-visual {
+    max-height: 550px;
+  }
+
+  .ServiceThree-feature {
+    min-height: 110px;
+  }
+
+  .ServiceThree-feature h4 {
+    font-size: 14px;
+  }
+
+  .ServiceThree-support-item h4 {
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   RESPONSIVE - MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+  .ServiceThree {
+    padding: 15px 12px;
+  }
+
+  .ServiceThree-container {
+    padding: 16px;
+    gap: 22px;
+    border-radius: 25px;
+  }
+
+  .ServiceThree-content {
+    padding: 0;
+  }
+
+  .ServiceThree-badge {
+    gap: 8px;
+    padding: 9px 12px;
+    margin-bottom: 13px;
+    font-size: 10px;
+  }
+
+  .ServiceThree-badge svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .ServiceThree-title {
+    font-size: clamp(32px, 8.5vw, 43px);
+    letter-spacing: -1.5px;
+    line-height: 1.13;
+  }
+
+  .ServiceThree-title-line {
+    width: 100px;
+    height: 5px;
+    margin: 10px 0;
+  }
+
+  .ServiceThree-description {
+    font-size: 14px;
+    line-height: 1.65;
+    margin-bottom: 19px;
+  }
+
+  .ServiceThree-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .ServiceThree-feature {
+    min-height: 95px;
+    border-radius: 18px;
+    gap: 8px;
+  }
+
+  .ServiceThree-feature-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ServiceThree-feature-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ServiceThree-feature h4 {
+    font-size: 12px;
+  }
+
+  .ServiceThree-service-list {
+    grid-template-columns: 1fr;
+    gap: 13px;
+    margin-bottom: 22px;
+  }
+
+  .ServiceThree-service-item {
+    font-size: 13px;
+    gap: 10px;
+  }
+
+  .ServiceThree-service-item svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ServiceThree-support-services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    padding: 8px 5px;
+    margin-bottom: 22px;
+    border-radius: 18px;
+  }
+
+  .ServiceThree-support-item {
+    justify-content: flex-start;
+    padding: 11px 7px;
+    gap: 9px;
+  }
+
+  .ServiceThree-support-item:nth-child(2) {
+    border-right: none;
+  }
+
+  .ServiceThree-support-item:nth-child(-n+2) {
+    border-bottom: 1px solid #d1e6c7;
+  }
+
+  .ServiceThree-support-icon svg {
+    width: 29px;
+    height: 29px;
+  }
+
+  .ServiceThree-support-item h4 {
+    font-size: 10px;
+  }
+
+  .ServiceThree-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 11px;
+  }
+
+  .ServiceThree-book-btn,
+  .ServiceThree-support-btn {
+    width: 100%;
+    min-height: 53px;
+    padding: 0 12px;
+    gap: 9px;
+    font-size: 13px;
+  }
+
+  .ServiceThree-book-btn svg,
+  .ServiceThree-support-btn svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .ServiceThree-image-wrapper,
+  .ServiceThree-image {
+    min-height: 290px;
+  }
+
+  .ServiceThree-visual {
+    border-radius: 22px;
+    border-width: 4px;
+  }
+
+  .ServiceThree-image-corner {
+    width: 95px;
+    height: 105px;
+  }
+
+  .ServiceThree-image-tag {
+    bottom: 12px;
+    left: 12px;
+    padding: 9px 12px;
+    font-size: 10px;
+  }
+
+  .ServiceThree-image-tag svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .ServiceThree-image-overlay {
+    padding: 45px 15px 20px;
+  }
+
+  .ServiceThree-image-overlay h3 {
+    font-size: 18px;
+  }
+
+  .ServiceThree-image-overlay p {
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+  .ServiceThree-container {
+    padding: 12px;
+  }
+
+  .ServiceThree-title {
+    font-size: 30px;
+  }
+
+  .ServiceThree-feature {
+    gap: 5px;
+  }
+
+  .ServiceThree-feature-icon {
+    width: 33px;
+    height: 33px;
+  }
+
+  .ServiceThree-feature-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .ServiceThree-feature h4 {
+    font-size: 11px;
+  }
+
+  .ServiceThree-image-wrapper,
+  .ServiceThree-image {
+    min-height: 245px;
+  }
+
+  .ServiceThree-support-item {
+    gap: 5px;
+    padding: 9px 4px;
+  }
+
+  .ServiceThree-support-icon svg {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .ServiceThree *,
+  .ServiceThree *::before,
+  .ServiceThree *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -1,105 +1,168 @@
 
-/* ==========================================
-   FARMTECH AGRO - PREMIUM FOOTER
-========================================== */
+/* =========================================
+   RHINO'S EQUIPMENT - PREMIUM FOOTER
+========================================= */
 
 .Footer {
-  --footer-green: #356005;
-  --footer-dark: #244500;
-  --footer-deep: #193500;
+  --footer-dark: #193900;
+  --footer-deep: #102900;
+  --footer-green: #285000;
+  --footer-gold: #dabe69;
+  --footer-gold-light: #f1e1a6;
   --footer-accent: #a7d35e;
-  --footer-text: #e2ebd8;
-  --footer-muted: #c3d1b6;
+  --footer-text: #eaf0e2;
+  --footer-muted: #c4d1b8;
 
-  width: 100%;
   position: relative;
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
 
-  color: #ffffff;
-  background: var(--footer-green);
+  color: #fff;
+  background: var(--footer-dark);
 
   font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
 }
 
-/* ==========================================
-   MAIN FOOTER
-========================================== */
+.Footer *,
+.Footer *::before,
+.Footer *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   TOP GOLD LINE
+========================================= */
+
+.Footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 3px;
+  z-index: 5;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--footer-gold),
+    var(--footer-gold-light),
+    var(--footer-gold),
+    transparent
+  );
+}
+
+/* =========================================
+   MAIN FOOTER BACKGROUND
+========================================= */
 
 .Footer-main {
+  position: relative;
   width: 100%;
-  padding: 65px 0 58px;
+
+  padding: 48px 0 42px;
+
+  background-image: var(--footer-bg-image);
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}
+
+/* GREEN OVERLAY */
+
+.Footer-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 
   background:
     radial-gradient(
-      circle at 5% 10%,
-      rgba(255, 255, 255, 0.045),
-      transparent 30%
+      circle at 8% 15%,
+      rgba(167, 211, 94, 0.12),
+      transparent 35%
     ),
     linear-gradient(
-      125deg,
-      #356005 0%,
-      #2c5203 55%,
-      #244500 100%
+      110deg,
+      rgba(29, 65, 0, 0.91) 0%,
+      rgba(21, 48, 0, 0.93) 55%,
+      rgba(15, 39, 0, 0.96) 100%
     );
 }
 
+/* =========================================
+   MAIN GRID CONTAINER
+========================================= */
+
 .Footer-container {
-  width: 100%;
-  max-width: 1550px;
+  position: relative;
+  z-index: 1;
+
+  width: calc(100% - 64px);
+  max-width: 1480px;
 
   margin: 0 auto;
-  padding: 0 40px;
 
   display: grid;
 
   grid-template-columns:
-    1.4fr
-    0.95fr
-    1.05fr
-    1.15fr
-    1.35fr;
+    minmax(0, 1.25fr)
+    minmax(0, 0.75fr)
+    minmax(0, 0.85fr)
+    minmax(0, 1.05fr);
 
-  gap: 32px;
+  gap: 25px;
+
+  align-items: center;
 }
 
-/* ==========================================
+/* =========================================
    COMPANY SECTION
-========================================== */
+========================================= */
 
 .Footer-company {
   min-width: 0;
 }
 
-.Footer-logo-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
+/* BRAND */
 
-  margin-bottom: 26px;
+.Footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: fit-content;
+  max-width: 100%;
+
+  margin-bottom: 20px;
+
   text-decoration: none;
 }
 
-/* PREMIUM LOGO */
+/* LOGO FRAME */
 
 .Footer-logo-frame {
-  width: 105px;
-  height: 105px;
+  position: relative;
+
+  width: 86px;
+  height: 86px;
+  min-width: 86px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  position: relative;
-
   border-radius: 50%;
 
-  background: rgba(255, 255, 255, 0.045);
-
-  border: 1px solid rgba(218, 190, 105, 0.55);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(218, 190, 105, 0.65);
 
   box-shadow:
-    0 0 0 5px rgba(218, 190, 105, 0.055),
-    0 10px 28px rgba(0, 0, 0, 0.15);
+    0 0 0 5px rgba(218, 190, 105, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.22);
 
   transition: all 0.35s ease;
 }
@@ -110,7 +173,7 @@
   position: absolute;
   inset: 5px;
 
-  border: 1px solid rgba(218, 190, 105, 0.3);
+  border: 1px solid rgba(218, 190, 105, 0.35);
   border-radius: 50%;
 
   pointer-events: none;
@@ -128,32 +191,82 @@
   transition: transform 0.35s ease;
 }
 
-.Footer-logo-link:hover .Footer-logo-frame {
+.Footer-brand:hover .Footer-logo-frame {
   transform: translateY(-3px);
 
-  border-color: #dfc46e;
+  border-color: var(--footer-gold-light);
 
   box-shadow:
-    0 0 0 7px rgba(218, 190, 105, 0.09),
-    0 12px 30px rgba(0, 0, 0, 0.2);
+    0 0 0 7px rgba(218, 190, 105, 0.1),
+    0 10px 28px rgba(0, 0, 0, 0.3);
 }
 
-.Footer-logo-link:hover .Footer-logo {
+.Footer-brand:hover .Footer-logo {
   transform: scale(1.06);
 }
 
-/* COMPANY DESCRIPTION */
+/* BRAND TEXT */
+
+.Footer-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  min-width: 0;
+}
+
+.Footer-brand-name {
+  color: var(--footer-gold-light);
+
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: clamp(19px, 1.8vw, 27px);
+  font-weight: 700;
+
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+
+  overflow-wrap: anywhere;
+}
+
+.Footer-brand-sub {
+  position: relative;
+
+  padding-top: 9px;
+
+  color: var(--footer-muted);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.Footer-brand-sub::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 40px;
+  height: 2px;
+
+  background: var(--footer-gold);
+}
+
+/* DESCRIPTION */
 
 .Footer-company-description {
-  max-width: 350px;
+  max-width: 100%;
 
-  margin: 0 0 22px;
+  margin: 0 0 18px;
 
   color: var(--footer-text);
 
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.95;
+  font-size: 13.5px;
+  line-height: 1.85;
   letter-spacing: 0.1px;
 }
 
@@ -162,13 +275,30 @@
 .Footer-company-tagline {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+
   gap: 9px;
 
-  color: #d9eabf;
+  padding: 9px 16px;
 
-  font-size: 13px;
+  color: #e7f1d3;
+
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.2px;
+
+  background: rgba(255, 255, 255, 0.07);
+
+  border: 1px solid rgba(218, 190, 105, 0.48);
+  border-radius: 50px;
+
+  backdrop-filter: blur(6px);
+
+  transition: all 0.3s ease;
+}
+
+.Footer-company-tagline:hover {
+  background: rgba(218, 190, 105, 0.13);
+  border-color: var(--footer-gold);
 }
 
 .Footer-company-tagline svg {
@@ -176,43 +306,212 @@
   flex-shrink: 0;
 }
 
-/* ==========================================
-   FOOTER COLUMNS
-========================================== */
+/* =========================================
+   FARM PROMISE SECTION
+========================================= */
+
+.Footer-promise {
+  position: relative;
+
+  min-width: 0;
+  padding: 20px 14px;
+
+  text-align: center;
+
+  overflow: hidden;
+
+  border-left: 1px solid rgba(218, 190, 105, 0.25);
+  border-right: 1px solid rgba(218, 190, 105, 0.25);
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(167, 211, 94, 0.11),
+      transparent 75%
+    );
+}
+
+/* DECORATIVE CIRCLES */
+
+.Footer-promise::before,
+.Footer-promise::after {
+  content: "";
+
+  position: absolute;
+
+  width: 75px;
+  height: 75px;
+
+  border: 1px solid rgba(218, 190, 105, 0.13);
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+.Footer-promise::before {
+  top: -42px;
+  left: -42px;
+}
+
+.Footer-promise::after {
+  bottom: -42px;
+  right: -42px;
+}
+
+/* PROMISE ICON */
+
+.Footer-promise-icon {
+  position: relative;
+  z-index: 1;
+
+  width: 54px;
+  height: 54px;
+
+  margin: 0 auto 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--footer-gold-light);
+
+  background: rgba(218, 190, 105, 0.12);
+
+  border: 1px solid rgba(218, 190, 105, 0.5);
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 22px rgba(218, 190, 105, 0.1);
+}
+
+.Footer-promise-label {
+  display: block;
+
+  color: var(--footer-accent);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+}
+
+/* PROMISE TITLE */
+
+.Footer-promise h3 {
+  margin: 10px 0;
+
+  color: #fff;
+
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.Footer-promise h3 span {
+  display: block;
+  color: var(--footer-gold-light);
+}
+
+/* PROMISE DESCRIPTION */
+
+.Footer-promise p {
+  margin: 0 auto;
+
+  color: var(--footer-muted);
+
+  font-size: 11.5px;
+  line-height: 1.75;
+}
+
+/* DIVIDER */
+
+.Footer-promise-line {
+  width: 55px;
+  height: 2px;
+
+  margin: 14px auto;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--footer-gold),
+    transparent
+  );
+}
+
+/* PROMISE POINTS */
+
+.Footer-promise-points {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  gap: 9px;
+}
+
+.Footer-promise-points div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  color: var(--footer-text);
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.Footer-promise-points svg {
+  color: var(--footer-gold);
+  flex-shrink: 0;
+}
+
+/* =========================================
+   FOOTER COMMON COLUMNS
+========================================= */
 
 .Footer-column {
   min-width: 0;
 }
 
+/* HEADINGS */
+
 .Footer-heading {
   position: relative;
 
-  margin: 8px 0 29px;
-  padding-bottom: 16px;
+  margin: 0 0 25px;
+  padding-bottom: 13px;
 
-  color: #ffffff;
+  color: #fff;
 
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: 0.15px;
+  font-family: "Playfair Display", Georgia, serif;
+
+  font-size: 20px;
+  font-weight: 700;
+
+  letter-spacing: 0.2px;
 }
 
 .Footer-heading::after {
   content: "";
 
   position: absolute;
+
   left: 0;
   bottom: 0;
 
   width: 46px;
-  height: 4px;
+  height: 3px;
 
   border-radius: 10px;
 
   background: linear-gradient(
     90deg,
-    #a7d35e,
-    #c6e69a
+    var(--footer-gold),
+    var(--footer-gold-light)
   );
 
   transition: width 0.3s ease;
@@ -222,23 +521,25 @@
   width: 68px;
 }
 
-/* ==========================================
-   NAVIGATION LINKS
-========================================== */
+/* =========================================
+   QUICK LINKS
+========================================= */
 
 .Footer-link-list {
-  list-style: none;
+  display: grid;
 
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  gap: 17px;
+  gap: 14px 8px;
 
   margin: 0;
   padding: 0;
+
+  list-style: none;
 }
 
 .Footer-link-list li {
+  min-width: 0;
   margin: 0;
   padding: 0;
 }
@@ -246,13 +547,13 @@
 .Footer-link-list a {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+
+  gap: 6px;
 
   color: var(--footer-text);
 
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.65;
+  font-size: 13px;
+  line-height: 1.6;
 
   text-decoration: none;
 
@@ -264,76 +565,105 @@
 .Footer-link-list a svg {
   flex-shrink: 0;
 
-  color: var(--footer-accent);
+  color: var(--footer-gold);
 
   transition: transform 0.3s ease;
 }
 
 .Footer-link-list a:hover {
-  color: #ffffff;
-  transform: translateX(5px);
+  color: #fff;
+  transform: translateX(4px);
 }
 
 .Footer-link-list a:hover svg {
   transform: translateX(3px);
 }
 
-/* ==========================================
+/* =========================================
    CONTACT SECTION
-========================================== */
+========================================= */
 
 .Footer-contact-column {
   min-width: 0;
 }
 
+/* CONTACT CARD */
+
 .Footer-contact-item {
   display: flex;
   align-items: center;
-  gap: 13px;
 
-  margin-bottom: 19px;
+  gap: 10px;
 
-  color: #ffffff;
+  width: 100%;
+  min-width: 0;
 
-  font-size: 13px;
-  line-height: 1.75;
+  margin-bottom: 10px;
+  padding: 9px 10px;
+
+  color: #fff;
+
+  font-size: 12.5px;
+  line-height: 1.55;
+
+  background: rgba(255, 255, 255, 0.055);
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 11px;
+
+  backdrop-filter: blur(5px);
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .Footer-contact-item:last-child {
   margin-bottom: 0;
 }
 
+.Footer-contact-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+
+  border-color: rgba(218, 190, 105, 0.5);
+
+  transform: translateX(3px);
+}
+
+/* CONTACT ICON */
+
 .Footer-contact-icon {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
+  width: 39px;
+  height: 39px;
+  min-width: 39px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  color: #ffffff;
+  color: var(--footer-gold);
 
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(0, 0, 0, 0.17);
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
-
-  border-radius: 8px;
+  border: 1px solid rgba(218, 190, 105, 0.35);
+  border-radius: 10px;
 
   transition: all 0.3s ease;
 }
 
 .Footer-contact-item:hover .Footer-contact-icon {
-  color: var(--footer-dark);
-  background: #d9ecbd;
-  border-color: #d9ecbd;
+  color: var(--footer-deep);
 
-  transform: translateY(-2px);
+  background: var(--footer-gold-light);
+
+  border-color: var(--footer-gold-light);
 }
+
+/* CONTACT TEXT */
 
 .Footer-contact-item p {
   min-width: 0;
-
   margin: 0;
 
   color: var(--footer-text);
@@ -352,82 +682,76 @@
   color: var(--footer-text);
 
   text-decoration: none;
-
   overflow-wrap: anywhere;
 
   transition: color 0.3s ease;
 }
 
 .Footer-contact-item a:hover {
-  color: #c9e79c;
+  color: var(--footer-gold-light);
 }
 
-/* ==========================================
+/* =========================================
    BOTTOM FOOTER BAR
-========================================== */
+========================================= */
 
 .Footer-bottom {
+  position: relative;
+  z-index: 2;
+
   width: 100%;
-  min-height: 78px;
+  min-height: 56px;
 
   background: linear-gradient(
     100deg,
-    #1c3900,
+    #183400,
     #203e02 50%,
-    #193500
+    #142d00
   );
 
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(218, 190, 105, 0.3);
 }
 
 .Footer-bottom-container {
-  width: 100%;
+  width: calc(100% - 64px);
   max-width: 1550px;
 
-  min-height: 78px;
+  min-height: 56px;
 
   margin: 0 auto;
 
-  /* 10px right space reserved for future floating icon */
-
-  padding: 15px 10px 15px 40px;
-
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
+  display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
+
+  gap: 18px;
 }
 
-/* ==========================================
-   LEFT SECTION: DEVELOPER + POLICIES
-========================================== */
+/* BOTTOM LEFT */
 
 .Footer-bottom-left {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  flex-wrap: wrap;
 
-  gap: 22px;
+  flex-wrap: wrap;
+  gap: 20px;
+
   min-width: 0;
 }
+
+/* DEVELOPED BY */
 
 .Footer-developed {
   display: flex;
   align-items: center;
+
   flex-wrap: wrap;
-
   gap: 5px;
-
-  margin: 0;
 
   color: var(--footer-muted);
 
   font-size: 12px;
-  font-weight: 400;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .Footer-developed a {
@@ -435,22 +759,23 @@
 
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.4px;
 
+  letter-spacing: 0.4px;
   text-decoration: none;
 
   transition: color 0.3s ease;
 }
 
 .Footer-developed a:hover {
-  color: #ffffff;
+  color: #fff;
 }
 
-/* POLICY LINKS */
+/* BOTTOM LINKS */
 
 .Footer-bottom-links {
   display: flex;
   align-items: center;
+
   gap: 13px;
 }
 
@@ -467,74 +792,266 @@
 }
 
 .Footer-bottom-links a:hover {
-  color: #c9e79c;
+  color: var(--footer-gold-light);
 }
 
 .Footer-bottom-separator {
   width: 1px;
   height: 14px;
 
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.3);
 }
 
-/* ==========================================
-   COPYRIGHT - CENTER / RIGHT AREA
-========================================== */
+/* COPYRIGHT */
 
 .Footer-copyright {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  margin: 0;
-
   color: var(--footer-muted);
 
   font-size: 12px;
-  font-weight: 400;
-  line-height: 1.7;
+  line-height: 1.6;
 
-  text-align: center;
+  text-align: right;
 }
 
-/* ==========================================
-   LARGE LAPTOP
-========================================== */
+/* =========================================
+   LAPTOP RESPONSIVE
+========================================= */
 
-@media (max-width: 1300px) {
-
+@media (max-width: 1250px) {
   .Footer-container {
-    padding: 0 28px;
+    width: calc(100% - 48px);
 
     grid-template-columns:
-      1.3fr
-      0.9fr
-      1fr
-      1.1fr
-      1.3fr;
+      minmax(0, 1.15fr)
+      minmax(0, 0.75fr)
+      minmax(0, 0.85fr)
+      minmax(0, 1fr);
 
-    gap: 23px;
+    gap: 16px;
+  }
+
+  .Footer-logo-frame {
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+  }
+
+  .Footer-brand {
+    gap: 10px;
+  }
+
+  .Footer-brand-name {
+    font-size: 20px;
+  }
+
+  .Footer-brand-sub {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .Footer-company-description {
+    font-size: 12.5px;
+  }
+
+  .Footer-promise {
+    padding: 18px 9px;
+  }
+
+  .Footer-promise h3 {
+    font-size: 16px;
   }
 
   .Footer-heading {
-    font-size: 17px;
+    font-size: 18px;
+  }
+
+  .Footer-link-list {
+    gap: 12px 5px;
+  }
+
+  .Footer-link-list a {
+    font-size: 12px;
+  }
+
+  .Footer-contact-item {
+    gap: 8px;
+    padding: 8px;
+    font-size: 11.5px;
+  }
+
+  .Footer-contact-icon {
+    width: 35px;
+    height: 35px;
+    min-width: 35px;
+  }
+}
+
+/* =========================================
+   TABLET RESPONSIVE
+========================================= */
+
+@media (max-width: 1000px) {
+  .Footer-main {
+    padding: 42px 0;
+  }
+
+  .Footer-container {
+    width: calc(100% - 60px);
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 35px 30px;
+    align-items: start;
+  }
+
+  .Footer-company {
+    grid-column: 1 / -1;
+  }
+
+  .Footer-company-description {
+    max-width: 650px;
+    font-size: 13.5px;
+  }
+
+  .Footer-promise {
+    min-height: 100%;
+  }
+
+  .Footer-contact-item {
+    font-size: 13px;
+  }
+
+  .Footer-contact-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .Footer-bottom-container {
+    width: calc(100% - 40px);
+
+    padding: 12px 0;
+
+    flex-direction: column;
+    justify-content: center;
+
+    gap: 8px;
+  }
+
+  .Footer-bottom-left {
+    justify-content: center;
+  }
+
+  .Footer-copyright {
+    text-align: center;
+  }
+}
+
+/* =========================================
+   MOBILE RESPONSIVE
+========================================= */
+
+@media (max-width: 600px) {
+  .Footer-main {
+    padding: 38px 0 32px;
+
+    background-position: 35% bottom;
+  }
+
+  .Footer-container {
+    width: calc(100% - 36px);
+
+    grid-template-columns: minmax(0, 1fr);
+
+    gap: 30px;
+  }
+
+  .Footer-company {
+    grid-column: auto;
+  }
+
+  .Footer-brand {
+    gap: 13px;
+    margin-bottom: 17px;
+  }
+
+  .Footer-logo-frame {
+    width: 74px;
+    height: 74px;
+    min-width: 74px;
+  }
+
+  .Footer-brand-name {
+    font-size: 21px;
+  }
+
+  .Footer-brand-sub {
+    font-size: 9px;
+    letter-spacing: 1.4px;
   }
 
   .Footer-company-description {
     font-size: 13px;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  .Footer-company-tagline {
+    padding: 9px 15px;
+    font-size: 12px;
+  }
+
+  /* PROMISE CARD */
+
+  .Footer-promise {
+    padding: 22px 18px;
+
+    border: 1px solid rgba(218, 190, 105, 0.25);
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .Footer-promise h3 {
+    font-size: 19px;
+  }
+
+  .Footer-promise p {
+    max-width: 280px;
+    font-size: 12px;
+  }
+
+  .Footer-promise-points {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    gap: 12px;
+  }
+
+  .Footer-promise-points div {
+    font-size: 10px;
+  }
+
+  .Footer-heading {
+    margin: 0 0 20px;
+    font-size: 19px;
   }
 
   .Footer-link-list {
-    gap: 14px;
+    gap: 13px 12px;
   }
 
   .Footer-link-list a {
-    font-size: 12.5px;
+    font-size: 13px;
   }
 
   .Footer-contact-item {
-    font-size: 12px;
-    gap: 9px;
+    gap: 11px;
+
+    font-size: 12.5px;
+
+    padding: 9px 10px;
   }
 
   .Footer-contact-icon {
@@ -544,136 +1061,15 @@
   }
 
   .Footer-bottom-container {
-    padding-left: 28px;
-  }
+    width: calc(100% - 24px);
 
-  .Footer-bottom-left {
-    gap: 15px;
-  }
-}
-
-/* ==========================================
-   TABLET
-========================================== */
-
-@media (max-width: 1050px) {
-
-  .Footer-main {
-    padding: 50px 0 45px;
-  }
-
-  .Footer-container {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-
-    gap: 42px 30px;
-
-    padding: 0 30px;
-  }
-
-  .Footer-company {
-    grid-column: span 1;
-  }
-
-  .Footer-bottom-container {
-    grid-template-columns: 1fr;
-    justify-items: center;
-
-    gap: 13px;
-
-    padding: 20px 10px;
-  }
-
-  .Footer-bottom-left {
-    justify-content: center;
-  }
-
-  .Footer-copyright {
-    justify-content: center;
-  }
-}
-
-/* ==========================================
-   MOBILE
-========================================== */
-
-@media (max-width: 650px) {
-
-  .Footer-main {
-    padding: 42px 0 38px;
-  }
-
-  .Footer-container {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 36px 22px;
-
-    padding: 0 20px;
-  }
-
-  .Footer-company {
-    grid-column: 1 / -1;
-  }
-
-  .Footer-logo-frame {
-    width: 90px;
-    height: 90px;
-  }
-
-  .Footer-company-description {
-    max-width: 450px;
-    font-size: 13px;
-  }
-
-  .Footer-heading {
-    font-size: 16px;
-    margin-bottom: 23px;
-  }
-
-  .Footer-link-list {
-    gap: 13px;
-  }
-
-  .Footer-link-list a {
-    font-size: 12px;
-  }
-
-  .Footer-contact-item {
-    align-items: flex-start;
-    gap: 9px;
-    font-size: 11.5px;
-  }
-
-  .Footer-contact-icon {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-  }
-
-  .Footer-contact-icon svg {
-    width: 17px;
-    height: 17px;
-  }
-
-  .Footer-bottom-container {
     min-height: auto;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 13px;
-
-    padding: 20px 10px;
+    padding: 13px 0;
   }
 
   .Footer-bottom-left {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    gap: 12px;
+    gap: 8px;
   }
 
   .Footer-developed {
@@ -687,7 +1083,7 @@
 
   .Footer-bottom-links {
     justify-content: center;
-    gap: 12px;
+    gap: 11px;
   }
 
   .Footer-bottom-links a {
@@ -695,67 +1091,60 @@
   }
 
   .Footer-copyright {
-    font-size: 11px;
-    text-align: center;
+    font-size: 10.5px;
   }
 }
 
-/* ==========================================
+/* =========================================
    SMALL MOBILE
-========================================== */
+========================================= */
 
-@media (max-width: 400px) {
-
+@media (max-width: 380px) {
   .Footer-container {
-    grid-template-columns: 1fr;
-    gap: 32px;
-
-    padding: 0 18px;
-  }
-
-  .Footer-company {
-    grid-column: auto;
+    width: calc(100% - 28px);
+    gap: 27px;
   }
 
   .Footer-logo-frame {
-    width: 82px;
-    height: 82px;
+    width: 65px;
+    height: 65px;
+    min-width: 65px;
   }
 
-  .Footer-company-description {
-    font-size: 12.5px;
+  .Footer-brand-name {
+    font-size: 18px;
   }
 
-  .Footer-heading {
-    margin-top: 0;
-    font-size: 16px;
+  .Footer-brand-sub {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .Footer-link-list a {
+    font-size: 12px;
   }
 
   .Footer-contact-item {
-    font-size: 11.5px;
+    font-size: 12px;
   }
 
-  .Footer-bottom-links {
-    gap: 10px;
+  .Footer-promise-points {
+    flex-direction: column;
   }
 
   .Footer-bottom-links a {
     font-size: 10px;
   }
-
-  .Footer-copyright {
-    font-size: 10px;
-  }
 }
 
-/* ==========================================
+/* =========================================
    ACCESSIBILITY
-========================================== */
+========================================= */
 
 .Footer a:focus-visible {
   outline: 2px solid var(--footer-accent);
   outline-offset: 4px;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
