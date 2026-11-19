@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema(
   {
+    productId: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     customerName: {
       type: String,
       required: [true, 'Customer name is required'],

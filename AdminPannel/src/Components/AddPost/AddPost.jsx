@@ -82,14 +82,17 @@ const AddPost = () => {
   const [imageError, setImageError] = useState("");
   const [createdProduct, setCreatedProduct] = useState(null);
 
-  // Load real categories from backend database
+  // Load real categories dynamically from backend database
   const loadCategories = async () => {
     setCategoriesLoading(true);
     try {
       const res = await fetch(CATEGORIES_API);
       const data = await res.json();
       if (res.ok && data.success && Array.isArray(data.data)) {
-        setCategories(data.data);
+        const sorted = [...data.data].sort((a, b) =>
+          (a.name || "").localeCompare(b.name || "")
+        );
+        setCategories(sorted);
       }
     } catch (err) {
       console.warn("Could not load categories:", err);
@@ -495,24 +498,30 @@ const AddPost = () => {
                     <span>Category *</span>
                   </label>
                   <div className="AddPost-categoryInputWrap">
-                    <input
-                      type="text"
+                    <select
                       required
-                      list="product-categories-list"
-                      placeholder="Select or enter category..."
                       value={form.category}
                       onChange={(e) => updateField("category", e.target.value)}
-                    />
-                    <datalist id="product-categories-list">
+                    >
+                      <option value="">
+                        {categoriesLoading
+                          ? "Loading categories from database..."
+                          : `-- Select Category --`}
+                      </option>
                       {categories.map((c) => (
-                        <option key={c._id || c.name} value={c.name} />
+                        <option key={c._id || c.name} value={c.name}>
+                          {c.name}
+                        </option>
                       ))}
-                      <option value="Spare Parts" />
-                      <option value="Tractor Attachments" />
-                      <option value="Pumps & Motors" />
-                      <option value="Sprayers" />
-                      <option value="Blades & Rotary Tools" />
-                    </datalist>
+                      {form.category &&
+                        !categories.some(
+                          (c) =>
+                            c.name?.toLowerCase().trim() ===
+                            form.category?.toLowerCase().trim()
+                        ) && (
+                          <option value={form.category}>{form.category}</option>
+                        )}
+                    </select>
                   </div>
                 </div>
               </div>

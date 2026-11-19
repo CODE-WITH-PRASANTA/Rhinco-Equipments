@@ -28,8 +28,8 @@ import {
 } from "react-icons/fi";
 
 import "./EquipmentManagement.css";
+import { API_URL, BACKEND_URL, resolveImageUrl } from "../../utils/apiConfig";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const MACHINERY_API = `${API_URL}/machinery`;
 
 const getItemId = (item) => item?._id || item?.id;
@@ -71,9 +71,11 @@ const getImage = (item) => {
   const first = images[0] || item.featuredImage || item.mainImage || item.image;
 
   if (!first) return "";
-  if (typeof first === "string") return first;
-
-  return first.data || first.preview || first.url || "";
+  const raw =
+    typeof first === "string"
+      ? first
+      : first.url || first.data || first.preview || "";
+  return resolveImageUrl(raw);
 };
 
 const getAuthor = (item) =>
@@ -818,7 +820,8 @@ const EquipmentManagement = () => {
                         alt={item.title}
                         loading="lazy"
                         onError={(event) => {
-                          event.currentTarget.style.display = "none";
+                          event.currentTarget.onerror = null;
+                          event.currentTarget.src = "/placeholder.png";
                         }}
                       />
                     ) : (
@@ -924,6 +927,10 @@ const EquipmentManagement = () => {
                               src={getImage(item)}
                               alt={item.title}
                               loading="lazy"
+                              onError={(event) => {
+                                event.currentTarget.onerror = null;
+                                event.currentTarget.src = "/placeholder.png";
+                              }}
                             />
                           ) : (
                             <div className="EquipmentManagement-noImage">

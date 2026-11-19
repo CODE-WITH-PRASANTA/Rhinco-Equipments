@@ -13,6 +13,7 @@ import BlogPosting from "./Components/BlogPosting/BlogPosting";
 import BlogManagement from "./Components/BlogManagement/BlogManagement";
 import ReviewManagement from "./Components/ReviewManagement/ReviewManagement";
 import EnquiryManagement from "./Components/EnquiryManagement/EnquiryManagement";
+import UserManagement from "./Components/UserManagement/UserManagement";
 import ProductOrders from "./Components/ProductOrders/ProductOrders";
 import MachineryOrders from "./Components/MachineryOrders/MachineryOrders";
 import Login from "./Components/Login/Login";
@@ -44,6 +45,7 @@ const App = () => {
             <Route path="reviews" element={<Navigate to="/review" replace />} />
             <Route path="enquiry" element={<EnquiryManagement />} />
             <Route path="enquiries" element={<Navigate to="/enquiry" replace />} />
+            <Route path="users" element={<UserManagement />} />
 
             {/* Blog Routes */}
             <Route path="blog/category" element={<Navigate to="/category" replace />} />

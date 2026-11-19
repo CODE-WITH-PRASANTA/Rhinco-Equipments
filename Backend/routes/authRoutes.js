@@ -1,10 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getUsers } = require('../controllers/authController');
+const {
+  register,
+  login,
+  googleAuth,
+  getUsers,
+  updateUser,
+  deleteUser,
+} = require('../controllers/authController');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/google', googleAuth);
+
+// Admin user management routes
 router.get('/users', getUsers);
+router.put('/users/:id', updateUser);
+router.delete('/users/:id', deleteUser);
 
 // @desc    Get admin credentials for quick access / auto-fetch in Admin Panel
 // @route   GET /api/auth/admin-credentials

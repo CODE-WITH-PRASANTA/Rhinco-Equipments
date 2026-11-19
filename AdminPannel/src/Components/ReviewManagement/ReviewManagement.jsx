@@ -120,7 +120,7 @@ const ReviewManagement = () => {
           reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) /
           totalReviews
         ).toFixed(1)
-      : "5.0";
+      : "0.0";
   const fiveStarCount = reviews.filter((r) => Number(r.rating) === 5).length;
   const pendingCount = reviews.filter((r) => r.status === "Pending").length;
 

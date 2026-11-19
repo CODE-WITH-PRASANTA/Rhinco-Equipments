@@ -257,18 +257,28 @@ const MachineryDetails = () => {
   useEffect(() => {
     if (!machine) return;
     const mTitle = machine.title || machine.name || "";
-    if (!mTitle) return;
+    const mId = machine._id || machine.id || "";
+    if (!mTitle && !mId) return;
 
     const fetchReviews = async () => {
       setReviewsLoading(true);
       try {
-        const res = await fetch(`${REVIEWS_API}?status=Approved&productOrItem=${encodeURIComponent(mTitle)}`);
+        const queryParams = new URLSearchParams({
+          status: "Approved",
+          productOrItem: mTitle,
+        });
+        if (mId) queryParams.set("productId", mId);
+
+        const res = await fetch(`${REVIEWS_API}?${queryParams.toString()}`);
         const data = await res.json();
         if (res.ok && data.success && Array.isArray(data.data)) {
           setReviews(data.data);
+        } else {
+          setReviews([]);
         }
       } catch (err) {
         console.error("Could not fetch machinery reviews:", err);
+        setReviews([]);
       } finally {
         setReviewsLoading(false);
       }
@@ -294,11 +304,12 @@ const MachineryDetails = () => {
           customerEmail: reviewForm.customerEmail.trim(),
           customerPhone: reviewForm.customerPhone.trim(),
           productOrItem: machine.title || machine.name || "Machinery",
+          productId: String(machine?._id || machine?.id || ""),
           itemType: "Machinery",
           rating: Number(reviewForm.rating) || 5,
           title: reviewForm.title.trim(),
           comment: reviewForm.comment.trim(),
-          status: "Pending",
+          status: "Approved",
           verifiedPurchase: true,
         }),
       });
@@ -306,7 +317,7 @@ const MachineryDetails = () => {
       const data = await res.json();
       if (res.ok && data.success) {
         setReviewSuccessMessage(
-          "Thank you for your valuable review!"
+          "Thank you for your valuable review! Your feedback is now published."
         );
         setShowReviewModal(false);
         setReviewForm({
@@ -317,6 +328,9 @@ const MachineryDetails = () => {
           title: "",
           comment: "",
         });
+        if (data.data) {
+          setReviews((prev) => [data.data, ...prev]);
+        }
       } else {
         alert(data.message || "Could not submit review.");
       }
@@ -475,9 +489,6 @@ const MachineryDetails = () => {
                             <Tractor size={36} strokeWidth={1.2} />
                           </div>
                         )}
-                        <span className="MachineryDetails-popularSubsidyTag">
-                          <Sparkles size={11} /> Subsidy Eligible
-                        </span>
                       </Link>
 
                       <div className="MachineryDetails-popularBody">
@@ -532,6 +543,15 @@ const MachineryDetails = () => {
       ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
       : 0;
 
+  const realReviewsCount = reviews.length;
+  const realAvgRating =
+    realReviewsCount > 0
+      ? (
+          reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) /
+          realReviewsCount
+        ).toFixed(1)
+      : null;
+
   return (
     <section className="MachineryDetails">
       <div className="MachineryDetails-container">
@@ -553,11 +573,6 @@ const MachineryDetails = () => {
           {/* Product image & thumbnails */}
           <div className="MachineryDetails-image-card">
             <div className="MachineryDetails-image-background">
-              <span className="MachineryDetails-floating-badge">
-                <Sparkles size={13} />
-                Govt. Subsidy Eligible (Up to 50%)
-              </span>
-
               {activeImage ? (
                 <img
                   src={resolveImageUrl(activeImage)}
@@ -652,19 +667,31 @@ const MachineryDetails = () => {
                   <Star
                     key={star}
                     size={16}
-                    fill={star <= Math.floor(machine.rating || 5) ? "#f59e0b" : "#e2e8f0"}
-                    color={star <= Math.floor(machine.rating || 5) ? "#f59e0b" : "#cbd5e1"}
+                    fill={
+                      realAvgRating && star <= Math.round(Number(realAvgRating))
+                        ? "#f59e0b"
+                        : "#e2e8f0"
+                    }
+                    color={
+                      realAvgRating && star <= Math.round(Number(realAvgRating))
+                        ? "#f59e0b"
+                        : "#cbd5e1"
+                    }
                   />
                 ))}
               </div>
-              <span className="MachineryDetails-rating-score">{machine.rating || 4.9}</span>
+              <span className="MachineryDetails-rating-score">
+                {realAvgRating ? `${realAvgRating} / 5.0` : "No ratings yet"}
+              </span>
               <span className="MachineryDetails-rating-dot">•</span>
               <button
                 type="button"
                 className="MachineryDetails-rating-link"
                 onClick={() => setActiveTab("reviews")}
               >
-                {reviews.length || 8} Verified Field Reviews
+                {realReviewsCount > 0
+                  ? `${realReviewsCount} Verified Field ${realReviewsCount === 1 ? "Review" : "Reviews"}`
+                  : "0 Reviews (Write a Review)"}
               </button>
             </div>
 
@@ -683,9 +710,6 @@ const MachineryDetails = () => {
                   </>
                 )}
               </div>
-              <p className="MachineryDetails-price-subsidy-note">
-                Ex-Showroom Price • Central & State Govt Subsidy & Financing Available
-              </p>
             </div>
 
             {/* Quick Specs 4-Card Matrix */}

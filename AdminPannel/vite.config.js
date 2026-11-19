@@ -6,4 +6,12 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   base: '/',
+  server: {
+    proxy: {
+      '/uploads': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
 })

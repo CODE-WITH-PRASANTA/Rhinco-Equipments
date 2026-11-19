@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import GoogleAuthButton from "../../Components/GoogleAuthButton/GoogleAuthButton";
 import "./Login.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -257,6 +258,8 @@ const Login = () => {
               )}
             </button>
           </form>
+
+          <GoogleAuthButton redirectPath={redirectPath} buttonText="Continue with Google" />
 
           <div className="AuthFooter">
             Don't have an account yet?

@@ -82,8 +82,8 @@ const createEmptyForm = () => ({
   title: "",
   brandName: "Rhinco",
   modelName: "",
-  category: "Rotavators",
-  implementType: "Rotavators",
+  category: "",
+  implementType: "",
   implementPower: "35 - 50 HP",
   price: "",
   discount: "0",
@@ -105,6 +105,7 @@ const MachineryEquipment = () => {
   const [images, setImages] = useState([]); // [{ id, preview, url, name, size, uploading }]
   const [documents, setDocuments] = useState([]); // [{ id, name, url, size, type, uploading }]
   const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
   const [editingId, setEditingId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,17 +114,23 @@ const MachineryEquipment = () => {
   const [mediaError, setMediaError] = useState("");
   const [createdMachine, setCreatedMachine] = useState(null);
 
-  // Load categories
+  // Load categories dynamically from database
   useEffect(() => {
     const loadCategories = async () => {
+      setCategoriesLoading(true);
       try {
         const res = await fetch(CATEGORIES_API);
         const data = await res.json();
         if (res.ok && data.success && Array.isArray(data.data)) {
-          setCategories(data.data);
+          const sorted = [...data.data].sort((a, b) =>
+            (a.name || "").localeCompare(b.name || "")
+          );
+          setCategories(sorted);
         }
       } catch (err) {
         console.warn("Could not fetch categories:", err);
+      } finally {
+        setCategoriesLoading(false);
       }
     };
     loadCategories();
@@ -640,30 +647,34 @@ const MachineryEquipment = () => {
                     <Layers size={14} />
                     <span>Category / Implement Type *</span>
                   </label>
-                  <input
-                    type="text"
+                  <select
                     required
-                    list="machinery-categories-list"
-                    placeholder="Select or enter category..."
                     value={form.category}
                     onChange={(e) => {
-                      updateField("category", e.target.value);
-                      updateField("implementType", e.target.value);
+                      const val = e.target.value;
+                      updateField("category", val);
+                      updateField("implementType", val);
                     }}
-                  />
-                  <datalist id="machinery-categories-list">
+                  >
+                    <option value="">
+                      {categoriesLoading
+                        ? "Loading categories from database..."
+                        : `-- Select Category --`}
+                    </option>
                     {categories.map((c) => (
-                      <option key={c._id || c.name} value={c.name} />
+                      <option key={c._id || c.name} value={c.name}>
+                        {c.name}
+                      </option>
                     ))}
-                    <option value="Rotavators" />
-                    <option value="Super Seeders" />
-                    <option value="Laser Levellers" />
-                    <option value="Chaff Cutters" />
-                    <option value="Power Weeders" />
-                    <option value="Tractor Trailers" />
-                    <option value="Boom Sprayers" />
-                    <option value="Disc Harrows" />
-                  </datalist>
+                    {form.category &&
+                      !categories.some(
+                        (c) =>
+                          c.name?.toLowerCase().trim() ===
+                          form.category?.toLowerCase().trim()
+                      ) && (
+                        <option value={form.category}>{form.category}</option>
+                      )}
+                  </select>
                 </div>
 
                 <div className="AddMachinery-field">

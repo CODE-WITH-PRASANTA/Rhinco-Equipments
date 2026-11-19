@@ -1,89 +1,38 @@
 const Review = require('../models/Review');
 
-const initialReviews = [
-  {
-    customerName: 'Suresh Kumar Mohapatra',
-    customerEmail: 'suresh.m@gmail.com',
-    customerPhone: '+91 94370 12345',
-    productOrItem: 'Rhinco Heavy Duty Rotavator 7 Feet',
-    itemType: 'Machinery',
-    rating: 5,
-    title: 'Outstanding performance in wet paddy fields',
-    comment: 'We purchased this rotavator for our farm in Kendrapara. It prepares the seedbed in a single pass with negligible tractor load. Highly recommend Rhinco machinery!',
-    status: 'Approved',
-    verifiedPurchase: true,
-  },
-  {
-    customerName: 'Priyanka Das',
-    customerEmail: 'priyanka.d@outlook.com',
-    customerPhone: '+91 98611 67890',
-    productOrItem: 'Fieldking Multi-Crop Thresher',
-    itemType: 'Machinery',
-    rating: 5,
-    title: 'Very durable and low maintenance',
-    comment: 'The multi-crop capability saves significant labor during harvest season. The delivery and on-site demonstration by the Rhinco team was seamless.',
-    status: 'Approved',
-    verifiedPurchase: true,
-  },
-  {
-    customerName: 'Bikash Chandra Sahoo',
-    customerEmail: 'bikash.sahoo@yahoo.com',
-    customerPhone: '+91 98532 45678',
-    productOrItem: 'Hydraulic Disc Harrow (16 Disc)',
-    itemType: 'Product',
-    rating: 4,
-    title: 'Sturdy frame and excellent soil pulverization',
-    comment: 'The boron steel discs penetrate hard dry soil effortlessly. Fuel consumption on our 55 HP tractor stayed optimal throughout the field operation.',
-    status: 'Approved',
-    verifiedPurchase: true,
-  },
-  {
-    customerName: 'Manas Ranjan Nayak',
-    customerEmail: 'manas.nayak@gmail.com',
-    customerPhone: '+91 97780 98765',
-    productOrItem: 'Shaktiman Semi Champion Rotavator',
-    itemType: 'Machinery',
-    rating: 5,
-    title: 'Best value for money in Odisha',
-    comment: 'Prompt delivery at Cuttack showroom. All spare parts and grease points are easily accessible. Great build quality.',
-    status: 'Approved',
-    verifiedPurchase: true,
-  },
-  {
-    customerName: 'Anandita Roy',
-    customerEmail: 'anandita.roy@gmail.com',
-    customerPhone: '+91 91240 55443',
-    productOrItem: 'Tractor Mounted Boom Sprayer',
-    itemType: 'Product',
-    rating: 4,
-    title: 'Uniform spray coverage and reliable pressure pump',
-    comment: 'Helped reduce chemical wastage by over 30%. Easy to operate and maintain.',
-    status: 'Pending',
-    verifiedPurchase: false,
-  },
-];
-
 // @desc    Get all reviews
 // @route   GET /api/reviews
 exports.getReviews = async (req, res) => {
   try {
-    // Seed initial reviews if collection is completely empty
-    const count = await Review.countDocuments();
-    if (count === 0) {
-      await Review.insertMany(initialReviews);
-    }
-
-    const { status, rating, itemType, search, sort, productOrItem } = req.query;
+    const {
+      status,
+      rating,
+      itemType,
+      search,
+      sort,
+      productOrItem,
+      product,
+      productName,
+      productId,
+    } = req.query;
     let query = {};
 
     if (status && status !== 'All Status' && status !== 'All') {
       query.status = status;
     }
 
-    if (productOrItem && productOrItem.trim()) {
-      // Escape special regex characters
-      const escaped = productOrItem.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const targetProduct = (productOrItem || product || productName || '').trim();
+    if (targetProduct && productId) {
+      const escaped = targetProduct.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.$or = [
+        { productOrItem: { $regex: new RegExp(escaped, 'i') } },
+        { productId: String(productId) },
+      ];
+    } else if (targetProduct) {
+      const escaped = targetProduct.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.productOrItem = { $regex: new RegExp(escaped, 'i') };
+    } else if (productId) {
+      query.productId = String(productId);
     }
 
     if (rating && rating !== 'All Ratings' && rating !== 'All' && !isNaN(Number(rating))) {
@@ -96,13 +45,20 @@ exports.getReviews = async (req, res) => {
 
     if (search && search.trim()) {
       const s = search.trim();
-      query.$or = [
+      const searchConditions = [
         { customerName: { $regex: s, $options: 'i' } },
         { customerEmail: { $regex: s, $options: 'i' } },
         { productOrItem: { $regex: s, $options: 'i' } },
         { title: { $regex: s, $options: 'i' } },
         { comment: { $regex: s, $options: 'i' } },
       ];
+
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, { $or: searchConditions }];
+        delete query.$or;
+      } else {
+        query.$or = searchConditions;
+      }
     }
 
     let sortOption = { createdAt: -1 };
@@ -151,6 +107,9 @@ exports.createReview = async (req, res) => {
       customerEmail,
       customerPhone,
       productOrItem,
+      productName,
+      product,
+      productId,
       itemType,
       rating,
       title,
@@ -160,10 +119,12 @@ exports.createReview = async (req, res) => {
       avatar,
     } = req.body;
 
+    const targetItem = (productOrItem || productName || product || '').trim();
+
     if (!customerName || !customerName.trim()) {
       return res.status(400).json({ success: false, message: 'Customer name is required' });
     }
-    if (!productOrItem || !productOrItem.trim()) {
+    if (!targetItem) {
       return res.status(400).json({ success: false, message: 'Product or machinery name is required' });
     }
     if (!comment || !comment.trim()) {
@@ -173,15 +134,16 @@ exports.createReview = async (req, res) => {
     const numRating = rating !== undefined && !isNaN(Number(rating)) ? Number(rating) : 5;
 
     const newReview = await Review.create({
+      productId: (productId || '').trim(),
       customerName: customerName.trim(),
       customerEmail: (customerEmail || '').trim(),
       customerPhone: (customerPhone || '').trim(),
-      productOrItem: productOrItem.trim(),
+      productOrItem: targetItem,
       itemType: itemType || 'Product',
       rating: Math.min(5, Math.max(1, numRating)),
       title: (title || '').trim(),
       comment: comment.trim(),
-      status: status || 'Pending',
+      status: status || 'Approved',
       verifiedPurchase: verifiedPurchase !== undefined ? Boolean(verifiedPurchase) : true,
       avatar: avatar || '',
     });
@@ -211,6 +173,9 @@ exports.updateReview = async (req, res) => {
       customerEmail,
       customerPhone,
       productOrItem,
+      productName,
+      product,
+      productId,
       itemType,
       rating,
       title,
@@ -223,7 +188,9 @@ exports.updateReview = async (req, res) => {
     if (customerName) review.customerName = customerName.trim();
     if (customerEmail !== undefined) review.customerEmail = customerEmail.trim();
     if (customerPhone !== undefined) review.customerPhone = customerPhone.trim();
-    if (productOrItem) review.productOrItem = productOrItem.trim();
+    const targetItem = (productOrItem || productName || product || '').trim();
+    if (targetItem) review.productOrItem = targetItem;
+    if (productId !== undefined) review.productId = String(productId).trim();
     if (itemType) review.itemType = itemType;
     if (rating !== undefined && !isNaN(Number(rating))) {
       review.rating = Math.min(5, Math.max(1, Number(rating)));

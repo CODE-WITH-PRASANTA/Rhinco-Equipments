@@ -129,18 +129,28 @@ const ProductDetailsOne = () => {
   useEffect(() => {
     if (!product) return;
     const pName = product.title || product.name || "";
-    if (!pName) return;
+    const pId = product._id || product.id || "";
+    if (!pName && !pId) return;
 
     const fetchReviews = async () => {
       setReviewsLoading(true);
       try {
-        const res = await fetch(`${REVIEWS_API}?product=${encodeURIComponent(pName)}`);
+        const queryParams = new URLSearchParams({
+          status: "Approved",
+          productOrItem: pName,
+        });
+        if (pId) queryParams.set("productId", pId);
+
+        const res = await fetch(`${REVIEWS_API}?${queryParams.toString()}`);
         const result = await res.json();
         if (res.ok && result.success && Array.isArray(result.data)) {
           setReviews(result.data);
+        } else {
+          setReviews([]);
         }
       } catch (err) {
         console.error("Could not fetch reviews:", err);
+        setReviews([]);
       } finally {
         setReviewsLoading(false);
       }
@@ -152,7 +162,7 @@ const ProductDetailsOne = () => {
   // Handle Review submission
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    if (!reviewForm.customerName || !reviewForm.comment) {
+    if (!reviewForm.customerName.trim() || !reviewForm.comment.trim()) {
       alert("Please provide your name and review feedback.");
       return;
     }
@@ -161,10 +171,17 @@ const ProductDetailsOne = () => {
     try {
       const pName = product?.title || product?.name || "Product";
       const payload = {
-        ...reviewForm,
-        productName: pName,
-        productId: product?._id || product?.id || "",
-        category: product?.category || "Equipment",
+        customerName: reviewForm.customerName.trim(),
+        customerEmail: reviewForm.customerEmail.trim(),
+        customerPhone: reviewForm.customerPhone.trim(),
+        productOrItem: pName,
+        productId: String(product?._id || product?.id || ""),
+        itemType: "Product",
+        rating: Number(reviewForm.rating) || 5,
+        title: reviewForm.title.trim(),
+        comment: reviewForm.comment.trim(),
+        status: "Approved",
+        verifiedPurchase: true,
       };
 
       const res = await fetch(REVIEWS_API, {
@@ -175,7 +192,7 @@ const ProductDetailsOne = () => {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setReviewSuccessMessage("Thank you! Your verified review has been submitted.");
+        setReviewSuccessMessage("Thank you! Your verified review has been published.");
         setShowReviewModal(false);
         setReviewForm({
           customerName: "",
@@ -259,6 +276,15 @@ const ProductDetailsOne = () => {
       : [product.image || drillImage];
 
   const inWishlist = isInWishlist(product._id || product.id);
+
+  const realReviewsCount = reviews.length;
+  const realAvgRating =
+    realReviewsCount > 0
+      ? (
+          reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0) /
+          realReviewsCount
+        ).toFixed(1)
+      : null;
 
   return (
     <section className="ProductDetailsOne">
@@ -373,19 +399,31 @@ const ProductDetailsOne = () => {
                   <Star
                     key={star}
                     size={16}
-                    fill={star <= Math.floor(product.rating || 5) ? "#f59e0b" : "#e2e8f0"}
-                    color={star <= Math.floor(product.rating || 5) ? "#f59e0b" : "#cbd5e1"}
+                    fill={
+                      realAvgRating && star <= Math.round(Number(realAvgRating))
+                        ? "#f59e0b"
+                        : "#e2e8f0"
+                    }
+                    color={
+                      realAvgRating && star <= Math.round(Number(realAvgRating))
+                        ? "#f59e0b"
+                        : "#cbd5e1"
+                    }
                   />
                 ))}
               </div>
-              <span className="ProductDetailsOne-ratingScore">{product.rating || 4.8}</span>
+              <span className="ProductDetailsOne-ratingScore">
+                {realAvgRating ? `${realAvgRating} / 5.0` : "No ratings yet"}
+              </span>
               <span className="ProductDetailsOne-ratingDot">•</span>
               <button
                 type="button"
                 className="ProductDetailsOne-ratingCountLink"
                 onClick={() => setActiveTab("reviews")}
               >
-                {reviews.length || product.reviews || 12} Verified Customer Reviews
+                {realReviewsCount > 0
+                  ? `${realReviewsCount} Verified ${realReviewsCount === 1 ? "Review" : "Reviews"}`
+                  : "0 Reviews (Write a Review)"}
               </button>
             </div>
 

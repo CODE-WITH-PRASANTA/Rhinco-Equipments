@@ -17,6 +17,7 @@ import {
   FiSettings,
   FiShoppingCart,
   FiTruck,
+  FiUserCheck,
 } from "react-icons/fi";
 
 import logo from "../../assets/logo.png";
@@ -108,6 +109,11 @@ const menuItems = [
     text: "Reviews",
     path: "/review",
     icon: <FiStar size={20} />,
+  },
+  {
+    text: "Users",
+    path: "/users",
+    icon: <FiUserCheck size={20} />,
   },
   {
     text: "Settings",
