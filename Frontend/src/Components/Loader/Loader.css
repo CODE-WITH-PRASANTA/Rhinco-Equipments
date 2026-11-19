@@ -1,0 +1,283 @@
+/* ==========================================================
+   Loader  –  Rhino's premium circular loader
+   All class names use the component name "Loader"
+   ========================================================== */
+
+.Loader {
+  --Loader-gold: #e7b82a;
+  --Loader-gold-light: #fff1b8;
+  --Loader-gold-dark: #a67c12;
+  --Loader-olive: #4b5a1c;
+  --Loader-olive-deep: #1a2008;
+  --Loader-ink: #0b0e04;
+  --Loader-size: clamp(190px, 46vmin, 380px);
+  --Loader-duration: 2000ms;
+
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--Loader-gold-light);
+  font-family: "Cinzel", "Trajan Pro", "Georgia", "Times New Roman", serif;
+  opacity: 1;
+  transition: opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease;
+}
+
+.Loader--leaving {
+  opacity: 0;
+  transform: scale(1.06);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+/* ---------- background ---------- */
+.Loader-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(231, 184, 42, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, var(--Loader-olive) 0%, var(--Loader-olive-deep) 55%, var(--Loader-ink) 100%);
+}
+
+.Loader-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.5) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* ---------- layout ---------- */
+.Loader-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(22px, 5vmin, 44px);
+  padding: 20px;
+  animation: Loader-enter 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.Loader-stage {
+  position: relative;
+  width: var(--Loader-size);
+  height: var(--Loader-size);
+  display: grid;
+  place-items: center;
+}
+
+/* ---------- glow ---------- */
+.Loader-glow {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(231, 184, 42, 0.38) 0%, transparent 65%);
+  filter: blur(18px);
+  animation: Loader-pulse 2.2s ease-in-out infinite;
+}
+
+/* ---------- rings ---------- */
+.Loader-ring {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.Loader-ring--dashed {
+  inset: -9%;
+  border: 1.5px dashed rgba(231, 184, 42, 0.45);
+  animation: Loader-spin-reverse 14s linear infinite;
+}
+
+.Loader-ring--arc {
+  inset: -4%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 210deg,
+    rgba(231, 184, 42, 0.15) 250deg,
+    var(--Loader-gold) 330deg,
+    var(--Loader-gold-light) 360deg
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  animation: Loader-spin 1.6s cubic-bezier(0.55, 0.15, 0.4, 0.85) infinite;
+  filter: drop-shadow(0 0 6px rgba(231, 184, 42, 0.8));
+}
+
+/* ---------- progress ring ---------- */
+.Loader-progress {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+
+.Loader-progress-track,
+.Loader-progress-bar {
+  fill: none;
+  stroke-width: 2;
+}
+
+.Loader-progress-track {
+  stroke: rgba(255, 241, 184, 0.12);
+}
+
+.Loader-progress-bar {
+  stroke: url(#LoaderGold);
+  stroke-linecap: round;
+  stroke-dasharray: 590.62;
+  stroke-dashoffset: 590.62;
+  filter: drop-shadow(0 0 4px rgba(231, 184, 42, 0.9));
+  animation: Loader-fill var(--Loader-duration) cubic-bezier(0.25, 0.6, 0.3, 1) forwards;
+}
+
+/* ---------- orbiting spark ---------- */
+.Loader-orbit {
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  animation: Loader-spin 3.2s linear infinite;
+}
+
+.Loader-spark {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: var(--Loader-gold-light);
+  box-shadow: 0 0 10px 3px rgba(255, 241, 184, 0.9), 0 0 24px 8px rgba(231, 184, 42, 0.6);
+}
+
+/* ---------- logo ---------- */
+.Loader-logoWrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  animation: Loader-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.55));
+}
+
+.Loader-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  animation: Loader-logo-in 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.Loader-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.42) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  animation: Loader-shine 1.6s ease-in-out 0.5s infinite;
+  mix-blend-mode: soft-light;
+}
+
+/* ---------- loading text ---------- */
+.Loader-text {
+  display: block;
+  font-size: clamp(12px, 2.6vmin, 16px);
+  font-weight: 600;
+  letter-spacing: 0.55em;
+  padding-left: 0.55em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--Loader-gold-light), var(--Loader-gold) 70%, var(--Loader-gold-dark));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: Loader-blink 1.4s ease-in-out infinite;
+}
+
+/* ---------- keyframes ---------- */
+@keyframes Loader-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes Loader-spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes Loader-fill {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes Loader-pulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+@keyframes Loader-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes Loader-shine {
+  0% { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(120%); }
+}
+
+@keyframes Loader-blink {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+@keyframes Loader-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes Loader-logo-in {
+  from { opacity: 0; transform: scale(0.82) rotate(-6deg); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 768px) {
+  .Loader-ring--dashed { inset: -7%; }
+}
+
+@media (max-width: 480px) {
+  .Loader { --Loader-size: clamp(170px, 56vw, 260px); }
+  .Loader-text { letter-spacing: 0.4em; padding-left: 0.4em; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .Loader-content { flex-direction: row; gap: 32px; }
+  .Loader { --Loader-size: clamp(130px, 52vh, 240px); }
+}
+
+@media (min-width: 1600px) {
+  .Loader { --Loader-size: clamp(300px, 36vmin, 440px); }
+}
+
+/* ---------- accessibility ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .Loader *,
+  .Loader-content {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .Loader-progress-bar { stroke-dashoffset: 0; }
+}

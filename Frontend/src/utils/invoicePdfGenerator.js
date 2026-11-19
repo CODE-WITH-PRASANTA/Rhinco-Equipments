@@ -370,7 +370,7 @@ export const downloadOrderInvoicePdf = async (order) => {
   doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
   doc.text(
-    "Thank you for farming with Rhino's Equipment! Questions? Call support: +91 98765 43210 or email farmtechagroindia@gmail.com",
+    "Thank you for farming with Rhino's Equipment! Questions? Call support: +91 98765 43210 or email farmershelpline.in@gmail.com",
     margin,
     pageHeight - 8
   );

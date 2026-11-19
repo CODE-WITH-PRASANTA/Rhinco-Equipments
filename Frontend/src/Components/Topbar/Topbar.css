@@ -1,256 +1,399 @@
-/* ==========================================================================
-   TOPBAR COMPONENT - LUXURY AGRICULTURAL EXECUTIVE STYLING
-   ========================================================================== */
+
+/* =========================================
+   PREMIUM AGRICULTURAL TOPBAR
+========================================= */
 
 .Topbar {
+  --topbar-gold: #d8b76a;
+  --topbar-light: #f5f5eb;
+  --topbar-muted: rgba(255, 255, 255, 0.62);
+
   width: 100%;
-  height: 44px;
-  background: linear-gradient(90deg, #0e2a07 0%, #173d0c 45%, #1c490e 70%, #123409 100%);
-  color: #f1f5f9;
+  min-height: 54px;
+  background:
+    linear-gradient(
+      110deg,
+      #102b16 0%,
+      #173b20 48%,
+      #102d19 100%
+    );
+
+  color: var(--topbar-light);
   display: flex;
   align-items: center;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   position: relative;
   z-index: 1001;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+
+  border-bottom: 1px solid rgba(216, 183, 106, 0.28);
+
+  box-shadow:
+    0 3px 14px rgba(0, 0, 0, 0.12);
+
+  font-family:
+    "Inter",
+    "Segoe UI",
+    Arial,
+    sans-serif;
 }
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
 
 .Topbar-container {
   width: 100%;
   max-width: 1540px;
-  height: 100%;
+  min-height: 54px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 35px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 25px;
 }
 
-/* ==========================================================================
-   CONTACT INFORMATION SECTION
-   ========================================================================== */
+/* =========================================
+   LEFT CONTACT SECTION
+========================================= */
 
 .Topbar-contact {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 12.5px;
+  gap: 25px;
 }
 
-/* 24/7 Helpline Pill Badge */
+/* HELPLINE BADGE */
+
 .Topbar-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 9px;
-  background: rgba(34, 197, 94, 0.18);
-  border: 1px solid rgba(74, 222, 128, 0.35);
-  border-radius: 9999px;
-  color: #86efac;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  margin-right: 4px;
+  gap: 7px;
+
+  padding: 7px 12px;
+
+  background: rgba(216, 183, 106, 0.12);
+  border: 1px solid rgba(216, 183, 106, 0.42);
+  border-radius: 30px;
+
+  color: var(--topbar-gold);
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  white-space: nowrap;
 }
 
 .Topbar-badge-icon {
-  color: #4ade80;
-  animation: topbarPulse 2.2s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--topbar-gold);
+  animation: topbarPulse 2s infinite ease-in-out;
 }
 
 @keyframes topbarPulse {
   0%, 100% {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
   }
+
   50% {
-    transform: scale(1.15);
-    opacity: 0.8;
+    opacity: 0.65;
+    transform: scale(1.13);
   }
 }
+
+/* =========================================
+   CONTACT ITEMS
+========================================= */
 
 .Topbar-contact-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #e2e8f0;
+  gap: 10px;
+
+  color: var(--topbar-light);
   text-decoration: none;
-  font-size: 12.5px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
+
   white-space: nowrap;
-  transition: all 0.22s ease;
-  padding: 2px 4px;
-  border-radius: 4px;
 }
 
 .Topbar-contact-item:hover {
-  color: #ffffff;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--topbar-gold);
+  transform: translateY(-1px);
 }
 
-.Topbar-contact-item.primary-tel {
-  font-weight: 700;
-  color: #ffffff;
-}
+/* ICON BOX */
 
-.Topbar-contact-item.primary-tel span {
-  color: #f8fafc;
-}
+.Topbar-icon-box {
+  width: 31px;
+  height: 31px;
+  min-width: 31px;
 
-.Topbar-phone-icon {
-  color: #86efac;
-  flex-shrink: 0;
-}
-
-.Topbar-email-icon {
-  color: #86efac;
-  flex-shrink: 0;
-}
-
-.Topbar-separator {
-  color: rgba(255, 255, 255, 0.28);
-  font-size: 11px;
-  user-select: none;
-}
-
-.Topbar-divider-pipe {
-  width: 1px;
-  height: 14px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 0 4px;
-}
-
-/* ==========================================================================
-   OFFICIAL SOCIAL MEDIA CHANNELS (LATEST ICONS)
-   ========================================================================== */
-
-.Topbar-social {
   display: flex;
   align-items: center;
-  gap: 7px;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color: var(--topbar-gold);
+
+  background: rgba(216, 183, 106, 0.12);
+  border: 1px solid rgba(216, 183, 106, 0.22);
+
+  transition: all 0.3s ease;
 }
 
-.Topbar-social-hint {
-  font-size: 11.5px;
+.Topbar-contact-item:hover .Topbar-icon-box {
+  background: var(--topbar-gold);
+  color: #15351c;
+  border-color: var(--topbar-gold);
+}
+
+/* CONTACT TEXT */
+
+.Topbar-contact-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.Topbar-label {
+  color: var(--topbar-muted);
+
+  font-size: 9px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-right: 4px;
 }
 
-.Topbar-social-link {
-  width: 27px;
+.Topbar-value {
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+}
+
+.Topbar-contact-item:hover .Topbar-value {
+  color: var(--topbar-gold);
+}
+
+/* =========================================
+   CONTACT DIVIDER
+========================================= */
+
+.Topbar-divider {
+  width: 1px;
   height: 27px;
+  background: rgba(255, 255, 255, 0.17);
+}
+
+/* =========================================
+   RIGHT SECTION
+========================================= */
+
+.Topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.Topbar-email .Topbar-value {
+  font-size: 11.5px;
+}
+
+/* AVAILABILITY STATUS */
+
+.Topbar-status {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  gap: 7px;
+
+  padding: 7px 11px;
+
+  border-radius: 30px;
+
+  background: rgba(255, 255, 255, 0.055);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e2e8f0;
-  text-decoration: none;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+
+  color: #d7e9d6;
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  white-space: nowrap;
 }
 
-.Topbar-social-link svg {
-  display: block;
-  transition: transform 0.22s ease;
+.Topbar-status-dot {
+  width: 7px;
+  height: 7px;
+
+  display: inline-block;
+
+  background: #70d68b;
+  border-radius: 50%;
+
+  box-shadow: 0 0 8px rgba(112, 214, 139, 0.65);
+
+  animation: statusPulse 1.8s infinite;
 }
 
-.Topbar-social-link:hover {
-  transform: translateY(-2px);
-  color: #ffffff;
+@keyframes statusPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(112, 214, 139, 0.45);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(112, 214, 139, 0);
+  }
 }
 
-.Topbar-social-link:hover svg {
-  transform: scale(1.1);
-}
+/* =========================================
+   RESPONSIVE: LAPTOP
+========================================= */
 
-/* Individual Brand Hover States */
-.Topbar-social-link.social-wa:hover {
-  background: #25d366;
-  border-color: #25d366;
-  box-shadow: 0 3px 10px rgba(37, 211, 102, 0.4);
-}
-
-.Topbar-social-link.social-x:hover {
-  background: #000000;
-  border-color: #333333;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
-}
-
-.Topbar-social-link.social-ig:hover {
-  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-  border-color: #d6249f;
-  box-shadow: 0 3px 10px rgba(214, 36, 159, 0.45);
-}
-
-.Topbar-social-link.social-fb:hover {
-  background: #1877f2;
-  border-color: #1877f2;
-  box-shadow: 0 3px 10px rgba(24, 119, 242, 0.4);
-}
-
-.Topbar-social-link.social-li:hover {
-  background: #0a66c2;
-  border-color: #0a66c2;
-  box-shadow: 0 3px 10px rgba(10, 102, 194, 0.4);
-}
-
-/* ==========================================================================
-   RESPONSIVE DESIGN
-   ========================================================================== */
-
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
   .Topbar-container {
-    padding: 0 20px;
+    padding: 0 22px;
   }
-  .Topbar-contact-item.secondary-tel {
-    display: none;
-  }
-  .Topbar-separator {
-    display: none;
-  }
-}
 
-@media (max-width: 890px) {
-  .Topbar {
-    height: auto;
-    padding: 7px 0;
-  }
-  .Topbar-container {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-  }
   .Topbar-contact {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    gap: 16px;
   }
-  .Topbar-divider-pipe {
+
+  .Topbar-right {
+    gap: 12px;
+  }
+
+  .Topbar-status {
     display: none;
-  }
-  .Topbar-social {
-    justify-content: center;
   }
 }
 
-@media (max-width: 520px) {
+/* =========================================
+   RESPONSIVE: TABLET
+========================================= */
+
+@media (max-width: 850px) {
+  .Topbar-container {
+    padding: 9px 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .Topbar-contact {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .Topbar-right {
+    justify-content: center;
+  }
+
+  .Topbar {
+    min-height: auto;
+  }
+
+  .Topbar-divider {
+    display: none;
+  }
+}
+
+/* =========================================
+   RESPONSIVE: MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+  .Topbar-container {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .Topbar-contact {
+    width: 100%;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .Topbar-badge {
+    padding: 6px 9px;
+    font-size: 9px;
+  }
+
+  .Topbar-contact-item {
+    gap: 7px;
+  }
+
+  .Topbar-icon-box {
+    width: 27px;
+    height: 27px;
+    min-width: 27px;
+  }
+
+  .Topbar-value {
+    font-size: 10.5px;
+  }
+
+  .Topbar-label {
+    font-size: 8px;
+  }
+
   .Topbar-email {
     display: none;
   }
-  .Topbar-social-hint {
+
+  .Topbar-right {
     display: none;
   }
+
+  .Topbar-contact-item.secondary-tel {
+    display: none;
+  }
+
+  .Topbar-contact {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .Topbar-container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
   .Topbar-badge {
-    padding: 2px 7px;
-    font-size: 9.5px;
+    font-size: 8px;
+  }
+
+  .Topbar-value {
+    font-size: 10px;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+.Topbar-contact-item:focus-visible {
+  outline: 2px solid var(--topbar-gold);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .Topbar *,
+  .Topbar *::before,
+  .Topbar *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

@@ -10,8 +10,8 @@ import {
   Globe2,
 } from "lucide-react";
 
-import FirstImg from "../../assets/ContactoneFirst.jpeg";
-import SecondImg from "../../assets/ContactoneSecond.jpeg";
+import FirstImg from "../../assets/contact-1.png";
+import SecondImg from "../../assets/contact-2.png";
 
 import "./ContactOne.css";
 
@@ -23,8 +23,8 @@ const contactLocations = [
     image: FirstImg,
     address: "Ferozepur Road, Near PAU Gate",
     location: "Ludhiana, Punjab 141001, India",
-    phone: "+91 98765 43210",
-    email: "Machinery@Support.com",
+    phone: "+91 9337092269",
+    email: "farmershelpline.in@gmail.com",
     mapUrl:
       "https://www.google.com/maps/search/?api=1&query=Ferozepur+Road+Ludhiana+Punjab",
     branch: "NORTH INDIA OFFICE",
@@ -37,8 +37,8 @@ const contactLocations = [
     image: SecondImg,
     address: "Janpath Road, Near Agriculture Office",
     location: "Bhubaneswar, Odisha 751001, India",
-    phone: "+91 98765 12340",
-    email: "Machinery@Support.com",
+    phone: "+91 9583195951",
+    email: "farmershelpline.in@gmail.com",
     mapUrl:
       "https://www.google.com/maps/search/?api=1&query=Janpath+Road+Bhubaneswar+Odisha",
     branch: "EAST INDIA OFFICE",

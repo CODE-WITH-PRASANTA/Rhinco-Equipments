@@ -25,7 +25,7 @@ import { downloadOrderInvoicePdf } from "../../utils/invoicePdfGenerator";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const HELPLINE_PHONE = "+91 98765 43210";
-const SUPPORT_EMAIL = "farmtechagroindia@gmail.com";
+const SUPPORT_EMAIL = "farmershelpline.in@gmail.com";
 
 const OrderDetails = () => {
   const { orderId } = useParams();

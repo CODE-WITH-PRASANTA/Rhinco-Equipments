@@ -8,10 +8,10 @@ import {
 } from "lucide-react";
 import "./HeroSection.css";
 
-import home1 from "../../assets/home-1.jpg";
-import home2 from "../../assets/home-2.jpg";
-import home3 from "../../assets/home-3.jpg";
-import home4 from "../../assets/home-4.jpg";
+import home1 from "../../assets/home-1.png";
+import home2 from "../../assets/home-2.png";
+import home3 from "../../assets/home-3.png";
+import home4 from "../../assets/home-4.png";
 
 const heroSlides = [
   {
