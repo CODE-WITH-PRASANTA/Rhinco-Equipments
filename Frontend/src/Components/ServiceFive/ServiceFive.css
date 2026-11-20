@@ -1,0 +1,1316 @@
+/* =========================================
+   SERVICE FIVE - GLOBAL
+========================================= */
+
+.ServiceFive {
+  width: 100%;
+  padding: 55px 28px 65px;
+  background: linear-gradient(135deg, #f7fcf3, #eff8e9);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.ServiceFive *,
+.ServiceFive *::before,
+.ServiceFive *::after {
+  box-sizing: border-box;
+}
+
+.ServiceFive__container {
+  display: grid;
+  grid-template-columns: 36% 64%;
+  width: 100%;
+  max-width: 1720px;
+  min-height: 550px;
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid #fff;
+  border-radius: 25px;
+  background: #fff;
+  box-shadow: 0 18px 55px rgba(29, 90, 19, .11);
+}
+
+/* =========================================
+   LEFT PANEL
+========================================= */
+
+.ServiceFive__left {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  min-height: 550px;
+  padding: 43px 34px 0;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(145deg, #075006, #087400 55%, #078508);
+}
+
+.ServiceFive__leftContent {
+  position: relative;
+  z-index: 2;
+}
+
+.ServiceFive__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 23px;
+  color: #e8f7d4;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+.ServiceFive__eyebrow span {
+  width: 25px;
+  height: 2px;
+  background: #b9ef61;
+}
+
+.ServiceFive__title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(34px, 3.2vw, 54px);
+  font-weight: 850;
+  line-height: 1.12;
+  letter-spacing: -1.7px;
+}
+
+.ServiceFive__title span {
+  color: #d3f58a;
+}
+
+.ServiceFive__subtitle {
+  max-width: 380px;
+  margin: 21px 0 0;
+  color: rgba(255, 255, 255, .92);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.ServiceFive__imageWrapper {
+  width: calc(100% + 68px);
+  height: 255px;
+  margin: 25px -34px 0;
+  overflow: hidden;
+  background: #087500;
+}
+
+.ServiceFive__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform .8s ease, filter .6s ease;
+}
+
+.ServiceFive__left:hover .ServiceFive__image {
+  transform: scale(1.07);
+  filter: saturate(1.12) brightness(1.05);
+}
+
+/* =========================================
+   RIGHT PANEL
+========================================= */
+
+.ServiceFive__right {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 34px 38px;
+  background: linear-gradient(135deg, #fff, #fafff7);
+}
+
+.ServiceFive__form {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  width: 100%;
+  min-width: 0;
+}
+
+.ServiceFive__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+}
+
+.ServiceFive__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ServiceFive__field > label {
+  color: #182219;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.ServiceFive__field > label span {
+  color: #e52e2e;
+}
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.ServiceFive__inputWrap {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: 47px;
+  padding: 0 13px;
+  border: 1px solid #dce5dc;
+  border-radius: 13px;
+  background: #fff;
+  transition: .25s ease;
+}
+
+.ServiceFive__inputWrap:hover {
+  border-color: #a9d6a2;
+}
+
+.ServiceFive__inputWrap:focus-within {
+  border-color: #13991b;
+  box-shadow: 0 0 0 4px rgba(25, 151, 26, .09);
+}
+
+.ServiceFive__icon {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+  margin-right: 11px;
+  color: #78867b;
+}
+
+.ServiceFive__inputWrap input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  outline: none;
+  color: #29332a;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.ServiceFive__inputWrap input::placeholder {
+  color: #98a199;
+}
+
+/* =========================================
+   CUSTOM SELECT (replaces native <select>)
+========================================= */
+
+.ServiceFive__select {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.ServiceFive__selectButton {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: 47px;
+  padding: 0 13px;
+  border: 1px solid #dce5dc;
+  border-radius: 13px;
+  background: #fff;
+  color: #29332a;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.ServiceFive__selectButton:hover {
+  border-color: #a9d6a2;
+}
+
+.ServiceFive__select.is-open .ServiceFive__selectButton,
+.ServiceFive__selectButton:focus-visible {
+  border-color: #13991b;
+  box-shadow: 0 0 0 4px rgba(25, 151, 26, .09);
+  outline: none;
+}
+
+.ServiceFive__selectValue {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ServiceFive__selectValue.is-placeholder {
+  color: #98a199;
+}
+
+.ServiceFive__chevron {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  color: #78867b;
+  transition: transform .25s ease;
+}
+
+.ServiceFive__select.is-open .ServiceFive__chevron {
+  transform: rotate(180deg);
+}
+
+/* invisible input only used for "required" validation */
+.ServiceFive__selectProxy {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ServiceFive__selectList {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  width: 100%;
+  max-height: 210px;
+  margin: 0;
+  padding: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid #dce9d8;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 14px 32px rgba(15, 70, 20, .16);
+  animation: ServiceFiveDropdown .18s ease both;
+}
+
+.ServiceFive__selectOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  border-radius: 9px;
+  color: #29332a;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.ServiceFive__selectOption:hover {
+  background: #eef8ea;
+}
+
+.ServiceFive__selectOption.is-selected {
+  color: #0a7a12;
+  background: #e5f5df;
+  font-weight: 700;
+}
+
+.ServiceFive__selectOption svg {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+}
+
+/* =========================================
+   RADIO BUTTONS
+========================================= */
+
+.ServiceFive__radioGroup {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 25px;
+  padding: 3px 0;
+}
+
+.ServiceFive__radioLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #283128;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ServiceFive__radioLabel input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.ServiceFive__customRadio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd7cc;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.ServiceFive__radioLabel input:checked + .ServiceFive__customRadio {
+  border-color: #078b11;
+  background: #078b11;
+}
+
+.ServiceFive__radioLabel input:checked + .ServiceFive__customRadio::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+/* =========================================
+   TEXTAREA
+========================================= */
+
+.ServiceFive__textareaWrap {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  min-width: 0;
+  min-height: 90px;
+  padding: 13px 14px;
+  border: 1px solid #dce5dc;
+  border-radius: 13px;
+  background: #fff;
+  transition: .25s ease;
+}
+
+.ServiceFive__textareaWrap:focus-within {
+  border-color: #13991b;
+  box-shadow: 0 0 0 4px rgba(25, 151, 26, .09);
+}
+
+.ServiceFive__textareaWrap .ServiceFive__icon {
+  margin-top: 2px;
+}
+
+.ServiceFive__textareaWrap textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 64px;
+  padding: 0;
+  resize: vertical;
+  border: none;
+  outline: none;
+  color: #29332a;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.ServiceFive__textareaWrap textarea::placeholder {
+  color: #98a199;
+}
+
+/* =========================================
+   SUBMIT BUTTON
+========================================= */
+
+.ServiceFive__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(100deg, #087a09, #078f0b, #08a10c);
+  box-shadow: 0 6px 15px rgba(7, 133, 13, .17);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.ServiceFive__submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(7, 133, 13, .23);
+}
+
+/* =========================================
+   SUCCESS POPUP OVERLAY
+   Rendered with a React Portal into <body>.
+   Size/position is set inline from
+   window.visualViewport (see JSX), so it always
+   matches the visible screen. The rules below
+   are the fallback.
+========================================= */
+
+.ServiceFive__successOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100dvh;
+  max-width: 100vw;
+  margin: 0;
+  padding: 16px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  background: rgba(8, 28, 10, .68);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+
+  font-family: "Inter", "Segoe UI", sans-serif;
+
+  animation: ServiceFiveOverlayEnter .3s ease both;
+}
+
+.ServiceFive__successOverlay *,
+.ServiceFive__successOverlay *::before,
+.ServiceFive__successOverlay *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   SUCCESS MODAL
+========================================= */
+
+.ServiceFive__successModal {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
+  max-width: 520px;
+  min-width: 0;
+  max-height: 100%;
+  flex-shrink: 1;
+
+  margin: auto;
+  padding: 43px 36px 28px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  border: 1px solid rgba(255, 255, 255, .95);
+  border-radius: 25px;
+
+  background: linear-gradient(145deg, #fff 0%, #fbfff9 65%, #effaeb 100%);
+
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, .23),
+    0 8px 25px rgba(11, 114, 18, .12);
+
+  text-align: center;
+
+  animation: ServiceFiveModalEnter .45s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* TOP GREEN LINE */
+
+.ServiceFive__successTopLine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, #087a09, #a8ec62, #078b11);
+}
+
+/* CLOSE BUTTON */
+
+.ServiceFive__successClose {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+
+  padding: 0;
+  border: 1px solid #e4ece2;
+  border-radius: 50%;
+
+  color: #627064;
+  background: #f5f9f3;
+
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.ServiceFive__successClose:hover {
+  color: #fff;
+  background: #087e12;
+  transform: rotate(90deg);
+}
+
+/* =========================================
+   SUCCESS ICON
+========================================= */
+
+.ServiceFive__successIconOuter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 116px;
+  height: 116px;
+  flex-shrink: 0;
+
+  margin: 0 auto 22px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(circle, #e4f8dc, #f3fbea 65%, #fff);
+
+  animation: ServiceFiveIconOuter .6s ease both;
+}
+
+.ServiceFive__successIconRing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 83px;
+  height: 83px;
+
+  border: 2px solid #b5e8a8;
+  border-radius: 50%;
+
+  color: #fff;
+  background: linear-gradient(145deg, #16b637, #078319);
+
+  box-shadow: 0 8px 22px rgba(8, 145, 32, .24);
+
+  animation: ServiceFiveIconPop .55s ease .15s both;
+}
+
+.ServiceFive__successIconRing svg {
+  display: block;
+  width: 55px;
+  height: 55px;
+}
+
+.ServiceFive__checkPath {
+  stroke-dasharray: 70;
+  stroke-dashoffset: 70;
+  animation: ServiceFiveDrawCheck .55s ease .55s forwards;
+}
+
+/* =========================================
+   SUCCESS TEXT
+========================================= */
+
+.ServiceFive__successContent {
+  width: 100%;
+  min-width: 0;
+}
+
+.ServiceFive__successTopLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-bottom: 14px;
+
+  color: #108a23;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 1.5px;
+}
+
+.ServiceFive__successTopLabel span {
+  width: 18px;
+  height: 1.5px;
+  background: #83c96b;
+}
+
+.ServiceFive__successContent h2 {
+  margin: 0;
+
+  color: #142d16;
+
+  font-size: clamp(23px, 5vw, 32px);
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: -.8px;
+
+  overflow-wrap: anywhere;
+}
+
+.ServiceFive__successContent h2 span {
+  color: #0b941b;
+}
+
+.ServiceFive__successContent p {
+  max-width: 395px;
+  margin: 13px auto 0;
+
+  color: #69766a;
+  font-size: 14px;
+  line-height: 1.75;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   CONFIRMATION BOX
+========================================= */
+
+.ServiceFive__confirmationBox {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+  min-width: 0;
+
+  margin-top: 26px;
+  padding: 16px;
+
+  border: 1px solid #d9ebd4;
+  border-radius: 15px;
+
+  background: linear-gradient(120deg, #f1faed, #fafff8);
+
+  text-align: left;
+}
+
+.ServiceFive__confirmationIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  width: 43px;
+  height: 43px;
+
+  border-radius: 12px;
+
+  color: #0a921b;
+  background: #e0f4d8;
+}
+
+.ServiceFive__confirmationIcon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.ServiceFive__confirmationText {
+  min-width: 0;
+}
+
+.ServiceFive__confirmationText h4 {
+  margin: 0 0 4px;
+  color: #183c1c;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.ServiceFive__confirmationText p {
+  margin: 0;
+  color: #69766a;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   STATUS BADGE
+========================================= */
+
+.ServiceFive__successBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  max-width: 100%;
+
+  margin: 21px 0 19px;
+  padding: 8px 14px;
+
+  border: 1px solid #c9eaca;
+  border-radius: 50px;
+
+  color: #128321;
+  background: #edfaed;
+
+  font-size: 11px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.ServiceFive__successBadge > span {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: #14af31;
+
+  box-shadow: 0 0 0 4px rgba(20, 175, 49, .12);
+}
+
+/* =========================================
+   CONTINUE BUTTON
+========================================= */
+
+.ServiceFive__continueButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  width: 100%;
+  min-height: 49px;
+
+  padding: 12px 20px;
+
+  border: none;
+  border-radius: 13px;
+
+  color: #fff;
+  background: linear-gradient(100deg, #08780b, #0b9d1b);
+
+  box-shadow: 0 7px 17px rgba(7, 130, 18, .18);
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+  transition: .25s ease;
+}
+
+.ServiceFive__continueButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 11px 23px rgba(7, 130, 18, .26);
+}
+
+.ServiceFive__continueButton span {
+  font-size: 19px;
+  transition: transform .25s ease;
+}
+
+.ServiceFive__continueButton:hover span {
+  transform: translateX(5px);
+}
+
+/* FOOTER */
+
+.ServiceFive__successFooter {
+  width: 100%;
+  margin-top: 22px;
+
+  color: #9aab99;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   ANIMATIONS
+========================================= */
+
+@keyframes ServiceFiveOverlayEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ServiceFiveModalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(25px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ServiceFiveIconOuter {
+  from { opacity: 0; transform: scale(.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ServiceFiveIconPop {
+  from { transform: scale(.5); }
+  to { transform: scale(1); }
+}
+
+@keyframes ServiceFiveDrawCheck {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes ServiceFiveDropdown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   LAPTOP
+========================================= */
+
+@media (max-width: 1200px) {
+  .ServiceFive {
+    padding: 40px 22px 50px;
+  }
+
+  .ServiceFive__container {
+    grid-template-columns: 35% 65%;
+    min-height: 510px;
+  }
+
+  .ServiceFive__left {
+    min-height: 510px;
+    padding: 35px 25px 0;
+  }
+
+  .ServiceFive__imageWrapper {
+    width: calc(100% + 50px);
+    height: 225px;
+    margin: 25px -25px 0;
+  }
+
+  .ServiceFive__right {
+    padding: 28px 25px;
+  }
+
+  .ServiceFive__form {
+    gap: 16px;
+  }
+
+  .ServiceFive__grid {
+    gap: 15px;
+  }
+
+  .ServiceFive__radioGroup {
+    gap: 12px 17px;
+  }
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+  .ServiceFive {
+    padding: 30px 18px 40px;
+  }
+
+  .ServiceFive__container {
+    grid-template-columns: 34% 66%;
+    min-height: 480px;
+  }
+
+  .ServiceFive__left {
+    min-height: 480px;
+    padding: 30px 20px 0;
+  }
+
+  .ServiceFive__title {
+    font-size: clamp(27px, 3.5vw, 35px);
+    letter-spacing: -1px;
+  }
+
+  .ServiceFive__subtitle {
+    font-size: 13px;
+  }
+
+  .ServiceFive__imageWrapper {
+    width: calc(100% + 40px);
+    height: 200px;
+    margin: 25px -20px 0;
+  }
+
+  .ServiceFive__right {
+    padding: 25px 20px;
+  }
+
+  .ServiceFive__form {
+    gap: 15px;
+  }
+
+  .ServiceFive__grid {
+    gap: 13px;
+  }
+
+  .ServiceFive__field > label,
+  .ServiceFive__radioLabel {
+    font-size: 12px;
+  }
+
+  .ServiceFive__inputWrap,
+  .ServiceFive__selectButton {
+    height: 43px;
+    padding: 0 10px;
+  }
+
+  .ServiceFive__inputWrap input,
+  .ServiceFive__selectButton {
+    font-size: 12px;
+  }
+
+  .ServiceFive__selectOption {
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 650px) {
+  .ServiceFive {
+    padding: 25px 14px 35px;
+  }
+
+  .ServiceFive__container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 520px;
+    min-height: auto;
+    margin: 0 auto;
+    border-radius: 20px;
+  }
+
+  .ServiceFive__left {
+    min-height: auto;
+    padding: 30px 25px 0;
+  }
+
+  .ServiceFive__eyebrow {
+    margin-bottom: 17px;
+    font-size: 12px;
+  }
+
+  .ServiceFive__title {
+    font-size: clamp(32px, 8vw, 42px);
+    line-height: 1.13;
+  }
+
+  .ServiceFive__subtitle {
+    max-width: 330px;
+    margin-top: 14px;
+    font-size: 14px;
+  }
+
+  .ServiceFive__imageWrapper {
+    width: calc(100% + 50px);
+    height: 240px;
+    margin: 18px -25px 0;
+  }
+
+  .ServiceFive__right {
+    width: 100%;
+    padding: 27px 21px;
+  }
+
+  .ServiceFive__form {
+    gap: 17px;
+  }
+
+  .ServiceFive__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .ServiceFive__field > label {
+    font-size: 13px;
+  }
+
+  .ServiceFive__inputWrap,
+  .ServiceFive__selectButton {
+    height: 46px;
+    padding: 0 12px;
+  }
+
+  .ServiceFive__inputWrap input,
+  .ServiceFive__selectButton {
+    font-size: 13px;
+  }
+
+  .ServiceFive__selectOption {
+    padding: 11px;
+    font-size: 13px;
+  }
+
+  .ServiceFive__radioGroup {
+    gap: 14px 18px;
+  }
+
+  .ServiceFive__radioLabel {
+    font-size: 13px;
+  }
+
+  .ServiceFive__textareaWrap {
+    min-height: 100px;
+  }
+
+  .ServiceFive__textareaWrap textarea {
+    min-height: 73px;
+  }
+
+  .ServiceFive__submit {
+    min-height: 48px;
+    font-size: 14px;
+  }
+
+  /* MOBILE SUCCESS OVERLAY */
+
+  .ServiceFive__successOverlay {
+    padding: 12px;
+  }
+
+  .ServiceFive__successModal {
+    max-width: 440px;
+    padding: 36px 20px 23px;
+    border-radius: 21px;
+  }
+
+  .ServiceFive__successIconOuter {
+    width: 96px;
+    height: 96px;
+    margin-bottom: 18px;
+  }
+
+  .ServiceFive__successIconRing {
+    width: 72px;
+    height: 72px;
+  }
+
+  .ServiceFive__successIconRing svg {
+    width: 47px;
+    height: 47px;
+  }
+
+  .ServiceFive__successContent h2 {
+    font-size: clamp(22px, 6vw, 27px);
+  }
+
+  .ServiceFive__successContent p {
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .ServiceFive__confirmationBox {
+    gap: 11px;
+    margin-top: 19px;
+    padding: 13px;
+  }
+
+  .ServiceFive__successBadge {
+    margin: 18px 0;
+    font-size: 10px;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE - 320px to 380px
+========================================= */
+
+@media (max-width: 380px) {
+  .ServiceFive {
+    padding: 20px 10px 28px;
+  }
+
+  .ServiceFive__left {
+    padding: 25px 18px 0;
+  }
+
+  .ServiceFive__title {
+    font-size: 30px;
+  }
+
+  .ServiceFive__imageWrapper {
+    width: calc(100% + 36px);
+    height: 200px;
+    margin: 18px -18px 0;
+  }
+
+  .ServiceFive__right {
+    padding: 22px 14px;
+  }
+
+  .ServiceFive__radioGroup {
+    gap: 12px;
+  }
+
+  .ServiceFive__successOverlay {
+    padding: 10px;
+  }
+
+  .ServiceFive__successModal {
+    max-width: 360px;
+    padding: 34px 14px 19px;
+    border-radius: 18px;
+  }
+
+  .ServiceFive__successIconOuter {
+    width: 82px;
+    height: 82px;
+    margin-bottom: 15px;
+  }
+
+  .ServiceFive__successIconRing {
+    width: 63px;
+    height: 63px;
+  }
+
+  .ServiceFive__successIconRing svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .ServiceFive__successTopLabel {
+    gap: 5px;
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .ServiceFive__successContent h2 {
+    font-size: 22px;
+  }
+
+  .ServiceFive__successContent p {
+    font-size: 12px;
+  }
+
+  .ServiceFive__confirmationBox {
+    padding: 11px;
+  }
+
+  .ServiceFive__confirmationText h4 {
+    font-size: 13px;
+  }
+
+  .ServiceFive__confirmationText p {
+    font-size: 11px;
+  }
+
+  .ServiceFive__successBadge {
+    padding: 7px 10px;
+    font-size: 9px;
+  }
+
+  .ServiceFive__successFooter {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+}
+
+/* =========================================
+   SHORT MOBILE SCREENS
+========================================= */
+
+@media (max-height: 650px) and (max-width: 650px) {
+  .ServiceFive__successOverlay {
+    align-items: flex-start;
+  }
+
+  .ServiceFive__successModal {
+    margin: auto;
+    padding-top: 30px;
+    padding-bottom: 18px;
+  }
+
+  .ServiceFive__successIconOuter {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 12px;
+  }
+
+  .ServiceFive__successIconRing {
+    width: 55px;
+    height: 55px;
+  }
+
+  .ServiceFive__successIconRing svg {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ServiceFive__confirmationBox {
+    margin-top: 13px;
+  }
+
+  .ServiceFive__successBadge {
+    margin: 12px 0;
+  }
+
+  .ServiceFive__successFooter {
+    margin-top: 14px;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .ServiceFive *,
+  .ServiceFive *::before,
+  .ServiceFive *::after,
+  .ServiceFive__successOverlay,
+  .ServiceFive__successOverlay *,
+  .ServiceFive__successOverlay *::before,
+  .ServiceFive__successOverlay *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

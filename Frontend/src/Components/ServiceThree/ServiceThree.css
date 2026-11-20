@@ -1,6 +1,6 @@
 
 /* =========================================
-   SERVICE THREE - PREMIUM ON-SITE SUPPORT
+   SERVICE THREE - PREMIUM COMPACT DESIGN
 ========================================= */
 
 .ServiceThree {
@@ -11,22 +11,13 @@
 
   position: relative;
   width: 100%;
-  padding: 28px 2.5%;
+  padding: 22px 2.5%;
   overflow: hidden;
   isolation: isolate;
 
   background:
-    radial-gradient(
-      circle at 100% 0%,
-      rgba(131, 202, 73, 0.12),
-      transparent 28%
-    ),
-    linear-gradient(
-      120deg,
-      #f6fff3,
-      #ffffff 50%,
-      #effae9
-    );
+    radial-gradient(circle at 100% 0%, rgba(131, 202, 73, 0.12), transparent 28%),
+    linear-gradient(120deg, #f6fff3, #ffffff 50%, #effae9);
 
   font-family: inherit;
 }
@@ -43,25 +34,28 @@
 .ServiceThree-container {
   position: relative;
   width: 100%;
-  max-width: 1850px;
-  min-height: 710px;
+  max-width: 1700px;
   margin: auto;
 
   display: grid;
-  grid-template-columns: 1.02fr 1.12fr;
+  grid-template-columns: 1.02fr 1.08fr;
   align-items: stretch;
 
-  gap: 25px;
-  padding: 22px 22px 22px 28px;
+  gap: 22px;
+  padding: 18px 18px 18px 25px;
+
+  /* Height is determined by left content */
+  min-height: unset;
+  height: auto;
 
   border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: 45px;
+  border-radius: 32px;
 
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.82);
 
   box-shadow:
-    0 12px 35px rgba(37, 100, 31, 0.09),
-    inset 0 0 20px rgba(255, 255, 255, 0.8);
+    0 10px 30px rgba(37, 100, 31, 0.07),
+    inset 0 0 15px rgba(255, 255, 255, 0.8);
 }
 
 /* =========================================
@@ -78,7 +72,7 @@
 
   width: 100%;
   min-width: 0;
-  padding: 12px 0 12px 8px;
+  padding: 8px 0 8px 5px;
 }
 
 /* BADGE */
@@ -88,30 +82,31 @@
 
   display: inline-flex;
   align-items: center;
-  gap: 13px;
+  gap: 9px;
 
-  padding: 10px 20px;
-  margin-bottom: 15px;
+  padding: 8px 15px;
+  margin-bottom: 12px;
 
   border-radius: 50px;
 
   color: #087018;
-  background: linear-gradient(
-    120deg,
-    #e7f8d1,
-    #f2fce9
-  );
+  background: linear-gradient(120deg, #e7f8d1, #f2fce9);
 
-  font-size: 16px;
-  font-weight: 850;
+  font-size: 12px;
+  font-weight: 800;
 
-  transition: all 0.35s ease;
+  transition: all 0.3s ease;
+}
+
+.ServiceThree-badge svg {
+  width: 19px;
+  height: 19px;
 }
 
 .ServiceThree-badge:hover {
   background: #dff4c4;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(8, 124, 25, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(8, 124, 25, 0.12);
 }
 
 /* TITLE */
@@ -121,10 +116,10 @@
 
   color: var(--ServiceThree-dark);
 
-  font-size: clamp(42px, 3.7vw, 69px);
+  font-size: clamp(36px, 3.1vw, 51px);
   font-weight: 900;
-  line-height: 1.12;
-  letter-spacing: -2.5px;
+  line-height: 1.08;
+  letter-spacing: -1.8px;
 }
 
 .ServiceThree-title span {
@@ -134,30 +129,24 @@
 /* TITLE LINE */
 
 .ServiceThree-title-line {
-  width: 140px;
-  height: 7px;
-
-  margin: 10px 0 12px;
+  width: 105px;
+  height: 5px;
+  margin: 9px 0 11px;
 
   border-radius: 50px;
 
-  background: linear-gradient(
-    90deg,
-    #0b8d1d 0%,
-    #a8ed55 100%
-  );
+  background: linear-gradient(90deg, #0b8d1d, #a8ed55);
 }
 
 /* DESCRIPTION */
 
 .ServiceThree-description {
-  max-width: 850px;
-
-  margin: 0 0 23px;
+  max-width: 680px;
+  margin: 0 0 17px;
 
   color: #343a35;
 
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.65;
 }
@@ -169,45 +158,38 @@
 .ServiceThree-features {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 
-  margin-bottom: 28px;
+  margin-bottom: 19px;
 }
 
 .ServiceThree-feature {
   min-width: 0;
-  min-height: 98px;
+  min-height: 77px;
 
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 11px;
+  gap: 7px;
 
-  padding: 10px 7px;
+  padding: 8px 5px;
 
-  border-radius: 25px;
+  border-radius: 17px;
 
-  background: linear-gradient(
-    135deg,
-    #f0fae5,
-    #f9fff5
-  );
+  background: linear-gradient(135deg, #f0fae5, #f9fff5);
 
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
 }
 
 .ServiceThree-feature:hover {
-  transform: translateY(-7px);
-
+  transform: translateY(-4px);
   background: #e6f7d5;
-
-  box-shadow: 0 12px 25px rgba(8, 124, 25, 0.12);
+  box-shadow: 0 8px 18px rgba(8, 124, 25, 0.10);
 }
 
 .ServiceThree-feature-icon {
-  width: 52px;
-  height: 52px;
-
+  width: 38px;
+  height: 38px;
   flex-shrink: 0;
 
   display: flex;
@@ -216,27 +198,26 @@
 
   color: #087a18;
 
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
 }
 
 .ServiceThree-feature-icon svg {
-  width: 49px;
-  height: 49px;
+  width: 35px;
+  height: 35px;
   stroke-width: 1.9;
 }
 
 .ServiceThree-feature:hover .ServiceThree-feature-icon {
-  transform: rotate(-8deg) scale(1.1);
+  transform: rotate(-7deg) scale(1.08);
 }
 
 .ServiceThree-feature h4 {
   margin: 0;
 
   color: #141b15;
-
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 850;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .ServiceThree-feature h4 span {
@@ -251,26 +232,27 @@
   display: grid;
   grid-template-columns: 1fr 1.15fr;
 
-  column-gap: 25px;
-  row-gap: 15px;
+  column-gap: 16px;
+  row-gap: 11px;
 
-  margin-bottom: 25px;
+  margin-bottom: 19px;
 }
 
 .ServiceThree-service-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 9px;
 
   color: #171d18;
-
-  font-size: 17px;
+  font-size: 13px;
   font-weight: 750;
 
   transition: all 0.3s ease;
 }
 
 .ServiceThree-service-item svg {
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
 
   color: #ffffff;
@@ -281,7 +263,7 @@
 
 .ServiceThree-service-item:hover {
   color: var(--ServiceThree-green);
-  transform: translateX(5px);
+  transform: translateX(4px);
 }
 
 /* =========================================
@@ -292,25 +274,25 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
-  margin: 0 0 28px;
-  padding: 13px 5px;
+  margin: 0 0 19px;
+  padding: 9px 4px;
 
   border: 1px dashed #b4dca4;
-  border-radius: 25px;
+  border-radius: 18px;
 
-  background: rgba(248, 255, 243, 0.75);
+  background: rgba(248, 255, 243, 0.85);
 }
 
 .ServiceThree-support-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 7px;
 
   min-width: 0;
-  padding: 5px 7px;
+  padding: 5px;
 
-  transition: all 0.35s ease;
+  transition: all 0.3s ease;
 }
 
 .ServiceThree-support-item:not(:last-child) {
@@ -318,7 +300,7 @@
 }
 
 .ServiceThree-support-item:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
 }
 
 .ServiceThree-support-icon {
@@ -332,8 +314,8 @@
 }
 
 .ServiceThree-support-icon svg {
-  width: 37px;
-  height: 37px;
+  width: 29px;
+  height: 29px;
   stroke-width: 2;
 }
 
@@ -341,9 +323,8 @@
   margin: 0;
 
   color: #141b15;
-
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 10px;
+  line-height: 1.4;
   font-weight: 800;
 }
 
@@ -359,28 +340,27 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 10px;
 }
 
 .ServiceThree-book-btn,
 .ServiceThree-support-btn {
-  min-height: 62px;
+  min-height: 48px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 9px;
 
-  padding: 0 25px;
+  padding: 0 18px;
 
   border-radius: 50px;
-
   text-decoration: none;
 
-  font-size: 17px;
-  font-weight: 850;
+  font-size: 13px;
+  font-weight: 800;
 
-  transition: all 0.35s ease;
+  transition: all 0.3s ease;
 }
 
 /* BOOK BUTTON */
@@ -388,35 +368,26 @@
 .ServiceThree-book-btn {
   color: #ffffff;
 
-  background: linear-gradient(
-    120deg,
-    #0a961e,
-    #00570e
-  );
+  background: linear-gradient(120deg, #0a961e, #00570e);
 
-  box-shadow: 0 8px 20px rgba(0, 112, 19, 0.17);
+  box-shadow: 0 6px 15px rgba(0, 112, 19, 0.15);
 }
 
 .ServiceThree-book-btn:hover {
   color: #ffffff;
+  transform: translateY(-3px);
 
-  transform: translateY(-5px);
+  background: linear-gradient(120deg, #007416, #00470c);
 
-  background: linear-gradient(
-    120deg,
-    #007416,
-    #00470c
-  );
-
-  box-shadow: 0 14px 30px rgba(0, 100, 15, 0.25);
+  box-shadow: 0 10px 22px rgba(0, 100, 15, 0.22);
 }
 
 .ServiceThree-arrow {
-  transition: transform 0.35s ease;
+  transition: transform 0.3s ease;
 }
 
 .ServiceThree-book-btn:hover .ServiceThree-arrow {
-  transform: translateX(7px);
+  transform: translateX(5px);
 }
 
 /* SUPPORT BUTTON */
@@ -424,23 +395,20 @@
 .ServiceThree-support-btn {
   color: #0a6b19;
 
-  border: 2px solid #16872a;
-
-  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid #16872a;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .ServiceThree-support-btn:hover {
   color: #ffffff;
-
   background: var(--ServiceThree-green);
-
-  transform: translateY(-5px);
-
-  box-shadow: 0 12px 25px rgba(8, 124, 25, 0.17);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(8, 124, 25, 0.15);
 }
 
 /* =========================================
    RIGHT IMAGE SECTION
+   HEIGHT MATCHES LEFT CONTENT
 ========================================= */
 
 .ServiceThree-visual {
@@ -448,26 +416,30 @@
 
   width: 100%;
   min-width: 0;
-  min-height: 100%;
+  min-height: 0;
+  height: 100%;
+
+  align-self: stretch;
 
   overflow: hidden;
 
-  border-radius: 35px;
-  border: 6px solid #ffffff;
+  border-radius: 25px;
+  border: 4px solid #ffffff;
 
   background: #e9f3df;
 
-  box-shadow: 0 12px 30px rgba(25, 75, 20, 0.09);
+  box-shadow: 0 10px 25px rgba(25, 75, 20, 0.08);
 }
 
 /* IMAGE WRAPPER */
 
 .ServiceThree-image-wrapper {
-  position: relative;
+  position: absolute;
+  inset: 0;
 
   width: 100%;
   height: 100%;
-  min-height: 660px;
+  min-height: 0;
 
   overflow: hidden;
 }
@@ -481,14 +453,10 @@
   top: 0;
   left: 0;
 
-  width: 175px;
-  height: 190px;
+  width: 125px;
+  height: 140px;
 
-  background: linear-gradient(
-    135deg,
-    #138e19,
-    #087013
-  );
+  background: linear-gradient(135deg, #138e19, #087013);
 
   clip-path: polygon(0 0, 100% 0, 0 100%);
 
@@ -498,23 +466,26 @@
 /* MAIN IMAGE */
 
 .ServiceThree-image {
+  position: absolute;
+  inset: 0;
+
   display: block;
 
   width: 100%;
   height: 100%;
-  min-height: 660px;
+  min-height: 0;
 
   object-fit: cover;
   object-position: center;
 
   transition:
-    transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter 0.6s ease;
+    transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 0.5s ease;
 }
 
 .ServiceThree-image-wrapper:hover .ServiceThree-image {
-  transform: scale(1.08);
-  filter: saturate(1.14) contrast(1.04);
+  transform: scale(1.05);
+  filter: saturate(1.1) contrast(1.03);
 }
 
 /* IMAGE OVERLAY */
@@ -523,7 +494,7 @@
   position: absolute;
   inset: auto 0 0;
 
-  padding: 85px 30px 35px;
+  padding: 65px 24px 25px;
 
   color: #ffffff;
 
@@ -535,9 +506,9 @@
   );
 
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(15px);
 
-  transition: all 0.45s ease;
+  transition: all 0.4s ease;
 }
 
 .ServiceThree-image-wrapper:hover .ServiceThree-image-overlay {
@@ -547,26 +518,23 @@
 
 .ServiceThree-image-overlay span {
   display: inline-block;
-
   color: #c6f49d;
 
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 850;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
 }
 
 .ServiceThree-image-overlay h3 {
-  margin: 9px 0;
-
-  font-size: 27px;
+  margin: 7px 0;
+  font-size: 22px;
   font-weight: 900;
 }
 
 .ServiceThree-image-overlay p {
   margin: 0;
-
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 /* IMAGE TAG */
@@ -575,164 +543,231 @@
   position: absolute;
   z-index: 3;
 
-  bottom: 25px;
-  left: 25px;
+  bottom: 18px;
+  left: 18px;
 
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 
-  padding: 12px 18px;
+  padding: 10px 15px;
 
   border-radius: 50px;
 
   color: #ffffff;
   background: rgba(5, 105, 19, 0.88);
 
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
 
   backdrop-filter: blur(12px);
 
-  transition: all 0.35s ease;
+  transition: all 0.3s ease;
+}
+
+.ServiceThree-image-tag svg {
+  width: 18px;
+  height: 18px;
 }
 
 .ServiceThree-image-wrapper:hover .ServiceThree-image-tag {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(10px);
 }
 
 /* =========================================
-   RESPONSIVE - LAPTOP
+   LAPTOP
 ========================================= */
 
-@media (max-width: 1450px) {
-  .ServiceThree-container {
-    min-height: 620px;
-    gap: 20px;
+@media (max-width: 1450px) and (min-width: 1051px) {
+  .ServiceThree {
+    padding: 18px 2%;
   }
 
-  .ServiceThree-image-wrapper,
-  .ServiceThree-image {
-    min-height: 575px;
+  .ServiceThree-container {
+    gap: 17px;
+    padding: 15px 15px 15px 20px;
   }
 
   .ServiceThree-title {
-    font-size: clamp(40px, 4vw, 57px);
+    font-size: clamp(34px, 3.4vw, 45px);
   }
 
   .ServiceThree-description {
-    font-size: 16px;
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+
+  .ServiceThree-features {
+    gap: 6px;
+    margin-bottom: 15px;
   }
 
   .ServiceThree-feature {
-    min-height: 88px;
-    gap: 6px;
+    min-height: 68px;
+    gap: 5px;
+    border-radius: 14px;
   }
 
   .ServiceThree-feature-icon {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
   }
 
   .ServiceThree-feature-icon svg {
-    width: 38px;
-    height: 38px;
+    width: 30px;
+    height: 30px;
   }
 
   .ServiceThree-feature h4 {
-    font-size: 12px;
+    font-size: 10px;
+  }
+
+  .ServiceThree-service-list {
+    column-gap: 10px;
+    row-gap: 9px;
+    margin-bottom: 15px;
   }
 
   .ServiceThree-service-item {
-    font-size: 14px;
+    font-size: 12px;
+  }
+
+  .ServiceThree-service-item svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .ServiceThree-support-services {
+    margin-bottom: 15px;
+    padding: 7px 3px;
   }
 
   .ServiceThree-support-item {
-    gap: 6px;
+    gap: 5px;
     padding: 4px;
   }
 
   .ServiceThree-support-icon svg {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .ServiceThree-support-item h4 {
+    font-size: 9px;
+  }
+
+  .ServiceThree-book-btn,
+  .ServiceThree-support-btn {
+    min-height: 43px;
+    padding: 0 13px;
+    font-size: 11px;
+  }
+}
+
+/* =========================================
+   SMALL LAPTOP
+========================================= */
+
+@media (max-width: 1150px) and (min-width: 1051px) {
+  .ServiceThree-container {
+    grid-template-columns: 1fr 0.95fr;
+  }
+
+  .ServiceThree-title {
+    font-size: 36px;
+  }
+
+  .ServiceThree-feature {
+    flex-direction: column;
+    gap: 3px;
+    text-align: center;
+  }
+
+  .ServiceThree-support-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .ServiceThree-support-item {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 1050px) {
+  .ServiceThree {
+    padding: 22px 4%;
+  }
+
+  .ServiceThree-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 22px;
+  }
+
+  .ServiceThree-content {
+    padding: 5px;
+  }
+
+  .ServiceThree-title {
+    font-size: clamp(35px, 5vw, 48px);
+  }
+
+  .ServiceThree-description {
+    max-width: 750px;
+    font-size: 14px;
+  }
+
+  .ServiceThree-features {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .ServiceThree-feature {
+    min-height: 78px;
+  }
+
+  .ServiceThree-feature h4 {
+    font-size: 11px;
+  }
+
+  .ServiceThree-service-item {
+    font-size: 13px;
   }
 
   .ServiceThree-support-item h4 {
     font-size: 10px;
   }
 
-  .ServiceThree-book-btn,
-  .ServiceThree-support-btn {
-    min-height: 55px;
-    padding: 0 17px;
-    font-size: 14px;
-  }
-}
-
-/* =========================================
-   RESPONSIVE - TABLET
-========================================= */
-
-@media (max-width: 1050px) {
-  .ServiceThree {
-    padding: 25px 4%;
-  }
-
-  .ServiceThree-container {
-    grid-template-columns: 1fr;
-    gap: 25px;
-    padding: 25px;
-  }
-
-  .ServiceThree-content {
-    padding: 10px;
-  }
-
-  .ServiceThree-title {
-    font-size: clamp(40px, 6vw, 60px);
-  }
-
-  .ServiceThree-description {
-    max-width: 750px;
-    font-size: 17px;
-  }
-
-  .ServiceThree-image-wrapper,
-  .ServiceThree-image {
-    min-height: 480px;
-  }
-
+  /* Image gets its own height on tablet */
   .ServiceThree-visual {
-    max-height: 550px;
+    height: 400px;
+    min-height: 0;
   }
 
-  .ServiceThree-feature {
-    min-height: 110px;
-  }
-
-  .ServiceThree-feature h4 {
-    font-size: 14px;
-  }
-
-  .ServiceThree-support-item h4 {
-    font-size: 12px;
+  .ServiceThree-image-wrapper {
+    position: absolute;
+    inset: 0;
   }
 }
 
 /* =========================================
-   RESPONSIVE - MOBILE
+   MOBILE
 ========================================= */
 
 @media (max-width: 600px) {
   .ServiceThree {
-    padding: 15px 12px;
+    padding: 13px 10px;
   }
 
   .ServiceThree-container {
-    padding: 16px;
-    gap: 22px;
-    border-radius: 25px;
+    padding: 14px;
+    gap: 18px;
+    border-radius: 22px;
   }
 
   .ServiceThree-content {
@@ -740,189 +775,50 @@
   }
 
   .ServiceThree-badge {
-    gap: 8px;
-    padding: 9px 12px;
-    margin-bottom: 13px;
-    font-size: 10px;
+    gap: 7px;
+    padding: 8px 11px;
+    margin-bottom: 12px;
+    font-size: 9px;
   }
 
   .ServiceThree-badge svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .ServiceThree-title {
-    font-size: clamp(32px, 8.5vw, 43px);
-    letter-spacing: -1.5px;
-    line-height: 1.13;
-  }
-
-  .ServiceThree-title-line {
-    width: 100px;
-    height: 5px;
-    margin: 10px 0;
-  }
-
-  .ServiceThree-description {
-    font-size: 14px;
-    line-height: 1.65;
-    margin-bottom: 19px;
-  }
-
-  .ServiceThree-features {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-    margin-bottom: 22px;
-  }
-
-  .ServiceThree-feature {
-    min-height: 95px;
-    border-radius: 18px;
-    gap: 8px;
-  }
-
-  .ServiceThree-feature-icon {
-    width: 40px;
-    height: 40px;
-  }
-
-  .ServiceThree-feature-icon svg {
-    width: 38px;
-    height: 38px;
-  }
-
-  .ServiceThree-feature h4 {
-    font-size: 12px;
-  }
-
-  .ServiceThree-service-list {
-    grid-template-columns: 1fr;
-    gap: 13px;
-    margin-bottom: 22px;
-  }
-
-  .ServiceThree-service-item {
-    font-size: 13px;
-    gap: 10px;
-  }
-
-  .ServiceThree-service-item svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .ServiceThree-support-services {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
-    padding: 8px 5px;
-    margin-bottom: 22px;
-    border-radius: 18px;
-  }
-
-  .ServiceThree-support-item {
-    justify-content: flex-start;
-    padding: 11px 7px;
-    gap: 9px;
-  }
-
-  .ServiceThree-support-item:nth-child(2) {
-    border-right: none;
-  }
-
-  .ServiceThree-support-item:nth-child(-n+2) {
-    border-bottom: 1px solid #d1e6c7;
-  }
-
-  .ServiceThree-support-icon svg {
-    width: 29px;
-    height: 29px;
-  }
-
-  .ServiceThree-support-item h4 {
-    font-size: 10px;
-  }
-
-  .ServiceThree-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 11px;
-  }
-
-  .ServiceThree-book-btn,
-  .ServiceThree-support-btn {
-    width: 100%;
-    min-height: 53px;
-    padding: 0 12px;
-    gap: 9px;
-    font-size: 13px;
-  }
-
-  .ServiceThree-book-btn svg,
-  .ServiceThree-support-btn svg {
-    width: 21px;
-    height: 21px;
-  }
-
-  .ServiceThree-image-wrapper,
-  .ServiceThree-image {
-    min-height: 290px;
-  }
-
-  .ServiceThree-visual {
-    border-radius: 22px;
-    border-width: 4px;
-  }
-
-  .ServiceThree-image-corner {
-    width: 95px;
-    height: 105px;
-  }
-
-  .ServiceThree-image-tag {
-    bottom: 12px;
-    left: 12px;
-    padding: 9px 12px;
-    font-size: 10px;
-  }
-
-  .ServiceThree-image-tag svg {
     width: 17px;
     height: 17px;
   }
 
-  .ServiceThree-image-overlay {
-    padding: 45px 15px 20px;
-  }
-
-  .ServiceThree-image-overlay h3 {
-    font-size: 18px;
-  }
-
-  .ServiceThree-image-overlay p {
-    font-size: 12px;
-  }
-}
-
-/* =========================================
-   SMALL MOBILE
-========================================= */
-
-@media (max-width: 380px) {
-  .ServiceThree-container {
-    padding: 12px;
-  }
-
   .ServiceThree-title {
-    font-size: 30px;
+    font-size: clamp(30px, 8vw, 38px);
+    letter-spacing: -1.3px;
+    line-height: 1.12;
+  }
+
+  .ServiceThree-title-line {
+    width: 85px;
+    height: 4px;
+    margin: 8px 0 10px;
+  }
+
+  .ServiceThree-description {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .ServiceThree-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 17px;
   }
 
   .ServiceThree-feature {
-    gap: 5px;
+    min-height: 75px;
+    border-radius: 14px;
+    gap: 7px;
   }
 
   .ServiceThree-feature-icon {
-    width: 33px;
-    height: 33px;
+    width: 34px;
+    height: 34px;
   }
 
   .ServiceThree-feature-icon svg {
@@ -934,19 +830,125 @@
     font-size: 11px;
   }
 
-  .ServiceThree-image-wrapper,
-  .ServiceThree-image {
-    min-height: 245px;
+  .ServiceThree-service-list {
+    grid-template-columns: 1fr;
+    gap: 11px;
+    margin-bottom: 17px;
+  }
+
+  .ServiceThree-service-item {
+    font-size: 12px;
+    gap: 9px;
+  }
+
+  .ServiceThree-service-item svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .ServiceThree-support-services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    padding: 7px 4px;
+    margin-bottom: 17px;
+    border-radius: 15px;
   }
 
   .ServiceThree-support-item {
-    gap: 5px;
-    padding: 9px 4px;
+    justify-content: flex-start;
+    padding: 10px 6px;
+    gap: 7px;
+  }
+
+  .ServiceThree-support-item:nth-child(2) {
+    border-right: none;
+  }
+
+  .ServiceThree-support-item:nth-child(-n+2) {
+    border-bottom: 1px solid #d1e6c7;
   }
 
   .ServiceThree-support-icon svg {
     width: 25px;
     height: 25px;
+  }
+
+  .ServiceThree-support-item h4 {
+    font-size: 9px;
+  }
+
+  .ServiceThree-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+  }
+
+  .ServiceThree-book-btn,
+  .ServiceThree-support-btn {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 11px;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .ServiceThree-book-btn svg,
+  .ServiceThree-support-btn svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .ServiceThree-visual {
+    height: 280px;
+    border-radius: 17px;
+    border-width: 3px;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 380px) {
+  .ServiceThree-container {
+    padding: 11px;
+  }
+
+  .ServiceThree-title {
+    font-size: 29px;
+  }
+
+  .ServiceThree-feature {
+    gap: 5px;
+    padding: 6px 4px;
+  }
+
+  .ServiceThree-feature-icon {
+    width: 29px;
+    height: 29px;
+  }
+
+  .ServiceThree-feature-icon svg {
+    width: 27px;
+    height: 27px;
+  }
+
+  .ServiceThree-feature h4 {
+    font-size: 10px;
+  }
+
+  .ServiceThree-support-item {
+    gap: 5px;
+    padding: 8px 4px;
+  }
+
+  .ServiceThree-support-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .ServiceThree-visual {
+    height: 235px;
   }
 }
 

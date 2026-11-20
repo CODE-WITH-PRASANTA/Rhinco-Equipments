@@ -1,0 +1,472 @@
+
+.ServiceFour {
+  width: 100%;
+  padding: 35px 24px;
+  background: linear-gradient(120deg, #f7fcf5, #eff9e9);
+  box-sizing: border-box;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+.ServiceFour *,
+.ServiceFour *::before,
+.ServiceFour *::after {
+  box-sizing: border-box;
+}
+
+.ServiceFour__container {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1.12fr;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1600px;
+  /* min-height: 440px; */
+  margin: auto;
+  background: #fff;
+  border: 4px solid rgba(255, 255, 255, 0.95);
+  border-radius: 40px;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(23, 100, 18, 0.12);
+}
+
+/* LEFT IMAGE */
+
+.ServiceFour__imageSection {
+  position: relative;
+  min-height: 440px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ServiceFour__image {
+  display: block;
+  width: 100%;
+  height: 600px;
+  /* min-height: 440px; */
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 0.8s ease;
+  will-change: transform;
+}
+
+.ServiceFour__imageSection:hover .ServiceFour__image {
+  transform: scale(1.09);
+  filter: saturate(1.12) brightness(1.04);
+}
+
+.ServiceFour__imageOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(13, 66, 9, 0.04),
+    transparent 75%
+  );
+}
+
+/* CURVED DIVIDER */
+
+.ServiceFour__curve {
+  position: absolute;
+  z-index: 2;
+  top: -5%;
+  bottom: -5%;
+  left: 48.2%;
+  width: 115px;
+  background: #159900;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 55% 70%, 72% 35%);
+  pointer-events: none;
+}
+
+.ServiceFour__curveInner {
+  position: absolute;
+  inset: 0 0 0 20px;
+  background: #fff;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%, 55% 70%, 72% 35%);
+}
+
+/* RIGHT CONTENT */
+
+.ServiceFour__content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 30px 30px 26px 45px;
+  background: linear-gradient(135deg, #ffffff 15%, #f6fff1 100%);
+}
+
+/* BRAND */
+
+.ServiceFour__brand {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 15px;
+  padding: 11px 25px;
+  margin-bottom: 17px;
+  color: #126b0b;
+  background: linear-gradient(100deg, #e9fbdc, #d8f3c4);
+  border-radius: 50px;
+  box-shadow: 0 4px 10px rgba(43, 130, 25, 0.12);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.ServiceFour__brandIcon {
+  font-size: 25px;
+  line-height: 1;
+}
+
+/* HEADING */
+
+.ServiceFour__heading {
+  margin: 0;
+  color: #071b0a;
+  font-size: clamp(30px, 3.2vw, 54px);
+  font-weight: 850;
+  line-height: 1.13;
+  letter-spacing: -1.8px;
+}
+
+.ServiceFour__heading span {
+  color: #159a12;
+}
+
+.ServiceFour__headingLine {
+  width: 205px;
+  height: 6px;
+  margin: 15px 0 14px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    #159900 0%,
+    #6bdc1c 65%,
+    #d3edc3 100%
+  );
+}
+
+.ServiceFour__description {
+  max-width: 760px;
+  margin: 0;
+  color: #353535;
+  font-size: clamp(15px, 1.35vw, 21px);
+  font-weight: 450;
+  line-height: 1.55;
+}
+
+/* BENEFITS */
+
+.ServiceFour__benefits {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 24px;
+  row-gap: 19px;
+  margin: 34px 0 32px;
+}
+
+.ServiceFour__benefit {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  color: #161616;
+  font-size: clamp(14px, 1.25vw, 20px);
+  font-weight: 750;
+  line-height: 1.4;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.ServiceFour__benefit:hover {
+  color: #11820b;
+  transform: translateX(5px);
+}
+
+.ServiceFour__check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  color: #fff;
+  background: linear-gradient(135deg, #36bb19, #087c05);
+  border-radius: 50%;
+  box-shadow: 0 3px 7px rgba(14, 127, 6, 0.18);
+}
+
+.ServiceFour__check svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* BOTTOM SUPPORT BOX */
+
+.ServiceFour__supportBox {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  padding: 15px 10px;
+  border: 1.5px dashed #a7d69a;
+  border-radius: 24px;
+  background: rgba(244, 253, 238, 0.72);
+}
+
+.ServiceFour__supportItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 5px 10px;
+  transition: transform 0.3s ease;
+}
+
+.ServiceFour__supportItem:not(:last-child) {
+  border-right: 1px solid #8fbd80;
+}
+
+.ServiceFour__supportItem:hover {
+  transform: translateY(-4px);
+}
+
+.ServiceFour__supportIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 43px;
+  color: #13820c;
+}
+
+.ServiceFour__supportIcon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.ServiceFour__supportText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: #181818;
+  font-size: clamp(12px, 1.05vw, 17px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* TABLET */
+
+@media (max-width: 1100px) {
+  .ServiceFour {
+    padding: 25px 18px;
+  }
+
+  .ServiceFour__container {
+    grid-template-columns: 0.9fr 1.1fr;
+    min-height: 400px;
+  }
+
+  .ServiceFour__imageSection,
+  .ServiceFour__image {
+    min-height: 400px;
+  }
+
+  .ServiceFour__curve {
+    left: 43%;
+    width: 85px;
+  }
+
+  .ServiceFour__content {
+    padding: 25px 20px 22px 35px;
+  }
+
+  .ServiceFour__brand {
+    padding: 9px 16px;
+    font-size: 13px;
+  }
+
+  .ServiceFour__benefits {
+    column-gap: 12px;
+    row-gap: 15px;
+    margin: 25px 0;
+  }
+
+  .ServiceFour__supportBox {
+    padding: 12px 5px;
+  }
+
+  .ServiceFour__supportItem {
+    gap: 7px;
+    padding: 5px;
+  }
+
+  .ServiceFour__supportIcon {
+    flex-basis: 32px;
+  }
+
+  .ServiceFour__supportIcon svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .ServiceFour {
+    padding: 16px 12px;
+  }
+
+  .ServiceFour__container {
+    display: flex;
+    flex-direction: column;
+    border-radius: 23px;
+    border-width: 3px;
+  }
+
+  .ServiceFour__imageSection {
+    width: 100%;
+    min-height: 0;
+    height: 280px;
+    border-radius: 19px 19px 0 0;
+  }
+
+  .ServiceFour__image {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-position: center 50%;
+  }
+
+  .ServiceFour__curve {
+    display: none;
+  }
+
+  .ServiceFour__content {
+    padding: 25px 20px 22px;
+  }
+
+  .ServiceFour__brand {
+    gap: 9px;
+    padding: 9px 15px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+
+  .ServiceFour__brandIcon {
+    font-size: 20px;
+  }
+
+  .ServiceFour__heading {
+    font-size: clamp(29px, 7vw, 40px);
+    letter-spacing: -1px;
+  }
+
+  .ServiceFour__headingLine {
+    width: 150px;
+    height: 5px;
+    margin: 12px 0;
+  }
+
+  .ServiceFour__description {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .ServiceFour__benefits {
+    grid-template-columns: 1fr 1fr;
+    gap: 17px 12px;
+    margin: 25px 0;
+  }
+
+  .ServiceFour__benefit {
+    align-items: flex-start;
+    gap: 9px;
+    font-size: 13px;
+  }
+
+  .ServiceFour__check {
+    flex-basis: 27px;
+    width: 27px;
+    height: 27px;
+  }
+
+  .ServiceFour__check svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .ServiceFour__supportBox {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 5px 12px;
+    border-radius: 17px;
+  }
+
+  .ServiceFour__supportItem {
+    justify-content: flex-start;
+    padding: 12px 10px;
+    gap: 15px;
+  }
+
+  .ServiceFour__supportItem:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid #b5dca9;
+  }
+
+  .ServiceFour__supportIcon {
+    flex-basis: 40px;
+  }
+
+  .ServiceFour__supportIcon svg {
+    width: 35px;
+    height: 35px;
+  }
+
+  .ServiceFour__supportText {
+    font-size: 14px;
+  }
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 380px) {
+  .ServiceFour__imageSection {
+    height: 220px;
+  }
+
+  .ServiceFour__content {
+    padding: 20px 14px;
+  }
+
+  .ServiceFour__brand {
+    font-size: 10px;
+    padding: 8px 11px;
+  }
+
+  .ServiceFour__benefits {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+
+  .ServiceFour__heading {
+    font-size: 28px;
+  }
+}
+
+/* ACCESSIBILITY */
+
+@media (prefers-reduced-motion: reduce) {
+  .ServiceFour *,
+  .ServiceFour *::before,
+  .ServiceFour *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

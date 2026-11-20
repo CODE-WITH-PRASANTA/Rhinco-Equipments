@@ -134,15 +134,6 @@ const ServiceTwo = () => {
           <div className="ServiceTwo-actions">
 
             <a
-              href="#spare-parts-enquiry"
-              className="ServiceTwo-enquiry-btn"
-            >
-              <ShoppingCart size={26} />
-              <span>Enquire for Spare Parts</span>
-              <ArrowRight className="ServiceTwo-arrow" size={25} />
-            </a>
-
-            <a
               href="tel:+919583195951"
               className="ServiceTwo-phone-btn"
             >

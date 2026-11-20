@@ -7,7 +7,7 @@ import {
   Timer,
   BadgeCheck,
   CheckCircle2,
-  ClipboardSearch,
+  ClipboardList,
   Settings,
   MessageCircle,
   CalendarDays,
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import "./ServiceThree.css";
-import ServiceImage from "../../assets/service-page-git 4.png";
+import ServiceImage from "../../assets/service-page-4.png";
 
 const ServiceThree = () => {
   const features = [
@@ -51,7 +51,7 @@ const ServiceThree = () => {
 
   const supportServices = [
     {
-      icon: <ClipboardSearch />,
+      icon: <ClipboardList />,
       title: "On-site inspection",
       subtitle: "& diagnosis",
     },
@@ -101,7 +101,6 @@ const ServiceThree = () => {
 
           {/* FEATURE CARDS */}
           <div className="ServiceThree-features">
-
             {features.map((feature, index) => (
               <div className="ServiceThree-feature" key={index}>
                 <div className="ServiceThree-feature-icon">
@@ -114,27 +113,22 @@ const ServiceThree = () => {
                 </h4>
               </div>
             ))}
-
           </div>
 
           {/* SERVICE CHECKLIST */}
           <div className="ServiceThree-service-list">
-
             {services.map((service, index) => (
               <div className="ServiceThree-service-item" key={index}>
                 <CheckCircle2 size={28} />
                 <span>{service}</span>
               </div>
             ))}
-
           </div>
 
           {/* SUPPORT SERVICES */}
           <div className="ServiceThree-support-services">
-
             {supportServices.map((service, index) => (
               <div className="ServiceThree-support-item" key={index}>
-
                 <div className="ServiceThree-support-icon">
                   {service.icon}
                 </div>
@@ -143,39 +137,27 @@ const ServiceThree = () => {
                   {service.title}
                   <span>{service.subtitle}</span>
                 </h4>
-
               </div>
             ))}
-
           </div>
 
           {/* CTA BUTTONS */}
           <div className="ServiceThree-actions">
+            
 
             <a
-              href="#technician-booking"
-              className="ServiceThree-book-btn"
-            >
-              <CalendarDays size={25} />
-              <span>Book a Technician Visit</span>
-              <ArrowRight className="ServiceThree-arrow" size={25} />
-            </a>
-
-            <a
-              href="tel:+919337092269"
+              href="tel:+91337092269"
               className="ServiceThree-support-btn"
             >
               <Headset size={27} />
               <span>Request Service Support</span>
             </a>
-
           </div>
 
         </div>
 
         {/* RIGHT IMAGE */}
         <div className="ServiceThree-visual">
-
           <div className="ServiceThree-image-wrapper">
 
             <div className="ServiceThree-image-corner"></div>
@@ -189,7 +171,9 @@ const ServiceThree = () => {
             <div className="ServiceThree-image-overlay">
               <span>FARMTECH AGRO SERVICES</span>
               <h3>Expert Service at Your Doorstep</h3>
-              <p>Professional care for your agricultural machinery.</p>
+              <p>
+                Professional care for your agricultural machinery.
+              </p>
             </div>
 
             <div className="ServiceThree-image-tag">
@@ -198,7 +182,6 @@ const ServiceThree = () => {
             </div>
 
           </div>
-
         </div>
 
       </div>

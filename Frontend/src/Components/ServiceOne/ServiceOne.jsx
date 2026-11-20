@@ -97,18 +97,18 @@ const ServiceOne = () => {
           </div>
 
           {/* BUTTONS */}
-          <div className="ServiceOne-actions">
-            <a href="#service-booking" className="ServiceOne-book-btn">
-              <CalendarDays size={24} />
-              <span>Book a Service Now</span>
-              <ArrowRight size={23} className="ServiceOne-arrow" />
-            </a>
+         <div className="ServiceOne-actions">
+          <a href="/contact" className="ServiceOne-book-btn">
+            <CalendarDays size={24} />
+            <span>Book a Service Now</span>
+            <ArrowRight size={23} className="ServiceOne-arrow" />
+          </a>
 
-            <a href="tel:+919337092269" className="ServiceOne-phone-btn">
-              <Phone size={22} fill="currentColor" />
-              <span>+91 9337092269</span>
-            </a>
-          </div>
+          <a href="tel:+919337092269" className="ServiceOne-phone-btn">
+            <Phone size={22} fill="currentColor" />
+            <span>+91 9337092269</span>
+          </a>
+        </div>
         </div>
 
         {/* RIGHT IMAGES */}
